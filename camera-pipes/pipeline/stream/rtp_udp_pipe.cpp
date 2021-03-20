@@ -37,7 +37,8 @@ bool rtp_udp_pipe::init(const char name[])
     m_rtph264pay->set_property("pt", 96);
 
     m_udpsink = Gst::ElementFactory::create_element("udpsink");
-    m_udpsink->set_property("host", Glib::ustring("127.0.0.1"));
+    // m_udpsink->set_property("host", Glib::ustring("127.0.0.1"));
+    m_udpsink->set_property("host", Glib::ustring("192.168.21.20"));
     m_udpsink->set_property("port", 50000);
 
     m_bin->add(m_in_queue);

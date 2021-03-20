@@ -28,12 +28,15 @@ bool test_app::init()
 
   if(true)
   {
-    m_jpgdec = std::make_shared<jpeg_swdec_pipe>();
+    // m_jpgdec = std::make_shared<jpeg_swdec_pipe>();
     m_h264 = std::make_shared<h264_swenc_pipe>();
   }
   else
   {
-    m_jpgdec = std::make_shared<jpeg_nvdec_pipe>();
+    // https://forums.developer.nvidia.com/t/bus-error-with-gstreamer-and-opencv/110657/5
+    // libjpeg and nvjpegdec may not be used in the same program...
+    // m_jpgdec = std::make_shared<jpeg_nvdec_pipe>();
+    m_jpgdec = std::make_shared<jpeg_swdec_pipe>();
     m_h264 = std::make_shared<h264_nvenc_pipe>(); 
   }
 
@@ -67,11 +70,11 @@ bool test_app::init()
    return false;
   }
 
-  // if( ! m_rtp.init("rtp_0") )
-  // {
-  //  SPDLOG_ERROR("Could not init m_display");
-  //  return false;
-  // }
+  if( ! m_rtp.init("rtp_0") )
+  {
+   SPDLOG_ERROR("Could not init m_display");
+   return false;
+  }
 
   //add elements to top level bin
   m_logi_brio.add_to_bin(m_pipeline);
@@ -79,7 +82,7 @@ bool test_app::init()
   m_h264->add_to_bin(m_pipeline);
   m_mkv.add_to_bin(m_pipeline);
   m_display.add_to_bin(m_pipeline);
-  // m_rtp.add_to_bin(m_pipeline);
+  m_rtp.add_to_bin(m_pipeline);
 
   //link pipeline
   m_logi_brio.link_back(m_jpgdec->front());
@@ -88,7 +91,7 @@ bool test_app::init()
   m_jpgdec->link_back(m_h264->front());
 
   m_h264->link_back(m_mkv.front());
-  // m_h264.link_back(m_rtp.front());
+  m_h264->link_back(m_rtp.front());
   
 
   return true;
