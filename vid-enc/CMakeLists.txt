@@ -4,16 +4,21 @@ add_executable(vid-enc
 )
 
 target_link_libraries(vid-enc
-	camera-pipes
-	http-bridge
+	PUBLIC
+		camera-pipes
+		http-bridge
 
-	Boost::boost
-	Boost::date_time
-	Boost::filesystem
-	Boost::program_options
+		Boost::boost
+		Boost::date_time
+		Boost::filesystem
+		Boost::program_options
 
-	uvc
-	fcgi
+		Threads::Threads
+
+		spdlog::spdlog
+
+		uvc
+		fcgi
 )
 
 target_include_directories(vid-enc

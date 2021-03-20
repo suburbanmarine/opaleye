@@ -26,11 +26,14 @@ add_library(camera-pipes
 )
 
 target_link_libraries(camera-pipes
-	Boost::boost
+	PUBLIC
+		Boost::boost
 
-	${GST_LIBRARIES}
-	${GSTMM_LIBRARIES}
-#	${GSTRTSP_LIBRARIES}
+		${GST_LIBRARIES}
+		${GSTMM_LIBRARIES}
+	#	${GSTRTSP_LIBRARIES}
+
+		spdlog::spdlog
 )
 
 target_include_directories(camera-pipes

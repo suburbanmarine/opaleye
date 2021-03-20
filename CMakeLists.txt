@@ -6,6 +6,9 @@ add_definitions(
 	-DBOOST_ALL_DYN_LINK	
 )
 
+set (THREADS_PREFER_PTHREAD_FLAG ON)
+find_package (Threads REQUIRED)
+
 find_package(Boost
 	1.65
 	REQUIRED
@@ -34,6 +37,8 @@ pkg_check_modules(GSTRTSP
 	REQUIRED
 		gstreamer-rtsp-1.0
 )
+
+add_subdirectory(external/spdlog)
 
 add_subdirectory(camera-pipes)
 add_subdirectory(http-bridge)

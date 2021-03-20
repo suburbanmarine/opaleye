@@ -10,8 +10,10 @@ add_library(http-bridge
 )
 
 target_link_libraries(http-bridge
-	Boost::boost
-	Boost::filesystem
+	PUBLIC
+		Boost::boost
+		Boost::filesystem
+		spdlog::spdlog
 )
 
 target_include_directories(http-bridge
