@@ -20,6 +20,10 @@ public:
 	}
 
 	virtual void add_to_bin(const Glib::RefPtr<Gst::Bin>& bin) = 0;
+  virtual void add_to_bin(const Glib::RefPtr<Gst::Bin>& bin, const Glib::RefPtr<Gst::Bus>& bus)
+  {
+    add_to_bin(bin);
+  }
 	virtual bool link_front(const Glib::RefPtr<Gst::Element>& node) = 0;
 	virtual bool link_back(const Glib::RefPtr<Gst::Element>& node) = 0;
 
