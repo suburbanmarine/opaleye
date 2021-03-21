@@ -21,31 +21,14 @@ void Logitech_brio::dispatch_frame_cb(uvc_frame_t* frame_ptr, void* ctx)
 
 void Logitech_brio::frame_cb(uvc_frame_t* new_frame_ptr)
 {
-  uvc_duplicate_frame(new_frame_ptr, m_frame_buffer_back.get());
-
-  {
-    std::lock_guard<std::mutex> lock(m_frame_buffer_mutex);
-    std::swap(m_frame_buffer_back, m_frame_buffer_front);
-  }
-
   if(m_frame_cb)
   {
-    m_frame_cb(m_frame_buffer_front);
+    m_frame_cb(new_frame_ptr);
   }
 }
 
 bool Logitech_brio::open()
 {
-  //over allocate so we probably have enough for a 4k mjpeg
-  m_frame_buffer_front = allocate_frame(4096*4096*3);
-  m_frame_buffer_back  = allocate_frame(4096*4096*3);
-
-  if( !(m_frame_buffer_front && m_frame_buffer_back) )
-  {
-    //allocation failed
-    return false;
-  }
-
   return UVC_base::open(0x046d, 0x085e);
 }
 
@@ -94,46 +77,4 @@ bool Logitech_brio::stop()
 bool Logitech_brio::close()
 {
   return UVC_base::close();
-}
-
-/// Allocate a new buffer and copy front to it
-std::shared_ptr<uvc_frame_t> Logitech_brio::copy_front_buffer() const
-{
-  std::shared_ptr<uvc_frame_t> frame = allocate_frame(4096*4096*3);
-  
-  uvc_error_t ret = UVC_SUCCESS;
-  {
-    std::lock_guard<std::mutex> lock(m_frame_buffer_mutex);
-    ret = uvc_duplicate_frame(m_frame_buffer_front.get(), frame.get());
-  }
-  if(ret < 0)
-  {
-    uvc_perror(ret, "uvc_duplicate_frame");
-    return std::shared_ptr<uvc_frame_t>();
-  }
-
-  return frame;
-}
-
-/// Copy front to provided buffer if it is allocated
-bool Logitech_brio::copy_front_buffer(const std::shared_ptr<uvc_frame_t>& other) const
-{
-  if( ! other )
-  {
-    SPDLOG_ERROR("other is null");
-    return false;
-  }
-
-  uvc_error_t ret = UVC_SUCCESS;
-  {
-    std::lock_guard<std::mutex> lock(m_frame_buffer_mutex);
-    ret = uvc_duplicate_frame(m_frame_buffer_front.get(), other.get());
-  }
-  if(ret < 0)
-  {
-    uvc_perror(ret, "uvc_duplicate_frame");
-    return false;
-  }
-
-  return ret == UVC_SUCCESS;
 }

@@ -20,8 +20,9 @@ public:
 	virtual bool close();
 
 	static std::shared_ptr<uvc_frame_t> allocate_frame(const size_t data_bytes);
+	static void copy_frame(const std::shared_ptr<uvc_frame_t>& src, std::shared_ptr<uvc_frame_t>& dest);
 
-	void register_callback(const std::function<void(const std::shared_ptr<uvc_frame_t>& frame)>& cb);
+	void register_callback(const std::function<void(uvc_frame_t* frame)>& cb);
 
 protected:
 
@@ -29,5 +30,5 @@ protected:
 	uvc_device_t*        m_dev;
 	uvc_device_handle_t* m_dev_hndl;
 
-	std::function<void(const std::shared_ptr<uvc_frame_t>& frame)> m_frame_cb;
+	std::function<void(uvc_frame_t* frame)> m_frame_cb;
 };

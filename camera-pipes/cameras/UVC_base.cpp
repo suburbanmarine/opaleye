@@ -83,7 +83,24 @@ std::shared_ptr<uvc_frame_t> UVC_base::allocate_frame(const size_t data_bytes)
   return std::shared_ptr<uvc_frame_t>(frame, &uvc_free_frame);
 }
 
-void UVC_base::register_callback(const std::function<void(const std::shared_ptr<uvc_frame_t>& frame)>& cb)
+void UVC_base::copy_frame(const std::shared_ptr<uvc_frame_t>& src, std::shared_ptr<uvc_frame_t>& dest)
+{
+  if( ! src )
+  {
+    dest.reset();
+  }
+  else
+  {
+    if( ! dest )
+    {
+      dest = allocate_frame(src->data_bytes);
+    }
+    
+    uvc_duplicate_frame(src.get(), dest.get());
+  }
+}
+
+void UVC_base::register_callback(const std::function<void(uvc_frame_t* frame)>& cb)
 {
   m_frame_cb = cb;
 }

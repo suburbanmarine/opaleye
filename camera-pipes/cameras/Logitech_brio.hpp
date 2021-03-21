@@ -26,18 +26,6 @@ public:
 
 	bool close() override;
 
-	/// Allocate a new buffer and copy front to it
-	std::shared_ptr<uvc_frame_t> copy_front_buffer() const;
-
-	/// Copy front to provided buffer if it is allocated
-	bool copy_front_buffer(const std::shared_ptr<uvc_frame_t>& other) const;
-
-
 protected:
 	uvc_stream_ctrl_t m_ctrl;
-
-
-	mutable std::mutex m_frame_buffer_mutex;
-	std::shared_ptr<uvc_frame_t> m_frame_buffer_front;
-	std::shared_ptr<uvc_frame_t> m_frame_buffer_back;
 };
