@@ -135,6 +135,7 @@ void Logitech_brio_pipe::new_frame_cb(uvc_frame_t* frame)
       SPDLOG_ERROR("buffer did not accept all data");
     }
 
+    // this used to be a problem - m_gst_need_data seems to help
     // do-timestamp=TRUE but buffers are provided before reaching the PLAYING state and having a clock. Timestamps will not be accurate!
     Gst::FlowReturn ret = m_src->push_buffer(buf);
     if(ret != Gst::FLOW_OK)
