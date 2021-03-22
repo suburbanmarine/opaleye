@@ -107,6 +107,15 @@ void http_fcgi_work_thread::work()
         {
           req_cb->handle(&request);
         }
+        catch(const HTTPException& e)
+        {
+          SPDLOG_ERROR("Caught exception: {:s}", e.what());
+          FCGX_PutS("Content-Type: text/html\r\n", request.out);
+          FCGX_FPrintF(request.out, "Status: %d %s\r\n", e.get_code(), e.what());
+          FCGX_PutS("\r\n", request.out);
+          FCGX_FPrintF(request.out, "%s\r\n", e.what());
+          FCGX_Finish_r(&request);
+        }
         catch(const std::exception& e)
         {
           SPDLOG_ERROR("Caught exception: {:s}", e.what());
