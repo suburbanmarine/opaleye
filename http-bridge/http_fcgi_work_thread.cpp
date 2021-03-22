@@ -103,7 +103,19 @@ void http_fcgi_work_thread::work()
       //handle
       if(req_cb)
       {
-        req_cb->handle(&request);
+        try
+        {
+          req_cb->handle(&request);
+        }
+        catch(const std::exception& e)
+        {
+          SPDLOG_ERROR("Caught exception: {:s}", e.what());
+          FCGX_PutS("Content-Type: text/html\r\n", request.out);
+          FCGX_PutS("Status: 500 Internal Error\r\n", request.out);
+          FCGX_PutS("\r\n", request.out);
+          FCGX_PutS("Internal Error", request.out);
+          FCGX_Finish_r(&request);
+        }
 
         // std::cout << std::endl << std::endl;
         // std::stringstream buf;
