@@ -18,9 +18,10 @@ public:
     
   }
 
-  virtual void handle(FCGX_Request* const req)
+  virtual void handle(FCGX_Request* const request)
   {
-    
+    FCGX_PutS("Status: 500 Internal Error\r\n", request->out);
+    FCGX_Finish_r(request);
   }
 
 protected:
