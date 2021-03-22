@@ -1,6 +1,9 @@
 add_executable(vid-enc
 	main.cpp
 	gst_app.cpp
+
+	http_req_jpeg.cpp
+	http_req_jsonrpc.cpp
 )
 
 target_link_libraries(vid-enc

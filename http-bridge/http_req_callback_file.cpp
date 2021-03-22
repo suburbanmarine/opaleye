@@ -25,8 +25,7 @@ void http_req_callback_file::handle(FCGX_Request* const request)
         FCGX_PutS("Content-type: image/jpeg\r\n", request->out);
         FCGX_FPrintF(request->out, "Content-length: %d\r\n", statbuf.st_size);
         FCGX_FPrintF(request->out, "Last-Modified: %s\r\n",  date_str.data());
-        FCGX_PutS("Cache-Control: max-age=0\r\n", request->out);
-        FCGX_PutS("Cache-Control: no-store\r\n", request->out);
+        FCGX_PutS("Cache-Control: max-age=0, no-store\r\n", request->out);
         // FCGX_PutS("X-Accel-Buffering: yes\r\n", request->out);
         
         FCGX_PutS("\r\n", request->out);

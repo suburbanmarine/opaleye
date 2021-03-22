@@ -68,11 +68,9 @@ bool Logitech_brio_pipe::init(const char name[])
     m_src->signal_enough_data().connect(
       [this](){handle_enough_data();}
       );
-    #if 0
-    m_src->signal_seek_data().connect(
-      [this](guint64 val){return handle_seek_data(val);}
-      );
-    #endif
+    // m_src->signal_seek_data().connect(
+    //   [this](guint64 val){return handle_seek_data(val);}
+    //   );
 
     m_in_queue     = Gst::Queue::create();
     m_jpegparse    = Gst::ElementFactory::create_element("jpegparse");

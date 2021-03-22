@@ -3,6 +3,7 @@
 
 #include "http_fcgi_svr.hpp"
 #include "http_req_callback_file.hpp"
+#include "http_req_jpeg.hpp"
 
 #include "gst_app.hpp"
 
@@ -74,6 +75,13 @@ int main(int argc, char* argv[])
 		SPDLOG_ERROR("app.start failed");
 		return -1;
 	}
+
+	std::shared_ptr<http_req_jpeg> jpg_cb = std::make_shared<http_req_jpeg>();
+	jpg_cb->set_cam(&app.m_logi_brio);
+	svr.register_cb_for_doc_uri("/cameras/cam0.jpg", jpg_cb);
+
+	// std::shared_ptr<http_req_jpeg> api = std::make_shared<http_req_jpeg>();
+	// svr.register_cb_for_doc_uri("/api/v1", api);
 
 	// Logitech_brio cam;
 	// cam.open();

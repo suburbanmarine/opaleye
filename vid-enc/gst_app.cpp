@@ -82,7 +82,7 @@ bool test_app::init()
   m_h264->add_to_bin(m_pipeline);
   m_mkv.add_to_bin(m_pipeline);
   m_display.add_to_bin(m_pipeline);
-  m_rtp.add_to_bin(m_pipeline);
+  // m_rtp.add_to_bin(m_pipeline);
 
   //link pipeline
   m_logi_brio.link_back(m_jpgdec->front());
@@ -91,7 +91,7 @@ bool test_app::init()
   m_jpgdec->link_back(m_h264->front());
 
   m_h264->link_back(m_mkv.front());
-  m_h264->link_back(m_rtp.front());
+  // m_h264->link_back(m_rtp.front());
   
 
   return true;

@@ -16,7 +16,7 @@ public:
 
   bool init() override;
 
-protected:
+// protected:
   Logitech_brio_pipe m_logi_brio;
 
   std::shared_ptr<GST_element_base> m_jpgdec;
