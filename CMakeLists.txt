@@ -50,43 +50,59 @@ add_subdirectory(camera-pipes)
 add_subdirectory(http-bridge)
 add_subdirectory(vid-enc)
 
-add_custom_command(
-	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/external/jquery
-	
-	COMMAND npm run build
+# add_custom_command(
+# 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/external/jquery
+# 	
+# 	COMMAND npm run build
+# 
+# 	DEPENDS external/jquery/src/jquery.js
+# 
+# 	OUTPUT 
+# 		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.js"
+# 		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.min.js"
+# 		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.min.map"
+# 		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.slim.js"
+# 		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.slim.min.js"
+# 		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.slim.min.map"
+# 
+# 	VERBATIM
+# )
 
-	DEPENDS external/jquery/src/jquery.js
+# add_custom_target(jquery ALL
+# 	DEPENDS
+# 		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.js"
+# 		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.min.js"
+# 		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.min.map"
+# 		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.slim.js"
+# 		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.slim.min.js"
+# 		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.slim.min.map"
+# )
 
-	OUTPUT 
+# add_dependencies(vid-enc
+# 	jquery
+# )
+
+INSTALL(
+	FILES
 		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.js"
 		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.min.js"
-		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.min.map"
-		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.slim.js"
-		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.slim.min.js"
-		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.slim.min.map"
-
-	VERBATIM
+	DESTINATION
+		var/www/scripts/
 )
 
-add_custom_target(jquery
-	DEPENDS
-		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.js"
-		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.min.js"
-		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.min.map"
-		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.slim.js"
-		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.slim.min.js"
-		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.slim.min.map"
+INSTALL(
+	FILES
+		"${PROJECT_SOURCE_DIR}/external/simple-jsonrpc-js/simple-jsonrpc-js.js"
+		"${PROJECT_SOURCE_DIR}/external/simple-jsonrpc-js/dist/simple-jsonrpc-js.min.js"
+	DESTINATION
+		var/www/scripts/
 )
 
-add_dependencies(vid-enc
-	jquery
+INSTALL(
+	FILES
+		"${PROJECT_SOURCE_DIR}/vid-enc/html/index.html"
+	DESTINATION
+		var/www/
 )
-
-#INSTALL(
-#	TARGETS
-#		jquery
-#	DESTINATION
-#		var/www
-#)
 
 include(CPack)
