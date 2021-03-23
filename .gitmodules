@@ -7,3 +7,6 @@
 [submodule "external/jquery"]
 	path = external/jquery
 	url = git@github.com:suburbanmarine/jquery.git
+[submodule "external/jsonrpc-lean"]
+	path = external/jsonrpc-lean
+	url = git@github.com:suburbanmarine/jsonrpc-lean.git

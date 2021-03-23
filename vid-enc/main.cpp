@@ -17,6 +17,16 @@
 
 #include <spdlog/spdlog.h>
 
+void start(const std::string& str)
+{
+	SPDLOG_INFO("start called: {:s}", str);
+}
+
+void stop(const std::string& str)
+{
+	SPDLOG_INFO("stop called: {:s}", str);
+}
+
 int main(int argc, char* argv[])
 {
 	spdlog::set_level(spdlog::level::debug);
@@ -81,7 +91,13 @@ int main(int argc, char* argv[])
 	jpg_cb->set_cam(&app.m_logi_brio);
 	svr.register_cb_for_doc_uri("/cameras/cam0.jpg", jpg_cb);
 
+	std::shared_ptr<jsonrpc::Server> jsonrpc_server = std::make_shared<jsonrpc::Server>();
+  jsonrpc::JsonFormatHandler jsonFormatHandler;
+  jsonrpc_server->RegisterFormatHandler(jsonFormatHandler);
+  jsonrpc_server->GetDispatcher().AddMethod("start", &start);
+  jsonrpc_server->GetDispatcher().AddMethod("stop", &stop);
 	std::shared_ptr<http_req_jsonrpc> api = std::make_shared<http_req_jsonrpc>();
+	api->set_rpc_server(jsonrpc_server);
 	svr.register_cb_for_doc_uri("/api/v1", api);
 
 	// Logitech_brio cam;

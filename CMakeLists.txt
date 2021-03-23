@@ -40,6 +40,12 @@ pkg_check_modules(GSTRTSP
 
 add_subdirectory(external/spdlog)
 
+add_library(jsonrpc-lean INTERFACE)
+target_include_directories(jsonrpc-lean
+	INTERFACE
+		external/jsonrpc-lean/include
+)
+
 add_subdirectory(camera-pipes)
 add_subdirectory(http-bridge)
 add_subdirectory(vid-enc)

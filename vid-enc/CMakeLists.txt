@@ -11,6 +11,8 @@ target_link_libraries(vid-enc
 		camera-pipes
 		http-bridge
 
+		jsonrpc-lean
+
 		Boost::boost
 		Boost::date_time
 		Boost::filesystem
