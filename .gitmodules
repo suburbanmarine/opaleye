@@ -1,6 +1,6 @@
 [submodule "external/spdlog"]
 	path = external/spdlog
-	url = git@github.com:gabime/spdlog.git
+	url = git@github.com:suburbanmarine/spdlog.git
 [submodule "external/simple-jsonrpc-js"]
 	path = external/simple-jsonrpc-js
 	url = git@github.com:suburbanmarine/simple-jsonrpc-js.git
