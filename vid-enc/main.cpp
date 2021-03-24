@@ -16,23 +16,25 @@
 #include <iostream>
 
 #include <spdlog/spdlog.h>
-
-void start(const std::string& str)
-{
-	SPDLOG_INFO("start called: {:s}", str);
-}
-
-void stop(const std::string& str)
-{
-	SPDLOG_INFO("stop called: {:s}", str);
-}
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/sinks/rotating_file_sink.h>
+#include "spdlog/async.h"
 
 int main(int argc, char* argv[])
 {
-	spdlog::set_level(spdlog::level::debug);
-
 	gst_debug_set_default_threshold(GST_LEVEL_INFO);
 	// gst_debug_set_default_threshold(GST_LEVEL_TRACE);
+
+	spdlog::set_level(spdlog::level::debug);
+
+	spdlog::init_thread_pool(1024, 1);
+
+	std::vector<spdlog::sink_ptr> sinks;
+	sinks.push_back( std::make_shared<spdlog::sinks::rotating_file_sink_mt>("fileName.txt", 1024*1024, 3, true) );
+	sinks.push_back( std::make_shared<spdlog::sinks::stdout_color_sink_mt>()             );
+	auto tp2 = std::make_shared<spdlog::details::thread_pool>(1024, 1);
+	auto logger = std::make_shared<spdlog::async_logger>("log", begin(sinks), end(sinks), tp2, spdlog::async_overflow_policy::block);
+	spdlog::set_default_logger( logger );
 
 	//give gst options
 	Gst::init(argc, argv);
@@ -68,12 +70,12 @@ int main(int argc, char* argv[])
 	    }
 	}
 
-  http_fcgi_svr svr;
+  http_fcgi_svr fcgi_svr;
 
 	std::shared_ptr<http_req_callback_file> req_cb = std::make_shared<http_req_callback_file>();
-	svr.register_cb_for_doc_uri("/foo", req_cb);
+	fcgi_svr.register_cb_for_doc_uri("/foo", req_cb);
 
-  svr.start();
+  fcgi_svr.start();
 
 	test_app app;
 	if( ! app.init() )
@@ -89,16 +91,16 @@ int main(int argc, char* argv[])
 
 	std::shared_ptr<http_req_jpeg> jpg_cb = std::make_shared<http_req_jpeg>();
 	jpg_cb->set_cam(&app.m_logi_brio);
-	svr.register_cb_for_doc_uri("/cameras/cam0.jpg", jpg_cb);
+	fcgi_svr.register_cb_for_doc_uri("/cameras/cam0.jpg", jpg_cb);
 
-	std::shared_ptr<jsonrpc::Server> jsonrpc_server = std::make_shared<jsonrpc::Server>();
+	std::shared_ptr<jsonrpc::Server> jsonrpc_svr_disp = std::make_shared<jsonrpc::Server>();
   jsonrpc::JsonFormatHandler jsonFormatHandler;
-  jsonrpc_server->RegisterFormatHandler(jsonFormatHandler);
-  jsonrpc_server->GetDispatcher().AddMethod("start", &start);
-  jsonrpc_server->GetDispatcher().AddMethod("stop", &stop);
-	std::shared_ptr<http_req_jsonrpc> api = std::make_shared<http_req_jsonrpc>();
-	api->set_rpc_server(jsonrpc_server);
-	svr.register_cb_for_doc_uri("/api/v1", api);
+  jsonrpc_svr_disp->RegisterFormatHandler(jsonFormatHandler);
+  jsonrpc_svr_disp->GetDispatcher().AddMethod("start_camera", &test_app::start_camera, app);
+  jsonrpc_svr_disp->GetDispatcher().AddMethod("get_camera_list", &test_app::get_camera_list, app);
+	std::shared_ptr<http_req_jsonrpc> jsonrpc_api_req = std::make_shared<http_req_jsonrpc>();
+	jsonrpc_api_req->set_rpc_server(jsonrpc_svr_disp);
+	fcgi_svr.register_cb_for_doc_uri("/api/v1", jsonrpc_api_req);
 
 	// Logitech_brio cam;
 	// cam.open();
@@ -119,11 +121,13 @@ int main(int argc, char* argv[])
 	// cam.close();
 
   //stop incoming requests
-  svr.stop();
+  fcgi_svr.stop();
 
 	//stop app
 	app.stop();
 
+	//sync logs
+	spdlog::shutdown();
 
 	return 0;
 }
