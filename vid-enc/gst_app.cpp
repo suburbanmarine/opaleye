@@ -96,3 +96,69 @@ bool test_app::init()
 
   return true;
 }
+bool test_app::start_camera(const std::string& camera)
+{
+  SPDLOG_INFO("test_app::start_camera({:s})", camera);
+  return true;
+}
+bool test_app::stop_camera(const std::string& camera)
+{
+  SPDLOG_INFO("test_app::stop_camera({:s})", camera);
+  return true;
+}
+
+bool test_app::start_video_capture(const std::string& camera)
+{
+  SPDLOG_INFO("test_app::start_video_capture({:s})", camera);
+  return true;
+}
+bool test_app::stop_video_capture(const std::string& camera)
+{
+  SPDLOG_INFO("test_app::stop_video_capture({:s})", camera);
+  return true;
+}
+
+bool test_app::start_still_capture(const std::string& camera)
+{
+  SPDLOG_INFO("test_app::start_still_capture({:s})", camera);
+  return true;
+}
+bool test_app::stop_still_capture(const std::string& camera)
+{
+  SPDLOG_INFO("test_app::stop_still_capture({:s})", camera);
+  return true;
+}
+
+void test_app::set_config(const std::string& config)
+{
+  SPDLOG_INFO("test_app::set_config()");
+}
+std::string test_app::get_config() const
+{
+  SPDLOG_INFO("test_app::get_config");
+  return std::string();
+}
+
+void test_app::set_default_config()
+{
+  SPDLOG_INFO("test_app::set_default_config");
+}
+
+void test_app::restart_software()
+{
+  SPDLOG_INFO("test_app::restart_software");
+}
+void test_app::reboot()
+{
+  SPDLOG_INFO("test_app::reboot");
+}
+void test_app::shutdown()
+{
+  SPDLOG_INFO("test_app::shutdown");
+}
+
+std::vector<std::string> test_app::get_camera_list() const
+{
+  SPDLOG_INFO("test_app::get_camera_list");
+  return std::vector<std::string>();
+}
