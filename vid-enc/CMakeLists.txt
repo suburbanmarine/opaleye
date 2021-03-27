@@ -30,3 +30,10 @@ target_include_directories(vid-enc
 	PUBLIC
 		${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+INSTALL(
+	TARGETS
+		vid-enc
+	DESTINATION
+		bin
+)

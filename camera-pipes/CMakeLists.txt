@@ -51,3 +51,10 @@ target_compile_options(camera-pipes
 		${GSTMM_CFLAGS}
 #		${GSTRTSP_CFLAGS}
 )
+
+INSTALL(
+	TARGETS
+		camera-pipes
+	DESTINATION
+		lib
+)

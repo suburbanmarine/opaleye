@@ -87,7 +87,7 @@ INSTALL(
 		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.js"
 		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.min.js"
 	DESTINATION
-		var/www/scripts/
+		site/scripts
 )
 
 INSTALL(
@@ -95,14 +95,30 @@ INSTALL(
 		"${PROJECT_SOURCE_DIR}/external/simple-jsonrpc-js/simple-jsonrpc-js.js"
 		"${PROJECT_SOURCE_DIR}/external/simple-jsonrpc-js/dist/simple-jsonrpc-js.min.js"
 	DESTINATION
-		var/www/scripts/
+		site/scripts
 )
 
 INSTALL(
 	FILES
-		"${PROJECT_SOURCE_DIR}/vid-enc/html/index.html"
+		"${PROJECT_SOURCE_DIR}/site/index.html"
+		"${PROJECT_SOURCE_DIR}/site/camPod.js"
+		"${PROJECT_SOURCE_DIR}/site/camPod.css"
 	DESTINATION
-		var/www/
+		site/
 )
 
+INSTALL(
+	FILES
+		"${PROJECT_SOURCE_DIR}/conf/etc/nginx/sites-available/cam-pod"
+	DESTINATION
+		/etc/nginx/sites-available
+)
+
+set(CPACK_SET_DESTDIR true)
+set(CPACK_INSTALL_PREFIX /opt/suburbanmarine/cam-pod)
+set(CPACK_GENERATOR "DEB")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "SM")
+set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${PROJECT_SOURCE_DIR}/scripts/postinst;${PROJECT_SOURCE_DIR}/scripts/postrm")
+# gstreamer1.0-vaapi, gstreamer1.0-omx-generic
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libgstreamer1.0-0, libgstreamer-plugins-base1.0-0, libgstreamer-plugins-good1.0-0, libgstreamer-plugins-bad1.0-0, libgstreamermm-1.0-1, libfcgi0ldbl")
 include(CPack)

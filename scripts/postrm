@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [[ -f /etc/nginx/sites-enabled/cam-pod ]]; then
+	rm /etc/nginx/sites-enabled/cam-pod
+fi
+
+service nginx reload
+
+exit 0

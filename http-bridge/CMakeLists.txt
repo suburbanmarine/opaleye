@@ -24,5 +24,11 @@ target_include_directories(http-bridge
 
 target_compile_options(http-bridge
 	PUBLIC
+)
 
+INSTALL(
+	TARGETS
+		http-bridge
+	DESTINATION
+		lib
 )

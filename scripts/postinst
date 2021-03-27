@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [[ -f /etc/nginx/sites-enabled/cam-pod  ]]; then
+	exit -1
+fi
+
+ln -s /etc/nginx/sites-available/cam-pod /etc/nginx/sites-enabled/cam-pod 
+
+service nginx reload
+
+exit 0
