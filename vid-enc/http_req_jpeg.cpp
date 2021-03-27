@@ -16,10 +16,18 @@ void http_req_jpeg::handle(FCGX_Request* const request)
     std::shared_ptr<uvc_frame_t> frame_buf;
     m_cam->copy_frame(frame_buf);
 
+    time_t t_now = time(NULL);
+    http_util::HttpDateStr time_str;
+    if( ! http_util::time_to_httpdate(t_now, &time_str) )
+    {
+      throw InternalServerError("Could not get Last-Modified timestamp");
+    }
+
     FCGX_PutS("Content-type: image/jpeg\r\n", request->out);
     FCGX_FPrintF(request->out, "Content-length: %d\r\n", frame_buf->data_bytes);
     FCGX_PutS("Cache-Control: max-age=0, no-store\r\n", request->out);
-    // FCGX_PutS("Cache-Control: max-age=0, no-store, must-revalidate\r\n", request->out);
+    FCGX_FPrintF(request->out, "Last-Modified: %s\r\n", time_str.data());
+    // FCGX_PutS("Cache-Control: max-age=2, public\r\n", request->out);
     // FCGX_PutS("X-Accel-Buffering: yes\r\n", request->out);
     
     FCGX_PutS("\r\n", request->out);
