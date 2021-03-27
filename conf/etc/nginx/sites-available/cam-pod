@@ -17,11 +17,6 @@ server {
 		# as directory, then fall back to displaying a 404.
 		try_files $uri $uri/ =404;
 
-		# use item if younger than expires
-		# add_header Cache-Control public;
-		# expires     3600;
-		# etag on;
-
 		# use item if younger than expires, otherwise verify etag
 		add_header Cache-Control must-revalidate;
 		expires    60;
@@ -30,7 +25,7 @@ server {
 
 	location /scripts {
 
-		# use item if younger than expires
+		# use item if younger than expires, otherwise verify etag
 		add_header Cache-Control must-revalidate;
 		expires    3600;
 		etag on;
@@ -55,8 +50,9 @@ server {
 		root /mnt/nvme/video;
 		autoindex on;
 
-		add_header Cache-Control no-cache;
-		# expires    0;
+		# do not cache
+		add_header Cache-Control no-store;
+		expires    0;
 		etag on;
 
 		directio 4m;
