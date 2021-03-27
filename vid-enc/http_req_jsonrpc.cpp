@@ -11,26 +11,32 @@
 
 void http_req_jsonrpc::handle(FCGX_Request* const request)
 {
-  FCGX_PutS("Cache-Control: max-age=0, no-store\r\n", request->out);
-  FCGX_PutS("\r\n", request->out);
-  
-  SPDLOG_INFO("GATEWAY_INTERFACE: {:s}", FCGX_GetParam("GATEWAY_INTERFACE", request->envp));
-  SPDLOG_INFO("SERVER_SOFTWARE: {:s}",   FCGX_GetParam("SERVER_SOFTWARE", request->envp));
-  SPDLOG_INFO("QUERY_STRING: {:s}",      FCGX_GetParam("QUERY_STRING", request->envp));
-  SPDLOG_INFO("REQUEST_METHOD: {:s}",    FCGX_GetParam("REQUEST_METHOD", request->envp));
-  SPDLOG_INFO("CONTENT_TYPE: {:s}",      FCGX_GetParam("CONTENT_TYPE", request->envp));
-  SPDLOG_INFO("CONTENT_LENGTH: {:s}",    FCGX_GetParam("CONTENT_LENGTH", request->envp));
-  SPDLOG_INFO("SCRIPT_FILENAME: {:s}",   FCGX_GetParam("SCRIPT_FILENAME", request->envp));
-  SPDLOG_INFO("SCRIPT_NAME: {:s}",       FCGX_GetParam("SCRIPT_NAME", request->envp));
-  SPDLOG_INFO("REQUEST_URI: {:s}",       FCGX_GetParam("REQUEST_URI", request->envp));
-  SPDLOG_INFO("DOCUMENT_URI: {:s}",      FCGX_GetParam("DOCUMENT_URI", request->envp));
-  SPDLOG_INFO("DOCUMENT_ROOT: {:s}",     FCGX_GetParam("DOCUMENT_ROOT", request->envp));
-  SPDLOG_INFO("SERVER_PROTOCOL: {:s}",   FCGX_GetParam("SERVER_PROTOCOL", request->envp));
-  SPDLOG_INFO("REMOTE_ADDR: {:s}",       FCGX_GetParam("REMOTE_ADDR", request->envp));
-  SPDLOG_INFO("REMOTE_PORT: {:s}",       FCGX_GetParam("REMOTE_PORT", request->envp));
-  SPDLOG_INFO("SERVER_ADDR: {:s}",       FCGX_GetParam("SERVER_ADDR", request->envp));
-  SPDLOG_INFO("SERVER_PORT: {:s}",       FCGX_GetParam("SERVER_PORT", request->envp));
-  SPDLOG_INFO("SERVER_NAME: {:s}",       FCGX_GetParam("SERVER_NAME", request->envp));
+  { 
+    SPDLOG_INFO("QUERY_STRING: {:s}",      FCGX_GetParam("QUERY_STRING", request->envp));
+    SPDLOG_INFO("REQUEST_METHOD: {:s}",    FCGX_GetParam("REQUEST_METHOD", request->envp));
+    SPDLOG_INFO("CONTENT_TYPE: {:s}",      FCGX_GetParam("CONTENT_TYPE", request->envp));
+    SPDLOG_INFO("CONTENT_LENGTH: {:s}",    FCGX_GetParam("CONTENT_LENGTH", request->envp));
+
+    SPDLOG_INFO("SCRIPT_NAME: {:s}",       FCGX_GetParam("SCRIPT_NAME", request->envp));
+    SPDLOG_INFO("REQUEST_URI: {:s}",       FCGX_GetParam("REQUEST_URI", request->envp));
+    SPDLOG_INFO("DOCUMENT_URI: {:s}",      FCGX_GetParam("DOCUMENT_URI", request->envp));
+    SPDLOG_INFO("DOCUMENT_ROOT: {:s}",     FCGX_GetParam("DOCUMENT_ROOT", request->envp));
+    SPDLOG_INFO("SERVER_PROTOCOL: {:s}",   FCGX_GetParam("SERVER_PROTOCOL", request->envp));
+    SPDLOG_INFO("REQUEST_SCHEME: {:s}",    FCGX_GetParam("REQUEST_SCHEME", request->envp));
+    char const * const HTTPS = FCGX_GetParam("HTTPS", request->envp);
+    SPDLOG_INFO("HTTPS: {:s}", (HTTPS) ? (HTTPS) : ("<null>"));
+
+    SPDLOG_INFO("GATEWAY_INTERFACE: {:s}", FCGX_GetParam("GATEWAY_INTERFACE", request->envp));
+    SPDLOG_INFO("SERVER_SOFTWARE: {:s}",   FCGX_GetParam("SERVER_SOFTWARE", request->envp));
+
+    SPDLOG_INFO("REMOTE_ADDR: {:s}",       FCGX_GetParam("REMOTE_ADDR", request->envp));
+    SPDLOG_INFO("REMOTE_PORT: {:s}",       FCGX_GetParam("REMOTE_PORT", request->envp));
+    SPDLOG_INFO("SERVER_ADDR: {:s}",       FCGX_GetParam("SERVER_ADDR", request->envp));
+    SPDLOG_INFO("SERVER_PORT: {:s}",       FCGX_GetParam("SERVER_PORT", request->envp));
+    SPDLOG_INFO("SERVER_NAME: {:s}",       FCGX_GetParam("SERVER_NAME", request->envp));
+
+    SPDLOG_INFO("REDIRECT_STATUS: {:s}",   FCGX_GetParam("REDIRECT_STATUS", request->envp));
+  }
 
   //DOCUMENT_URI is just path
   char const * const DOCUMENT_URI = FCGX_GetParam("DOCUMENT_URI", request->envp);
@@ -123,6 +129,13 @@ void http_req_jsonrpc::handle(FCGX_Request* const request)
   // FCGX_PutS("{\"jsonrpc\": \"2.0\", \"error\": {\"code\": -32000, \"message\": \"Server Error\"}, \"id\": 1}", request->out);
   if(result)
   {
+    //print response header
+    FCGX_PutS("Cache-Control: max-age=0, no-store\r\n", request->out);
+    FCGX_PutS("Content-type: application/json\r\n", request->out);
+    FCGX_FPrintF(request->out, "Content-length: %d\r\n", result->GetSize());
+    FCGX_PutS("\r\n", request->out);
+
+    //print response body
     FCGX_PutStr(result->GetData(), result->GetSize(), request->out);
   }
   else
