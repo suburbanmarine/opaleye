@@ -70,12 +70,12 @@ int main(int argc, char* argv[])
 	    }
 	}
 
-  http_fcgi_svr fcgi_svr;
+	http_fcgi_svr fcgi_svr;
 
 	std::shared_ptr<http_req_callback_file> req_cb = std::make_shared<http_req_callback_file>();
 	fcgi_svr.register_cb_for_doc_uri("/foo", req_cb);
 
-  fcgi_svr.start();
+	fcgi_svr.start();
 
 	test_app app;
 	if( ! app.init() )
@@ -94,10 +94,18 @@ int main(int argc, char* argv[])
 	fcgi_svr.register_cb_for_doc_uri("/cameras/cam0.jpg", jpg_cb);
 
 	std::shared_ptr<jsonrpc::Server> jsonrpc_svr_disp = std::make_shared<jsonrpc::Server>();
-  jsonrpc::JsonFormatHandler jsonFormatHandler;
-  jsonrpc_svr_disp->RegisterFormatHandler(jsonFormatHandler);
-  jsonrpc_svr_disp->GetDispatcher().AddMethod("start_camera", &test_app::start_camera, app);
-  jsonrpc_svr_disp->GetDispatcher().AddMethod("get_camera_list", &test_app::get_camera_list, app);
+	jsonrpc::JsonFormatHandler jsonFormatHandler;
+	jsonrpc_svr_disp->RegisterFormatHandler(jsonFormatHandler);
+	jsonrpc_svr_disp->GetDispatcher().AddMethod("start_camera", &test_app::start_camera, app);
+	jsonrpc_svr_disp->GetDispatcher().AddMethod("get_camera_list", &test_app::get_camera_list, app);
+
+	jsonrpc_svr_disp->GetDispatcher().AddMethod("start_still_capture", &test_app::start_still_capture, app);
+	jsonrpc_svr_disp->GetDispatcher().AddMethod("stop_still_capture",  &test_app::stop_still_capture,  app);
+	jsonrpc_svr_disp->GetDispatcher().AddMethod("start_video_capture", &test_app::start_video_capture, app);
+	jsonrpc_svr_disp->GetDispatcher().AddMethod("stop_video_capture",  &test_app::stop_video_capture,  app);
+	jsonrpc_svr_disp->GetDispatcher().AddMethod("start_rtp_stream",    &test_app::start_rtp_stream,    app);
+	jsonrpc_svr_disp->GetDispatcher().AddMethod("stop_rtp_stream",     &test_app::stop_rtp_stream,     app);
+
 	std::shared_ptr<http_req_jsonrpc> jsonrpc_api_req = std::make_shared<http_req_jsonrpc>();
 	jsonrpc_api_req->set_rpc_server(jsonrpc_svr_disp);
 	fcgi_svr.register_cb_for_doc_uri("/api/v1", jsonrpc_api_req);

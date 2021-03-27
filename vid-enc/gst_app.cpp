@@ -129,6 +129,19 @@ bool test_app::stop_still_capture(const std::string& camera)
   return true;
 }
 
+bool test_app::start_rtp_stream(const std::string& ip_addr, int port)
+{
+  return false;
+}
+bool test_app::stop_rtp_stream(const std::string& ip_addr, int port)
+{
+  return false;
+}
+bool test_app::stop_rtp_all_stream()
+{
+  return false;
+}
+
 void test_app::set_config(const std::string& config)
 {
   SPDLOG_INFO("test_app::set_config()");
