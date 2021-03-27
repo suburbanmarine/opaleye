@@ -49,6 +49,7 @@ target_include_directories(jsonrpc-lean
 add_subdirectory(camera-pipes)
 add_subdirectory(http-bridge)
 add_subdirectory(vid-enc)
+add_subdirectory(site)
 
 # add_custom_command(
 # 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/external/jquery
@@ -87,7 +88,7 @@ INSTALL(
 		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.js"
 		"${PROJECT_SOURCE_DIR}/external/jquery/dist/jquery.min.js"
 	DESTINATION
-		site/scripts
+		site/static/scripts
 )
 
 INSTALL(
@@ -95,16 +96,7 @@ INSTALL(
 		"${PROJECT_SOURCE_DIR}/external/simple-jsonrpc-js/simple-jsonrpc-js.js"
 		"${PROJECT_SOURCE_DIR}/external/simple-jsonrpc-js/dist/simple-jsonrpc-js.min.js"
 	DESTINATION
-		site/scripts
-)
-
-INSTALL(
-	FILES
-		"${PROJECT_SOURCE_DIR}/site/index.html"
-		"${PROJECT_SOURCE_DIR}/site/camPod.js"
-		"${PROJECT_SOURCE_DIR}/site/camPod.css"
-	DESTINATION
-		site/
+		site/static/scripts
 )
 
 INSTALL(

@@ -23,7 +23,7 @@ server {
 		etag on;
 	}
 
-	location /scripts {
+	location /static {
 
 		# use item if younger than expires, otherwise verify etag
 		add_header Cache-Control must-revalidate;

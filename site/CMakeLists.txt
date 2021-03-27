@@ -1,0 +1,60 @@
+INSTALL(
+	FILES
+		"${PROJECT_SOURCE_DIR}/site/index.html"
+		"${PROJECT_SOURCE_DIR}/site/camPod.js"
+		"${PROJECT_SOURCE_DIR}/site/camPod.css"
+	DESTINATION
+		site/
+)
+
+INSTALL(
+	FILES
+		"${PROJECT_SOURCE_DIR}/site/static/images/favicon.ico"
+	DESTINATION
+		site/static/images
+)
+
+INSTALL(
+	FILES
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto/LICENSE.txt"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto/Roboto-BlackItalic.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto/Roboto-Black.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto/Roboto-BoldItalic.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto/Roboto-Bold.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto/Roboto-Italic.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto/Roboto-LightItalic.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto/Roboto-Light.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto/Roboto-MediumItalic.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto/Roboto-Medium.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto/Roboto-Regular.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto/Roboto-ThinItalic.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto/Roboto-Thin.ttf"
+
+	DESTINATION
+		site/static/fonts/Roboto
+)
+
+INSTALL(
+	FILES
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto_Mono/LICENSE.txt"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto_Mono/README.txt"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto_Mono/RobotoMono-Italic-VariableFont_wght.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto_Mono/RobotoMono-VariableFont_wght.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto_Mono/static/RobotoMono-BoldItalic.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto_Mono/static/RobotoMono-Bold.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto_Mono/static/RobotoMono-ExtraLightItalic.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto_Mono/static/RobotoMono-ExtraLight.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto_Mono/static/RobotoMono-Italic.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto_Mono/static/RobotoMono-LightItalic.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto_Mono/static/RobotoMono-Light.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto_Mono/static/RobotoMono-MediumItalic.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto_Mono/static/RobotoMono-Medium.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto_Mono/static/RobotoMono-Regular.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto_Mono/static/RobotoMono-SemiBoldItalic.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto_Mono/static/RobotoMono-SemiBold.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto_Mono/static/RobotoMono-ThinItalic.ttf"
+		"${PROJECT_SOURCE_DIR}/site/static/fonts/Roboto_Mono/static/RobotoMono-Thin.ttf"
+
+	DESTINATION
+		site/static/fonts/Roboto_Mono
+)
