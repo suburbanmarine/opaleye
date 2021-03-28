@@ -15,7 +15,10 @@ add_library(camera-pipes
 
 	pipeline/storage/mkv_multifilesink_pipe.cpp
 
-	pipeline/stream/rtp_udp_pipe.cpp
+	pipeline/stream/rtp_h264_pipe.cpp
+	pipeline/stream/udpsink_pipe.cpp
+	pipeline/stream/rtpsink_pipe.cpp
+	pipeline/stream/rtsp_svr_pipe.cpp
 
 	pipeline/GST_app_base.cpp
 	pipeline/GST_element_base.cpp

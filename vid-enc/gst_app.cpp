@@ -70,9 +70,15 @@ bool test_app::init()
    return false;
   }
 
-  if( ! m_rtp.init("rtp_0") )
+  if( ! m_rtppay.init("rtp_0") )
   {
-   SPDLOG_ERROR("Could not init m_display");
+   SPDLOG_ERROR("Could not init m_rtp");
+   return false;
+  }
+
+  if( ! m_rtpsink.init("udp_0") )
+  {
+   SPDLOG_ERROR("Could not init m_udp");
    return false;
   }
 
@@ -82,7 +88,8 @@ bool test_app::init()
   m_h264->add_to_bin(m_pipeline);
   m_mkv.add_to_bin(m_pipeline);
   m_display.add_to_bin(m_pipeline);
-  // m_rtp.add_to_bin(m_pipeline);
+  m_rtppay.add_to_bin(m_pipeline);
+  m_rtpsink.add_to_bin(m_pipeline);
 
   //link pipeline
   m_logi_brio.link_back(m_jpgdec->front());
@@ -91,8 +98,8 @@ bool test_app::init()
   m_jpgdec->link_back(m_h264->front());
 
   m_h264->link_back(m_mkv.front());
-  // m_h264->link_back(m_rtp.front());
-  
+  m_h264->link_back(m_rtppay.front());
+  m_rtppay.link_back(m_rtpsink.front());
 
   return true;
 }
