@@ -28,5 +28,6 @@ protected:
 
   Glib::RefPtr<Gst::Queue>      m_in_queue;
   Glib::RefPtr<Gst::Element>    m_videoconvert;
+  Glib::RefPtr<Gst::Queue>      m_disp_queue;
   Glib::RefPtr<Gst::Element>    m_autovideosink;
 };
