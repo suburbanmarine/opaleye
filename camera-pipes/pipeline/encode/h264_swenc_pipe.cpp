@@ -32,18 +32,19 @@ bool h264_swenc_pipe::init(const char name[])
     m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
 
     m_in_queue     = Gst::Queue::create();
-    
+    m_in_queue->property_max_size_buffers()      = 0;
+    m_in_queue->property_max_size_bytes()        = 0;
+    m_in_queue->property_max_size_time()         = 10 * GST_SECOND;
+
+    // m_in_queue->property_min_threshold_buffers() = 0;
+    // m_in_queue->property_min_threshold_bytes()   = 0;
+    // m_in_queue->property_min_threshold_time()    = 2 * GST_SECOND;
+
     m_x264enc      = Gst::ElementFactory::create_element("x264enc");
 
+    m_x264enc->set_property("config-interval", 10);
+
     m_x264enc->set_property("insert-vui", 1);
-
-    // m_x264enc->set_property("rc-lookahead", 5);
-
-    m_x264enc->set_property("bframes", 16);
-
-    m_x264enc->set_property("b-adapt", true);
-
-    m_x264enc->set_property("cabac", true);
 
     m_x264enc->set_property("bitrate", 3000);
 
@@ -66,12 +67,21 @@ bool h264_swenc_pipe::init(const char name[])
     // slower (8) – slower
     // veryslow (9) – veryslow
     // placebo (10) – placebo
-    m_x264enc->set_property("speed-preset", 6);
+    m_x264enc->set_property("speed-preset", 1);
 
     // stillimage (0x00000001) – Still image
     // fastdecode (0x00000002) – Fast decode
     // zerolatency (0x00000004) – Zero latency
     m_x264enc->set_property("tune", 4);
+
+
+
+    m_x264enc->set_property("bframes", 0);
+    m_x264enc->set_property("mb-tree", false);
+    m_x264enc->set_property("sliced-threads", true);
+    m_x264enc->set_property("sync-lookahead", 0);
+    m_x264enc->set_property("rc-lookahead", 0);
+
 
     m_h264parse = Gst::ElementFactory::create_element("h264parse");
 
@@ -87,6 +97,14 @@ bool h264_swenc_pipe::init(const char name[])
     m_capsfilter = Gst::CapsFilter::create();
     m_capsfilter->property_caps().set_value(m_out_caps);
 
+    // m_out_queue     = Gst::Queue::create();
+    // m_out_queue->property_max_size_buffers()      = 0;
+    // m_out_queue->property_max_size_bytes()        = 0;
+    // m_out_queue->property_max_size_time()         = 10 * GST_SECOND;
+    // m_out_queue->property_min_threshold_buffers() = 0;
+    // m_out_queue->property_min_threshold_bytes()   = 0;
+    // m_out_queue->property_min_threshold_time()    = 2 * GST_SECOND;
+
     //output tee
     m_out_tee = Gst::Tee::create();
 
@@ -94,12 +112,14 @@ bool h264_swenc_pipe::init(const char name[])
     m_bin->add(m_x264enc);
     m_bin->add(m_h264parse);
     m_bin->add(m_capsfilter);
+    // m_bin->add(m_out_queue);
     m_bin->add(m_out_tee);
 
     m_in_queue->link(m_x264enc);
     m_x264enc->link(m_h264parse);
     m_h264parse->link(m_capsfilter);
     m_capsfilter->link(m_out_tee);
+    // m_out_queue->link(m_out_tee);
   }
 
   return true;

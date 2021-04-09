@@ -36,5 +36,6 @@ protected:
   Glib::RefPtr<Gst::Element>    m_h264parse;
   Glib::RefPtr<Gst::Caps>       m_out_caps;
   Glib::RefPtr<Gst::CapsFilter> m_capsfilter;
+  // Glib::RefPtr<Gst::Queue>      m_out_queue;
   Glib::RefPtr<Gst::Tee>        m_out_tee;
 };

@@ -8,7 +8,7 @@
 
 Logitech_brio_pipe::Logitech_brio_pipe() : m_gst_need_data(false)
 {
-  
+  m_curr_pts = std::chrono::nanoseconds::zero();
 }
 
 void Logitech_brio_pipe::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
@@ -49,13 +49,17 @@ bool Logitech_brio_pipe::init(const char name[])
 
     m_src->property_is_live()      = true;
     m_src->property_do_timestamp() = true;
-    // m_src->property_num_buffers()  = 2; // TODO buffer depth?
-    m_src->property_block() = false;
-    m_src->property_min_latency()  = GST_SECOND / 30;
+    // m_src->property_block()        = false;
+    m_src->property_block()        = true; // TODO: this may need to be true to enable internal buffer
+    m_src->property_min_latency()  = 0;
+    m_src->property_max_latency()  = 2*GST_SECOND / 30;
 
-    m_src->property_emit_signals() = true;
+    // m_src->property_num_buffers()  = 30;
+    // m_src->property_max_bytes()    = 100*1024*1024;
+
+    m_src->property_emit_signals() = false;
     m_src->property_stream_type()  = Gst::APP_STREAM_TYPE_STREAM;
-    // m_src->property_format()       = Gst::FORMAT_TIME;
+    m_src->property_format()       = Gst::FORMAT_TIME;
 
     //get a cb per new frame
     m_camera.register_callback(std::bind(&Logitech_brio_pipe::new_frame_cb, this, std::placeholders::_1));
@@ -72,8 +76,16 @@ bool Logitech_brio_pipe::init(const char name[])
     //   [this](guint64 val){return handle_seek_data(val);}
     //   );
 
-    m_in_queue     = Gst::Queue::create();
     m_jpegparse    = Gst::ElementFactory::create_element("jpegparse");
+    
+    m_in_queue     = Gst::Queue::create();
+    // m_in_queue->set_property("leaky", Gst::QUEUE_LEAK_DOWNSTREAM);
+    // m_in_queue->property_min_threshold_time()    = 0;
+    // m_in_queue->property_min_threshold_buffers() = 0;
+    // m_in_queue->property_min_threshold_bytes()   = 0;
+    m_in_queue->property_max_size_buffers()      = 0;
+    m_in_queue->property_max_size_bytes()        = 0;
+    m_in_queue->property_max_size_time()         = 1 * GST_SECOND;
 
     //output tee
     m_out_tee = Gst::Tee::create();
@@ -123,10 +135,19 @@ void Logitech_brio_pipe::new_frame_cb(uvc_frame_t* frame)
     uvc_duplicate_frame(frame, m_frame_buffer.get());
   }
 
-  if(m_gst_need_data)
+  // if(m_gst_need_data)
   {
     Glib::RefPtr<Gst::Buffer> buf = Gst::Buffer::create(frame->data_bytes);
     gsize ins_len = buf->fill(0, frame->data, frame->data_bytes);
+
+    // std::chrono::seconds      tv_sec(frame->capture_time.tv_sec);
+    // std::chrono::microseconds tv_usec(frame->capture_time.tv_usec);
+    // std::chrono::nanoseconds pts_nsec = tv_sec + tv_usec;
+
+    // buf->set_pts(m_curr_pts.count());
+    // buf->set_duration(GST_SECOND / 30);
+
+    m_curr_pts += std::chrono::nanoseconds(GST_SECOND / 30);
     
     if(ins_len != frame->data_bytes)
     {
@@ -145,12 +166,12 @@ void Logitech_brio_pipe::new_frame_cb(uvc_frame_t* frame)
 
 void Logitech_brio_pipe::handle_need_data(guint val)
 {
-  SPDLOG_ERROR("handle_need_data");
+  // SPDLOG_ERROR("handle_need_data");
   m_gst_need_data = true;
 }
 void Logitech_brio_pipe::handle_enough_data()
 {
-  SPDLOG_ERROR("handle_enough_data");
+  // SPDLOG_ERROR("handle_enough_data");
   m_gst_need_data = false;
 }
 #if 0

@@ -31,12 +31,16 @@ bool mkv_multifilesink_pipe::init(const char name[])
     m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
 
     m_in_queue    = Gst::Queue::create();
-    
+    m_in_queue->property_max_size_buffers()      = 0;
+    m_in_queue->property_max_size_bytes()        = 0;
+    m_in_queue->property_max_size_time()         = 10 * GST_SECOND;
+
     m_matroskamux = Gst::ElementFactory::create_element("matroskamux");
     // m_matroskamux->set_property("writing-app", "SM");
     m_matroskamux->set_property("version", 2);
     m_matroskamux->set_property("min-index-interval", 100 * 1000*1000);
-    m_matroskamux->set_property("streamable", false);
+    // m_matroskamux->set_property("streamable", false);
+    m_matroskamux->set_property("streamable", true);
     // m_matroskamux->set_property("timecodescale", );
     // m_matroskamux->set_property("max-cluster-duration", );
     // m_matroskamux->set_property("min-cluster-duration", );

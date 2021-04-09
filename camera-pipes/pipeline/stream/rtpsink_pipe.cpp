@@ -98,11 +98,15 @@ bool rtpsink_pipe::init(const char name[])
     m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
 
     m_in_queue = Gst::Queue::create();
-    m_in_queue->set_property("leaky", Gst::QUEUE_LEAK_DOWNSTREAM);
-    m_in_queue->property_max_size_buffers() = 1000;
-    m_in_queue->property_max_size_bytes()   = 20*1024*1024;
-    m_in_queue->property_max_size_time()    = GST_SECOND;
+    // m_in_queue->set_property("leaky", Gst::QUEUE_LEAK_DOWNSTREAM);
+    m_in_queue->property_max_size_buffers() = 0;
+    m_in_queue->property_max_size_bytes()   = 0;
+    m_in_queue->property_max_size_time()    = 1 * GST_SECOND;
     
+    // m_in_queue->property_min_threshold_buffers() = 0;
+    // m_in_queue->property_min_threshold_bytes()   = 0;
+    // m_in_queue->property_min_threshold_time()    = 2 * GST_SECOND;
+
     m_rtpbin = Gst::ElementFactory::create_element("rtpbin");
     m_rtpbin->set_property("do-retransmission", false);
 
@@ -146,14 +150,22 @@ bool rtpsink_pipe::init(const char name[])
     // }
 
     m_rtp_conn.m_rtp_queue = Gst::Queue::create();
-    m_rtp_conn.m_rtp_queue->set_property("leaky", Gst::QUEUE_LEAK_DOWNSTREAM);
-    m_rtp_conn.m_rtp_queue->property_max_size_buffers() = 1000;
-    m_rtp_conn.m_rtp_queue->property_max_size_bytes()   = 20*1024*1024;
-    m_rtp_conn.m_rtp_queue->property_max_size_time()    = GST_SECOND;
+    // m_rtp_conn.m_rtp_queue->set_property("leaky", Gst::QUEUE_LEAK_DOWNSTREAM);
+    // m_rtp_conn.m_rtp_queue->property_max_size_buffers() = 1000;
+    // m_rtp_conn.m_rtp_queue->property_max_size_bytes()   = 20*1024*1024;
+    m_rtp_conn.m_rtp_queue->property_max_size_buffers()      = 0;
+    m_rtp_conn.m_rtp_queue->property_max_size_bytes()        = 0;
+    m_rtp_conn.m_rtp_queue->property_max_size_time()         = 1 * GST_SECOND;
+
+    // m_rtp_conn.m_rtp_queue->property_min_threshold_buffers() = 0;
+    // m_rtp_conn.m_rtp_queue->property_min_threshold_bytes()   = 0;
+    // m_rtp_conn.m_rtp_queue->property_min_threshold_time()    = 2 * GST_SECOND;
 
     m_rtp_conn.m_rtp_udpsink = Gst::ElementFactory::create_element("udpsink");
     m_rtp_conn.m_rtp_udpsink->set_property("host", Glib::ustring("192.168.21.20"));
     m_rtp_conn.m_rtp_udpsink->set_property("port", 50000);
+    m_rtp_conn.m_rtp_udpsink->set_property("max-lateness", 250 * GST_MSECOND);
+    m_rtp_conn.m_rtp_udpsink->set_property("processing-deadline", 250 * GST_MSECOND);
 
     // m_rtp_conn.m_rtcp_queue = Gst::Queue::create();
     // m_rtp_conn.m_rtcp_queue->set_property("leaky", Gst::QUEUE_LEAK_DOWNSTREAM);

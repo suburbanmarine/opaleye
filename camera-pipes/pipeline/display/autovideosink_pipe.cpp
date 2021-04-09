@@ -31,15 +31,28 @@ bool autovideosink_pipe::init(const char name[])
     m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
 
     m_in_queue    = Gst::Queue::create();
-    m_in_queue->set_property("leaky", Gst::QUEUE_LEAK_DOWNSTREAM);
+    // m_in_queue->set_property("leaky", Gst::QUEUE_LEAK_DOWNSTREAM);
+    m_in_queue->property_max_size_buffers()      = 0;
+    m_in_queue->property_max_size_bytes()        = 0;
+    m_in_queue->property_max_size_time()         = 1 * GST_SECOND;
+
+    // m_in_queue->property_min_threshold_buffers() = 0;
+    // m_in_queue->property_min_threshold_bytes()   = 0;
+    // m_in_queue->property_min_threshold_time()    = 2 * GST_SECOND;
 
     m_videoconvert  = Gst::ElementFactory::create_element("videoconvert");
 
     m_disp_queue    = Gst::Queue::create();
-    m_disp_queue->set_property("leaky", Gst::QUEUE_LEAK_DOWNSTREAM);
-    
-    m_autovideosink = Gst::ElementFactory::create_element("autovideosink");
+    // m_disp_queue->set_property("leaky", Gst::QUEUE_LEAK_DOWNSTREAM);
+    m_disp_queue->property_max_size_buffers()      = 0;
+    m_disp_queue->property_max_size_bytes()        = 0;
+    m_disp_queue->property_max_size_time()         = 1 * GST_SECOND;
+
+    // m_autovideosink = Gst::ElementFactory::create_element("autovideosink");
+    m_autovideosink = Gst::ElementFactory::create_element("xvimagesink");
     // m_autovideosink->set_property("sync", false);
+    // m_autovideosink->set_property("max-lateness", 250 * GST_MSECOND);
+    // m_autovideosink->set_property("processing-deadline", 250 * GST_MSECOND);
 
     m_bin->add(m_in_queue);
     m_bin->add(m_videoconvert);

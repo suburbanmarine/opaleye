@@ -62,4 +62,6 @@ protected:
 
   mutable std::mutex m_frame_buffer_mutex;
   std::shared_ptr<uvc_frame_t> m_frame_buffer;
+
+  std::chrono::nanoseconds m_curr_pts;
 };

@@ -32,11 +32,19 @@ bool rtp_h264_pipe::init(const char name[])
     m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
 
     m_in_queue   = Gst::Queue::create();
+    m_in_queue->property_max_size_buffers()      = 0;
+    m_in_queue->property_max_size_bytes()        = 0;
+    m_in_queue->property_max_size_time()         = 10 * GST_SECOND;
     
+    // m_in_queue->property_min_threshold_buffers() = 0;
+    // m_in_queue->property_min_threshold_bytes()   = 0;
+    // m_in_queue->property_min_threshold_time()    = 2 * GST_SECOND;
+
     m_rtph264pay = Gst::ElementFactory::create_element("rtph264pay");
     m_rtph264pay->set_property("config-interval", -1);
     m_rtph264pay->set_property("name", Glib::ustring("pay0"));
     m_rtph264pay->set_property("pt", 96);
+    m_rtph264pay->set_property("aggregate-mode", 1);
 
     //output tee
     m_out_tee = Gst::Tee::create();

@@ -32,7 +32,14 @@ bool jpeg_swdec_pipe::init(const char name[])
     m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
 
     m_in_queue     = Gst::Queue::create();
-    
+    m_in_queue->property_max_size_buffers()      = 0;
+    m_in_queue->property_max_size_bytes()        = 0;
+    m_in_queue->property_max_size_time()         = 10 * GST_SECOND;
+
+    // m_in_queue->property_min_threshold_buffers() = 0;
+    // m_in_queue->property_min_threshold_bytes()   = 0;
+    // m_in_queue->property_min_threshold_time()    = 2 * GST_SECOND;
+
     m_jpegdec = Gst::ElementFactory::create_element("jpegdec");
 
     //out caps
