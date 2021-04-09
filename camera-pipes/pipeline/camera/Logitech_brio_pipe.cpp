@@ -52,7 +52,7 @@ bool Logitech_brio_pipe::init(const char name[])
     // m_src->property_block()        = false;
     m_src->property_block()        = true; // TODO: this may need to be true to enable internal buffer
     m_src->property_min_latency()  = 0;
-    m_src->property_max_latency()  = 2*GST_SECOND / 30;
+    m_src->property_max_latency()  = 1*GST_SECOND / 30;
 
     // m_src->property_num_buffers()  = 30;
     // m_src->property_max_bytes()    = 100*1024*1024;
