@@ -40,6 +40,12 @@ bool test_app::init()
     m_h264 = std::make_shared<h264_nvenc_pipe>(); 
   }
 
+  // if( ! m_test_src.init("cam_1") )
+  // {
+  //  SPDLOG_ERROR("Could not init camera");
+  //  return false;
+  // }
+
   if( ! m_logi_brio.init("cam_0") )
   {
    SPDLOG_ERROR("Could not init camera");
@@ -85,6 +91,7 @@ bool test_app::init()
   //add elements to top level bin
   m_logi_brio.add_to_bin(m_pipeline);
   m_jpgdec->add_to_bin(m_pipeline);
+  // m_test_src.add_to_bin(m_pipeline);
   m_h264->add_to_bin(m_pipeline);
   m_mkv.add_to_bin(m_pipeline);
   m_display.add_to_bin(m_pipeline);
@@ -96,6 +103,9 @@ bool test_app::init()
 
   m_jpgdec->link_back(m_display.front());
   m_jpgdec->link_back(m_h264->front());
+
+  // m_test_src.link_back(m_display.front());
+  // m_test_src.link_back(m_h264->front());
 
   m_h264->link_back(m_mkv.front());
   m_h264->link_back(m_rtppay.front());

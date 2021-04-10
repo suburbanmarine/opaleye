@@ -1,4 +1,5 @@
 #include "pipeline/GST_app_base.hpp"
+#include "pipeline/camera/Testsrc_pipe.hpp"
 #include "pipeline/camera/Logitech_brio_pipe.hpp"
 #include "pipeline/storage/mkv_multifilesink_pipe.hpp"
 #include "pipeline/display/autovideosink_pipe.hpp"
@@ -94,6 +95,7 @@ public:
   std::string get_serial_number() const;
 
 // protected:
+  Testsrc_pipe       m_test_src;
   Logitech_brio_pipe m_logi_brio;
 
   std::shared_ptr<GST_element_base> m_jpgdec;
