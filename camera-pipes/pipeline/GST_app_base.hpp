@@ -22,7 +22,8 @@ public:
   bool start();
   bool stop();
 
-  static bool on_bus_message(const Glib::RefPtr<Gst::Bus>& bus, const Glib::RefPtr<Gst::Message>& message);
+  // bool on_bus_message(const Glib::RefPtr<Gst::Bus>& bus, const Glib::RefPtr<Gst::Message>& message);
+  void on_bus_message(const Glib::RefPtr<Gst::Message>& message);
 
   void make_debug_dot(const std::string& fname);
 

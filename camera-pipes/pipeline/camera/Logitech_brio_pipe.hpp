@@ -44,7 +44,8 @@ public:
 
 protected:
 
-  bool on_bus_message(const Glib::RefPtr<Gst::Bus>& bus, const Glib::RefPtr<Gst::Message>& message);
+  // bool on_bus_message(const Glib::RefPtr<Gst::Bus>& bus, const Glib::RefPtr<Gst::Message>& message);
+  void on_bus_message(const Glib::RefPtr<Gst::Message>& message);
 
   Glib::RefPtr<Gst::Bin>        m_bin;
   Glib::RefPtr<Gst::Bus>        m_bus;

@@ -1,13 +1,22 @@
 #include "pipeline/GST_app_base.hpp"
 
+#include <spdlog/spdlog.h>
+
 GST_app_base::GST_app_base()
 {
+  //top level pipeline
   m_pipeline     = Gst::Pipeline::create("pipeline");
+
+  //the main bus, turn on signal handler for messages
   m_pipeline_bus = m_pipeline->get_bus();
-  m_pipeline_bus->add_watch(sigc::ptr_fun(&on_bus_message));
+  m_pipeline_bus->set_property("enable-async", true);
+  m_pipeline_bus->add_signal_watch();
+  
+  //connect signal handler
+  m_pipeline_bus->signal_message().connect(sigc::mem_fun(this, &GST_app_base::on_bus_message));
 
   //glib event func
-  m_mainloop_context = Glib::MainContext::create();
+  m_mainloop_context = Glib::MainContext::get_default();
   m_mainloop         = Glib::MainLoop::create(m_mainloop_context, false);
 }
 
@@ -29,6 +38,7 @@ bool GST_app_base::start()
 }
 bool GST_app_base::stop()
 {
+  m_pipeline_bus->remove_signal_watch();
   m_pipeline->set_state(Gst::STATE_NULL);
   m_mainloop->quit();
   glib_main_thread_.join();
@@ -36,8 +46,10 @@ bool GST_app_base::stop()
   return true;
 }
 
-bool GST_app_base::on_bus_message(const Glib::RefPtr<Gst::Bus>& bus, const Glib::RefPtr<Gst::Message>& message)
+// bool GST_app_base::on_bus_message(const Glib::RefPtr<Gst::Bus>& bus, const Glib::RefPtr<Gst::Message>& message)
+void GST_app_base::on_bus_message(const Glib::RefPtr<Gst::Message>& message)
 {
+  SPDLOG_ERROR("GST_app_base::on_bus_message");
   switch(message->get_message_type())
   {
     case GST_MESSAGE_UNKNOWN:
@@ -87,7 +99,7 @@ bool GST_app_base::on_bus_message(const Glib::RefPtr<Gst::Bus>& bus, const Glib:
       break;
     }
   }
-  return true;
+  // return true;
 }
 
 void GST_app_base::make_debug_dot(const std::string& fname)
@@ -106,6 +118,8 @@ void GST_app_base::run_glib_main()
 {
   // for(;;)
   // {
+    // m_mainloop_context->push_thread_default();
     m_mainloop->run();
+    // m_mainloop_context->pop_thread_default();
   // }
 }

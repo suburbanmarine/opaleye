@@ -74,16 +74,11 @@ bool h264_swenc_pipe::init(const char name[])
     // zerolatency (0x00000004) – Zero latency
     m_x264enc->set_property("tune", 4);
 
-
-
     m_x264enc->set_property("bframes", 0);
     m_x264enc->set_property("mb-tree", false);
     m_x264enc->set_property("sliced-threads", true);
     m_x264enc->set_property("sync-lookahead", 0);
     m_x264enc->set_property("rc-lookahead", 0);
-
-
-    m_h264parse = Gst::ElementFactory::create_element("h264parse");
 
     //out caps
     m_out_caps = Gst::Caps::create_simple(
@@ -97,13 +92,7 @@ bool h264_swenc_pipe::init(const char name[])
     m_capsfilter = Gst::CapsFilter::create();
     m_capsfilter->property_caps().set_value(m_out_caps);
 
-    // m_out_queue     = Gst::Queue::create();
-    // m_out_queue->property_max_size_buffers()      = 0;
-    // m_out_queue->property_max_size_bytes()        = 0;
-    // m_out_queue->property_max_size_time()         = 10 * GST_SECOND;
-    // m_out_queue->property_min_threshold_buffers() = 0;
-    // m_out_queue->property_min_threshold_bytes()   = 0;
-    // m_out_queue->property_min_threshold_time()    = 2 * GST_SECOND;
+    m_h264parse = Gst::ElementFactory::create_element("h264parse");
 
     //output tee
     m_out_tee = Gst::Tee::create();
@@ -112,14 +101,12 @@ bool h264_swenc_pipe::init(const char name[])
     m_bin->add(m_x264enc);
     m_bin->add(m_h264parse);
     m_bin->add(m_capsfilter);
-    // m_bin->add(m_out_queue);
     m_bin->add(m_out_tee);
 
     m_in_queue->link(m_x264enc);
-    m_x264enc->link(m_h264parse);
-    m_h264parse->link(m_capsfilter);
-    m_capsfilter->link(m_out_tee);
-    // m_out_queue->link(m_out_tee);
+    m_x264enc->link(m_capsfilter);
+    m_capsfilter->link(m_h264parse);
+    m_h264parse->link(m_out_tee);
   }
 
   return true;
