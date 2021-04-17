@@ -148,14 +148,17 @@ bool test_app::stop_still_capture(const std::string& camera)
 
 bool test_app::start_rtp_stream(const std::string& ip_addr, int port)
 {
+  SPDLOG_INFO("test_app::start_rtp_stream");
   return false;
 }
 bool test_app::stop_rtp_stream(const std::string& ip_addr, int port)
 {
+  SPDLOG_INFO("test_app::stop_rtp_stream");
   return false;
 }
 bool test_app::stop_rtp_all_stream()
 {
+  SPDLOG_INFO("test_app::stop_rtp_all_stream");
   return false;
 }
 

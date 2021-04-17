@@ -49,7 +49,7 @@ public:
   ///
   /// Stop most activity.
   ///
-  bool stop();
+  // bool stop();
 
   ///
   /// Null, running, paused, ...
