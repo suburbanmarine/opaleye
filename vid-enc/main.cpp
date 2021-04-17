@@ -5,6 +5,7 @@
 #include "http_req_callback_file.hpp"
 #include "http_req_jpeg.hpp"
 #include "http_req_jsonrpc.hpp"
+#include "signal_handler.hpp"
 
 #include "gst_app.hpp"
 
@@ -22,6 +23,13 @@
 
 int main(int argc, char* argv[])
 {
+	Signal_handler sig_hndl;
+	if( ! sig_hndl.mask_all_signals() )
+	{
+		SPDLOG_ERROR("Could not mask signals");
+		return -1;
+	}
+
 	gst_debug_set_default_threshold(GST_LEVEL_INFO);
 	// gst_debug_set_default_threshold(GST_LEVEL_TRACE);
 
@@ -37,6 +45,7 @@ int main(int argc, char* argv[])
 	spdlog::set_default_logger( logger );
 
 	//give gst options
+	Glib::init();
 	Gst::init(argc, argv);
 
 	//Parse program options
@@ -119,17 +128,21 @@ int main(int argc, char* argv[])
 
 	// app.run();
 
-  // for(size_t i = 0; i < 10; i++)
-  for(;;)
-  {
-    sleep(10);
-  }
+	if( ! sig_hndl.mask_def_signals() )
+	{
+		SPDLOG_ERROR("Could not mask signals");
+		return -1;
+	}
+	while( ! sig_hndl.has_sigint() )
+	{
+		sig_hndl.wait_for_signal();
+	}
 
 	// cam.stop();
 	// cam.close();
 
-  //stop incoming requests
-  fcgi_svr.stop();
+	//stop incoming requests
+	fcgi_svr.stop();
 
 	//stop app
 	app.stop();

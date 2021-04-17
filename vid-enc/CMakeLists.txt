@@ -4,6 +4,8 @@ add_executable(vid-enc
 
 	http_req_jpeg.cpp
 	http_req_jsonrpc.cpp
+
+	signal_handler.cpp
 )
 
 target_link_libraries(vid-enc
