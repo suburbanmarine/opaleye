@@ -25,8 +25,9 @@ add_library(camera-pipes
 	pipeline/GST_element_base.cpp
 	pipeline/GST_fakesink.cpp
 	pipeline/GST_pipeline_base.cpp
-
-
+	pipeline/GST_pipeline_base.cpp
+	pipeline/mux_pipe.cpp
+	pipeline/valve_pipe.cpp
 )
 
 target_link_libraries(camera-pipes
