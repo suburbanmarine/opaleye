@@ -29,12 +29,20 @@ class BadRequest : public HTTPException
   {
 
   }
+  BadRequest(const char msg[]) : HTTPException(400, msg)
+  {
+
+  }
 };
 
 class InternalServerError : public HTTPException
 {
   public:
   InternalServerError() : HTTPException(500, "Internal Error")
+  {
+
+  }
+  InternalServerError(const char msg[]) : HTTPException(500, msg)
   {
 
   }
