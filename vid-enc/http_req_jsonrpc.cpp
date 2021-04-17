@@ -1,5 +1,6 @@
 #include "http_req_jsonrpc.hpp"
 #include "http_util.hpp"
+#include "http_common.hpp"
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
@@ -38,6 +39,8 @@ void http_req_jsonrpc::handle(FCGX_Request* const request)
     SPDLOG_INFO("REDIRECT_STATUS: {:s}",   FCGX_GetParam("REDIRECT_STATUS", request->envp));
   }
 
+  //GET, POST, ...
+  char const * const REQUEST_METHOD = FCGX_GetParam("REQUEST_METHOD", request->envp);
   //DOCUMENT_URI is just path
   char const * const DOCUMENT_URI = FCGX_GetParam("DOCUMENT_URI", request->envp);
   //REQUEST_URI is path and query string
@@ -46,6 +49,14 @@ void http_req_jsonrpc::handle(FCGX_Request* const request)
   char const * const CONTENT_TYPE = FCGX_GetParam("CONTENT_TYPE", request->envp);
   //verify content size is sane
   char const * const CONTENT_LENGTH = FCGX_GetParam("CONTENT_LENGTH", request->envp);
+
+  {
+    http_common::REQUEST_METHOD req = http_common::parse_req_method(REQUEST_METHOD);
+    if(req != http_common::REQUEST_METHOD::POST)
+    {
+      throw BadRequest("Only POST is accepted");
+    }
+  }
 
   int req_len = 0;
   int ret = sscanf(CONTENT_LENGTH, "%d", &req_len);
@@ -64,12 +75,12 @@ void http_req_jsonrpc::handle(FCGX_Request* const request)
     const char app_jsonrpc[] = "application/json";
     if(strlen(CONTENT_TYPE) == 0)
     {
-      throw BadRequest("CONTENT_LENGTH is invalid");
+      throw BadRequest("CONTENT_TYPE is invalid");
     }
 
     if(strncmp(CONTENT_TYPE, app_jsonrpc, sizeof(app_jsonrpc)-1) != 0)
     {
-      throw BadRequest("CONTENT_LENGTH is invalid");
+      throw BadRequest("CONTENT_TYPE is invalid");
     }
   }
 
@@ -133,6 +144,7 @@ void http_req_jsonrpc::handle(FCGX_Request* const request)
     FCGX_PutS("Cache-Control: max-age=0, no-store\r\n", request->out);
     FCGX_PutS("Content-type: application/json\r\n", request->out);
     FCGX_FPrintF(request->out, "Content-length: %d\r\n", result->GetSize());
+    FCGX_PutS("Status: 200 OK\r\n", request->out);
     FCGX_PutS("\r\n", request->out);
 
     //print response body
@@ -140,10 +152,21 @@ void http_req_jsonrpc::handle(FCGX_Request* const request)
   }
   else
   {
+    const char resp[] = "{\"jsonrpc\": \"2.0\", \"error\": {\"code\": -32000, \"message\": \"Server Error\"}, \"id\": null}";
+    size_t resp_len = sizeof(resp) - 1;
+
+    //print response header
+    FCGX_PutS("Cache-Control: max-age=0, no-store\r\n", request->out);
+    FCGX_PutS("Content-type: application/json\r\n", request->out);
+    FCGX_FPrintF(request->out, "Content-length: %d\r\n", resp_len);
+    FCGX_PutS("Status: 500 Internal Error\r\n", request->out);
+    FCGX_PutS("\r\n", request->out);
+
+
     // JSON-RPC 2.0 says:
     // If there was an error in detecting the id in the Request object (e.g. Parse error/Invalid Request), it MUST be Null.
     // We could try harder to parse the request id here, but for now we treat it as a invalid request
-    FCGX_PutS("{\"jsonrpc\": \"2.0\", \"error\": {\"code\": -32000, \"message\": \"Server Error\"}, \"id\": null}", request->out);
+    FCGX_PutStr(resp, resp_len, request->out);
   }
   FCGX_Finish_r(request);
 }
