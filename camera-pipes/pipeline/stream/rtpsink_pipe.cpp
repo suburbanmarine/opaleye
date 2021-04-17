@@ -10,7 +10,13 @@ rtpsink_pipe::rtpsink_pipe() : m_have_pad(false)
 {
   
 }
-
+rtpsink_pipe::~rtpsink_pipe()
+{
+    for(auto sigc : signal_handlers)
+    {
+        sigc.disconnect();
+    }
+}
 void rtpsink_pipe::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
 {
   bin->add(m_bin);
@@ -110,13 +116,15 @@ bool rtpsink_pipe::init(const char name[])
     m_rtpbin = Gst::ElementFactory::create_element("rtpbin");
     m_rtpbin->set_property("do-retransmission", false);
 
-    m_rtpbin->signal_pad_added().connect(
+    sigc::connection pad_add_conn = m_rtpbin->signal_pad_added().connect(
       [this](const Glib::RefPtr<Gst::Pad>& pad){handle_pad_added(pad);}
       );
+    signal_handlers.push_back(pad_add_conn);
 
-    m_rtpbin->signal_pad_removed().connect(
+    sigc::connection pad_rm_conn = m_rtpbin->signal_pad_removed().connect(
       [this](const Glib::RefPtr<Gst::Pad>& pad){handle_pad_removed(pad);}
       );
+    signal_handlers.push_back(pad_rm_conn);
 
     //wait for each pad
     m_have_pad = false;

@@ -15,6 +15,7 @@ class rtpsink_pipe : public GST_element_base
 {
 public:
   rtpsink_pipe();
+  ~rtpsink_pipe();
 
   void add_to_bin(const Glib::RefPtr<Gst::Bin>& bin) override;
   bool link_front(const Glib::RefPtr<Gst::Element>& node) override;
@@ -64,4 +65,6 @@ protected:
   // std::map<unsigned, std::shared_ptr<RTP_inst>> m_rtp_conn;
 
   RTP_inst m_rtp_conn;
+
+  std::list<sigc::connection> signal_handlers;
 };
