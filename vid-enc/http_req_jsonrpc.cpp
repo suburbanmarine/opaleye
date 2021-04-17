@@ -107,7 +107,6 @@ void http_req_jsonrpc::handle(FCGX_Request* const request)
       SPDLOG_INFO("Request: {:.{}}",  m_req_buf.data(), m_req_buf.size());
     }
 
-
     // it wants CONTENT_TYPE == application/json - the application/json; charset=UTF-8 causes it to fail
     // std::shared_ptr<jsonrpc::FormattedData> result = m_jsonrpc_server_ptr->HandleRequest(m_req_str, CONTENT_TYPE);
     try
@@ -121,13 +120,14 @@ void http_req_jsonrpc::handle(FCGX_Request* const request)
     }
   }
 
+  //trace logging
   if(result)
   {
     SPDLOG_INFO("Response: {:.{}}", result->GetData(), result->GetSize());
   }
   else
   {
-    SPDLOG_INFO("Response: NULL");
+    SPDLOG_ERROR("Response: NULL");
   }
 
   // -32700  Parse error Invalid JSON was received by the server.
@@ -140,15 +140,27 @@ void http_req_jsonrpc::handle(FCGX_Request* const request)
   // FCGX_PutS("{\"jsonrpc\": \"2.0\", \"error\": {\"code\": -32000, \"message\": \"Server Error\"}, \"id\": 1}", request->out);
   if(result)
   {
-    //print response header
-    FCGX_PutS("Cache-Control: max-age=0, no-store\r\n", request->out);
-    FCGX_PutS("Content-type: application/json\r\n", request->out);
-    FCGX_FPrintF(request->out, "Content-length: %d\r\n", result->GetSize());
-    FCGX_PutS("Status: 200 OK\r\n", request->out);
-    FCGX_PutS("\r\n", request->out);
+    if(result->GetSize() == 0)
+    {
+      //notification, no jsonrpc resp
+      FCGX_PutS("Content-Type: application/json\r\n"    , request->out);
+      FCGX_PutS("Content-Length: 0\r\n"                 , request->out);
+      FCGX_PutS("Status: 204 No Response\r\n"           , request->out);
+      FCGX_PutS("Cache-Control: max-age=0, no-store\r\n", request->out);
+      FCGX_PutS("\r\n"                                  , request->out);
+    }
+    else
+    {
+      //print response header
+      FCGX_PutS("Content-Type: application/json\r\n", request->out);
+      FCGX_FPrintF(request->out, "Content-Length: %d\r\n", result->GetSize());
+      FCGX_PutS("Status: 200 OK\r\n", request->out);
+      FCGX_PutS("Cache-Control: max-age=0, no-store\r\n", request->out);
+      FCGX_PutS("\r\n", request->out);
 
-    //print response body
-    FCGX_PutStr(result->GetData(), result->GetSize(), request->out);
+      //print response body
+      FCGX_PutStr(result->GetData(), result->GetSize(), request->out);
+    }
   }
   else
   {
@@ -156,10 +168,10 @@ void http_req_jsonrpc::handle(FCGX_Request* const request)
     size_t resp_len = sizeof(resp) - 1;
 
     //print response header
-    FCGX_PutS("Cache-Control: max-age=0, no-store\r\n", request->out);
-    FCGX_PutS("Content-type: application/json\r\n", request->out);
-    FCGX_FPrintF(request->out, "Content-length: %d\r\n", resp_len);
+    FCGX_PutS("Content-Type: application/json\r\n", request->out);
+    FCGX_FPrintF(request->out, "Content-Length: %d\r\n", resp_len);
     FCGX_PutS("Status: 500 Internal Error\r\n", request->out);
+    FCGX_PutS("Cache-Control: max-age=0, no-store\r\n", request->out);
     FCGX_PutS("\r\n", request->out);
 
 

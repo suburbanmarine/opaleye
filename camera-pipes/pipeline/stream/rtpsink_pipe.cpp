@@ -16,6 +16,7 @@ rtpsink_pipe::~rtpsink_pipe()
     {
         sigc.disconnect();
     }
+    signal_handlers.clear();
 }
 void rtpsink_pipe::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
 {

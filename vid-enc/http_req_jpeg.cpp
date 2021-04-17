@@ -23,8 +23,8 @@ void http_req_jpeg::handle(FCGX_Request* const request)
       throw InternalServerError("Could not get Last-Modified timestamp");
     }
 
-    FCGX_PutS("Content-type: image/jpeg\r\n", request->out);
-    FCGX_FPrintF(request->out, "Content-length: %d\r\n", frame_buf->data_bytes);
+    FCGX_PutS("Content-Type: image/jpeg\r\n", request->out);
+    FCGX_FPrintF(request->out, "Content-Length: %d\r\n", frame_buf->data_bytes);
     FCGX_PutS("Cache-Control: max-age=0, no-store\r\n", request->out);
     FCGX_FPrintF(request->out, "Last-Modified: %s\r\n", time_str.data());
     // FCGX_PutS("Cache-Control: max-age=2, public\r\n", request->out);
