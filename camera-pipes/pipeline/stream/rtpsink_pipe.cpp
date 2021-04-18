@@ -180,7 +180,7 @@ bool rtpsink_pipe::init(const char name[])
         SPDLOG_ERROR("Could not start stream");
         return false;   
     }
-    if( ! m_rtp_conn.m_multiudpsink->add_client("127.0.0.1", 5004) )
+    if( ! m_rtp_conn.m_multiudpsink->add_client("127.0.0.1", 5008) )
     {
         SPDLOG_ERROR("Could not start stream");
         return false;

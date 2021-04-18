@@ -65,11 +65,6 @@ bool multiudpsink_pipe::init(const char name[])
     m_multiudpsink = Gst::ElementFactory::create_element("multiudpsink");
     m_multiudpsink_obj = m_multiudpsink;
 
-    // Glib::SignalProxy<void(GstElement* gstmultiudpsink, gchararray host, gint port, gpointer udata)>(m_multiudpsink->gobj(), &info);
-
-
-    // Glib::SignalProxyNormal<void(GstElement* gstmultiudpsink, gchararray host, gint port, gpointer udata)>(m_multiudpsink->gobj(), &info).connect(sigc::mem_fun(this, &multiudpsink_pipe::dispatch_client_removed));
-
     // {
     //   sigc::connection conn = signal_client_added().connect(sigc::mem_fun(*this, &multiudpsink_pipe::handle_client_added));
     //   signal_handlers.push_back(conn);
@@ -80,8 +75,8 @@ bool multiudpsink_pipe::init(const char name[])
     //   signal_handlers.push_back(conn);
     // }
 
-    // g_signal_connect(m_multiudpsink->gobj(), "client-added",   G_CALLBACK(&multiudpsink_pipe::dispatch_client_added),   this);
-    // g_signal_connect(m_multiudpsink->gobj(), "client-removed", G_CALLBACK(&multiudpsink_pipe::dispatch_client_removed), this);
+    g_signal_connect(m_multiudpsink->gobj(), "client-added",   G_CALLBACK(&multiudpsink_pipe::dispatch_client_added),   this);
+    g_signal_connect(m_multiudpsink->gobj(), "client-removed", G_CALLBACK(&multiudpsink_pipe::dispatch_client_removed), this);
 
     m_multiudpsink->set_property("buffer-size",  10 * 1400);
     // m_multiudpsink->set_property("blocksize",    2 * 1400);
@@ -113,6 +108,8 @@ bool multiudpsink_pipe::init(const char name[])
 
 void multiudpsink_pipe::handle_client_added(gchararray host, gint port)
 {
+  SPDLOG_DEBUG("handle_client_added {:s}:{:d}", host, port);
+
   const ConnType conn = std::make_pair(host, port);
   {
     std::unique_lock<std::mutex> lock(m_active_conn_mutex);
@@ -122,6 +119,8 @@ void multiudpsink_pipe::handle_client_added(gchararray host, gint port)
 }
 void multiudpsink_pipe::handle_client_removed(gchararray host, gint port)
 {
+  SPDLOG_DEBUG("handle_client_removed {:s}:{:d}", host, port);
+
   const ConnType conn = std::make_pair(host, port);
   {
     std::unique_lock<std::mutex> lock(m_active_conn_mutex);
@@ -132,7 +131,7 @@ void multiudpsink_pipe::handle_client_removed(gchararray host, gint port)
 
 bool multiudpsink_pipe::add_client(const std::string& host, uint16_t port)
 {
-  g_signal_emit_by_name(m_multiudpsink->gobj(), "add", host.c_str(), port);
+  g_signal_emit_by_name(m_multiudpsink->gobj(), "add", host.c_str(), port, this);
   
   const ConnType conn = std::make_pair(host, port);
   bool ret;
@@ -141,11 +140,11 @@ bool multiudpsink_pipe::add_client(const std::string& host, uint16_t port)
     ret = m_active_conn_cv.wait_for(lock, std::chrono::milliseconds(5000), [this,conn]{return has_connection_no_lock(conn);});
   }
 
-  return true;
+  return ret;
 }
 bool multiudpsink_pipe::remove_client(const std::string& host, uint16_t port)
 {
-  g_signal_emit_by_name(m_multiudpsink->gobj(), "remove", host.c_str(), port);
+  g_signal_emit_by_name(m_multiudpsink->gobj(), "remove", host.c_str(), port, this);
 
   const ConnType conn = std::make_pair(host, port);
   bool ret;

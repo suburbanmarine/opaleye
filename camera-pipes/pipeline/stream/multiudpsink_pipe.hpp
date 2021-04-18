@@ -46,7 +46,15 @@ public:
 
 protected:
 
+  static void dispatch_client_added(GstElement * gstmultiudpsink, gchararray host, gint port, gpointer udata)
+  {
+    reinterpret_cast<multiudpsink_pipe*>(udata)->handle_client_added(host, port);
+  }
   void handle_client_added(gchararray host, gint port);
+  static void dispatch_client_removed(GstElement * gstmultiudpsink, gchararray host, gint port, gpointer udata)
+  {
+    reinterpret_cast<multiudpsink_pipe*>(udata)->handle_client_removed(host, port);
+  }
   void handle_client_removed(gchararray host, gint port);
 
   bool has_connection_no_lock(const ConnType& conn) const
@@ -70,13 +78,13 @@ protected:
   static const Glib::SignalProxyInfo client_added_signal_info;
   static const Glib::SignalProxyInfo client_removed_signal_info;
 
-  Glib::SignalProxy<void(gchararray host, gint port)> signal_client_added()
-  {
-    return Glib::SignalProxy<void(gchararray host, gint port)>(m_multiudpsink_obj.operator->(), &client_added_signal_info);
-  }
+  // Glib::SignalProxy<void(gchararray host, gint port)> signal_client_added()
+  // {
+  //   return Glib::SignalProxy<void(gchararray host, gint port)>(m_multiudpsink_obj.operator->(), &client_added_signal_info);
+  // }
 
-  Glib::SignalProxy<void(gchararray host, gint port)> signal_client_removed()
-  {
-    return Glib::SignalProxy<void(gchararray host, gint port)>(m_multiudpsink_obj.operator->(), &client_added_signal_info);
-  }
+  // Glib::SignalProxy<void(gchararray host, gint port)> signal_client_removed()
+  // {
+  //   return Glib::SignalProxy<void(gchararray host, gint port)>(m_multiudpsink_obj.operator->(), &client_added_signal_info);
+  // }
 };
