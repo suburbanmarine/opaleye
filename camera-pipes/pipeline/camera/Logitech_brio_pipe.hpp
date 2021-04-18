@@ -6,6 +6,7 @@
 
 #include <gstreamermm/appsrc.h>
 #include <gstreamermm/caps.h>
+#include <gstreamermm/capsfilter.h>
 #include <gstreamermm/queue.h>
 #include <gstreamermm/tee.h>
 
@@ -53,8 +54,10 @@ protected:
   Glib::RefPtr<Gst::AppSrc>     m_src;
   Glib::RefPtr<Gst::Caps>       m_src_caps;
   Glib::RefPtr<Gst::Element>    m_jpegparse;
-  Glib::RefPtr<Gst::Queue>      m_in_queue;
+  Glib::RefPtr<Gst::Element>    m_videorate;
   Glib::RefPtr<Gst::Caps>       m_out_caps;
+  Glib::RefPtr<Gst::CapsFilter> m_out_capsfilter;
+  Glib::RefPtr<Gst::Queue>      m_in_queue;
   Glib::RefPtr<Gst::Tee>        m_out_tee;
 
   std::atomic<bool> m_gst_need_data;

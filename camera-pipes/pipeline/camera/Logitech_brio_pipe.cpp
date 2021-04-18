@@ -104,9 +104,9 @@ bool Logitech_brio_pipe::init(const char name[])
       "video/x-jpeg",
       // "format", Gst::Fourcc('M', 'J', 'P', 'G'),
       // "format", Gst::Fourcc(Glib::ustring("MJPG")),
-      // "pixel-aspect-ratio", Gst::Fraction(1, 1),
+      "pixel-aspect-ratio", Gst::Fraction(1, 1),
       "format","MJPG",
-      "framerate", Gst::Fraction(30, 1),
+      "framerate", Gst::Fraction(0, 1),
       "width",  640,
       "height", 480
       );
@@ -146,6 +146,18 @@ bool Logitech_brio_pipe::init(const char name[])
 
     m_jpegparse    = Gst::ElementFactory::create_element("jpegparse");
     
+    m_videorate    = Gst::ElementFactory::create_element("videorate");
+
+    m_out_caps = Gst::Caps::create_simple(
+      "image/jpeg",
+      "format","UYVY",
+      "pixel-aspect-ratio", Gst::Fraction(1, 1),
+      "framerate", Gst::Fraction(30, 1)
+      );
+
+    m_out_capsfilter = Gst::CapsFilter::create("outcaps");
+    m_out_capsfilter->property_caps() = m_out_caps;
+
     m_in_queue     = Gst::Queue::create();
     // m_in_queue->set_property("leaky", Gst::QUEUE_LEAK_DOWNSTREAM);
     // m_in_queue->property_min_threshold_time()    = 0;
@@ -160,6 +172,8 @@ bool Logitech_brio_pipe::init(const char name[])
 
     m_bin->add(m_src);
     m_bin->add(m_jpegparse);
+    m_bin->add(m_videorate);
+    m_bin->add(m_out_capsfilter);
     m_bin->add(m_in_queue);
     m_bin->add(m_out_tee);
   }
@@ -185,7 +199,9 @@ bool Logitech_brio_pipe::init(const char name[])
   }
 
   m_src->link(m_jpegparse);
-  m_jpegparse->link(m_in_queue);
+  m_jpegparse->link(m_videorate);
+  m_videorate->link(m_out_capsfilter);
+  m_out_capsfilter->link(m_in_queue);
   m_in_queue->link(m_out_tee);
   
   // m_videoconvert->link(m_capsfilter);
