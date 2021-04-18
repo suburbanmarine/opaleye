@@ -54,11 +54,12 @@ public:
   ///
   /// Null, running, paused, ...
   ///
-  std::string get_pipeline_status() const;
+  std::string get_pipeline_status();
+  std::string get_pipeline_graph();
 
+  /* config */
   void set_config(const std::string& config);
   std::string get_config() const;
-
   void set_default_config();
 
   /* power */

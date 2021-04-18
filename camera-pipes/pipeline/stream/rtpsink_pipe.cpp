@@ -86,6 +86,14 @@ void rtpsink_pipe::handle_pad_added(const Glib::RefPtr<Gst::Pad>& pad)
     // send_rtp_src_0->link(m_rtp_udpsink_0->get_static_pad("sink"));
     // send_rtcp_src_0->link(m_rtcp_udpsink_0->get_static_pad("sink"));
 }
+bool rtpsink_pipe::add_udp_client(const std::string& dest, const uint16_t port)
+{
+    return m_rtp_conn.m_multiudpsink->add_client(dest, port);
+}
+bool rtpsink_pipe::remove_udp_client(const std::string& dest, const uint16_t port)
+{
+    return m_rtp_conn.m_multiudpsink->remove_client(dest, port);
+}
 
 void rtpsink_pipe::handle_pad_removed(const Glib::RefPtr<Gst::Pad>& pad)
 {
@@ -175,16 +183,16 @@ bool rtpsink_pipe::init(const char name[])
     Glib::RefPtr<Gst::Pad> send_rtp_src_0 = m_rtpbin->get_static_pad("send_rtp_src_0");
     m_rtp_conn.m_multiudpsink->link_front(send_rtp_src_0);
 
-    if( ! m_rtp_conn.m_multiudpsink->add_client("127.0.0.1", 5000) )
-    {
-        SPDLOG_ERROR("Could not start stream");
-        return false;   
-    }
-    if( ! m_rtp_conn.m_multiudpsink->add_client("127.0.0.1", 5008) )
-    {
-        SPDLOG_ERROR("Could not start stream");
-        return false;
-    }
+    // if( ! m_rtp_conn.m_multiudpsink->add_client("127.0.0.1", 5000) )
+    // {
+    //     SPDLOG_ERROR("Could not start stream");
+    //     return false;   
+    // }
+    // if( ! m_rtp_conn.m_multiudpsink->add_client("127.0.0.1", 5008) )
+    // {
+    //     SPDLOG_ERROR("Could not start stream");
+    //     return false;
+    // }
   }
 
   return true;

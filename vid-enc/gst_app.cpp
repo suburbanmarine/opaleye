@@ -148,20 +148,86 @@ bool test_app::stop_still_capture(const std::string& camera)
 
 bool test_app::start_rtp_stream(const std::string& ip_addr, int port)
 {
-  SPDLOG_INFO("test_app::start_rtp_stream");
-  return false;
+  SPDLOG_INFO("test_app::start_rtp_stream {:s}:{:d}", ip_addr, port);
+
+  if( (port < 0) || (port > 65535))
+  {
+    throw std::domain_error("port must be in [0, 65535]");
+  }
+
+  return m_rtpsink.add_udp_client(ip_addr, port);
 }
 bool test_app::stop_rtp_stream(const std::string& ip_addr, int port)
 {
-  SPDLOG_INFO("test_app::stop_rtp_stream");
-  return false;
+  SPDLOG_INFO("test_app::stop_rtp_stream {:s}:{:d}", ip_addr, port);
+
+  if( (port < 0) || (port > 65535))
+  {
+    throw std::domain_error("port must be in [0, 65535]");
+  }
+
+  return m_rtpsink.remove_udp_client(ip_addr, port);
 }
 bool test_app::stop_rtp_all_stream()
 {
   SPDLOG_INFO("test_app::stop_rtp_all_stream");
   return false;
 }
+std::string test_app::get_pipeline_status()
+{
+  SPDLOG_INFO("test_app::get_pipeline_status");
+  Glib::RefPtr<Gst::Bin> bin = m_pipeline;
+  Gst::State state;
+  Gst::State pending_state;
+  Gst::StateChangeReturn ret = bin->get_state(state, pending_state, 0);
 
+  char const * state_str = "UNKNOWN";
+  switch(state)
+  {
+    case GST_STATE_VOID_PENDING:
+    {
+      state_str = "GST_STATE_VOID_PENDING";
+      break;
+    }
+    case GST_STATE_NULL:
+    {
+      state_str = "GST_STATE_NULL";
+      break;
+    }
+    case GST_STATE_READY:
+    {
+      state_str = "GST_STATE_READY";
+      break;
+    }
+    case GST_STATE_PAUSED:
+    {
+      state_str = "GST_STATE_PAUSED";
+      break;
+    }
+    case GST_STATE_PLAYING:
+    {
+      state_str = "GST_STATE_PLAYING";
+      break;
+    }
+    default:
+    {
+     state_str =  "UNKNOWN";
+     break;
+    }
+  }
+
+  return state_str;
+}
+std::string test_app::get_pipeline_graph()
+{
+  SPDLOG_INFO("test_app::get_pipeline_graph");
+  
+  make_debug_dot("pipeline");
+
+  int ret = system("dot -Tpdf -o /tmp/pipeline.dot.pdf /tmp/pipeline.dot");
+
+  return std::string();
+}
 void test_app::set_config(const std::string& config)
 {
   SPDLOG_INFO("test_app::set_config()");

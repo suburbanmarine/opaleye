@@ -35,23 +35,32 @@ function btnVideoStopClick(event) {
 
 function btnRTPStreamStartClick(event) {
     console.log( "btnRTPStreamStartClick" );
-    camPod.jrpc.call('start_rtp_stream', ['cam0', 5000]);
+    camPod.jrpc.call('start_rtp_stream', ['127.0.0.1', 5000]);
 }
 function btnRTPStreamStopClick(event) {
     console.log( "btnRTPStreamStopClick" );
-    camPod.jrpc.call('stop_rtp_stream', ['cam0']);
+    camPod.jrpc.call('stop_rtp_stream', ['127.0.0.1', 5000]);
 }
-
+function btnGetPipelineStatus(event) {
+   console.log( "btnGetPipelineStatus" );
+   ret = camPod.jrpc.call('get_pipeline_status');
+}
+function btnGetPipelineGraph(event) {
+   console.log( "btnGetPipelineGraph" );
+   ret = camPod.jrpc.call('get_pipeline_graph');
+}
 function handleDocumentReady(jQuery) {
   camPod.jrpc = simple_jsonrpc.connect_xhr('http://127.0.0.1/api/v1');
 
-  $("#btnRefresh"          ).on("click", clickedRefreshButton   );
-  $("#btnStillStart"       ).on("click", btnStillStartClick     );
-  $("#btnStillStop"        ).on("click", btnStillStopClick      );
-  $("#btnVideoStart"       ).on("click", btnVideoStartClick     );
-  $("#btnVideoStop"        ).on("click", btnVideoStopClick      );
-  $("#btnRTPStreamStart"   ).on("click", btnRTPStreamStartClick );
-  $("#btnRTPStreamStop"    ).on("click", btnRTPStreamStopClick  );
+  $("#btnRefresh"           ).on("click", clickedRefreshButton   );
+  $("#btnStillStart"        ).on("click", btnStillStartClick     );
+  $("#btnStillStop"         ).on("click", btnStillStopClick      );
+  $("#btnVideoStart"        ).on("click", btnVideoStartClick     );
+  $("#btnVideoStop"         ).on("click", btnVideoStopClick      );
+  $("#btnRTPStreamStart"    ).on("click", btnRTPStreamStartClick );
+  $("#btnRTPStreamStop"     ).on("click", btnRTPStreamStopClick  );
+  $("#btnGetPipelineStatus" ).on("click", btnGetPipelineStatus );
+  $("#btnGetPipelineGraph"  ).on("click", btnGetPipelineGraph  );
 }
 
 $(document).ready(handleDocumentReady);

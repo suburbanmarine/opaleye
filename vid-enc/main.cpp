@@ -23,10 +23,20 @@
 
 int main(int argc, char* argv[])
 {
+	{
+		int ret = setenv("GST_DEBUG_DUMP_DOT_DIR", "/tmp", 1);
+		if(ret != 0)
+		{
+			std::cerr << "Could not set GST_DEBUG_DUMP_DOT_DIR" << std::endl;
+			return -1;			
+		}
+	}
+
 	Signal_handler sig_hndl;
 	if( ! sig_hndl.mask_all_signals() )
 	{
-		SPDLOG_ERROR("Could not mask signals");
+		std::cerr << "Could not mask signals" << std::endl;
+		// SPDLOG_ERROR("Could not mask signals");
 		return -1;
 	}
 
@@ -114,6 +124,8 @@ int main(int argc, char* argv[])
 	jsonrpc_svr_disp->GetDispatcher().AddMethod("stop_video_capture",  &test_app::stop_video_capture,  app);
 	jsonrpc_svr_disp->GetDispatcher().AddMethod("start_rtp_stream",    &test_app::start_rtp_stream,    app);
 	jsonrpc_svr_disp->GetDispatcher().AddMethod("stop_rtp_stream",     &test_app::stop_rtp_stream,     app);
+	jsonrpc_svr_disp->GetDispatcher().AddMethod("get_pipeline_status", &test_app::get_pipeline_status, app);
+	jsonrpc_svr_disp->GetDispatcher().AddMethod("get_pipeline_graph",  &test_app::get_pipeline_graph,  app);
 
 	std::shared_ptr<http_req_jsonrpc> jsonrpc_api_req = std::make_shared<http_req_jsonrpc>();
 	jsonrpc_api_req->set_rpc_server(jsonrpc_svr_disp);

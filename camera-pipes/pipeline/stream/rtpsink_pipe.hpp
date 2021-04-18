@@ -32,8 +32,11 @@ public:
 
   void handle_pad_removed(const Glib::RefPtr<Gst::Pad>& pad);
 
-  bool add_rtp_stream(const std::string& dest, const uint16_t port);
-  bool remove_rtp_stream(const std::string& dest, const uint16_t port);
+  // bool add_rtp_stream(const std::string& dest, const uint16_t port);
+  // bool remove_rtp_stream(const std::string& dest, const uint16_t port);
+
+  bool add_udp_client(const std::string& dest, const uint16_t port);
+  bool remove_udp_client(const std::string& dest, const uint16_t port);
 
 protected:
 
