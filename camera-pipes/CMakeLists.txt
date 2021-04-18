@@ -18,6 +18,7 @@ add_library(camera-pipes
 
 	pipeline/stream/rtp_h264_pipe.cpp
 	pipeline/stream/udpsink_pipe.cpp
+	pipeline/stream/multiudpsink_pipe.cpp
 	pipeline/stream/rtpsink_pipe.cpp
 	pipeline/stream/rtsp_svr_pipe.cpp
 

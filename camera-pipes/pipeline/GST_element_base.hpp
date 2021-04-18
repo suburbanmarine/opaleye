@@ -27,6 +27,15 @@ public:
 	virtual bool link_front(const Glib::RefPtr<Gst::Element>& node) = 0;
 	virtual bool link_back(const Glib::RefPtr<Gst::Element>& node) = 0;
 
+	virtual bool link_front(const Glib::RefPtr<Gst::Pad>& pad)
+	{
+		return false;
+	}
+	virtual bool link_back(const Glib::RefPtr<Gst::Pad>& pad)
+	{
+		return false;
+	}
+
 	virtual bool init(const char name[]) = 0;
 
   virtual Glib::RefPtr<Gst::Element> front()

@@ -5,7 +5,7 @@
 #include <gstreamermm/bin.h>
 #include <gstreamermm/queue.h>
 #include <gstreamermm/tee.h>
-
+#include "multiudpsink_pipe.hpp"
 
 #include <atomic>
 #include <mutex>
@@ -15,7 +15,7 @@ class rtpsink_pipe : public GST_element_base
 {
 public:
   rtpsink_pipe();
-  ~rtpsink_pipe();
+  ~rtpsink_pipe() override;
 
   void add_to_bin(const Glib::RefPtr<Gst::Bin>& bin) override;
   bool link_front(const Glib::RefPtr<Gst::Element>& node) override;
@@ -28,9 +28,12 @@ public:
     return m_in_queue;
   }
 
-void handle_pad_added(const Glib::RefPtr<Gst::Pad>& pad);
+  void handle_pad_added(const Glib::RefPtr<Gst::Pad>& pad);
 
-void handle_pad_removed(const Glib::RefPtr<Gst::Pad>& pad);
+  void handle_pad_removed(const Glib::RefPtr<Gst::Pad>& pad);
+
+  bool add_rtp_stream(const std::string& dest, const uint16_t port);
+  bool remove_rtp_stream(const std::string& dest, const uint16_t port);
 
 protected:
 
@@ -44,7 +47,6 @@ protected:
   std::atomic<bool> m_have_pad;
   std::mutex m_have_pad_mutex;
   std::condition_variable m_cond_var;
-  Glib::RefPtr<Gst::Pad> m_new_pad;
 
   struct RTP_inst
   {
@@ -55,11 +57,11 @@ protected:
     // Glib::RefPtr<Gst::Element> m_rtcp_udpsrc;
     
     //rtp to world
-    Glib::RefPtr<Gst::Queue>   m_rtp_queue;
-    Glib::RefPtr<Gst::Element> m_rtp_udpsink;
+    std::shared_ptr<multiudpsink_pipe> m_multiudpsink;
+
     //rtcp to world
-    Glib::RefPtr<Gst::Queue>   m_rtcp_queue;
-    Glib::RefPtr<Gst::Element> m_rtcp_udpsink;
+    // Glib::RefPtr<Gst::Queue>   m_rtcp_queue;
+    // Glib::RefPtr<Gst::Element> m_rtcp_udpsink;
   };
 
   // std::map<unsigned, std::shared_ptr<RTP_inst>> m_rtp_conn;
