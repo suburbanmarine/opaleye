@@ -4,7 +4,7 @@
 
 #include <spdlog/spdlog.h>
 
-Logitech_brio::Logitech_brio()
+Logitech_brio::Logitech_brio() : m_stream_on(false)
 {
 
 }
@@ -29,11 +29,11 @@ void Logitech_brio::frame_cb(uvc_frame_t* new_frame_ptr)
 
 bool Logitech_brio::open()
 {
-  return UVC_base::open(0x046d, 0x085e);
-}
+  if( ! UVC_base::open(0x046d, 0x085e) )
+  {
+    return false;
+  }
 
-bool Logitech_brio::start()
-{
   uvc_error_t ret = uvc_get_stream_ctrl_format_size(
     m_dev_hndl,
     &m_ctrl,
@@ -59,10 +59,20 @@ bool Logitech_brio::start()
   // TODO AF mode
   uvc_set_focus_auto(m_dev_hndl, 0);
 
-  ret = uvc_start_streaming(m_dev_hndl, &m_ctrl, Logitech_brio::dispatch_frame_cb, this, 0);
-  if (ret < 0) {
-    uvc_perror(ret, "uvc_get_stream_ctrl_format_size");
-    return false;
+  return true;
+}
+
+bool Logitech_brio::start()
+{
+  if( ! m_stream_on )
+  {
+    uvc_error_t ret = uvc_start_streaming(m_dev_hndl, &m_ctrl, Logitech_brio::dispatch_frame_cb, this, 0);
+    if (ret < 0) {
+      uvc_perror(ret, "uvc_get_stream_ctrl_format_size");
+      return false;
+    }
+
+    m_stream_on = true;
   }
 
   return true;
@@ -70,7 +80,11 @@ bool Logitech_brio::start()
 
 bool Logitech_brio::stop()
 {
-  uvc_stop_streaming(m_dev_hndl);
+  if(m_stream_on)
+  {
+    uvc_stop_streaming(m_dev_hndl);
+    m_stream_on = false;
+  }
   return true;
 }
 

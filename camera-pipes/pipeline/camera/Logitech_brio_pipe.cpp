@@ -1,9 +1,12 @@
 #include "Logitech_brio_pipe.hpp"
 
+#include "pipeline/gst_common.hpp"
+
 #include <gstreamermm/buffer.h>
 #include <gstreamermm/elementfactory.h>
 
 #include <spdlog/spdlog.h>
+#include <spdlog/fmt/ostr.h>
 #include <spdlog/fmt/fmt.h>
 
 Logitech_brio_pipe::Logitech_brio_pipe() : m_gst_need_data(false)
@@ -12,64 +15,206 @@ Logitech_brio_pipe::Logitech_brio_pipe() : m_gst_need_data(false)
 }
 
 // bool Logitech_brio_pipe::on_bus_message(const Glib::RefPtr<Gst::Bus>& bus, const Glib::RefPtr<Gst::Message>& message)
-void Logitech_brio_pipe::on_bus_message(const Glib::RefPtr<Gst::Message>& message)
+void Logitech_brio_pipe::on_bus_message(const Glib::RefPtr<Gst::Message>& msg)
 {
-  SPDLOG_ERROR("Logitech_brio_pipe::on_bus_message");
-  switch(message->get_message_type())
+  using namespace Gst;
+  if(msg)
   {
-    case GST_MESSAGE_UNKNOWN:
-    case GST_MESSAGE_EOS:
-    case GST_MESSAGE_ERROR:
-    case GST_MESSAGE_WARNING:
-    case GST_MESSAGE_INFO:
-    case GST_MESSAGE_TAG:
-    case GST_MESSAGE_BUFFERING:
-    case GST_MESSAGE_STATE_CHANGED:
+    SPDLOG_ERROR("Logitech_brio_pipe::on_bus_message {}", msg->get_message_type());
+    switch(msg->get_message_type())
     {
-      Gst::State state;
-      Gst::State pending;
-      Gst::ClockTime timeout = 0;
-      Gst::StateChangeReturn ret = m_bin->get_state(state, pending, timeout);
-      SPDLOG_ERROR("{:d}, {:d}", state, pending);
-      break;
-    }
-    case GST_MESSAGE_STATE_DIRTY:
-    case GST_MESSAGE_STEP_DONE:
-    case GST_MESSAGE_CLOCK_PROVIDE:
-    case GST_MESSAGE_CLOCK_LOST:
-    case GST_MESSAGE_NEW_CLOCK:
-    case GST_MESSAGE_STRUCTURE_CHANGE:
-    case GST_MESSAGE_STREAM_STATUS:
-    case GST_MESSAGE_APPLICATION:
-    case GST_MESSAGE_ELEMENT:
-    case GST_MESSAGE_SEGMENT_START:
-    case GST_MESSAGE_SEGMENT_DONE:
-    case GST_MESSAGE_DURATION_CHANGED:
-    case GST_MESSAGE_LATENCY:
-    case GST_MESSAGE_ASYNC_START:
-    case GST_MESSAGE_ASYNC_DONE:
-    case GST_MESSAGE_REQUEST_STATE:
-    case GST_MESSAGE_STEP_START:
-    case GST_MESSAGE_QOS:
-    case GST_MESSAGE_PROGRESS:
-    case GST_MESSAGE_TOC:
-    case GST_MESSAGE_RESET_TIME:
-    case GST_MESSAGE_STREAM_START:
-    case GST_MESSAGE_NEED_CONTEXT:
-    case GST_MESSAGE_HAVE_CONTEXT:
-    case GST_MESSAGE_EXTENDED:
-    // case GST_MESSAGE_DEVICE_ADDED:
-    // case GST_MESSAGE_DEVICE_REMOVED:
-    // case GST_MESSAGE_PROPERTY_NOTIFY:
-    // case GST_MESSAGE_STREAM_COLLECTION:
-    // case GST_MESSAGE_STREAMS_SELECTED:
-    // case GST_MESSAGE_REDIRECT:
-    // case GST_MESSAGE_DEVICE_CHANGED:
-    // case GST_MESSAGE_INSTANT_RATE_REQUEST:
-    // case GST_MESSAGE_ANY:
-    default:
-    {
-      break;
+      case GST_MESSAGE_UNKNOWN:
+      {
+        break;
+      }
+      case GST_MESSAGE_EOS:
+      {
+        break;
+      }
+      case GST_MESSAGE_ERROR:
+      {
+        break;
+      }
+      case GST_MESSAGE_WARNING:
+      {
+        break;
+      }
+      case GST_MESSAGE_INFO:
+      {
+        break;
+      }
+      case GST_MESSAGE_TAG:
+      {
+        break;
+      }
+      case GST_MESSAGE_BUFFERING:
+      {
+        break;
+      }
+      case GST_MESSAGE_STATE_CHANGED:
+      {
+        Gst::State state;
+        Gst::State pending;
+        Gst::ClockTime timeout = 0;
+        Gst::StateChangeReturn ret = m_bin->get_state(state, pending, timeout);
+        SPDLOG_ERROR("{} {}->{}", ret, state, pending);
+        switch(state)
+        {
+          case GST_STATE_VOID_PENDING:
+          {
+            break;
+          }
+          case GST_STATE_NULL:
+          {
+            if( ! m_camera.stop() )
+            {
+              SPDLOG_ERROR("Could not stop camera");
+            }
+
+            m_gst_need_data = false;
+            break;
+          }
+          case GST_STATE_READY:
+          {
+            break;
+          }
+          case GST_STATE_PAUSED:
+          {
+            if( ! m_camera.stop() )
+            {
+              SPDLOG_ERROR("Could not stop camera");
+            }
+
+            m_gst_need_data = false;
+            break;
+          }
+          case GST_STATE_PLAYING:
+          {
+            if( ! m_camera.start() )
+            {
+             SPDLOG_ERROR("Could not start camera");
+            }
+
+            m_gst_need_data = true;
+
+            break;
+          }
+        }
+        break;
+      }
+      case GST_MESSAGE_STATE_DIRTY:
+      {
+        break;
+      }
+      case GST_MESSAGE_STEP_DONE:
+      {
+        break;
+      }
+      case GST_MESSAGE_CLOCK_PROVIDE:
+      {
+        break;
+      }
+      case GST_MESSAGE_CLOCK_LOST:
+      {
+        break;
+      }
+      case GST_MESSAGE_NEW_CLOCK:
+      {
+        break;
+      }
+      case GST_MESSAGE_STRUCTURE_CHANGE:
+      {
+        break;
+      }
+      case GST_MESSAGE_STREAM_STATUS:
+      {
+        break;
+      }
+      case GST_MESSAGE_APPLICATION:
+      {
+        break;
+      }
+      case GST_MESSAGE_ELEMENT:
+      {
+        break;
+      }
+      case GST_MESSAGE_SEGMENT_START:
+      {
+        break;
+      }
+      case GST_MESSAGE_SEGMENT_DONE:
+      {
+        break;
+      }
+      case GST_MESSAGE_DURATION_CHANGED:
+      {
+        break;
+      }
+      case GST_MESSAGE_LATENCY:
+      {
+        break;
+      }
+      case GST_MESSAGE_ASYNC_START:
+      {
+        break;
+      }
+      case GST_MESSAGE_ASYNC_DONE:
+      {
+        break;
+      }
+      case GST_MESSAGE_REQUEST_STATE:
+      {
+        break;
+      }
+      case GST_MESSAGE_STEP_START:
+      {
+        break;
+      }
+      case GST_MESSAGE_QOS:
+      {
+        break;
+      }
+      case GST_MESSAGE_PROGRESS:
+      {
+        break;
+      }
+      case GST_MESSAGE_TOC:
+      {
+        break;
+      }
+      case GST_MESSAGE_RESET_TIME:
+      {
+        break;
+      }
+      case GST_MESSAGE_STREAM_START:
+      {
+        break;
+      }
+      case GST_MESSAGE_NEED_CONTEXT:
+      {
+        break;
+      }
+      case GST_MESSAGE_HAVE_CONTEXT:
+      {
+        break;
+      }
+      case GST_MESSAGE_EXTENDED:
+      {
+        break;
+      }
+      // case GST_MESSAGE_DEVICE_ADDED:
+      // case GST_MESSAGE_DEVICE_REMOVED:
+      // case GST_MESSAGE_PROPERTY_NOTIFY:
+      // case GST_MESSAGE_STREAM_COLLECTION:
+      // case GST_MESSAGE_STREAMS_SELECTED:
+      // case GST_MESSAGE_REDIRECT:
+      // case GST_MESSAGE_DEVICE_CHANGED:
+      // case GST_MESSAGE_INSTANT_RATE_REQUEST:
+      // case GST_MESSAGE_ANY:
+      default:
+      {
+        break;
+      }
     }
   }
 }
@@ -134,12 +279,12 @@ bool Logitech_brio_pipe::init(const char name[])
 
     // m_in_queue->property_max_size_buffers().set_value(2); // TODO buffer depth?
 
-    m_src->signal_need_data().connect(
-      [this](guint val){handle_need_data(val);}
-      );
-    m_src->signal_enough_data().connect(
-      [this](){handle_enough_data();}
-      );
+    // m_src->signal_need_data().connect(
+    //   [this](guint val){handle_need_data(val);}
+    //   );
+    // m_src->signal_enough_data().connect(
+    //   [this](){handle_enough_data();}
+    //   );
     // m_src->signal_seek_data().connect(
     //   [this](guint64 val){return handle_seek_data(val);}
     //   );
@@ -184,11 +329,6 @@ bool Logitech_brio_pipe::init(const char name[])
    return false;
   }
 
-  if( ! m_camera.start() )
-  {
-   SPDLOG_ERROR("Could not start camera");
-  }
-
   //allocate a temp buffer
   //over allocate so we probably have enough for a 4k mjpeg
   m_frame_buffer = m_camera.allocate_frame(4096*4096*3);
@@ -219,7 +359,7 @@ void Logitech_brio_pipe::new_frame_cb(uvc_frame_t* frame)
     uvc_duplicate_frame(frame, m_frame_buffer.get());
   }
 
-  // if(m_gst_need_data)
+  if(m_gst_need_data)
   {
     Glib::RefPtr<Gst::Buffer> buf = Gst::Buffer::create(frame->data_bytes);
     gsize ins_len = buf->fill(0, frame->data, frame->data_bytes);

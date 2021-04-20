@@ -2,6 +2,7 @@
 
 #include "cameras/UVC_base.hpp"
 
+#include <atomic>
 #include <iostream>
 #include <fstream>
 #include <mutex>
@@ -28,4 +29,5 @@ public:
 
 protected:
 	uvc_stream_ctrl_t m_ctrl;
+	std::atomic<bool> m_stream_on;
 };
