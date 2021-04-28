@@ -1,6 +1,7 @@
 add_executable(vid-enc
 	main.cpp
 	gst_app.cpp
+	gst_filesink_pipeline.cpp
 
 	http_req_jpeg.cpp
 	http_req_jsonrpc.cpp

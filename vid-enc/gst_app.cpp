@@ -64,7 +64,7 @@ bool test_app::init()
    return false;
   }
 
-  if( ! m_h264_interpipesink.init("h264_ip_0") )
+  if( ! m_h264_interpipesink.init("h264_ipsink_0") )
   {
    SPDLOG_ERROR("Could not init h264 interpipe");
    return false;
@@ -116,7 +116,7 @@ bool test_app::init()
 
   m_h264->link_back(m_rtppay.front());
   m_h264->link_back(m_h264_interpipesink.front());
-  
+
   m_rtppay.link_back(m_rtpsink.front());
 
   return true;
@@ -136,14 +136,33 @@ bool test_app::start_video_capture(const std::string& camera)
 {
   SPDLOG_INFO("test_app::start_video_capture({:s})", camera);
 
-  // add mkv to pipeline
-  // m_mkv.add_to_bin(m_pipeline);
+  if(m_mkv_pipe)
+  {
+    return false;
+  }
 
-  // link tp pipeline
-  // m_h264->link_back(m_mkv.front());
+  m_mkv_pipe = std::make_shared<gst_filesink_pipeline>();
+  if(m_mkv_pipe->init())
+  {
+    m_mkv_pipe->set_listen_to("h264_ipsink_0");
+    if(m_mkv_pipe->start())
+    {
+      return true;
+    }
+    else
+    {
+      SPDLOG_INFO("m_mkv_pipe start failed");
 
-  // m_mkv.get_bin()->set_state(Gst::STATE_PLAYING);
-  // m_mkv.start();
+      m_mkv_pipe.reset();
+      return false;   
+    }
+  }
+  else
+  {
+    SPDLOG_INFO("m_mkv_pipe init failed");
+    m_mkv_pipe.reset();
+    return false;
+  }
 
   return true;
 }
@@ -151,9 +170,13 @@ bool test_app::stop_video_capture(const std::string& camera)
 {
   SPDLOG_INFO("test_app::stop_video_capture({:s})", camera);
 
-  // m_mkv.install_wait_for_eos();
-  // m_mkv.send_eos();
-  // m_mkv.wait_for_eos();
+  if(!m_mkv_pipe)
+  {
+    return false;
+  }
+
+  m_mkv_pipe->stop();
+  m_mkv_pipe.reset();
 
   return true;
 }
@@ -246,8 +269,13 @@ std::string test_app::get_pipeline_graph()
   SPDLOG_INFO("test_app::get_pipeline_graph");
   
   make_debug_dot("pipeline");
-
   int ret = system("dot -Tpdf -o /tmp/pipeline.dot.pdf /tmp/pipeline.dot");
+
+  if(m_mkv_pipe)
+  {
+    m_mkv_pipe->make_debug_dot("pipeline_mkv");
+    int ret = system("dot -Tpdf -o /tmp/pipeline_mkv.dot.pdf /tmp/pipeline_mkv.dot");
+  }
 
   return std::string();
 }

@@ -14,7 +14,7 @@ void mkv_multifilesink_pipe::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
 {
     bin->add(m_bin);
 }
-void mkv_multifilesink_pipe::remove_from_bin(const Glib::RefPtr<Gst::Bin>& bin)
+// void mkv_multifilesink_pipe::remove_from_bin(const Glib::RefPtr<Gst::Bin>& bin)
 // {
 //     bin->remove(m_bin);
 // }

@@ -1,3 +1,5 @@
+#include "gst_filesink_pipeline.hpp"
+
 #include "pipeline/GST_app_base.hpp"
 #include "pipeline/GST_interpipesink.hpp"
 
@@ -105,11 +107,13 @@ public:
   std::shared_ptr<GST_element_base> m_jpgdec;
   std::shared_ptr<GST_element_base> m_h264;
 
-  std::shared_ptr<mkv_multifilesink_pipe> m_mkv;
   GST_interpipesink      m_h264_interpipesink;
 
   rtp_h264_pipe          m_rtppay;
   rtpsink_pipe           m_rtpsink;
   autovideosink_pipe     m_display;
+
+  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe;
+
 };
 

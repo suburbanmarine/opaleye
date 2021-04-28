@@ -31,6 +31,8 @@ bool GST_interpipesrc::init(const char name[])
     m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
 
     m_interpipesrc = Gst::ElementFactory::create_element("interpipesrc", name);
+    g_object_set(m_interpipesrc->gobj(), "format", 3, NULL); // TIME
+
     m_out_tee = Gst::Tee::create();
 
     // m_bin->add(m_in_queue);
@@ -45,5 +47,6 @@ bool GST_interpipesrc::init(const char name[])
 
 void GST_interpipesrc::set_listen_to(const char name[])
 {
-  m_interpipesrc->property("listen-to", name);
+  // m_interpipesrc->property("listen-to", name);
+  g_object_set(m_interpipesrc->gobj(), "listen-to", name, NULL);
 }
