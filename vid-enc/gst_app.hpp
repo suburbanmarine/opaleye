@@ -1,10 +1,13 @@
 #include "pipeline/GST_app_base.hpp"
+#include "pipeline/GST_interpipesink.hpp"
+
 #include "pipeline/camera/Testsrc_pipe.hpp"
 #include "pipeline/camera/Logitech_brio_pipe.hpp"
 #include "pipeline/storage/mkv_multifilesink_pipe.hpp"
 #include "pipeline/display/autovideosink_pipe.hpp"
 #include "pipeline/stream/rtp_h264_pipe.hpp"
 #include "pipeline/stream/rtpsink_pipe.hpp"
+
 #include <memory>
 
 class test_app_config
@@ -102,7 +105,9 @@ public:
   std::shared_ptr<GST_element_base> m_jpgdec;
   std::shared_ptr<GST_element_base> m_h264;
 
-  mkv_multifilesink_pipe m_mkv;
+  std::shared_ptr<mkv_multifilesink_pipe> m_mkv;
+  GST_interpipesink      m_h264_interpipesink;
+
   rtp_h264_pipe          m_rtppay;
   rtpsink_pipe           m_rtpsink;
   autovideosink_pipe     m_display;
