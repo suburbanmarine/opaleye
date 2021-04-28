@@ -16,6 +16,7 @@ GST_app_base::GST_app_base() : m_got_eos(false)
   m_pipeline_bus->signal_message().connect(sigc::mem_fun(this, &GST_app_base::on_bus_message));
 
   //glib event func
+  // m_mainloop_context = Glib::MainContext::get_thread_default();
   m_mainloop_context = Glib::MainContext::get_default();
   m_mainloop         = Glib::MainLoop::create(m_mainloop_context, false);
 }
