@@ -30,6 +30,9 @@ add_library(camera-pipes
 	pipeline/mux_pipe.cpp
 	pipeline/valve_pipe.cpp
 	pipeline/gst_common.cpp
+	pipeline/GST_interpipesrc.cpp
+	pipeline/GST_interpipesink.cpp
+	
 )
 
 target_link_libraries(camera-pipes

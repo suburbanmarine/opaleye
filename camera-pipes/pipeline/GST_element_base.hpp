@@ -20,12 +20,27 @@ public:
 	}
 
 	virtual void add_to_bin(const Glib::RefPtr<Gst::Bin>& bin) = 0;
-  virtual void add_to_bin(const Glib::RefPtr<Gst::Bin>& bin, const Glib::RefPtr<Gst::Bus>& bus)
-  {
-    add_to_bin(bin);
-  }
+	virtual void add_to_bin(const Glib::RefPtr<Gst::Bin>& bin, const Glib::RefPtr<Gst::Bus>& bus)
+	{
+		add_to_bin(bin);
+	}
+	
+	// virtual void remove_from_bin(const Glib::RefPtr<Gst::Bin>& bin)
+	// {
+		
+	// }
+
 	virtual bool link_front(const Glib::RefPtr<Gst::Element>& node) = 0;
 	virtual bool link_back(const Glib::RefPtr<Gst::Element>& node) = 0;
+
+	virtual bool unlink_front(const Glib::RefPtr<Gst::Element>& node)
+	{
+		return false;
+	}
+	virtual bool unlink_back(const Glib::RefPtr<Gst::Element>& node)
+	{
+		return false;
+	}
 
 	virtual bool link_front(const Glib::RefPtr<Gst::Pad>& pad)
 	{
@@ -38,14 +53,14 @@ public:
 
 	virtual bool init(const char name[]) = 0;
 
-  virtual Glib::RefPtr<Gst::Element> front()
-  {
-    return Glib::RefPtr<Gst::Element>();
-  }
-  virtual Glib::RefPtr<Gst::Element> back()
-  {
-    return Glib::RefPtr<Gst::Element>();
-  }
+	virtual Glib::RefPtr<Gst::Element> front()
+	{
+		return Glib::RefPtr<Gst::Element>();
+	}
+	virtual Glib::RefPtr<Gst::Element> back()
+	{
+		return Glib::RefPtr<Gst::Element>();
+	}
 
 // gst_element_link_pads
 // gst_element_link_pads_filtered
