@@ -10,6 +10,8 @@
 
 #include <atomic>
 #include <thread>
+#include <mutex>
+#include <condition_variable>
 
 class GST_app_base
 {
@@ -40,5 +42,8 @@ protected:
 
   std::thread glib_main_thread_;
 
-  std::atomic<bool> m_got_eos;
+  std::atomic<bool>       m_got_eos;
+  std::mutex              m_mutex_got_eos;
+  std::condition_variable m_cv_got_eos;
+
 };

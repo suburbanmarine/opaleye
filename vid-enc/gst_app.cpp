@@ -175,7 +175,7 @@ bool test_app::stop_video_capture(const std::string& camera)
     return false;
   }
 
-  m_mkv_pipe->set_listen_to("");
+  m_mkv_pipe->set_listen_to(NULL);
   m_mkv_pipe->send_pipeline_eos();
   m_mkv_pipe->wait_pipeline_eos();
   m_mkv_pipe->stop();

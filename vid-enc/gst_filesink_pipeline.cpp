@@ -50,8 +50,6 @@ void gst_filesink_pipeline::send_pipeline_eos()
 }
 void gst_filesink_pipeline::wait_pipeline_eos()
 {
-	while(!m_got_eos)
-	{
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-	}
+	std::unique_lock<std::mutex> lock(m_mutex_got_eos);
+	m_cv_got_eos.wait(lock, [this]{return m_got_eos.load();});
 }

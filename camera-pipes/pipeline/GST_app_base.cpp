@@ -57,6 +57,7 @@ void GST_app_base::on_bus_message(const Glib::RefPtr<Gst::Message>& message)
     {
       SPDLOG_INFO("GST_app_base::on_bus_message - GST_MESSAGE_EOS");
       m_got_eos = true;
+      m_cv_got_eos.notify_all();
       break;
     }
     case GST_MESSAGE_UNKNOWN:
