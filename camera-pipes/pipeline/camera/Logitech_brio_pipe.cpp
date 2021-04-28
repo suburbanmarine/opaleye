@@ -274,6 +274,8 @@ bool Logitech_brio_pipe::init(const char name[])
     m_src->property_stream_type()  = Gst::APP_STREAM_TYPE_STREAM;
     m_src->property_format()       = Gst::FORMAT_TIME;
 
+    // m_src->add_probe(GST_PAD_PROBE_TYPE_IDLE | GST_PAD_PROBE_TYPE_EVENT_BOTH, sigc::mem_fun(&Logitech_brio_pipe::on_pad_probe, this))
+
     //get a cb per new frame
     m_camera.register_callback(std::bind(&Logitech_brio_pipe::new_frame_cb, this, std::placeholders::_1));
 

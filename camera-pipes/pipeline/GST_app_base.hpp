@@ -8,6 +8,7 @@
 #include <gstreamermm/pipeline.h>
 #include <gstreamermm/bus.h>
 
+#include <atomic>
 #include <thread>
 
 class GST_app_base
@@ -38,4 +39,6 @@ protected:
   Glib::RefPtr<Gst::Bus>           m_pipeline_bus;
 
   std::thread glib_main_thread_;
+
+  std::atomic<bool> m_got_eos;
 };

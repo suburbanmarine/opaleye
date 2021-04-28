@@ -42,3 +42,16 @@ void gst_filesink_pipeline::set_listen_to(const char name[])
 {
 	m_interpipe_src.set_listen_to(name);
 }
+
+void gst_filesink_pipeline::send_pipeline_eos()
+{
+  Glib::RefPtr<Gst::EventEos> eos = Gst::EventEos::create();
+  m_pipeline->send_event(eos);
+}
+void gst_filesink_pipeline::wait_pipeline_eos()
+{
+	while(!m_got_eos)
+	{
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
+}

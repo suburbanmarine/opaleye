@@ -31,7 +31,10 @@ bool GST_interpipesrc::init(const char name[])
     m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
 
     m_interpipesrc = Gst::ElementFactory::create_element("interpipesrc", name);
-    g_object_set(m_interpipesrc->gobj(), "format", 3, NULL); // TIME
+    g_object_set(m_interpipesrc->gobj(), "format",      3, NULL); // TIME
+    g_object_set(m_interpipesrc->gobj(), "stream-type", 0, NULL); // stream
+    g_object_set(m_interpipesrc->gobj(), "stream-sync", 0, NULL); // restart-ts
+    g_object_set(m_interpipesrc->gobj(), "is-live",     true, NULL); // restart-ts
 
     m_out_tee = Gst::Tee::create();
 

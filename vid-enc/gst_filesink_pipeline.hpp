@@ -15,6 +15,9 @@ public:
 
   void set_listen_to(const char name[]);
 
+  void send_pipeline_eos();
+  void wait_pipeline_eos();
+
 protected:
 
 	GST_interpipesrc       m_interpipe_src;

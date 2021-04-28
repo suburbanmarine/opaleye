@@ -2,7 +2,7 @@
 
 #include <spdlog/spdlog.h>
 
-GST_app_base::GST_app_base()
+GST_app_base::GST_app_base() : m_got_eos(false)
 {
   //top level pipeline
   m_pipeline     = Gst::Pipeline::create("pipeline");
@@ -49,11 +49,16 @@ bool GST_app_base::stop()
 // bool GST_app_base::on_bus_message(const Glib::RefPtr<Gst::Bus>& bus, const Glib::RefPtr<Gst::Message>& message)
 void GST_app_base::on_bus_message(const Glib::RefPtr<Gst::Message>& message)
 {
-  SPDLOG_ERROR("GST_app_base::on_bus_message");
+  SPDLOG_INFO("GST_app_base::on_bus_message");
   switch(message->get_message_type())
   {
-    case GST_MESSAGE_UNKNOWN:
     case GST_MESSAGE_EOS:
+    {
+      SPDLOG_INFO("GST_app_base::on_bus_message - GST_MESSAGE_EOS");
+      m_got_eos = true;
+      break;
+    }
+    case GST_MESSAGE_UNKNOWN:
     case GST_MESSAGE_ERROR:
     case GST_MESSAGE_WARNING:
     case GST_MESSAGE_INFO:
