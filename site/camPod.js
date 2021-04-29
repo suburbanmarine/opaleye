@@ -35,11 +35,19 @@ function btnVideoStopClick(event) {
 
 function btnRTPStreamStartClick(event) {
     console.log( "btnRTPStreamStartClick" );
-    camPod.jrpc.call('start_rtp_stream', ['127.0.0.1', 5000]);
+
+    var data = $("ipform").serializeArray();
+    var client_ip = data['client_ip'];
+
+    camPod.jrpc.call('start_rtp_stream', [client_ip, 5000]);
 }
 function btnRTPStreamStopClick(event) {
     console.log( "btnRTPStreamStopClick" );
-    camPod.jrpc.call('stop_rtp_stream', ['127.0.0.1', 5000]);
+
+    var data = $("ipform").serializeArray();
+    var client_ip = data['client_ip'];
+    
+    camPod.jrpc.call('stop_rtp_stream', [client_ip, 5000]);
 }
 function btnGetPipelineStatus(event) {
    console.log( "btnGetPipelineStatus" );
