@@ -2,6 +2,7 @@ add_executable(vid-enc
 	main.cpp
 	gst_app.cpp
 	gst_filesink_pipeline.cpp
+	app_config.cpp
 
 	http_req_jpeg.cpp
 	http_req_jsonrpc.cpp
@@ -39,4 +40,11 @@ INSTALL(
 		vid-enc
 	DESTINATION
 		bin
+)
+
+INSTALL(
+	FILES
+		config.xml
+	DESTINATION
+		conf
 )

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<video_path>/mnt/video</video_path>
+	<image_path>/mnt/video</image_path>
+	<h264_mode>nv</h264_mode>
+</config>

@@ -1,5 +1,7 @@
 #include "gst_filesink_pipeline.hpp"
 
+#include "app_config.hpp"
+
 #include "pipeline/GST_app_base.hpp"
 #include "pipeline/GST_interpipesink.hpp"
 
@@ -114,6 +116,8 @@ public:
   autovideosink_pipe     m_display;
 
   std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe;
+
+  std::shared_ptr<app_config> m_config;
 
 };
 

@@ -26,18 +26,27 @@ bool test_app::init()
     return false;
   }
 
-  if(true)
+  if(!m_config)
   {
-    m_jpgdec = std::make_shared<jpeg_swdec_pipe>();
-    m_h264   = std::make_shared<h264_swenc_pipe>();
+    m_config = std::make_shared<app_config>();
+    m_config->make_default();
   }
-  else
+
+  if(m_config->h264_mode == "nv")
   {
+    SPDLOG_INFO("NV mode");
     // https://forums.developer.nvidia.com/t/bus-error-with-gstreamer-and-opencv/110657/5
     // libjpeg and nvjpegdec may not be used in the same program...
     // m_jpgdec = std::make_shared<jpeg_nvdec_pipe>();
     m_jpgdec = std::make_shared<jpeg_swdec_pipe>();
     m_h264   = std::make_shared<h264_nvenc_pipe>(); 
+  }
+  else
+  {
+    SPDLOG_INFO("CPU mode");
+
+    m_jpgdec = std::make_shared<jpeg_swdec_pipe>();
+    m_h264   = std::make_shared<h264_swenc_pipe>();
   }
 
   // if( ! m_test_src.init("cam_1") )

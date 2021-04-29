@@ -8,6 +8,7 @@
 #include "signal_handler.hpp"
 
 #include "gst_app.hpp"
+#include "app_config.hpp"
 
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
@@ -89,6 +90,19 @@ int main(int argc, char* argv[])
 	    }
 	}
 
+	app_config_mgr cfg_mgr;
+	if(!cfg_mgr.deserialize("/opt/suburbamarine/cam-pod/config/config.xml"))
+	{
+		SPDLOG_ERROR("cfg_mgr deserialize failed");
+		return -1;
+	}
+
+	if( ! cfg_mgr.get_config() )
+	{
+		SPDLOG_ERROR("cfg_mgr does not have a config");
+		return -1;	
+	}
+
 	http_fcgi_svr fcgi_svr;
 
 	std::shared_ptr<http_req_callback_file> req_cb = std::make_shared<http_req_callback_file>();
@@ -97,6 +111,7 @@ int main(int argc, char* argv[])
 	fcgi_svr.start();
 
 	test_app app;
+	app.m_config = cfg_mgr.get_config();
 	if( ! app.init() )
 	{
 		SPDLOG_ERROR("app.init failed");
