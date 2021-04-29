@@ -106,6 +106,13 @@ INSTALL(
 		/etc/nginx/sites-available
 )
 
+INSTALL(
+	FILES
+		"${PROJECT_SOURCE_DIR}/conf/etc/rules.d/99-uvc.rules"
+	DESTINATION
+		/etc/rules.d
+)
+
 set(CPACK_SET_DESTDIR true)
 set(CPACK_INSTALL_PREFIX /opt/suburbanmarine/cam-pod)
 set(CPACK_GENERATOR "DEB")
