@@ -50,7 +50,12 @@ function btnGetPipelineGraph(event) {
    ret = camPod.jrpc.call('get_pipeline_graph');
 }
 function handleDocumentReady(jQuery) {
-  camPod.jrpc = simple_jsonrpc.connect_xhr('http://127.0.0.1/api/v1');
+  
+  var currentLocation = window.location;
+
+  var rpcurl = 'http://' + currentLocation.hostname + '/api/v1';
+
+  camPod.jrpc = simple_jsonrpc.connect_xhr(rpcurl);
 
   $("#btnRefresh"           ).on("click", clickedRefreshButton   );
   $("#btnStillStart"        ).on("click", btnStillStartClick     );
@@ -59,8 +64,8 @@ function handleDocumentReady(jQuery) {
   $("#btnVideoStop"         ).on("click", btnVideoStopClick      );
   $("#btnRTPStreamStart"    ).on("click", btnRTPStreamStartClick );
   $("#btnRTPStreamStop"     ).on("click", btnRTPStreamStopClick  );
-  $("#btnGetPipelineStatus" ).on("click", btnGetPipelineStatus );
-  $("#btnGetPipelineGraph"  ).on("click", btnGetPipelineGraph  );
+  $("#btnGetPipelineStatus" ).on("click", btnGetPipelineStatus   );
+  $("#btnGetPipelineGraph"  ).on("click", btnGetPipelineGraph    );
 }
 
 $(document).ready(handleDocumentReady);
