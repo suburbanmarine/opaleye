@@ -48,8 +48,9 @@ bool mkv_splitmuxsink_pipe::init(const char name[])
     m_splitmuxsink->set_property("location", location);
     m_splitmuxsink->set_property("start-index", 0);
     m_splitmuxsink->set_property("max-files", 0);
-    m_splitmuxsink->set_property("max-size-bytes", 1024*1024*1024);
-    m_splitmuxsink->set_property("max-size-time",  0 /*3600*GST_SECOND*/);
+    m_splitmuxsink->set_property("max-size-bytes", 0);
+    m_splitmuxsink->set_property("max-size-time",  10*60*GST_SECOND);
+    m_splitmuxsink->set_property("send-keyframe-requests",  true); // max-size-bytes must be 0
 
     m_splitmuxsink->set_property("muxer-factory", Glib::ustring("matroskamux"));
     m_splitmuxsink->set_property("muxer-properties", 
