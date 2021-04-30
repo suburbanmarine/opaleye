@@ -44,7 +44,7 @@ bool mkv_splitmuxsink_pipe::init(const char name[])
     m_in_queue->property_max_size_time()         = 10 * GST_SECOND;
 
     m_splitmuxsink = Gst::ElementFactory::create_element("splitmuxsink");
-    m_splitmuxsink->set_property("async-finalize", false);
+    m_splitmuxsink->set_property("async-finalize", true);
     m_splitmuxsink->set_property("location", location);
     m_splitmuxsink->set_property("start-index", 0);
     m_splitmuxsink->set_property("max-files", 0);
