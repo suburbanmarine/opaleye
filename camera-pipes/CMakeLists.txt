@@ -15,6 +15,7 @@ add_library(camera-pipes
 	pipeline/encode/h264_nvenc_pipe.cpp
 
 	pipeline/storage/mkv_multifilesink_pipe.cpp
+	pipeline/storage/mkv_splitmuxsink_pipe.cpp
 
 	pipeline/stream/rtp_h264_pipe.cpp
 	pipeline/stream/udpsink_pipe.cpp
