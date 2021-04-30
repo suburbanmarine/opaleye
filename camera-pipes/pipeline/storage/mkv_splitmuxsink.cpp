@@ -1,4 +1,4 @@
-#include "mkv_splitmuxsink_pipe.hpp"
+#include "mkv_splitmuxsink.hpp"
 
 #include <gstreamermm/elementfactory.h>
 
@@ -51,15 +51,17 @@ bool mkv_splitmuxsink_pipe::init(const char name[])
     m_splitmuxsink->set_property("max-size-bytes", 1024*1024*1024);
     m_splitmuxsink->set_property("max-size-time",  0 /*3600*GST_SECOND*/);
 
-    m_splitmuxsink->set_property("muxer-factory", "matroskamux");
+    m_splitmuxsink->set_property("muxer-factory", Glib::ustring("matroskamux"));
     m_splitmuxsink->set_property("muxer-properties", 
-        "min-index-interval=5000,"
-        "version=2,"
-        "streamable=false,"
-        "writing-app=\"cam-pod\","
-        "offset-to-zero=true"
-        // "min-index-interval=500000000"
-        );
+        Glib::ustring(
+            "min-index-interval=5000,"
+            "version=2,"
+            "streamable=false,"
+            "writing-app=\"cam-pod\","
+            "offset-to-zero=true"
+            // "min-index-interval=500000000"
+        )
+    );
 
     // m_splitmuxsink->set_property("sink-factory", "");
     // m_splitmuxsink->set_property("sink-properties", 
@@ -67,13 +69,9 @@ bool mkv_splitmuxsink_pipe::init(const char name[])
     //     );
 
     m_bin->add(m_in_queue);
-    m_bin->add(m_matroskamux);
-    m_bin->add(m_multifilesink);
+    m_bin->add(m_splitmuxsink);
 
-    m_in_queue->link(m_matroskamux);
-    m_matroskamux->link(m_multifilesink);
-
-    // m_matroskamux->add_probe(GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM, sigc::mem_fun(&mkv_splitmuxsink_pipe::on_pad_probe, this))
+    m_in_queue->link(m_splitmuxsink);
   }
 
   return true;
