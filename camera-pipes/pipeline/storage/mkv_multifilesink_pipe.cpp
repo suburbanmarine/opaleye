@@ -7,7 +7,8 @@
 
 mkv_multifilesink_pipe::mkv_multifilesink_pipe()/* : m_got_eos(false)*/
 {
-  
+    location = "file-%06d.mkv";
+    index    = 0; 
 }
 
 void mkv_multifilesink_pipe::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
@@ -54,23 +55,28 @@ bool mkv_multifilesink_pipe::init(const char name[])
     m_matroskamux = Gst::ElementFactory::create_element("matroskamux");
     // m_matroskamux->set_property("writing-app", "SM");
     m_matroskamux->set_property("version", 2);
-    m_matroskamux->set_property("min-index-interval", 100 * 1000*1000);
-    // m_matroskamux->set_property("streamable", false);
-    m_matroskamux->set_property("streamable", true);
+    m_matroskamux->set_property("min-index-interval", 5000 * GST_MSECOND);
+    
+    
+    m_matroskamux->set_property("writing-app",   Glib::ustring("cam-pod"));
+    m_matroskamux->set_property("streamable",    false);
+    m_matroskamux->set_property("offset-to-zero", true);
     // m_matroskamux->set_property("timecodescale", );
     // m_matroskamux->set_property("max-cluster-duration", );
     // m_matroskamux->set_property("min-cluster-duration", );
 
-    m_multifilesink = Gst::ElementFactory::create_element("multifilesink");
-    // m_multifilesink->set_property("aggregate-gops");
-    m_multifilesink->set_property("location", Glib::ustring("file-%06d.mkv"));
 
-    // buffer (0)
-    // discont (1)
-    // key-frame (2)
-    // key-unit-event (3)
-    // max-size (4)
-    // max-duration (5)
+    m_multifilesink = Gst::ElementFactory::create_element("multifilesink");
+    m_multifilesink->set_property("location", location);
+    m_multifilesink->set_property("index", index);
+    m_multifilesink->set_property("aggregate-gops", true);
+
+    // buffer (0) – New file for each buffer
+    // discont (1) – New file after each discontinuity
+    // key-frame (2) – New file at each key frame (Useful for MPEG-TS segmenting)
+    // key-unit-event (3) – New file after a force key unit event
+    // max-size (4) – New file when the configured maximum file size would be exceeded with the next buffer or buffer list
+    // max-duration (5) – New file when the configured maximum file duration would be exceeded with the next buffer or buffer list
     m_multifilesink->set_property("next-file", 4);
     
     // m_multifilesink->set_property("max-file-duration", );
@@ -88,6 +94,11 @@ bool mkv_multifilesink_pipe::init(const char name[])
   }
 
   return true;
+}
+
+void mkv_multifilesink_pipe::set_location(const std::string& s)
+{
+
 }
 
 // void mkv_multifilesink_pipe::send_eos()

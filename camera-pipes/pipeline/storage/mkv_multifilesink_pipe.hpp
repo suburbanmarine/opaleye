@@ -27,6 +27,8 @@ public:
 
   bool init(const char name[]) override;
 
+  void set_location(const std::string& s);
+
   Glib::RefPtr<Gst::Element> front() override
   {
     return m_in_queue;
@@ -60,4 +62,7 @@ protected:
   // std::atomic<bool>             m_got_eos;
   // std::mutex                    m_mutex_got_eos;
   // std::condition_variable       m_cv_got_eos;
+
+  std::string location;
+  int index;
 };
