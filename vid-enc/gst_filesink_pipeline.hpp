@@ -1,7 +1,7 @@
 #include "pipeline/GST_app_base.hpp"
 #include "pipeline/GST_interpipesrc.hpp"
 
-#include "pipeline/storage/mkv_splitmuxsink.hpp"
+#include "pipeline/storage/mp4_splitmuxsink.hpp"
 
 class gst_filesink_pipeline : public GST_app_base
 {
@@ -20,6 +20,6 @@ public:
 
 protected:
 
-	GST_interpipesrc       m_interpipe_src;
-	mkv_splitmuxsink_pipe m_mkv;
+	GST_interpipesrc m_interpipe_src;
+	mp4_splitmuxsink m_mux;
 };

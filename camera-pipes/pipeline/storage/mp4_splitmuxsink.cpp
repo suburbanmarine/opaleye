@@ -1,38 +1,38 @@
-#include "mkv_splitmuxsink.hpp"
+#include "mp4_splitmuxsink.hpp"
 
 #include <gstreamermm/elementfactory.h>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
 
-mkv_splitmuxsink_pipe::mkv_splitmuxsink_pipe()/* : m_got_eos(false)*/
+mp4_splitmuxsink::mp4_splitmuxsink()/* : m_got_eos(false)*/
 {
-    location = "file-%06d.mkv";
+    location = "file-%06d.mp4";
     index    = 0; 
 }
 
-void mkv_splitmuxsink_pipe::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
+void mp4_splitmuxsink::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
 {
     bin->add(m_bin);
 }
 
-bool mkv_splitmuxsink_pipe::link_front(const Glib::RefPtr<Gst::Element>& node)
+bool mp4_splitmuxsink::link_front(const Glib::RefPtr<Gst::Element>& node)
 {
   node->link(m_in_queue);
   return true;
 }
-bool mkv_splitmuxsink_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
+bool mp4_splitmuxsink::link_back(const Glib::RefPtr<Gst::Element>& node)
 {
   return false;
 }
 
-bool mkv_splitmuxsink_pipe::unlink_front(const Glib::RefPtr<Gst::Element>& node)
+bool mp4_splitmuxsink::unlink_front(const Glib::RefPtr<Gst::Element>& node)
 {
     node->unlink(m_in_queue);
     return true;
 }
 
-bool mkv_splitmuxsink_pipe::init(const char name[])
+bool mp4_splitmuxsink::init(const char name[])
 {
   //init our internal bin and elements
   {
@@ -53,14 +53,10 @@ bool mkv_splitmuxsink_pipe::init(const char name[])
     m_splitmuxsink->set_property("send-keyframe-requests",  true); // max-size-bytes must be 0
 
     // 1.15.1+
-    // m_splitmuxsink->set_property("muxer-factory", Glib::ustring("matroskamux"));
+    // m_splitmuxsink->set_property("muxer-factory", Glib::ustring("mp4mux"));
     // m_splitmuxsink->set_property("muxer-properties", 
     //     Glib::ustring(
-    //         "version=2,"
-    //         "streamable=false,"
-    //         "writing-app=\"cam-pod\","
-    //         "offset-to-zero=true"
-    //         // "min-index-interval=500000000"
+    //         ""
     //     )
     // );
 
@@ -79,7 +75,7 @@ bool mkv_splitmuxsink_pipe::init(const char name[])
   return true;
 }
 
-void mkv_splitmuxsink_pipe::set_location(const std::string& s)
+void mp4_splitmuxsink::set_location(const std::string& s)
 {
 
 }

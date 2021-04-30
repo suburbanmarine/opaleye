@@ -25,15 +25,15 @@ bool gst_filesink_pipeline::init()
 		return false;
 	}
 
-	if( ! m_mkv.init("mkv0") )
+	if( ! m_mux.init("mux0") )
 	{
 		return false;
 	}
 
 	m_interpipe_src.add_to_bin(m_pipeline);
-	m_mkv.add_to_bin(m_pipeline);
+	m_mux.add_to_bin(m_pipeline);
 
-	m_interpipe_src.link_back(m_mkv.front());
+	m_interpipe_src.link_back(m_mux.front());
 
 	return true;
 }
