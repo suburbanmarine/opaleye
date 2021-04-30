@@ -36,6 +36,14 @@ public:
     return m_bin;
   }  
 
+  void split_after_gop();
+  void split_now();
+
+  void handle_format_location();
+  void handle_format_location_full();
+  void handle_muxer_added();
+  void handle_sink_added();
+
   // void send_eos();
 
   // void install_wait_for_eos();
