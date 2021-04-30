@@ -55,7 +55,6 @@ bool mkv_splitmuxsink_pipe::init(const char name[])
     m_splitmuxsink->set_property("muxer-factory", Glib::ustring("matroskamux"));
     m_splitmuxsink->set_property("muxer-properties", 
         Glib::ustring(
-            "min-index-interval=5000,"
             "version=2,"
             "streamable=false,"
             "writing-app=\"cam-pod\","
