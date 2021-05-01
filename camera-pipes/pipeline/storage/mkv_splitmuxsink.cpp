@@ -5,34 +5,34 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
 
-mkv_splitmuxsink_pipe::mkv_splitmuxsink_pipe()/* : m_got_eos(false)*/
+mkv_splitmuxsink::mkv_splitmuxsink()/* : m_got_eos(false)*/
 {
     location = "file-%06d.mkv";
     index    = 0; 
 }
 
-void mkv_splitmuxsink_pipe::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
+void mkv_splitmuxsink::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
 {
     bin->add(m_bin);
 }
 
-bool mkv_splitmuxsink_pipe::link_front(const Glib::RefPtr<Gst::Element>& node)
+bool mkv_splitmuxsink::link_front(const Glib::RefPtr<Gst::Element>& node)
 {
   node->link(m_in_queue);
   return true;
 }
-bool mkv_splitmuxsink_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
+bool mkv_splitmuxsink::link_back(const Glib::RefPtr<Gst::Element>& node)
 {
   return false;
 }
 
-bool mkv_splitmuxsink_pipe::unlink_front(const Glib::RefPtr<Gst::Element>& node)
+bool mkv_splitmuxsink::unlink_front(const Glib::RefPtr<Gst::Element>& node)
 {
     node->unlink(m_in_queue);
     return true;
 }
 
-bool mkv_splitmuxsink_pipe::init(const char name[])
+bool mkv_splitmuxsink::init(const char name[])
 {
   //init our internal bin and elements
   {
@@ -79,7 +79,7 @@ bool mkv_splitmuxsink_pipe::init(const char name[])
   return true;
 }
 
-void mkv_splitmuxsink_pipe::set_location(const std::string& s)
+void mkv_splitmuxsink::set_location(const std::string& s)
 {
 
 }

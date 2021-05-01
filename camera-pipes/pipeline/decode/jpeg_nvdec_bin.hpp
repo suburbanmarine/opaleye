@@ -7,10 +7,10 @@
 #include <gstreamermm/queue.h>
 #include <gstreamermm/tee.h>
 
-class jpeg_swdec_pipe : public GST_element_base
+class jpeg_nvdec_bin : public GST_element_base
 {
 public:
-  jpeg_swdec_pipe();
+  jpeg_nvdec_bin();
 
   void add_to_bin(const Glib::RefPtr<Gst::Bin>& bin) override;
   bool link_front(const Glib::RefPtr<Gst::Element>& node) override;

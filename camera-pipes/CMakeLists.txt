@@ -8,13 +8,12 @@ add_library(camera-pipes
 
 	pipeline/display/autovideosink_pipe.cpp
 
-	pipeline/decode/jpeg_swdec_pipe.cpp
-	pipeline/decode/jpeg_nvdec_pipe.cpp
+	pipeline/decode/jpeg_swdec_bin.cpp
+	pipeline/decode/jpeg_nvdec_bin.cpp
 
-	pipeline/encode/h264_swenc_pipe.cpp
-	pipeline/encode/h264_nvenc_pipe.cpp
+	pipeline/encode/h264_swenc_bin.cpp
+	pipeline/encode/h264_nvenc_bin.cpp
 
-	pipeline/storage/mkv_multifilesink_pipe.cpp
 	pipeline/storage/mkv_splitmuxsink.cpp
 	pipeline/storage/mp4_splitmuxsink.cpp
 

@@ -1,31 +1,31 @@
-#include "h264_nvenc_pipe.hpp"
+#include "h264_nvenc_bin.hpp"
 
 #include <gstreamermm/elementfactory.h>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
 
-h264_nvenc_pipe::h264_nvenc_pipe()
+h264_nvenc_bin::h264_nvenc_bin()
 {
   
 }
 
-void h264_nvenc_pipe::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
+void h264_nvenc_bin::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
 {
   bin->add(m_bin);
 }
-bool h264_nvenc_pipe::link_front(const Glib::RefPtr<Gst::Element>& node)
+bool h264_nvenc_bin::link_front(const Glib::RefPtr<Gst::Element>& node)
 {
   node->link(m_in_queue);
   return false;
 }
-bool h264_nvenc_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
+bool h264_nvenc_bin::link_back(const Glib::RefPtr<Gst::Element>& node)
 {
   m_out_tee->link(node);
   return true;
 }
 
-bool h264_nvenc_pipe::init(const char name[])
+bool h264_nvenc_bin::init(const char name[])
 {
   //init our internal bin and elements
   {

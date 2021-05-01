@@ -10,10 +10,10 @@
 #include <mutex>
 #include <condition_variable>
 
-class mkv_splitmuxsink_pipe : public GST_element_base
+class mkv_splitmuxsink : public GST_element_base
 {
 public:
-  mkv_splitmuxsink_pipe();
+  mkv_splitmuxsink();
 
   void add_to_bin(const Glib::RefPtr<Gst::Bin>& bin) override;
 

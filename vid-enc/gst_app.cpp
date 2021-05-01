@@ -1,10 +1,10 @@
 #include "gst_app.hpp"
 
-#include "pipeline/encode/h264_swenc_pipe.hpp"
-#include "pipeline/decode/jpeg_swdec_pipe.hpp"
+#include "pipeline/encode/h264_swenc_bin.hpp"
+#include "pipeline/decode/jpeg_swdec_bin.hpp"
 
-#include "pipeline/encode/h264_nvenc_pipe.hpp"
-#include "pipeline/decode/jpeg_nvdec_pipe.hpp"
+#include "pipeline/encode/h264_nvenc_bin.hpp"
+#include "pipeline/decode/jpeg_nvdec_bin.hpp"
 
 #include <spdlog/spdlog.h>
 
@@ -38,15 +38,15 @@ bool test_app::init()
     // https://forums.developer.nvidia.com/t/bus-error-with-gstreamer-and-opencv/110657/5
     // libjpeg and nvjpegdec may not be used in the same program...
     // m_jpgdec = std::make_shared<jpeg_nvdec_pipe>();
-    m_jpgdec = std::make_shared<jpeg_swdec_pipe>();
-    m_h264   = std::make_shared<h264_nvenc_pipe>(); 
+    m_jpgdec = std::make_shared<jpeg_swdec_bin>();
+    m_h264   = std::make_shared<h264_nvenc_bin>(); 
   }
   else
   {
     SPDLOG_INFO("CPU mode");
 
-    m_jpgdec = std::make_shared<jpeg_swdec_pipe>();
-    m_h264   = std::make_shared<h264_swenc_pipe>();
+    m_jpgdec = std::make_shared<jpeg_swdec_bin>();
+    m_h264   = std::make_shared<h264_swenc_bin>();
   }
 
   // if( ! m_test_src.init("cam_1") )

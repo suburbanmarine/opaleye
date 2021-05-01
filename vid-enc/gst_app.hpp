@@ -7,8 +7,6 @@
 
 #include "pipeline/camera/Testsrc_pipe.hpp"
 #include "pipeline/camera/Logitech_brio_pipe.hpp"
-#include "pipeline/storage/mkv_multifilesink_pipe.hpp"
-#include "pipeline/storage/mkv_splitmuxsink.hpp"
 #include "pipeline/display/autovideosink_pipe.hpp"
 #include "pipeline/stream/rtp_h264_pipe.hpp"
 #include "pipeline/stream/rtpsink_pipe.hpp"

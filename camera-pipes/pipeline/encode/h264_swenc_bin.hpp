@@ -7,10 +7,10 @@
 #include <gstreamermm/queue.h>
 #include <gstreamermm/tee.h>
 
-class jpeg_nvdec_pipe : public GST_element_base
+class h264_swenc_bin : public GST_element_base
 {
 public:
-  jpeg_nvdec_pipe();
+  h264_swenc_bin();
 
   void add_to_bin(const Glib::RefPtr<Gst::Bin>& bin) override;
   bool link_front(const Glib::RefPtr<Gst::Element>& node) override;
@@ -32,8 +32,9 @@ protected:
   Glib::RefPtr<Gst::Bin>        m_bin;
 
   Glib::RefPtr<Gst::Queue>      m_in_queue;
-  Glib::RefPtr<Gst::Element>    m_jpegdec;
+  Glib::RefPtr<Gst::Element>    m_x264enc;
   Glib::RefPtr<Gst::Caps>       m_out_caps;
+  Glib::RefPtr<Gst::Element>    m_h264parse;
   Glib::RefPtr<Gst::CapsFilter> m_capsfilter;
   Glib::RefPtr<Gst::Tee>        m_out_tee;
 };
