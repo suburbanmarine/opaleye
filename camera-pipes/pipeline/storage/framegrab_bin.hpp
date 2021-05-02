@@ -32,6 +32,8 @@ public:
     return m_bin;
   }  
 
+  void set_location(const std::string& s);
+
 protected:
 
   Glib::RefPtr<Gst::Bin>        m_bin;
@@ -41,4 +43,7 @@ protected:
   Glib::RefPtr<Gst::Caps>       m_out_caps;
   Glib::RefPtr<Gst::CapsFilter> m_out_capsfilter;
   Glib::RefPtr<Gst::Element>    m_multifilesink;
+
+  std::string location;
+  int index;
 };

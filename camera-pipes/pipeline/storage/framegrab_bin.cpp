@@ -15,10 +15,6 @@ void framegrab_bin::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
 {
     bin->add(m_bin);
 }
-// void framegrab_bin::remove_from_bin(const Glib::RefPtr<Gst::Bin>& bin)
-// {
-//     bin->remove(m_bin);
-// }
 
 bool framegrab_bin::link_front(const Glib::RefPtr<Gst::Element>& node)
 {
