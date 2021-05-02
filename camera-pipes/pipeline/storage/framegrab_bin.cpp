@@ -25,17 +25,15 @@ bool framegrab_bin::link_front(const Glib::RefPtr<Gst::Element>& node)
   node->link(m_in_queue);
   return true;
 }
-
+bool framegrab_bin::link_back(const Glib::RefPtr<Gst::Element>& node)
+{
+  return false;
+}
 bool framegrab_bin::init(const char name[])
 {
   //init our internal bin and elements
   {
     m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
-
-    if( ! m_in_pipe.init("src") )
-    {
-        return false;
-    }
 
     m_in_queue    = Gst::Queue::create();
     m_in_queue->property_max_size_buffers()      = 0;
@@ -46,7 +44,7 @@ bool framegrab_bin::init(const char name[])
     
     //caps
     m_out_caps = Gst::Caps::create_simple(
-      // "video/x-raw",
+      "video/x-raw",
       // "format", Gst::Fourcc('M', 'J', 'P', 'G'),
       // "format", Gst::Fourcc(Glib::ustring("MJPG")),
       // "pixel-aspect-ratio", Gst::Fraction(1, 1),
@@ -57,7 +55,7 @@ bool framegrab_bin::init(const char name[])
       );
 
     m_out_capsfilter = Gst::CapsFilter::create();
-    m_out_capsfilter->property_caps().set_value(m_src_caps);
+    m_out_capsfilter->property_caps().set_value(m_out_caps);
 
     m_multifilesink = Gst::ElementFactory::create_element("multifilesink");
     m_multifilesink->set_property("location", location);

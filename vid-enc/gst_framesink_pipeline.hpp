@@ -1,7 +1,7 @@
 #include "pipeline/GST_app_base.hpp"
 #include "pipeline/GST_interpipesrc.hpp"
 
-#include "pipeline/storage/gst_framesink_pipeline.hpp"
+#include "pipeline/storage/framegrab_bin.hpp"
 
 class gst_framesink_pipeline : public GST_app_base
 {

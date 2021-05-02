@@ -2,6 +2,7 @@ add_executable(vid-enc
 	main.cpp
 	gst_app.cpp
 	gst_filesink_pipeline.cpp
+	gst_framesink_pipeline.cpp
 	app_config.cpp
 
 	http_req_jpeg.cpp
