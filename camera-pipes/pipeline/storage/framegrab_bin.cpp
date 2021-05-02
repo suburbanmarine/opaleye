@@ -7,7 +7,7 @@
 
 framegrab_bin::framegrab_bin()/* : m_got_eos(false)*/
 {
-    location = "file-%06d.jpg";
+    location = "file-%08d.jpg";
     index    = 0; 
 }
 
@@ -62,7 +62,7 @@ bool framegrab_bin::init(const char name[])
     m_multifilesink = Gst::ElementFactory::create_element("multifilesink");
     m_multifilesink->set_property("location", location);
     m_multifilesink->set_property("index", index);
-    m_multifilesink->set_property("aggregate-gops", true);
+    // m_multifilesink->set_property("aggregate-gops", true);
 
     // buffer (0) – New file for each buffer
     // discont (1) – New file after each discontinuity
