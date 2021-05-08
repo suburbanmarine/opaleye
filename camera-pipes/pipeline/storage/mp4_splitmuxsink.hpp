@@ -2,6 +2,8 @@
 
 #include "pipeline/GST_element_base.hpp"
 
+#include <boost/filesystem.hpp>
+
 #include <gstreamermm/caps.h>
 #include <gstreamermm/capsfilter.h>
 #include <gstreamermm/queue.h>
@@ -24,7 +26,7 @@ public:
 
   bool init(const char name[]) override;
 
-  void set_location(const std::string& s);
+  void set_top_storage_dir(const std::string& s);
 
   Glib::RefPtr<Gst::Element> front() override
   {
@@ -39,10 +41,12 @@ public:
   void split_after_gop();
   void split_now();
 
-  void handle_format_location();
+  gchararray handle_format_location(GstElement* splitmux, guint fragment_id);
   void handle_format_location_full();
   void handle_muxer_added();
   void handle_sink_added();
+
+  static gchararray dispatch_format_location(GstElement* splitmux, guint fragment_id, void* ctx);
 
   // void send_eos();
 
@@ -59,6 +63,11 @@ protected:
   Glib::RefPtr<Gst::Queue>      m_in_queue;
   Glib::RefPtr<Gst::Element>    m_splitmuxsink;
 
-  std::string location;
-  int index;
+  //parameters
+  boost::filesystem::path top_storage_dir;
+
+  //locals
+  std::string             current_filename;
+  boost::filesystem::path current_path;
+  guint                   starting_id;
 };
