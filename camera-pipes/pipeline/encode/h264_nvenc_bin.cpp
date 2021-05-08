@@ -53,17 +53,26 @@ bool h264_nvenc_bin::init(const char name[])
     // 4 Constant bit rate with frame skip
     m_omxh264enc->set_property("control-rate", 2);
 
+    // 0 Disable
+    // 1 Drop 1 in 5 frames
+    // 2 Drop 1 in 3 frames
+    // 3 Drop 1 in 2 frames
+    // 4 Drop 2 in 3 frames
+    m_omxh264enc->set_property("temporal-tradeoff", 0);
+
     // 0 UltraFastPreset
     // 1 FastPreset
     // 2 MediumPreset
     // 3 SlowPreset
-    m_omxh264enc->set_property("preset-level", 1);
+    m_omxh264enc->set_property("preset-level", 0);
 
     m_omxh264enc->set_property("low-latency", 1);
 
     m_omxh264enc->set_property("insert-sps-pps", 1);
 
     m_h264parse = Gst::ElementFactory::create_element("h264parse");
+
+    // vbv-size
 
     //out caps
     m_out_caps = Gst::Caps::create_simple(
