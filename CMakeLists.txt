@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(vid-enc)
+project(opaleye)
 
 add_definitions(
 	-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE
