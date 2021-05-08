@@ -1,0 +1,13 @@
+[Unit]
+Description=ptp4l
+Before=chronyd.service
+After=network.target
+
+[Service]
+Type=simple
+RemainAfterExit=yes
+ExecStart=/usr/sbin/ptp4l -f /etc/ptp4l.conf
+
+[Install]
+Alias=ptp4l.service
+WantedBy=multi-user.target

@@ -1,11 +1,21 @@
 #!/bin/bash
 
-if [[ -f /etc/nginx/sites-enabled/cam-pod  ]]; then
+trap 'exit -1' err
+
+id -u opaleye &>/dev/null || useradd opaleye
+
+if [[ -f /etc/nginx/sites-enabled/opaleye  ]]; then
 	exit -1
 fi
 
-ln -s /etc/nginx/sites-available/cam-pod /etc/nginx/sites-enabled/cam-pod 
+ln -s /etc/nginx/sites-available/opaleye /etc/nginx/sites-enabled/opaleye 
 
 service nginx reload
+
+systemctl enable ptp4l.service 
+systemctl enable opaleye.service 
+
+systemctl start ptp4l.service 
+systemctl start opaleye.service 
 
 exit 0

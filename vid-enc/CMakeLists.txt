@@ -1,4 +1,4 @@
-add_executable(vid-enc
+add_executable(opaleye
 	main.cpp
 	gst_app.cpp
 	gst_filesink_pipeline.cpp
@@ -11,7 +11,7 @@ add_executable(vid-enc
 	signal_handler.cpp
 )
 
-target_link_libraries(vid-enc
+target_link_libraries(opaleye
 	PUBLIC
 		camera-pipes
 		http-bridge
@@ -31,14 +31,14 @@ target_link_libraries(vid-enc
 		fcgi
 )
 
-target_include_directories(vid-enc
+target_include_directories(opaleye
 	PUBLIC
 		${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 INSTALL(
 	TARGETS
-		vid-enc
+		opaleye
 	DESTINATION
 		bin
 )

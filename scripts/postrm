@@ -1,7 +1,9 @@
 #!/bin/bash
 
-if [[ -f /etc/nginx/sites-enabled/cam-pod ]]; then
-	rm /etc/nginx/sites-enabled/cam-pod
+trap 'exit -1' err
+
+if [[ -f /etc/nginx/sites-enabled/opaleye ]]; then
+	rm /etc/nginx/sites-enabled/opaleye
 fi
 
 service nginx reload
