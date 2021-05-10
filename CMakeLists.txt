@@ -46,8 +46,8 @@ target_include_directories(jsonrpc-lean
 		external/jsonrpc-lean/include
 )
 
-add_subdirectory(camera-pipes)
-add_subdirectory(http-bridge)
+add_subdirectory(libs/camera-pipes)
+add_subdirectory(libs/http-bridge)
 add_subdirectory(vid-enc)
 add_subdirectory(site)
 
