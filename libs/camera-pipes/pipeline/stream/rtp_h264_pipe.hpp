@@ -70,7 +70,7 @@ public:
     std::string msg_string(msg_gchar);
 
     gst_sdp_media_free(media_video);
-    g_free(msg_str);
+    g_free(msg_gchar);
 
     return msg_string;
   }
