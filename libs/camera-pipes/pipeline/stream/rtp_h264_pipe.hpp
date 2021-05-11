@@ -65,12 +65,14 @@ public:
     gst_sdp_message_new(&message);
     gst_sdp_message_add_media(message, media_video);
 
-    gchar* msg_str = gst_sdp_message_as_text(message);
+    gchar* msg_gchar = gst_sdp_message_as_text(message);
+
+    std::string msg_string(msg_gchar);
 
     gst_sdp_media_free(media_video);
     g_free(msg_str);
 
-    return "";
+    return msg_string;
   }
 
 protected:
