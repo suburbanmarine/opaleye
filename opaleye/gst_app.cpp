@@ -282,11 +282,19 @@ std::string test_app::get_pipeline_graph()
   
   make_debug_dot("pipeline");
   int ret = system("dot -Tpdf -o /tmp/pipeline.dot.pdf /tmp/pipeline.dot");
+  if(ret == -1)
+  {
+    SPDLOG_ERROR("Could not create pdf");
+  }
 
   if(m_mkv_pipe)
   {
     m_mkv_pipe->make_debug_dot("pipeline_mkv");
     int ret = system("dot -Tpdf -o /tmp/pipeline_mkv.dot.pdf /tmp/pipeline_mkv.dot");
+    if(ret == -1)
+    {
+      SPDLOG_ERROR("Could not create pdf");
+    }
   }
 
   return std::string();
