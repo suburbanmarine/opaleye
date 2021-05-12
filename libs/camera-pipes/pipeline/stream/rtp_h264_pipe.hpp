@@ -46,7 +46,7 @@ public:
     return caps->to_string();
   }
 
-  std::string get_sdp(uint16_t dest_port)
+  std::string get_sdp(const char stream_addr[], const char stream_orig[], uint16_t dest_port)
   {
     
     //https://cgit.freedesktop.org/gstreamer/gst-plugins-good/tree/gst/rtp/README
@@ -58,11 +58,35 @@ public:
     GstSDPMedia* media_video = NULL;
     gst_sdp_media_new(&media_video);
     GstSDPResult ret = gst_sdp_media_set_media_from_caps(caps->gobj(), media_video);
+    gst_sdp_media_add_connection(media_video, 
+      "IN",         // nettype
+      "IP4",        // addrtype
+      stream_orig,  // addr
+      64,           // TTL
+      1             // Layer count
+      );
+
+    gst_sdp_media_set_port_info(media_video, dest_port, 1);
 
     gst_sdp_media_get_attribute_val(media_video, "rtpmap");
+    gst_sdp_media_set_media(media_video, "video");
 
     GstSDPMessage* message = NULL;
     gst_sdp_message_new(&message);
+
+    gst_sdp_message_set_version(message, "0");
+
+    gst_sdp_message_set_origin(message,
+      "-",
+      "",
+      "",
+      "IN",
+      "IP4",
+      "127.0.0.1"
+      );
+
+    gst_sdp_media_set_information(message, "Opaleye stream");
+    
     gst_sdp_message_add_media(message, media_video);
 
     gchar* msg_gchar = gst_sdp_message_as_text(message);
