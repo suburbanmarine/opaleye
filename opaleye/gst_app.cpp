@@ -239,32 +239,62 @@ std::string test_app::get_pipeline_status()
   Gst::State pending_state;
   Gst::StateChangeReturn ret = bin->get_state(state, pending_state, 0);
 
+  char const * ret_str = "CHANGE_UNKNOWN";
+  switch(ret)
+  {
+    case GST_STATE_CHANGE_FAILURE:
+    {
+      ret_str = "CHANGE_FAILURE";
+      break;
+    }
+    case GST_STATE_CHANGE_SUCCESS:
+    {
+      ret_str = "CHANGE_SUCCESS";
+      break;
+    }
+    case GST_STATE_CHANGE_ASYNC:
+    {
+      ret_str = "CHANGE_ASYNC";
+      break;
+    }
+    case GST_STATE_CHANGE_NO_PREROLL:
+    {
+      ret_str = "CHANGE_NO_PREROLL";
+      break;
+    }
+    default:
+    {
+     ret_str =  "CHANGE_UNKNOWN";
+     break;
+    }
+  }
+
   char const * state_str = "UNKNOWN";
   switch(state)
   {
     case GST_STATE_VOID_PENDING:
     {
-      state_str = "GST_STATE_VOID_PENDING";
+      state_str = "VOID_PENDING";
       break;
     }
     case GST_STATE_NULL:
     {
-      state_str = "GST_STATE_NULL";
+      state_str = "NULL";
       break;
     }
     case GST_STATE_READY:
     {
-      state_str = "GST_STATE_READY";
+      state_str = "READY";
       break;
     }
     case GST_STATE_PAUSED:
     {
-      state_str = "GST_STATE_PAUSED";
+      state_str = "PAUSED";
       break;
     }
     case GST_STATE_PLAYING:
     {
-      state_str = "GST_STATE_PLAYING";
+      state_str = "PLAYING";
       break;
     }
     default:
@@ -274,7 +304,7 @@ std::string test_app::get_pipeline_status()
     }
   }
 
-  return state_str;
+  return fmt::sprintf("{ret_str}-{:s}", state_str, ret_str);
 }
 std::string test_app::get_pipeline_graph()
 {
