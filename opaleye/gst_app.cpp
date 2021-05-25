@@ -7,6 +7,7 @@
 #include "pipeline/decode/jpeg_nvdec_bin.hpp"
 
 #include <spdlog/spdlog.h>
+#include <spdlog/fmt/bundled/printf.h>
 
 test_app::test_app()
 {

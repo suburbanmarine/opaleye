@@ -85,7 +85,7 @@ public:
       "127.0.0.1"
       );
 
-    gst_sdp_media_set_information(message, "Opaleye stream");
+    gst_sdp_media_set_information(media_video, "Opaleye stream");
     
     gst_sdp_message_add_media(message, media_video);
 
