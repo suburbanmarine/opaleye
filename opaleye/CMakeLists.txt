@@ -1,3 +1,7 @@
+add_subdirectory(
+	service
+)
+
 add_executable(opaleye
 	main.cpp
 	gst_app.cpp

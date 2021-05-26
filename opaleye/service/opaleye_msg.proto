@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+message StartCameraRequest
+{
+	string name = 1;
+}
+
+message StartCameraReply
+{
+	string name = 1;
+}
