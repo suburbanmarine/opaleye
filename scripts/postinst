@@ -12,10 +12,10 @@ ln -s /etc/nginx/sites-available/opaleye /etc/nginx/sites-enabled/opaleye
 
 service nginx reload
 
-systemctl enable ptp4l.service 
+# systemctl enable ptp4l.service 
 systemctl enable opaleye.service 
 
-systemctl start ptp4l.service 
+# systemctl start ptp4l.service 
 systemctl start opaleye.service 
 
 exit 0
