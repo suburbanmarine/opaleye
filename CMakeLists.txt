@@ -1,6 +1,20 @@
 cmake_minimum_required(VERSION 3.5)
 project(opaleye)
 
+add_custom_command(
+	OUTPUT
+		${PROJECT_SOURCE_DIR}/external/grpc-web/javascript/net/grpc/web/protoc-gen-grpc-web
+	COMMAND
+		make plugin
+	WORKING_DIRECTORY
+		${PROJECT_SOURCE_DIR}/external/grpc-web
+)
+
+add_custom_target(protoc-gen-grpc-web-target
+	DEPENDS
+		${PROJECT_SOURCE_DIR}/external/grpc-web/javascript/net/grpc/web/protoc-gen-grpc-web
+)
+
 add_definitions(
 	-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE
 	-DBOOST_ALL_DYN_LINK	
