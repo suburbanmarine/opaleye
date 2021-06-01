@@ -10,3 +10,6 @@
 [submodule "external/jsonrpc-lean"]
 	path = external/jsonrpc-lean
 	url = git@github.com:suburbanmarine/jsonrpc-lean.git
+[submodule "external/grpc-web"]
+	path = external/grpc-web
+	url = git@github.com:suburbanmarine/grpc-web.git
