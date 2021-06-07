@@ -5,7 +5,7 @@ add_custom_command(
 	OUTPUT
 		${PROJECT_SOURCE_DIR}/external/grpc-web/javascript/net/grpc/web/protoc-gen-grpc-web
 	COMMAND
-		make plugin
+		git submodule update --init && make plugin
 	WORKING_DIRECTORY
 		${PROJECT_SOURCE_DIR}/external/grpc-web
 )
