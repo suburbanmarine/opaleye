@@ -61,8 +61,6 @@ function(build_grpc_js IDL SRC)
 
 	set(GRPC_WEB_LOC ${PROJECT_SOURCE_DIR}/external/grpc-web/javascript/net/grpc/web/protoc-gen-grpc-web)
 
-    message("GRPC_LOC is ${GRPC_LOC}")
-
 	add_custom_command(
 		OUTPUT
 			"${LSRC}"
