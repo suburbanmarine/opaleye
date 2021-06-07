@@ -5,7 +5,7 @@ After=network.target
 
 [Service]
 Type=simple
-RemainAfterExit=yes
+RemainAfterExit=no
 ExecStart=/opt/suburbanmarine/opaleye/bin/opaleye
 User=opaleye
 Group=opaleye
