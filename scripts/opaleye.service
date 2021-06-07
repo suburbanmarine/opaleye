@@ -11,6 +11,7 @@ ExecStart=/opt/suburbanmarine/opaleye/bin/opaleye
 User=opaleye
 Group=opaleye
 RuntimeDirectory=opaleye
+WorkingDirectory=/home/opaleye
 
 [Install]
 Alias=opaleye.service
