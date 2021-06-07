@@ -9,6 +9,7 @@ RemainAfterExit=yes
 ExecStart=/opt/suburbanmarine/opaleye/bin/opaleye
 User=opaleye
 Group=opaleye
+RuntimeDirectory=opaleye
 
 [Install]
 Alias=opaleye.service
