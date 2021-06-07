@@ -8,6 +8,10 @@ if [[ -f /etc/nginx/sites-enabled/opaleye  ]]; then
 	exit -1
 fi
 
+if [[ -f /etc/nginx/sites-enabled/default  ]]; then
+	rm /etc/nginx/sites-enabled/default
+fi
+
 ln -s /etc/nginx/sites-available/opaleye /etc/nginx/sites-enabled/opaleye 
 
 service nginx reload
