@@ -52,12 +52,14 @@ function(build_grpc_js IDL SRC)
     message("SRC is ${LSRC}")
 
 	find_program(PROTOC_LOC protoc)
-	find_program(GRPC_WEB_LOC 
-		NAMES
-			protoc-gen-grpc-web 
-		PATHS
-			${PROJECT_SOURCE_DIR}/external/grpc-web/javascript/net/grpc/web/
-		)
+#	find_program(GRPC_WEB_LOC 
+#		NAMES
+#			protoc-gen-grpc-web 
+#		PATHS
+#			${PROJECT_SOURCE_DIR}/external/grpc-web/javascript/net/grpc/web/
+#		)
+
+	set(GRPC_WEB_LOC ${PROJECT_SOURCE_DIR}/external/grpc-web/javascript/net/grpc/web/protoc-gen-grpc-web)
 
     message("GRPC_LOC is ${GRPC_LOC}")
 
