@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
 	}
 
 	app_config_mgr cfg_mgr;
-	if(!cfg_mgr.deserialize("/opt/suburbanmarine/cam-pod/conf/config.xml"))
+	if(!cfg_mgr.deserialize("/opt/suburbanmarine/opaleye/conf/config.xml"))
 	{
 		SPDLOG_ERROR("cfg_mgr deserialize failed");
 		return -1;

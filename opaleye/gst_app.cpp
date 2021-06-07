@@ -86,11 +86,11 @@ bool test_app::init()
   //  return false;
   // }
 
-  if( ! m_display.init("display_0") )
-  {
-   SPDLOG_ERROR("Could not init m_display");
-   return false;
-  }
+  // if( ! m_display.init("display_0") )
+  // {
+  //  SPDLOG_ERROR("Could not init m_display");
+  //  return false;
+  // }
 
   if( ! m_rtppay.init("rtp_0") )
   {
@@ -111,14 +111,14 @@ bool test_app::init()
   m_h264->add_to_bin(m_pipeline);
   m_h264_interpipesink.add_to_bin(m_pipeline);
   // m_mkv.add_to_bin(m_pipeline);
-  m_display.add_to_bin(m_pipeline);
+  // m_display.add_to_bin(m_pipeline);
   m_rtppay.add_to_bin(m_pipeline);
   m_rtpsink.add_to_bin(m_pipeline);
 
   //link pipeline
   m_logi_brio.link_back(m_jpgdec->front());
 
-  m_jpgdec->link_back(m_display.front());
+  // m_jpgdec->link_back(m_display.front());
   m_jpgdec->link_back(m_h264->front());
 
   // m_test_src.link_back(m_display.front());
