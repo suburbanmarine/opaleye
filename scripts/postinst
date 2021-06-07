@@ -2,7 +2,7 @@
 
 trap 'exit -1' err
 
-if [[ id -u opaleye &>/dev/null -eq 0 ]] then
+if [[ $(id -u opaleye &>/dev/null) -eq 0 ]]; then
 	# create a no-login system user with a home dir
 	useradd opaleye -s /usr/sbin/nologin --create-home --system -U -G cdrom,audio,dip,video,plugdev,i2c,gdm,lightdm,weston-launch,gpio
 fi
