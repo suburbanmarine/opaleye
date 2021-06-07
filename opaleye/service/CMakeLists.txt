@@ -81,6 +81,11 @@ function(build_grpc_js IDL SRC)
 		VERBATIM
 	)
 
+	add_dependencies(
+		"${LSRC}"
+		${PROJECT_SOURCE_DIR}/external/grpc-web/javascript/net/grpc/web/protoc-gen-grpc-web
+	)
+
 endfunction()
 
 function(build_grpc_node IDL SRC HDR)
