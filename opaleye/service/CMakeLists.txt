@@ -52,14 +52,14 @@ function(build_grpc_js IDL SRC)
     message("SRC is ${LSRC}")
 
 	find_program(PROTOC_LOC protoc)
-	find_program(GRPC_WEB_LOC 
-		NAMES
-			protoc-gen-grpc-web 
-		PATHS
-			/home/rounin/suburbanmarine/grpc-web/javascript/net/grpc/web
-		)
+#	find_program(GRPC_WEB_LOC 
+#		NAMES
+#			protoc-gen-grpc-web 
+#		PATHS
+#			${PROJECT_SOURCE_DIR}/external/grpc-web/javascript/net/grpc/web/
+#		)
 
-    message("GRPC_LOC is ${GRPC_LOC}")
+	set(GRPC_WEB_LOC ${PROJECT_SOURCE_DIR}/external/grpc-web/javascript/net/grpc/web/protoc-gen-grpc-web)
 
 	add_custom_command(
 		OUTPUT
@@ -73,6 +73,7 @@ function(build_grpc_js IDL SRC)
 			${ABS_IDL}
 		DEPENDS
 			"${ABS_IDL}"
+			protoc-gen-grpc-web-target
 		COMMENT 
 			"Running gRPC js protocol buffer compiler on ${WE_IDL}"
 		WORKING_DIRECTORY
@@ -195,11 +196,13 @@ function(build_proto_js IDL SRC)
 
 endfunction()
 
+#build_grpc_node(opaleye_service.proto opaleye_service_grpc_src opaleye_service_grpc_hdr)
+
 build_grpc_cpp(opaleye_service.proto opaleye_service_grpc_src opaleye_service_grpc_hdr)
-build_grpc_node(opaleye_service.proto opaleye_service_grpc_src opaleye_service_grpc_hdr)
 build_proto_cpp(opaleye_service.proto opaleye_service_src opaleye_service_hdr)
 build_proto_cpp(opaleye_msg.proto opaleye_msg_src opaleye_msg_hdr)
 
+#
 build_grpc_js(opaleye_service.proto opaleye_service_js_src)
 build_proto_js(opaleye_msg.proto opaleye_msg_js_src)
 

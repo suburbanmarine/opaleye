@@ -19,3 +19,7 @@ X2
 6 AUX2 / CAN_H
 7 VDSL2 CPE T1
 8 VDSL2 CPE R1
+
+Dependancies
+build-essential
+gtk-doc-tools

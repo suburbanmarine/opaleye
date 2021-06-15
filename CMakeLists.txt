@@ -1,6 +1,20 @@
 cmake_minimum_required(VERSION 3.5)
 project(opaleye)
 
+add_custom_command(
+	OUTPUT
+		${PROJECT_SOURCE_DIR}/external/grpc-web/javascript/net/grpc/web/protoc-gen-grpc-web
+	COMMAND
+		git submodule update --init && make plugin
+	WORKING_DIRECTORY
+		${PROJECT_SOURCE_DIR}/external/grpc-web
+)
+
+add_custom_target(protoc-gen-grpc-web-target
+	DEPENDS
+		${PROJECT_SOURCE_DIR}/external/grpc-web/javascript/net/grpc/web/protoc-gen-grpc-web
+)
+
 add_definitions(
 	-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE
 	-DBOOST_ALL_DYN_LINK	
@@ -123,7 +137,7 @@ INSTALL(
 INSTALL(
 	FILES
 		scripts/opaleye.service
-		scripts/ptp4l.service
+#		scripts/ptp4l.service
 	DESTINATION
 		/lib/systemd/system
 )
@@ -135,5 +149,5 @@ set(CPACK_GENERATOR "DEB")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "SM")
 set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${PROJECT_SOURCE_DIR}/scripts/postinst;${PROJECT_SOURCE_DIR}/scripts/prerm;${PROJECT_SOURCE_DIR}/scripts/postrm")
 # gstreamer1.0-vaapi, gstreamer1.0-omx-generic
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libgstreamer1.0-0, libgstreamer-plugins-base1.0-0, libgstreamer-plugins-good1.0-0, libgstreamer-plugins-bad1.0-0, libgstreamermm-1.0-1, libfcgi0ldbl, liblockfile1")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libgstreamer1.0-0, libgstreamer-plugins-base1.0-0, libgstreamer-plugins-good1.0-0, libgstreamer-plugins-bad1.0-0, libgstreamermm-1.0-1, libfcgi0ldbl, liblockfile1, libprotobuf10, libprotobuf-c1, libprotoc10, libgrpc++1, libgrpc3")
 include(CPack)

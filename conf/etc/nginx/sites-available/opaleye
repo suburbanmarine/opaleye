@@ -4,7 +4,7 @@ server {
 	listen 80 default_server;
 	listen [::]:80 default_server;
 
-	root /opt/suburbanmarine/cam-pod/site;
+	root /opt/suburbanmarine/opaleye/site;
 
 	# Add index.php to the list if you are using PHP
 	index index.html index.htm index.nginx-debian.html;

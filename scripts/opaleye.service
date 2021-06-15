@@ -1,14 +1,17 @@
 [Unit]
 Description=opaleye
-Requires=network.target ptp4l.service chronyd.service
+# Requires=network.target ptp4l.service chronyd.service
+Requires=network.target
 After=network.target
 
 [Service]
 Type=simple
-RemainAfterExit=yes
+RemainAfterExit=no
 ExecStart=/opt/suburbanmarine/opaleye/bin/opaleye
 User=opaleye
 Group=opaleye
+RuntimeDirectory=opaleye
+WorkingDirectory=/home/opaleye
 
 [Install]
 Alias=opaleye.service
