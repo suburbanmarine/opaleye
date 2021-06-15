@@ -2,8 +2,11 @@
 
 #include <gstreamermm/elementfactory.h>
 
+#include <boost/date_time.hpp>
+
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
+#include <spdlog/fmt/bundled/printf.h>
 
 mp4_splitmuxsink::mp4_splitmuxsink()/* : m_got_eos(false)*/
 {
@@ -34,6 +37,18 @@ bool mp4_splitmuxsink::unlink_front(const Glib::RefPtr<Gst::Element>& node)
 
 bool mp4_splitmuxsink::init(const char name[])
 {
+    //get todays folder
+    {
+        boost::date_time::time_point t0;
+        std::string date_str = fmt::sprintf("{:04d}{:02d}{:02d}", 2021, 06, 29);
+        top_storage_dir = top_storage_dir / ""
+    }
+
+    //scan for index
+    {
+
+    }
+
   //init our internal bin and elements
   {
     m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
@@ -90,7 +105,5 @@ gchararray mp4_splitmuxsink::handle_format_location(GstElement* splitmux, guint 
 
     current_path = top_storage_dir / current_filename;
 
-    return g_strdup_printf("%s", 
-            current_path.c_str()
-        );
+    return g_strdup_printf("%s", current_path.c_str());
 }
