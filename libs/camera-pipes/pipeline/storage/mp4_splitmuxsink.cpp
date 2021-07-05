@@ -2,7 +2,7 @@
 
 #include <gstreamermm/elementfactory.h>
 
-#include <boost/date_time.hpp>
+#include "boost/date_time/posix_time/posix_time_types.hpp"
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
@@ -39,9 +39,10 @@ bool mp4_splitmuxsink::init(const char name[])
 {
     //get todays folder
     {
-        boost::date_time::time_point t0;
-        std::string date_str = fmt::sprintf("{:04d}{:02d}{:02d}", 2021, 06, 29);
-        top_storage_dir = top_storage_dir / ""
+        // boost::date_time::time_point t0;
+        boost::posix_time::ptime t0 = boost::posix_time::microsec_clock::universal_time();
+        std::string date_str = fmt::sprintf("{:04d}{:02d}{:02d}", t0.date().year(), t0.date().month(), t0.date().day());
+        top_storage_dir = top_storage_dir / "";
     }
 
     //scan for index
