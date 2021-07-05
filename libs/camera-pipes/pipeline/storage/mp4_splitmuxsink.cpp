@@ -62,6 +62,10 @@ bool mp4_splitmuxsink::init(const char name[])
                 unsigned int num = 0;
                 filename = dir_entry.path().filename().string();
                 int ret = sscanf(filename.c_str(), "file-%06u.mp4", &num);
+                if(ret == 1)
+                {
+                    starting_id = std::max(starting_id, num);
+                }
             }
         }
     }
