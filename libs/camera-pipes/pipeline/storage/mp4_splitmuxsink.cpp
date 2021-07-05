@@ -47,11 +47,9 @@ bool mp4_splitmuxsink::init(const char name[])
         top_storage_dir = top_storage_dir / date_str;
     }
 
-
-    boost::filesystem::file_status top_storage_dir_status = boost::filesystem::status(top_storage_dir);
-    boost::filesystem::is_directory(top_storage_dir_status);
-
     //scan for index
+    boost::filesystem::file_status top_storage_dir_status = boost::filesystem::status(top_storage_dir);
+    if(boost::filesystem::is_directory(top_storage_dir_status))
     {
         std::string filename;
         for(auto& dir_entry : boost::make_iterator_range(boost::filesystem::directory_iterator(top_storage_dir), {}))
@@ -64,10 +62,14 @@ bool mp4_splitmuxsink::init(const char name[])
                 int ret = sscanf(filename.c_str(), "file-%06u.mp4", &num);
                 if(ret == 1)
                 {
-                    starting_id = std::max(starting_id, num);
+                    starting_id = std::max<guint>(starting_id, num);
                 }
             }
         }
+    }
+    else
+    {
+        boost::filesystem::create_directory(top_storage_dir);
     }
 
     //init our internal bin and elements
