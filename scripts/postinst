@@ -17,7 +17,9 @@ fi
 
 ln -s /etc/nginx/sites-available/opaleye /etc/nginx/sites-enabled/opaleye 
 
-service nginx reload
+if [[ $(systemctl is-active --quiet nginx) ]]; then
+	service nginx reload
+fi
 
 # systemctl enable ptp4l.service 
 systemctl enable opaleye.service 

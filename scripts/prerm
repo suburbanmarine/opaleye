@@ -3,6 +3,6 @@
 trap 'exit -1' err
 
 systemctl stop opaleye.service 
-systemctl stop ptp4l.service 
+# systemctl stop ptp4l.service 
 
 exit 0

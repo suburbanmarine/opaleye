@@ -6,6 +6,8 @@ if [[ -f /etc/nginx/sites-enabled/opaleye ]]; then
 	rm /etc/nginx/sites-enabled/opaleye
 fi
 
-service nginx reload
+if [[ $(systemctl is-active --quiet nginx) ]]; then
+	service nginx reload
+fi
 
 exit 0
