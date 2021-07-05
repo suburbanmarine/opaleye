@@ -4,6 +4,8 @@
 
 #include "boost/date_time/posix_time/posix_time_types.hpp"
 
+#include <boost/range/iterator_range.hpp>
+
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
 #include <spdlog/fmt/bundled/printf.h>
@@ -42,55 +44,69 @@ bool mp4_splitmuxsink::init(const char name[])
         // boost::date_time::time_point t0;
         boost::posix_time::ptime t0 = boost::posix_time::microsec_clock::universal_time();
         std::string date_str = fmt::sprintf("{:04d}{:02d}{:02d}", t0.date().year(), t0.date().month(), t0.date().day());
-        top_storage_dir = top_storage_dir / "";
+        top_storage_dir = top_storage_dir / date_str;
     }
+
+
+    boost::filesystem::file_status top_storage_dir_status = boost::filesystem::status(top_storage_dir);
+    boost::filesystem::is_directory(top_storage_dir_status);
 
     //scan for index
     {
-
+        std::string filename;
+        for(auto& dir_entry : boost::make_iterator_range(boost::filesystem::directory_iterator(top_storage_dir), {}))
+        {
+            boost::filesystem::file_status dir_entry_status = boost::filesystem::status(dir_entry);
+            if(boost::filesystem::is_regular_file(dir_entry_status))
+            {
+                unsigned int num = 0;
+                filename = dir_entry.path().filename().string();
+                int ret = sscanf(filename.c_str(), "file-%06u.mp4", &num);
+            }
+        }
     }
 
-  //init our internal bin and elements
-  {
-    m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
-
-    m_in_queue    = Gst::Queue::create();
-    m_in_queue->property_max_size_buffers()      = 0;
-    m_in_queue->property_max_size_bytes()        = 0;
-    m_in_queue->property_max_size_time()         = 10 * GST_SECOND;
-
-    m_splitmuxsink = Gst::ElementFactory::create_element("splitmuxsink");
-    // m_splitmuxsink->set_property("async-finalize", true); // 1.15.1+
-    m_splitmuxsink->set_property("location", top_storage_dir.c_str());
-    m_splitmuxsink->set_property("start-index", 0);
-    m_splitmuxsink->set_property("max-files", 0);
-    m_splitmuxsink->set_property("max-size-bytes", 0);
-    m_splitmuxsink->set_property("max-size-time",  10*60*GST_SECOND);
-    m_splitmuxsink->set_property("send-keyframe-requests",  true); // max-size-bytes must be 0
-
-    g_signal_connect(m_splitmuxsink->gobj(), "format-location", G_CALLBACK(&mp4_splitmuxsink::dispatch_format_location), this);
-
-    // 1.15.1+
-    // m_splitmuxsink->set_property("muxer-factory", Glib::ustring("mp4mux"));
-    // m_splitmuxsink->set_property("muxer-properties", 
-    //     Glib::ustring(
-    //         ""
-    //     )
-    // );
-
-    // 1.15.1+
-    // m_splitmuxsink->set_property("sink-factory", "");
-    // m_splitmuxsink->set_property("sink-properties", 
-    //     ""
-    //     );
-
-    m_bin->add(m_in_queue);
-    m_bin->add(m_splitmuxsink);
-
-    m_in_queue->link(m_splitmuxsink);
-  }
-
-  return true;
+    //init our internal bin and elements
+    {
+      m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
+  
+      m_in_queue    = Gst::Queue::create();
+      m_in_queue->property_max_size_buffers()      = 0;
+      m_in_queue->property_max_size_bytes()        = 0;
+      m_in_queue->property_max_size_time()         = 10 * GST_SECOND;
+  
+      m_splitmuxsink = Gst::ElementFactory::create_element("splitmuxsink");
+      // m_splitmuxsink->set_property("async-finalize", true); // 1.15.1+
+      m_splitmuxsink->set_property("location", top_storage_dir.c_str());
+      m_splitmuxsink->set_property("start-index", 0);
+      m_splitmuxsink->set_property("max-files", 0);
+      m_splitmuxsink->set_property("max-size-bytes", 0);
+      m_splitmuxsink->set_property("max-size-time",  10*60*GST_SECOND);
+      m_splitmuxsink->set_property("send-keyframe-requests",  true); // max-size-bytes must be 0
+  
+      g_signal_connect(m_splitmuxsink->gobj(), "format-location", G_CALLBACK(&mp4_splitmuxsink::dispatch_format_location), this);
+  
+      // 1.15.1+
+      // m_splitmuxsink->set_property("muxer-factory", Glib::ustring("mp4mux"));
+      // m_splitmuxsink->set_property("muxer-properties", 
+      //     Glib::ustring(
+      //         ""
+      //     )
+      // );
+  
+      // 1.15.1+
+      // m_splitmuxsink->set_property("sink-factory", "");
+      // m_splitmuxsink->set_property("sink-properties", 
+      //     ""
+      //     );
+  
+      m_bin->add(m_in_queue);
+      m_bin->add(m_splitmuxsink);
+  
+      m_in_queue->link(m_splitmuxsink);
+    }
+  
+    return true;
 }
 
 gchararray mp4_splitmuxsink::dispatch_format_location(GstElement* splitmux, guint fragment_id, void* ctx)
