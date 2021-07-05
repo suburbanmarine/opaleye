@@ -2,6 +2,8 @@
 
 #include <boost/property_tree/xml_parser.hpp>
 
+#include <spdlog/spdlog.h>
+
 bool app_config::deserialize(const boost::property_tree::ptree& tree)
 {
 	video_path = tree.get<std::string>("config.video_path");
@@ -24,7 +26,15 @@ bool app_config::make_default()
 
 bool app_config_mgr::deserialize(const boost::filesystem::path& p)
 {
-	boost::property_tree::read_xml(p.string(), m_tree);
+	try
+	{
+		boost::property_tree::read_xml(p.string(), m_tree);
+	}
+	catch(const std::exception& e)
+	{
+	    SPDLOG_ERROR("app_config_mgr::deserialize Config parse failed", e.what());
+	    return false;
+	}
 
 	if(!m_config)
 	{
