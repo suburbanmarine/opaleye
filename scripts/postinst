@@ -1,10 +1,33 @@
 #!/bin/bash
 
+# set -x
+# trap read debug
+
 trap 'exit -1' err
 
-if [[ $(id -u opaleye &>/dev/null) -ne 0 ]]; then
+if ! id -u opaleye &>/dev/null ; then
 	# create a no-login system user with a home dir
-	useradd opaleye -s /usr/sbin/nologin --create-home --system -U -G cdrom,audio,dip,video,plugdev,i2c,gdm,lightdm,weston-launch,gpio
+	useradd opaleye -s /usr/sbin/nologin --create-home --system -U -G cdrom,audio,dip,video,plugdev,lightdm
+fi
+
+if id -g i2c &>/dev/null ; then
+	# add nvidia groups
+	adduser opaleye i2c
+fi
+
+if id -g gdm &>/dev/null ; then
+	# add nvidia groups
+	adduser opaleye gdm
+fi
+
+if id -g weston-launch &>/dev/null ; then
+	# add nvidia groups
+	adduser opaleye weston-launch
+fi
+
+if id -g gpio &>/dev/null ; then
+	# add nvidia groups
+	adduser opaleye gpio
 fi
 
 if [[ -f /etc/nginx/sites-enabled/opaleye  ]]; then
@@ -17,13 +40,20 @@ fi
 
 ln -s /etc/nginx/sites-available/opaleye /etc/nginx/sites-enabled/opaleye 
 
-if [[ $(systemctl is-active --quiet nginx) ]]; then
+if systemctl is-active --quiet nginx ; then
 	service nginx reload
 fi
 
 mkdir -p /opt/suburbanmarine/opaleye/record/video
 mkdir -p /opt/suburbanmarine/opaleye/record/image
 mkdir -p /opt/suburbanmarine/opaleye/log
+
+chown opaleye:opaleye /opt/suburbanmarine/opaleye/record/video
+chmod g+w             /opt/suburbanmarine/opaleye/record/video
+chown opaleye:opaleye /opt/suburbanmarine/opaleye/record/image
+chmod g+w             /opt/suburbanmarine/opaleye/record/image
+chown opaleye:opaleye /opt/suburbanmarine/opaleye/log
+chmod g+w             /opt/suburbanmarine/opaleye/log
 
 # systemctl enable ptp4l.service 
 systemctl enable opaleye.service 
