@@ -43,7 +43,7 @@ bool mp4_splitmuxsink::init(const char name[])
     {
         // boost::date_time::time_point t0;
         boost::posix_time::ptime t0 = boost::posix_time::microsec_clock::universal_time();
-        std::string date_str = fmt::sprintf("{:04d}{:02d}{:02d}", t0.date().year(), t0.date().month(), t0.date().day());
+        std::string date_str = fmt::format("{:04d}{:02d}{:02d}", t0.date().year(), t0.date().month(), t0.date().day());
         top_storage_dir = top_storage_dir / date_str;
     }
 
@@ -64,7 +64,7 @@ bool mp4_splitmuxsink::init(const char name[])
                 int ret = sscanf(filename.c_str(), "file-%06u.mp4", &num);
                 if(ret == 1)
                 {
-                    starting_id = std::max<guint>(starting_id, num);
+                    starting_id = std::max<guint>(starting_id, num + 1);
                 }
             }
         }
@@ -129,7 +129,7 @@ gchararray mp4_splitmuxsink::dispatch_format_location(GstElement* splitmux, guin
 gchararray mp4_splitmuxsink::handle_format_location(GstElement* splitmux, guint fragment_id)
 {
     guint current_fragment_id = fragment_id + starting_id;
-    current_filename = fmt::format("file-{:06u}.mp4", current_fragment_id);
+    current_filename = fmt::format("file-{:06d}.mp4", current_fragment_id);
 
     current_path = top_storage_dir / current_filename;
 
