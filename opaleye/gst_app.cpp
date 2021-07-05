@@ -306,7 +306,7 @@ std::string test_app::get_pipeline_status()
     }
   }
 
-  return fmt::sprintf("{ret_str}-{:s}", state_str, ret_str);
+  return fmt::format("{:s}-{:s}", state_str, ret_str);
 }
 std::string test_app::get_pipeline_graph()
 {
