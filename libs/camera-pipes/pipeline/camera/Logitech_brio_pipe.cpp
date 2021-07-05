@@ -252,8 +252,10 @@ bool Logitech_brio_pipe::init(const char name[])
       "pixel-aspect-ratio", Gst::Fraction(1, 1),
       "format","MJPG",
       "framerate", Gst::Fraction(0, 1),
-      "width",  640,
-      "height", 480
+      // "width",  640,
+      // "height", 480
+      "width",  3840,
+      "height", 2160
       );
 
     //source
