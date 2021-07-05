@@ -24,9 +24,11 @@ public:
 
   bool unlink_front(const Glib::RefPtr<Gst::Element>& node) override;
 
+  void set_top_storage_dir(const std::string& s)
+  {
+    top_storage_dir = s;
+  }
   bool init(const char name[]) override;
-
-  void set_top_storage_dir(const std::string& s);
 
   Glib::RefPtr<Gst::Element> front() override
   {

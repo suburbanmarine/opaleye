@@ -11,6 +11,10 @@ public:
 
   ~gst_filesink_pipeline() override;
 
+  void set_top_storage_dir(const std::string& s)
+  {
+    top_storage_dir = s;
+  }
   bool init() override;
 
   void set_listen_to(const char name[]);
@@ -19,6 +23,9 @@ public:
   void wait_pipeline_eos();
 
 protected:
+
+    //parameters
+    boost::filesystem::path top_storage_dir;
 
 	GST_interpipesrc m_interpipe_src;
 	mp4_splitmuxsink m_mux;

@@ -152,6 +152,7 @@ bool test_app::start_video_capture(const std::string& camera)
   }
 
   m_mkv_pipe = std::make_shared<gst_filesink_pipeline>();
+  m_mkv_pipe->set_top_storage_dir(m_config->video_path);
   if(m_mkv_pipe->init())
   {
     m_mkv_pipe->set_listen_to("h264_ipsink_0");

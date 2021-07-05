@@ -8,6 +8,7 @@ class app_config
 public:
 	boost::filesystem::path	video_path;
 	boost::filesystem::path	image_path;
+	boost::filesystem::path	log_path;
 
 	std::string h264_mode;
 	

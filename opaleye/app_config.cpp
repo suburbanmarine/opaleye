@@ -8,6 +8,7 @@ bool app_config::deserialize(const boost::property_tree::ptree& tree)
 {
 	video_path = tree.get<std::string>("config.video_path");
 	image_path = tree.get<std::string>("config.image_path");
+	log_path   = tree.get<std::string>("config.log_path");
 	h264_mode  = tree.get<std::string>("config.h264_mode");
 
 	return true;
@@ -18,9 +19,10 @@ bool app_config::serialize(boost::property_tree::ptree* const tree)
 }
 bool app_config::make_default()
 {
-	video_path = "/mnt/video";
-	image_path = "/mnt/video";
-	h264_mode  = "nv";
+	video_path = "/opt/suburbanmarine/opaleye/record/video";
+	image_path = "/opt/suburbanmarine/opaleye/record/image";
+	log_path   = "/opt/suburbanmarine/opaleye/log";
+	h264_mode  = "cpu";
 	return true;
 }
 

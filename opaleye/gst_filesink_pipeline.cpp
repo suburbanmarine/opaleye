@@ -25,6 +25,7 @@ bool gst_filesink_pipeline::init()
 		return false;
 	}
 
+	m_mux.set_top_storage_dir(top_storage_dir);
 	if( ! m_mux.init("mux0") )
 	{
 		return false;
