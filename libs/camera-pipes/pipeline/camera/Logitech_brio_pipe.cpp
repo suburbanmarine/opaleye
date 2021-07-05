@@ -20,7 +20,7 @@ void Logitech_brio_pipe::on_bus_message(const Glib::RefPtr<Gst::Message>& msg)
   using namespace Gst;
   if(msg)
   {
-    SPDLOG_ERROR("Logitech_brio_pipe::on_bus_message {}", msg->get_message_type());
+    SPDLOG_DEBUG("Logitech_brio_pipe::on_bus_message {}", msg->get_message_type());
     switch(msg->get_message_type())
     {
       case GST_MESSAGE_UNKNOWN:
