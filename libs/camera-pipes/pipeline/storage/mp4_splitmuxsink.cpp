@@ -47,6 +47,8 @@ bool mp4_splitmuxsink::init(const char name[])
         top_storage_dir = top_storage_dir / date_str;
     }
 
+    SPDLOG_INFO("mp4_splitmuxsink::init Checking dir {:s}", top_storage_dir.string());
+
     //scan for index
     boost::filesystem::file_status top_storage_dir_status = boost::filesystem::status(top_storage_dir);
     if(boost::filesystem::is_directory(top_storage_dir_status))
@@ -66,9 +68,12 @@ bool mp4_splitmuxsink::init(const char name[])
                 }
             }
         }
+
+        SPDLOG_INFO("mp4_splitmuxsink::init Starting from index {:d}", starting_id);
     }
     else
     {
+        SPDLOG_INFO("mp4_splitmuxsink::init Dir {:s} does not exist, creating", top_storage_dir.string());
         boost::filesystem::create_directory(top_storage_dir);
     }
 
