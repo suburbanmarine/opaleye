@@ -38,8 +38,8 @@ bool Logitech_brio::open()
     m_dev_hndl,
     &m_ctrl,
     UVC_FRAME_FORMAT_MJPEG,
-    // 640, 480, 30           /* width, height, fps */
-    1920, 1080, 30           /* width, height, fps */
+    640, 480, 30           /* width, height, fps */
+    // 1920, 1080, 30           /* width, height, fps */
     // 3840, 2160, 30           /* width, height, fps */
     );
   
