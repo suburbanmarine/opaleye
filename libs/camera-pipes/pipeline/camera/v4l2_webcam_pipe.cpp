@@ -40,7 +40,7 @@ bool V4L2_webcam_pipe::init(const char name[])
     //source
     m_src = Gst::ElementFactory::create_element("v4l2src", name);
     m_src->set_property("do_timestamp", true);
-    m_src->set_property("device", Glib::ustring("/dev/video5"));
+    m_src->set_property("device", Glib::ustring("/dev/video2"));
     // m_src->add_probe(GST_PAD_PROBE_TYPE_IDLE | GST_PAD_PROBE_TYPE_EVENT_BOTH, sigc::mem_fun(&V4L2_webcam_pipe::on_pad_probe, this))
 
     //src caps
