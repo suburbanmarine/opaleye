@@ -10,12 +10,12 @@
 
 void http_req_jpeg::handle(FCGX_Request* const request)
 {
-  if(m_cam)
+  //this is per-req since we could have several threads
+  std::vector<uint8_t> frame_buf;
+  m_cb(&frame_buf);
+  
+  if( ! frame_buf.empty() )
   {
-    //this is per-req since we could have several threads
-    std::shared_ptr<uvc_frame_t> frame_buf;
-    m_cam->copy_frame(frame_buf);
-
     time_t t_now = time(NULL);
     http_util::HttpDateStr time_str;
     if( ! http_util::time_to_httpdate(t_now, &time_str) )
@@ -24,7 +24,7 @@ void http_req_jpeg::handle(FCGX_Request* const request)
     }
 
     FCGX_PutS("Content-Type: image/jpeg\r\n", request->out);
-    FCGX_FPrintF(request->out, "Content-Length: %d\r\n", frame_buf->data_bytes);
+    FCGX_FPrintF(request->out, "Content-Length: %d\r\n", frame_buf.size());
     FCGX_PutS("Cache-Control: max-age=0, no-store\r\n", request->out);
     FCGX_FPrintF(request->out, "Last-Modified: %s\r\n", time_str.data());
     // FCGX_PutS("Cache-Control: max-age=2, public\r\n", request->out);
@@ -32,7 +32,7 @@ void http_req_jpeg::handle(FCGX_Request* const request)
     
     FCGX_PutS("\r\n", request->out);
 
-    FCGX_PutStr(static_cast<const char*>(frame_buf->data), frame_buf->data_bytes, request->out);
+    FCGX_PutStr(reinterpret_cast<const char*>(frame_buf.data()), frame_buf.size(), request->out);
   }
   else
   {

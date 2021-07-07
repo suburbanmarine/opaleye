@@ -35,7 +35,7 @@ add_library(camera-pipes
 	pipeline/gst_common.cpp
 	pipeline/GST_interpipesrc.cpp
 	pipeline/GST_interpipesink.cpp
-	
+	pipeline/Thumbnail_pipe.cpp
 )
 
 target_link_libraries(camera-pipes

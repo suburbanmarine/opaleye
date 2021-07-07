@@ -11,6 +11,7 @@
 #include "pipeline/display/autovideosink_pipe.hpp"
 #include "pipeline/stream/rtp_h264_pipe.hpp"
 #include "pipeline/stream/rtpsink_pipe.hpp"
+#include "pipeline/Thumbnail_pipe.hpp"
 
 #include <memory>
 
@@ -108,6 +109,8 @@ public:
 
   std::shared_ptr<GST_element_base> m_jpgdec;
   std::shared_ptr<GST_element_base> m_h264;
+
+  Thumbnail_pipe         m_thumb;
 
   GST_interpipesink      m_h264_interpipesink;
 

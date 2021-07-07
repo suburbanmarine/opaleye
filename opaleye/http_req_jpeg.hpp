@@ -14,7 +14,7 @@ public:
 
   http_req_jpeg()
   {
-    m_cam = nullptr;
+    
   }
 
   ~http_req_jpeg() override
@@ -24,13 +24,16 @@ public:
 
   void handle(FCGX_Request* const request) override;
 
-  void set_cam(Logitech_brio_pipe* cam)
+  typedef std::function<void(std::vector<uint8_t>*)> GetImageCb;
+  void set_get_image_cb(const GetImageCb& cb)
   {
-    m_cam = cam;
+    m_cb = cb;
   }
 
 protected:
 
-  Logitech_brio_pipe* m_cam;
+  GetImageCb m_cb;
+
+  std::shared_ptr<std::vector<uint8_t>> m_buf;
 
 };
