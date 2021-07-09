@@ -47,7 +47,7 @@ server {
 	}
 
 	location /videos {
-		root /mnt/nvme/video;
+		root /mnt/video/opaleye/video;
 		autoindex on;
 
 		# do not cache
@@ -60,7 +60,7 @@ server {
 	}
 
 	location /images {
-		root /mnt/nvme/images;
+		root /mnt/video/opaleye/images;
 		autoindex on;
 
 		# verify etag before using item
