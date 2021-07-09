@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	gst_debug_set_default_threshold(GST_LEVEL_INFO);
+	// gst_debug_set_default_threshold(GST_LEVEL_INFO);
 	// gst_debug_set_default_threshold(GST_LEVEL_TRACE);
 
 	spdlog::set_level(spdlog::level::debug);
@@ -124,7 +124,8 @@ int main(int argc, char* argv[])
 	}
 
 	std::shared_ptr<http_req_jpeg> jpg_cb = std::make_shared<http_req_jpeg>();
-	jpg_cb->set_cam(&app.m_logi_brio);
+	jpg_cb->set_get_image_cb(std::bind(&Thumbnail_pipe::copy_frame_buffer, &app.m_thumb, std::placeholders::_1));
+
 	fcgi_svr.register_cb_for_doc_uri("/cameras/cam0.jpg", jpg_cb);
 
 	std::shared_ptr<jsonrpc::Server> jsonrpc_svr_disp = std::make_shared<jsonrpc::Server>();

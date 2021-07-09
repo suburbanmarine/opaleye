@@ -34,19 +34,30 @@ bool Logitech_brio::open()
     return false;
   }
 
-  uvc_error_t ret = uvc_get_stream_ctrl_format_size(
-    m_dev_hndl,
-    &m_ctrl,
-    UVC_FRAME_FORMAT_MJPEG,
-    // 640, 480, 30           /* width, height, fps */
-    1920, 1080, 30           /* width, height, fps */
-    // 3840, 2160, 30           /* width, height, fps */
-    );
+ uvc_error_t ret = uvc_get_stream_ctrl_format_size(
+   m_dev_hndl,
+   &m_ctrl,
+   UVC_FRAME_FORMAT_MJPEG,
+   640, 480, 30           /* width, height, fps */
+   // 1920, 1080, 30           /* width, height, fps */
+   // 3840, 2160, 30           /* width, height, fps */
+   );
   
-  if (ret < 0) {
-    uvc_perror(ret, "uvc_get_stream_ctrl_format_size");
-    return false;
-  }
+ if (ret < 0) {
+   uvc_perror(ret, "uvc_get_stream_ctrl_format_size");
+   return false;
+ }
+
+  // memset(&m_ctrl, 0, sizeof(m_ctrl));
+  // still_ctrl->bInterfaceNumber = ctrl->bInterfaceNumber;
+  // still_ctrl->bFormatIndex = format->bFormatIndex;
+  // still_ctrl->bFrameIndex = sizePattern->bResolutionIndex;
+  // still_ctrl->bCompressionIndex = 0; //TODO support compression index
+  // uvc_error_t ret = uvc_probe_stream_ctrl(m_dev_hndl, &m_ctrl)
+  // if (ret < 0) {
+  //   uvc_perror(ret, "uvc_probe_stream_ctrl");
+  //   return false;
+  // }
 
   // stream control block info
   uvc_print_stream_ctrl(&m_ctrl, stderr);

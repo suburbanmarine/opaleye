@@ -7,9 +7,11 @@
 
 #include "pipeline/camera/Testsrc_pipe.hpp"
 #include "pipeline/camera/Logitech_brio_pipe.hpp"
+#include "pipeline/camera/v4l2_webcam_pipe.hpp"
 #include "pipeline/display/autovideosink_pipe.hpp"
 #include "pipeline/stream/rtp_h264_pipe.hpp"
 #include "pipeline/stream/rtpsink_pipe.hpp"
+#include "pipeline/Thumbnail_pipe.hpp"
 
 #include <memory>
 
@@ -103,10 +105,12 @@ public:
 
 // protected:
   Testsrc_pipe       m_test_src;
-  Logitech_brio_pipe m_logi_brio;
+  V4L2_webcam_pipe   m_camera;
 
   std::shared_ptr<GST_element_base> m_jpgdec;
   std::shared_ptr<GST_element_base> m_h264;
+
+  Thumbnail_pipe         m_thumb;
 
   GST_interpipesink      m_h264_interpipesink;
 
