@@ -23,3 +23,13 @@ X2
 Dependancies
 build-essential
 gtk-doc-tools
+
+libgrpc-dev libprotobuf-c-dev libprotobuf-dev
+libgrpc++-dev
+protobuf-c-compiler protobuf-compiler protobuf-compiler-grpc
+rapidjson-dev
+libfcgi-dev
+libgstrtspserver-1.0-dev
+libuvc-dev
+libprotoc-dev
+ libboost-all-dev libgstreamer1.0-dev libgstreamermm-1.0-dev cmake nginx-full
