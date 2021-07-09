@@ -38,7 +38,7 @@ bool Thumbnail_pipe::init(const char name[])
     // m_in_queue->property_min_threshold_bytes()   = 0;
     m_in_queue->property_max_size_buffers()      = 0;
     m_in_queue->property_max_size_bytes()        = 0;
-    m_in_queue->property_max_size_time()         = 250 * GST_MSECOND;
+    m_in_queue->property_max_size_time()         = 1000 * GST_MSECOND;
 
     m_videorate  = Gst::ElementFactory::create_element("videorate");
     m_videoscale = Gst::ElementFactory::create_element("videoscale");
