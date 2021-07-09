@@ -89,8 +89,8 @@ bool mp4_splitmuxsink::init(const char name[])
   
       m_splitmuxsink = Gst::ElementFactory::create_element("splitmuxsink");
       // m_splitmuxsink->set_property("async-finalize", true); // 1.15.1+
-      m_splitmuxsink->set_property("location", top_storage_dir.c_str());
-      m_splitmuxsink->set_property("start-index", 0);
+      // m_splitmuxsink->set_property("location", top_storage_dir.c_str());
+      // m_splitmuxsink->set_property("start-index", 0);
       m_splitmuxsink->set_property("max-files", 0);
       m_splitmuxsink->set_property("max-size-bytes", 0);
       m_splitmuxsink->set_property("max-size-time",  10*60*GST_SECOND);
