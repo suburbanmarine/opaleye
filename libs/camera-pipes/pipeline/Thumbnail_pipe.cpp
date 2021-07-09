@@ -43,6 +43,20 @@ bool Thumbnail_pipe::init(const char name[])
     m_videorate  = Gst::ElementFactory::create_element("videorate");
     m_videoscale = Gst::ElementFactory::create_element("videoscale");
 
+    m_scale_queue = Gst::Queue::create();
+    // m_scale_queue->set_property("leaky", Gst::QUEUE_LEAK_DOWNSTREAM);
+    // m_scale_queue->property_min_threshold_time()    = 0;
+    // m_scale_queue->property_min_threshold_buffers() = 0;
+    // m_scale_queue->property_min_threshold_bytes()   = 0;
+    m_scale_queue->property_max_size_buffers()      = 0;
+    m_scale_queue->property_max_size_bytes()        = 0;
+    m_scale_queue->property_max_size_time()         = 1000 * GST_MSECOND;
+
+    m_jpegenc    = Gst::ElementFactory::create_element("jpegenc");
+    // m_jpegenc->set_property("idct-method",  GST::ifast);
+    m_jpegenc->set_property("quality",  75);
+    m_jpegenc->set_property("snapshot", false);
+
     //out caps
     m_out_caps = Gst::Caps::create_simple(
       "image/jpeg",
@@ -57,12 +71,6 @@ bool Thumbnail_pipe::init(const char name[])
 
     m_out_capsfilter = Gst::CapsFilter::create("outcaps");
     m_out_capsfilter->property_caps() = m_out_caps;
-
-    m_jpegenc    = Gst::ElementFactory::create_element("jpegenc");
-    // m_jpegenc->set_property("idct-method",  GST::ifast);
-    m_jpegenc->set_property("quality",  75);
-    m_jpegenc->set_property("snapshot", false);
-
     //out caps
     m_appsink_caps = Gst::Caps::create_simple(
       "image/jpeg",
@@ -89,6 +97,7 @@ bool Thumbnail_pipe::init(const char name[])
     m_bin->add(m_in_queue);
     m_bin->add(m_videorate);
     m_bin->add(m_videoscale);
+    m_bin->add(m_scale_queue);
     m_bin->add(m_jpegenc);
     m_bin->add(m_out_capsfilter);
     m_bin->add(m_appsink);
@@ -96,7 +105,8 @@ bool Thumbnail_pipe::init(const char name[])
 
   m_in_queue->link(m_videorate);
   m_videorate->link(m_videoscale);
-  m_videoscale->link(m_jpegenc);
+  m_videoscale->link(m_scale_queue);
+  m_scale_queue->link(m_jpegenc);
   m_jpegenc->link(m_out_capsfilter);
   m_out_capsfilter->link(m_appsink);
 
