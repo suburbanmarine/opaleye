@@ -20,9 +20,20 @@ X2
 7 VDSL2 CPE T1
 8 VDSL2 CPE R1
 
+5W mode
+sudo nvpmodel -m 1
+10W mode
+sudo nvpmodel -m 0
+MAX POWER
+jetson_clocks
+
 Dependancies
 build-essential
 gtk-doc-tools
+lm-sensors
+nano
+screen
+graphviz
 
 libgrpc-dev libprotobuf-c-dev libprotobuf-dev
 libgrpc++-dev
@@ -33,3 +44,4 @@ libgstrtspserver-1.0-dev
 libuvc-dev
 libprotoc-dev
  libboost-all-dev libgstreamer1.0-dev libgstreamermm-1.0-dev cmake nginx-full
+
