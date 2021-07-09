@@ -54,6 +54,9 @@ protected:
   
   Glib::RefPtr<Gst::Element>    m_videorate;
   Glib::RefPtr<Gst::Element>    m_videoscale;
+  
+  Glib::RefPtr<Gst::Queue>      m_scale_queue;
+
   Glib::RefPtr<Gst::Element>    m_jpegenc;
 
   Glib::RefPtr<Gst::Caps>       m_out_caps;
