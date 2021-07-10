@@ -41,7 +41,7 @@ bool rtp_h264_pipe::init(const char name[])
     // m_in_queue->property_min_threshold_time()    = 2 * GST_SECOND;
 
     m_rtph264pay = Gst::ElementFactory::create_element("rtph264pay");
-    m_rtph264pay->set_property("config-interval", 1);
+    // m_rtph264pay->set_property("config-interval", 1);
     m_rtph264pay->set_property("name", Glib::ustring("pay0"));
     m_rtph264pay->set_property("pt", 96);
     m_rtph264pay->set_property("aggregate-mode", 1);

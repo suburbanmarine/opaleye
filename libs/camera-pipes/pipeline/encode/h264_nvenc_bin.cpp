@@ -42,8 +42,8 @@ bool h264_nvenc_bin::init(const char name[])
     // 8 High profile
     m_omxh264enc->set_property("profile", 2);
 
-    m_omxh264enc->set_property("bitrate",      2000000);
-    m_omxh264enc->set_property("peak-bitrate", 3000000);
+    m_omxh264enc->set_property("bitrate",      20000000);
+    m_omxh264enc->set_property("peak-bitrate", 30000000);
 
      // (0): variable_bitrate - GST_V4L2_VIDENC_VARIABLE_BITRATE
      // (1): constant_bitrate - GST_V4L2_VIDENC_CONSTANT_BITRATE
@@ -67,7 +67,7 @@ bool h264_nvenc_bin::init(const char name[])
     m_omxh264enc->set_property("maxperf-enable", true);
 
     m_h264parse = Gst::ElementFactory::create_element("h264parse");
-    m_h264parse->set_property("config-interval", 1);
+    // m_h264parse->set_property("config-interval", 1);
 
     // vbv-size
 
