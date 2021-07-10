@@ -413,11 +413,8 @@ bool V4L2_webcam_pipe::init(const char name[])
     //src caps
     m_src_caps = Gst::Caps::create_simple(
       "image/jpeg",
-      // "format", Gst::Fourcc('M', 'J', 'P', 'G'),
-      // "format", Gst::Fourcc(Glib::ustring("MJPG")),
-      "pixel-aspect-ratio", Gst::Fraction(1, 1),
       "format","MJPG",
-      // "framerate",          Gst::Fraction(30, 1),
+      "pixel-aspect-ratio", Gst::Fraction(1, 1),
       "framerate",          Gst::Fraction(30, 1),
       // "width",              3840,
       // "height",             2160
