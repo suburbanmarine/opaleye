@@ -32,6 +32,7 @@ protected:
   Glib::RefPtr<Gst::Bin>        m_bin;
 
   Glib::RefPtr<Gst::Queue>      m_in_queue;
+  Glib::RefPtr<Gst::Element>    m_jpegparse;
   Glib::RefPtr<Gst::Element>    m_jpegdec;
   Glib::RefPtr<Gst::Caps>       m_out_caps;
   Glib::RefPtr<Gst::CapsFilter> m_capsfilter;

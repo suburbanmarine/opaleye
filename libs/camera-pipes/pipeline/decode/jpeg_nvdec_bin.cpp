@@ -36,6 +36,8 @@ bool jpeg_nvdec_bin::init(const char name[])
     m_in_queue->property_max_size_bytes()        = 0;
     m_in_queue->property_max_size_time()         = 1 * GST_SECOND;
 
+    m_jpegparse = Gst::ElementFactory::create_element("jpegparse");
+
     m_jpegdec = Gst::ElementFactory::create_element("nvjpegdec");
     // m_jpegdec->set_property("idct-method", 1);
 
@@ -55,11 +57,13 @@ bool jpeg_nvdec_bin::init(const char name[])
     m_out_tee = Gst::Tee::create();
 
     m_bin->add(m_in_queue);
+    m_bin->add(m_jpegparse);
     m_bin->add(m_jpegdec);
     m_bin->add(m_capsfilter);
     m_bin->add(m_out_tee);
 
-    m_in_queue->link(m_jpegdec);
+    m_in_queue->link(m_jpegparse);
+    m_jpegparse->link(m_jpegdec);
     m_jpegdec->link(m_capsfilter);
     m_capsfilter->link(m_out_tee);
   }
