@@ -85,6 +85,7 @@ bool Thumbnail_pipe::init(const char name[])
     m_appsink->property_emit_signals() = true;
     m_appsink->property_drop()         = true;
     m_appsink->property_max_buffers()  = 1;
+    m_appsink->property_sync()         = false;
 
     m_appsink->signal_new_sample().connect(
       [this]()
