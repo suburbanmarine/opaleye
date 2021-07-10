@@ -6,6 +6,19 @@ function clickedRefreshButton(event) {
     var url = $("#cam0").attr("src");
     $("#cam0").removeAttr("src").attr("src", url);
 }
+function clickedAutoRefreshCb(event) {
+    console.log( "clickedAutoRefreshCb" );
+
+    var isChecked = $("#cbAutoRefresh").is(":checked");
+    if(isChecked)
+    {
+      camPod.cbAutoRefreshIval = setInterval(clickedRefreshButton, 3000);
+    }
+    else
+    {
+      clearInterval(camPod.cbAutoRefreshIval);
+    }
+}
 function clickedStartButton(event) {
     console.log( "btnGstStart" );
     camPod.jrpc.call('start', ['cam0']);
@@ -70,6 +83,7 @@ function handleDocumentReady(jQuery) {
   camPod.jrpc = simple_jsonrpc.connect_xhr(rpcurl);
 
   $("#btnRefresh"           ).on("click", clickedRefreshButton   );
+  $("#cbAutoRefresh"        ).on("click", clickedAutoRefreshCb   );
   $("#btnStillStart"        ).on("click", btnStillStartClick     );
   $("#btnStillStop"         ).on("click", btnStillStopClick      );
   $("#btnVideoStart"        ).on("click", btnVideoStartClick     );
