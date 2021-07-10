@@ -44,7 +44,7 @@ bool jpeg_nvdec_bin::init(const char name[])
     //   "video/x-raw(memory:NVMM)",
     //   "format", "I420"
     //   );
-    m_out_caps = Gst::Caps::create_from_string("video/x-raw(memory:NVMM), format=(string)I420");
+    m_out_caps = Gst::Caps::create_from_string("video/x-raw, format=(string)I420");
 
 
     //out caps filter
