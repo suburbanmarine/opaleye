@@ -41,7 +41,7 @@ bool test_app::init()
     // m_jpgdec = std::make_shared<jpeg_nvdec_pipe>();
     // m_jpgdec = std::make_shared<jpeg_swdec_bin>();
     m_jpgdec = std::make_shared<jpeg_swdec_bin>();
-    m_h264   = std::make_shared<h264_nvenc_bin>();
+    // m_h264   = std::make_shared<h264_nvenc_bin>();
     m_thumb  = std::make_shared<Thumbnail_nv_pipe>();
   }
   else
@@ -49,7 +49,7 @@ bool test_app::init()
     SPDLOG_INFO("CPU mode");
 
     m_jpgdec = std::make_shared<jpeg_swdec_bin>();
-    m_h264   = std::make_shared<h264_swenc_bin>();
+    // m_h264   = std::make_shared<h264_swenc_bin>();
     m_thumb  = std::make_shared<Thumbnail_sw_pipe>();
     
   }
@@ -78,11 +78,11 @@ bool test_app::init()
    return false;
   }
 
-  if( ! m_h264->init("h264_0") )
-  {
-   SPDLOG_ERROR("Could not init h264");
-   return false;
-  }
+  // if( ! m_h264->init("h264_0") )
+  // {
+  //  SPDLOG_ERROR("Could not init h264");
+  //  return false;
+  // }
 
   if( ! m_h264_interpipesink.init("h264_ipsink_0") )
   {
@@ -119,7 +119,7 @@ bool test_app::init()
   m_jpgdec->add_to_bin(m_pipeline);
   // m_test_src.add_to_bin(m_pipeline);
   m_thumb->add_to_bin(m_pipeline);
-  m_h264->add_to_bin(m_pipeline);
+  // m_h264->add_to_bin(m_pipeline);
   m_h264_interpipesink.add_to_bin(m_pipeline);
   // m_mkv.add_to_bin(m_pipeline);
   // m_display.add_to_bin(m_pipeline);
@@ -130,14 +130,16 @@ bool test_app::init()
   m_camera.link_back(m_jpgdec->front());
 
   // m_jpgdec->link_back(m_display.front());
-  m_jpgdec->link_back(m_h264->front());
+  // m_jpgdec->link_back(m_h264->front());
   m_jpgdec->link_back(m_thumb->front());
 
   // m_test_src.link_back(m_display.front());
   // m_test_src.link_back(m_h264->front());
 
-  m_h264->link_back(m_rtppay.front());
-  m_h264->link_back(m_h264_interpipesink.front());
+  // m_h264->link_back(m_rtppay.front());
+  // m_h264->link_back(m_h264_interpipesink.front());
+
+  m_camera.link_back(m_h264_interpipesink.front());
 
   m_rtppay.link_back(m_rtpsink.front());
 
