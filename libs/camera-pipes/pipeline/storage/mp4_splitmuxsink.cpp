@@ -95,7 +95,8 @@ bool mp4_splitmuxsink::init(const char name[])
       m_splitmuxsink->set_property("max-size-bytes", 0);
       m_splitmuxsink->set_property("max-size-time",  10*60*GST_SECOND);
       m_splitmuxsink->set_property("send-keyframe-requests",  true); // max-size-bytes must be 0
-  
+      m_splitmuxsink->set_property("muxer", "matroskamux");
+
       g_signal_connect(m_splitmuxsink->gobj(), "format-location", G_CALLBACK(&mp4_splitmuxsink::dispatch_format_location), this);
   
       // 1.15.1+
@@ -130,7 +131,7 @@ gchararray mp4_splitmuxsink::dispatch_format_location(GstElement* splitmux, guin
 gchararray mp4_splitmuxsink::handle_format_location(GstElement* splitmux, guint fragment_id)
 {
     guint current_fragment_id = fragment_id + starting_id;
-    current_filename = fmt::format("file-{:06d}.mp4", current_fragment_id);
+    current_filename = fmt::format("file-{:06d}.mkv", current_fragment_id);
 
     current_path = top_storage_dir / current_filename;
 
