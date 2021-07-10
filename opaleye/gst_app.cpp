@@ -39,7 +39,8 @@ bool test_app::init()
     // https://forums.developer.nvidia.com/t/bus-error-with-gstreamer-and-opencv/110657/5
     // libjpeg and nvjpegdec may not be used in the same program...
     // m_jpgdec = std::make_shared<jpeg_nvdec_pipe>();
-    m_jpgdec = std::make_shared<jpeg_swdec_bin>();
+    // m_jpgdec = std::make_shared<jpeg_swdec_bin>();
+    m_jpgdec = std::make_shared<jpeg_nvdec_bin>();
     m_h264   = std::make_shared<h264_nvenc_bin>(); 
   }
   else
