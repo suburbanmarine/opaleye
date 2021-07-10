@@ -40,7 +40,7 @@ bool test_app::init()
     // libjpeg and nvjpegdec may not be used in the same program...
     // m_jpgdec = std::make_shared<jpeg_nvdec_pipe>();
     // m_jpgdec = std::make_shared<jpeg_swdec_bin>();
-    m_jpgdec = std::make_shared<jpeg_swdec_bin>();
+    m_jpgdec = std::make_shared<jpeg_nvdec_pipe>();
     // m_h264   = std::make_shared<h264_nvenc_bin>();
     m_thumb  = std::make_shared<Thumbnail_nv_pipe>();
   }
@@ -140,6 +140,7 @@ bool test_app::init()
   // m_h264->link_back(m_h264_interpipesink.front());
 
   m_camera.link_back(m_h264_interpipesink.front());
+  m_camera.link_back(m_rtppay.front());
 
   m_rtppay.link_back(m_rtpsink.front());
 
