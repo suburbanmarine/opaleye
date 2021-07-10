@@ -29,19 +29,30 @@ jetson_clocks
 
 Dependancies
 build-essential
+cmake
 gtk-doc-tools
+
 lm-sensors
 nano
 screen
+gdebi
+
 graphviz
+nginx-full
 
-libgrpc-dev libprotobuf-c-dev libprotobuf-dev
-libgrpc++-dev
-protobuf-c-compiler protobuf-compiler protobuf-compiler-grpc
-rapidjson-dev
+libboost-all-dev
 libfcgi-dev
+libgrpc++-dev
+libgrpc-dev
+libgstreamer1.0-dev
+libgstreamermm-1.0-dev
 libgstrtspserver-1.0-dev
-libuvc-dev
+liblockfile-dev
+libprotobuf-c-dev
+libprotobuf-dev
 libprotoc-dev
- libboost-all-dev libgstreamer1.0-dev libgstreamermm-1.0-dev cmake nginx-full
-
+libuvc-dev
+protobuf-c-compiler
+protobuf-compiler
+protobuf-compiler-grpc
+rapidjson-dev
