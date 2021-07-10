@@ -35,8 +35,9 @@ bool jpeg_nvdec_bin::init(const char name[])
     m_in_queue->property_max_size_buffers()      = 0;
     m_in_queue->property_max_size_bytes()        = 0;
     m_in_queue->property_max_size_time()         = 1 * GST_SECOND;
-    
+
     m_jpegdec = Gst::ElementFactory::create_element("nvjpegdec");
+    // m_jpegdec->set_property("idct-method", 1);
 
     //out caps
     m_out_caps = Gst::Caps::create_simple(
