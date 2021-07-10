@@ -64,10 +64,7 @@ bool h264_nvenc_bin::init(const char name[])
 
     m_omxh264enc->set_property("iframeinterval", 5);
 
-    m_omxh264enc->set_property("bufapi-version", true);
-    
-
-    m_omxh264enc->set_property("maxperf-enable", 1);
+    m_omxh264enc->set_property("maxperf-enable", true);
 
     m_h264parse = Gst::ElementFactory::create_element("h264parse");
     m_h264parse->set_property("config-interval", 1);
