@@ -94,8 +94,8 @@ bool mp4_splitmuxsink::init(const char name[])
       m_splitmuxsink->set_property("max-files", 0);
       m_splitmuxsink->set_property("max-size-bytes", 0);
       m_splitmuxsink->set_property("max-size-time",  10*60*GST_SECOND);
-      m_splitmuxsink->set_property("send-keyframe-requests",  true); // max-size-bytes must be 0
-      m_splitmuxsink->set_property("muxer", "matroskamux");
+      // m_splitmuxsink->set_property("send-keyframe-requests",  true); // max-size-bytes must be 0
+      m_splitmuxsink->set_property("muxer", Glib::ustring("matroskamux"));
 
       g_signal_connect(m_splitmuxsink->gobj(), "format-location", G_CALLBACK(&mp4_splitmuxsink::dispatch_format_location), this);
   
