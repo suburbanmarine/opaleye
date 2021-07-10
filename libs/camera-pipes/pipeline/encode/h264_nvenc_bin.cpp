@@ -65,6 +65,7 @@ bool h264_nvenc_bin::init(const char name[])
     m_omxh264enc->set_property("maxperf-enable", 1);
 
     m_h264parse = Gst::ElementFactory::create_element("h264parse");
+    m_h264parse->set_property("config-interval", 1);
 
     // vbv-size
 
