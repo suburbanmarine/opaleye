@@ -418,11 +418,11 @@ bool V4L2_webcam_pipe::init(const char name[])
       "pixel-aspect-ratio", Gst::Fraction(1, 1),
       "format","MJPG",
       // "framerate",          Gst::Fraction(30, 1),
-      "framerate",          Gst::Fraction(20, 1),
-      "width",              3840,
-      "height",             2160
-      // "width",              1920,
-      // "height",             1080
+      "framerate",          Gst::Fraction(30, 1),
+      // "width",              3840,
+      // "height",             2160
+      "width",              1920,
+      "height",             1080
 
       );
 
@@ -436,7 +436,7 @@ bool V4L2_webcam_pipe::init(const char name[])
     m_out_caps = Gst::Caps::create_simple(
       "image/jpeg",
       "pixel-aspect-ratio", Gst::Fraction(1, 1),
-      "framerate",         Gst::Fraction(20, 1)
+      "framerate",         Gst::Fraction(30, 1)
       );
 
     m_out_capsfilter = Gst::CapsFilter::create("outcaps");
