@@ -32,6 +32,9 @@ bool jpeg_nvdec_bin::init(const char name[])
     m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
 
     m_in_queue     = Gst::Queue::create();
+    m_in_queue->property_max_size_buffers()      = 0;
+    m_in_queue->property_max_size_bytes()        = 0;
+    m_in_queue->property_max_size_time()         = 1 * GST_SECOND;
     
     m_jpegdec = Gst::ElementFactory::create_element("nvjpegdec");
 
