@@ -61,6 +61,8 @@ bool h264_nvenc_bin::init(const char name[])
     m_omxh264enc->set_property("insert-sps-pps", 1);
     // m_omxh264enc->set_property("insert-aud", true);
     m_omxh264enc->set_property("insert-vui", 1);
+    m_omxh264enc->set_property("bit-packetization", 0);
+    m_omxh264enc->set_property("slice-header-spacing", 8);
 
     m_omxh264enc->set_property("iframeinterval", 5);
 
