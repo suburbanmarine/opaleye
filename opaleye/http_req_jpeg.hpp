@@ -2,11 +2,13 @@
 
 #include "http_req_callback_base.hpp"
 
-#include "pipeline/camera/Logitech_brio_pipe.hpp"
-
 #define NO_FCGI_DEFINES 1
 #include <fcgi_config.h>
 #include <fcgiapp.h>
+
+#include <functional>
+#include <memory>
+#include <vector>
 
 class http_req_jpeg : public http_req_callback_base
 {

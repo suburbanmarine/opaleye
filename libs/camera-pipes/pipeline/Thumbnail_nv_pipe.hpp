@@ -3,6 +3,7 @@
 #include "cameras/Logitech_brio.hpp"
 
 #include "pipeline/GST_element_base.hpp"
+#include "Thumbnail_sw_pipe.hpp"
 
 #include <gstreamermm/appsink.h>
 #include <gstreamermm/caps.h>
@@ -14,10 +15,10 @@
 #include <memory>
 #include <mutex>
 
-class Thumbnail_pipe : public GST_element_base
+class Thumbnail_nv_pipe : public Thumbnail_pipe_base
 {
 public:
-  Thumbnail_pipe();
+  Thumbnail_nv_pipe();
 
   void add_to_bin(const Glib::RefPtr<Gst::Bin>& bin) override;
   bool link_front(const Glib::RefPtr<Gst::Element>& node) override;

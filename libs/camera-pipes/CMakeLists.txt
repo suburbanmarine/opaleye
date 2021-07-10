@@ -1,9 +1,9 @@
 add_library(camera-pipes
-	cameras/Logitech_brio.cpp
-	cameras/UVC_base.cpp
+	#cameras/Logitech_brio.cpp
+	#cameras/UVC_base.cpp
 
-	pipeline/camera/Logitech_brio_pipe.cpp
-	pipeline/camera/Logitech_C525_gst.cpp
+	#pipeline/camera/Logitech_brio_pipe.cpp
+	#pipeline/camera/Logitech_C525_gst.cpp
 	pipeline/camera/Testsrc_pipe.cpp
 	pipeline/camera/v4l2_webcam_pipe.cpp
 
@@ -35,7 +35,8 @@ add_library(camera-pipes
 	pipeline/gst_common.cpp
 	pipeline/GST_interpipesrc.cpp
 	pipeline/GST_interpipesink.cpp
-	pipeline/Thumbnail_pipe.cpp
+	pipeline/Thumbnail_sw_pipe.cpp
+	pipeline/Thumbnail_nv_pipe.cpp
 )
 
 target_link_libraries(camera-pipes
@@ -45,6 +46,8 @@ target_link_libraries(camera-pipes
 		${GST_LIBRARIES}
 		${GSTMM_LIBRARIES}
 	#	${GSTRTSP_LIBRARIES}
+
+		#uvc
 
 		spdlog::spdlog
 )

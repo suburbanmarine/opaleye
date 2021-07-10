@@ -41,7 +41,7 @@ bool jpeg_nvdec_bin::init(const char name[])
 
     //out caps
     m_out_caps = Gst::Caps::create_simple(
-      "video/x-raw"
+      "video/x-raw(memory:NVMM)"
       // "format", "RGB"
       );
 

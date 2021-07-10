@@ -1,4 +1,4 @@
-#include "Thumbnail_pipe.hpp"
+#include "Thumbnail_sw_pipe.hpp"
 
 #include "pipeline/gst_common.hpp"
 
@@ -9,22 +9,22 @@
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/fmt/fmt.h>
 
-Thumbnail_pipe::Thumbnail_pipe()
+Thumbnail_sw_pipe::Thumbnail_sw_pipe()
 {
   
 }
 
-void Thumbnail_pipe::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
+void Thumbnail_sw_pipe::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
 {
   bin->add(m_bin);
 }
 
-bool Thumbnail_pipe::link_front(const Glib::RefPtr<Gst::Element>& node)
+bool Thumbnail_sw_pipe::link_front(const Glib::RefPtr<Gst::Element>& node)
 {
   return false;
 }
 
-bool Thumbnail_pipe::init(const char name[])
+bool Thumbnail_sw_pipe::init(const char name[])
 {
   //init our internal bin and elements
   {
@@ -117,14 +117,14 @@ bool Thumbnail_pipe::init(const char name[])
   return true;
 }
 
-void Thumbnail_pipe::handle_new_sample()
+void Thumbnail_sw_pipe::handle_new_sample()
 {
   Glib::RefPtr<Gst::Sample> sample = m_appsink->try_pull_sample(0);
   if(sample)
   {
     Glib::RefPtr<Gst::Buffer> buffer = sample->get_buffer();
 
-    SPDLOG_INFO("Thumbnail_pipe::handle_new_sample has {}", buffer->get_size());
+    SPDLOG_INFO("Thumbnail_sw_pipe::handle_new_sample has {}", buffer->get_size());
     {
       std::unique_lock<std::mutex> lock(m_frame_buffer_mutex);
 
@@ -139,7 +139,7 @@ void Thumbnail_pipe::handle_new_sample()
         Gst::MapInfo map_info;
         mem_i->map(map_info, Gst::MAP_READ);
 
-        SPDLOG_INFO("Thumbnail_pipe::handle_new_sample block {} is {}", i, map_info.get_size());
+        SPDLOG_INFO("Thumbnail_sw_pipe::handle_new_sample block {} is {}", i, map_info.get_size());
 
         guint8* blk_ptr = map_info.get_data();
         gsize   blk_len = map_info.get_size();
@@ -153,6 +153,6 @@ void Thumbnail_pipe::handle_new_sample()
   }
   else
   {
-    SPDLOG_INFO("Thumbnail_pipe::handle_new_sample has null sample"); 
+    SPDLOG_INFO("Thumbnail_sw_pipe::handle_new_sample has null sample"); 
   }
 }

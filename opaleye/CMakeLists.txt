@@ -31,7 +31,7 @@ target_link_libraries(opaleye
 
 		spdlog::spdlog
 
-		uvc
+		#uvc
 		fcgi
 )
 
