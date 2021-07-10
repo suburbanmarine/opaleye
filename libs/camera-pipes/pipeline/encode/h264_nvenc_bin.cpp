@@ -60,9 +60,9 @@ bool h264_nvenc_bin::init(const char name[])
 
     m_omxh264enc->set_property("insert-sps-pps", 1);
     // m_omxh264enc->set_property("insert-aud", true);
-    // m_omxh264enc->set_property("insert-vui", true);
+    m_omxh264enc->set_property("insert-vui", 1);
 
-    m_omxh264enc->set_property("maxperf-enable", true);
+    m_omxh264enc->set_property("maxperf-enable", 1);
 
     m_h264parse = Gst::ElementFactory::create_element("h264parse");
 
