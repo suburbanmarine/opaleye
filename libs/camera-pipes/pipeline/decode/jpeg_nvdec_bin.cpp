@@ -40,10 +40,12 @@ bool jpeg_nvdec_bin::init(const char name[])
     // m_jpegdec->set_property("idct-method", 1);
 
     //out caps
-    m_out_caps = Gst::Caps::create_simple(
-      "video/x-raw(memory:NVMM)",
-      "format", "I420"
-      );
+    // m_out_caps = Gst::Caps::create_simple(
+    //   "video/x-raw(memory:NVMM)",
+    //   "format", "I420"
+    //   );
+    m_out_caps = Gst::Caps::create_from_string("video/x-raw(memory:NVMM), format=(string)I420");
+
 
     //out caps filter
     m_capsfilter = Gst::CapsFilter::create();
