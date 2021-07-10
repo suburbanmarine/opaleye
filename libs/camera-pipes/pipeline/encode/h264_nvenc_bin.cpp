@@ -42,8 +42,8 @@ bool h264_nvenc_bin::init(const char name[])
     // 8 High profile
     m_omxh264enc->set_property("profile", 2);
 
-    m_omxh264enc->set_property("bitrate",      2000000);
-    m_omxh264enc->set_property("peak-bitrate", 3000000);
+    m_omxh264enc->set_property("bitrate",      10*1000*1000);
+    m_omxh264enc->set_property("peak-bitrate", 12*1000*1000);
 
     // 0 Disable
     // 1 Variable bit rate
