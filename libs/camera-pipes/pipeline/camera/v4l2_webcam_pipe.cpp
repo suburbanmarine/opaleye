@@ -400,6 +400,14 @@ bool V4L2_webcam_pipe::init(const char name[])
     m_src->set_property("do-timestamp", true);
     // m_src->set_property("is-live", true);
     m_src->set_property("device", Glib::ustring("/dev/video0"));
+
+	// (0): auto             - GST_V4L2_IO_AUTO
+	// (1): rw               - GST_V4L2_IO_RW
+	// (2): mmap             - GST_V4L2_IO_MMAP
+	// (3): userptr          - GST_V4L2_IO_USERPTR
+	// (4): dmabuf           - GST_V4L2_IO_DMABUF
+	// (5): dmabuf-import    - GST_V4L2_IO_DMABUF_IMPORT
+    m_src->set_property("io-mode", 2);
     // m_src->add_probe(GST_PAD_PROBE_TYPE_IDLE | GST_PAD_PROBE_TYPE_EVENT_BOTH, sigc::mem_fun(&V4L2_webcam_pipe::on_pad_probe, this))
 
     //src caps
