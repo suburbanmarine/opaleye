@@ -35,7 +35,7 @@ bool h264_nvenc_bin::init(const char name[])
     
     m_videoconvert = Gst::ElementFactory::create_element("nvvidconv");
 
-    m_omxh264enc      = Gst::ElementFactory::create_element("nvv4l2h264enc");
+    m_omxh264enc      = Gst::ElementFactory::create_element("omxh264enc");
 
     // 1 Baseline profile
     // 2 Main profile
@@ -45,24 +45,32 @@ bool h264_nvenc_bin::init(const char name[])
     m_omxh264enc->set_property("bitrate",      2000000);
     m_omxh264enc->set_property("peak-bitrate", 3000000);
 
-     // (0): variable_bitrate - GST_V4L2_VIDENC_VARIABLE_BITRATE
-     // (1): constant_bitrate - GST_V4L2_VIDENC_CONSTANT_BITRATE
-    m_omxh264enc->set_property("control-rate", 1);
+    // 0 Disable
+    // 1 Variable bit rate
+    // 2 Constant bit rate
+    // 3 Variable bit rate with frame skip. The encoder skips
+    // frames as necessary to meet the target bit rate.
+    // 4 Constant bit rate with frame skip
+    m_omxh264enc->set_property("control-rate", 2);
 
-   // (0): DisablePreset    - Disable HW-Preset
-   // (1): UltraFastPreset  - UltraFastPreset for high perf
-   // (2): FastPreset       - FastPreset
-   // (3): MediumPreset     - MediumPreset
-   // (4): SlowPreset       - SlowPreset
-    m_omxh264enc->set_property("preset-level", 1);
+    // 0 Disable
+    // 1 Drop 1 in 5 frames
+    // 2 Drop 1 in 3 frames
+    // 3 Drop 1 in 2 frames
+    // 4 Drop 2 in 3 frames
+    m_omxh264enc->set_property("temporal-tradeoff", 0);
+
+    // 0 UltraFastPreset
+    // 1 FastPreset
+    // 2 MediumPreset
+    // 3 SlowPreset
+    m_omxh264enc->set_property("preset-level", 0);
 
     // m_omxh264enc->set_property("low-latency", 1);
 
     m_omxh264enc->set_property("insert-sps-pps", 1);
     // m_omxh264enc->set_property("insert-aud", true);
     m_omxh264enc->set_property("insert-vui", 1);
-
-    m_omxh264enc->set_property("maxperf-enable", 1);
 
     m_h264parse = Gst::ElementFactory::create_element("h264parse");
     m_h264parse->set_property("config-interval", 1);
