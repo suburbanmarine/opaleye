@@ -44,6 +44,8 @@ server {
 		fastcgi_pass   127.0.0.1:50000;
 
 		include        fastcgi_params;
+
+		etag on;
 	}
 
 	location /videos {
