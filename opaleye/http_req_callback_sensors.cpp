@@ -25,7 +25,7 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
     std::stringstream ss;
 
     ss << fmt::format("External Temp: {:0.3f} degC\r\n", ext_temp_data);
-    ss << fmt::format("External Temp: {:d} degC\r\n", baro_data.P1_mbar);
+    ss << fmt::format("External Pres: {:d} mbar\r\n", baro_data.P1_mbar);
 
     std::string str = ss.str();
 

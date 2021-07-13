@@ -138,7 +138,7 @@ void sensor_thread::work()
 		{
 			ext_temp = TSYS01::calc_temp(temp_sample, m_temp_cal_data);
 
-			SPDLOG_DEBUG("Temperature is {:f} degC", temp);
+			SPDLOG_DEBUG("Temperature is {:f} degC", ext_temp);
 		}
 
 		uint32_t d1, d2;
