@@ -55,6 +55,7 @@ bool i2c_linux::write(const uint8_t dev_addr, uint8_t tx_buf[], const size_t tx_
 	int ret = ioctl(m_i2c, I2C_RDWR, &msgset);
 	if(ret < 0)
 	{
+		SPDLOG_WARN("ioctl failed: {:d}", errno);
 		return false;
 	}
 
@@ -77,6 +78,7 @@ bool i2c_linux::read(const uint8_t dev_addr, uint8_t* rx_buf, const size_t rx_bu
 	int ret = ioctl(m_i2c, I2C_RDWR, &msgset);
 	if(ret < 0)
 	{
+		SPDLOG_WARN("ioctl failed: {:d}", errno);
 		return false;
 	}
 
@@ -124,6 +126,7 @@ bool i2c_linux::write_then_read(const uint8_t dev_addr, uint8_t tx_buf[], const 
 	int ret = ioctl(m_i2c, I2C_RDWR, &msgset);
 	if(ret < 0)
 	{
+		SPDLOG_WARN("ioctl failed: {:d}", errno);
 		return false;
 	}
 
@@ -153,6 +156,7 @@ bool i2c_linux::write_then_write(const uint8_t dev_addr, uint8_t tx_buf[], const
 	int ret = ioctl(m_i2c, I2C_RDWR, &msgset);
 	if(ret < 0)
 	{
+		SPDLOG_WARN("ioctl failed: {:d}", errno);
 		return false;
 	}
 
