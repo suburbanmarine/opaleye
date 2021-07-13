@@ -37,7 +37,21 @@ void thread_base::join()
 
 void thread_base::dispatch_work()
 {
-	work();
+	SPDLOG_DEBUG("Thread started");
+	try
+	{
+		work();
+	}
+	catch(const std::exception& e)
+	{
+		SPDLOG_DEBUG("Thread caught exception {:s}", e.what());	
+	}
+	catch(...)
+	{
+		SPDLOG_DEBUG("Thread caught exception ...");	
+	}
+
+	SPDLOG_DEBUG("Thread exiting");
 }
 
 sensor_thread::sensor_thread()

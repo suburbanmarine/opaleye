@@ -35,7 +35,7 @@ bool TSYS01::sample(uint32_t* out_sample)
 		return false;
 	}
 
-	uint32_t temp_sample = uint32_t(rx_buf[0]) << 16 | uint32_t(rx_buf[1]) << 8 | uint32_t(rx_buf[2]);
+	uint32_t temp_sample = (uint32_t(rx_buf[0]) << 16) | (uint32_t(rx_buf[1]) << 8) | (uint32_t(rx_buf[2]) << 0);
 	SPDLOG_DEBUG("Temp sample: {:08d}", temp_sample);
 
 	*out_sample = temp_sample;
@@ -105,19 +105,19 @@ bool TSYS01::read_cal_data(CAL_DATA* const out_data)
 double TSYS01::calc_temp(const uint32_t sample, const CAL_DATA& data)
 {
 	const uint32_t ADC24 = sample;
-	const uint32_t ADC16 = ADC24 / uint32_t(256U);
+	const uint32_t ADC16 = ADC24 / uint32_t(256UL);
 
-	const double ADC16_1 = double(ADC16);
-	const double ADC16_2 = ADC16_1 * double(ADC16);
-	const double ADC16_3 = ADC16_2 * double(ADC16);
-	const double ADC16_4 = ADC16_3 * double(ADC16);
+	const uint64_t ADC16_1 = ADC16;
+	const uint64_t ADC16_2 = ADC16_1 * ADC16;
+	const uint64_t ADC16_3 = ADC16_2 * ADC16;
+	const uint64_t ADC16_4 = ADC16_3 * ADC16;
 
 	double temp = 0.0;
-	temp += -2.0 * 1e-21 * ADC16_4;
-	temp +=  4.0 * 1e-26 * ADC16_3;
-	temp += -2.0 * 1e-11 * ADC16_2;
-	temp +=  1.0 * 1e-6  * ADC16_1;
-	temp += -1.5 * 1e-2;
+	temp += -2.0 * double(data.k4) * 1e-21 * double(ADC16_4);
+	temp +=  4.0 * double(data.k3) * 1e-26 * double(ADC16_3);
+	temp += -2.0 * double(data.k2) * 1e-11 * double(ADC16_2);
+	temp +=  1.0 * double(data.k1) * 1e-6  * double(ADC16_1);
+	temp += -1.5 * double(data.k0) * 1e-2;
 
 	return temp;
 }
