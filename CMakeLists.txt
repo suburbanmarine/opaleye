@@ -62,6 +62,8 @@ target_include_directories(jsonrpc-lean
 
 add_subdirectory(libs/camera-pipes)
 add_subdirectory(libs/http-bridge)
+add_subdirectory(libs/hal)
+add_subdirectory(libs/sensors)
 add_subdirectory(opaleye)
 add_subdirectory(site)
 
