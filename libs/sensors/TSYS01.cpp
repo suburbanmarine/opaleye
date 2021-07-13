@@ -89,6 +89,12 @@ bool TSYS01::read_cal_data(CAL_DATA* const out_data)
 		return false;
 	}
 
+	out_data->k4 = ntohs(out_data->k4);
+	out_data->k3 = ntohs(out_data->k3);
+	out_data->k2 = ntohs(out_data->k2);
+	out_data->k1 = ntohs(out_data->k1);
+	out_data->k0 = ntohs(out_data->k0);
+
 	return true;
 }
 

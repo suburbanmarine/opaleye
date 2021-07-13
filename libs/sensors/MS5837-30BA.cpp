@@ -112,6 +112,13 @@ bool MS5837_30BA::read_cal_data(CAL_DATA* const out_data)
 		return false;
 	}
 
+	out_data->c1 = ntohs(out_data->c1);
+	out_data->c2 = ntohs(out_data->c2);
+	out_data->c3 = ntohs(out_data->c3);
+	out_data->c4 = ntohs(out_data->c4);
+	out_data->c5 = ntohs(out_data->c5);
+	out_data->c6 = ntohs(out_data->c6);
+
 	return true;
 }
 
