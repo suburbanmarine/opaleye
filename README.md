@@ -56,3 +56,4 @@ protobuf-c-compiler
 protobuf-compiler
 protobuf-compiler-grpc
 rapidjson-dev
+i2c-tools
