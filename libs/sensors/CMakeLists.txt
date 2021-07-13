@@ -4,5 +4,10 @@ add_library(sensors
 )
 
 target_link_libraries(sensors
-	
+	hal
+)
+
+target_include_directories(sensors
+	PUBLIC
+		${CMAKE_CURRENT_SOURCE_DIR}
 )

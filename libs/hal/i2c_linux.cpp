@@ -1,8 +1,25 @@
 #include "i2c_linux.hpp"
 
+#include <fcntl.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include <cstring>
+
+i2c_linux::i2c_linux()
+{
+	m_i2c = -1;
+}
+
+i2c_linux::~i2c_linux()
+{
+	if(m_i2c >= 0)
+	{
+		close(m_i2c);
+		m_i2c = -1;
+	}
+}
 
 bool i2c_linux::init(const char* dev)
 {
