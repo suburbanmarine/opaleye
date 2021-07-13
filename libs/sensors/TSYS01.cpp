@@ -99,6 +99,14 @@ bool TSYS01::read_cal_data(CAL_DATA* const out_data)
 	out_data->k1 = ntohs(out_data->k1);
 	out_data->k0 = ntohs(out_data->k0);
 
+	SPDLOG_DEBUG("Cal data: 0x{:02X}, 0x{:02X}, 0x{:02X}, 0x{:02X}, 0x{:02X}", 
+		out_data->k4,
+		out_data->k3,
+		out_data->k2,
+		out_data->k1,
+		out_data->k0
+	);
+
 	return true;
 }
 
