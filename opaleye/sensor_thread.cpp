@@ -16,7 +16,7 @@ thread_base::~thread_base()
 
 void thread_base::launch()
 {
-	m_thread = std::thread(&thread_base::work, this);
+	m_thread = std::thread(&thread_base::dispatch_work, this);
 }
 
 void thread_base::work()
@@ -33,6 +33,11 @@ void thread_base::interrupt()
 void thread_base::join()
 {
 	m_thread.join();
+}
+
+void thread_base::dispatch_work()
+{
+	work();
 }
 
 sensor_thread::sensor_thread()
@@ -104,7 +109,6 @@ bool sensor_thread::init()
 
 void sensor_thread::work()
 {	
-
 	while(m_keep_running)
 	{
 		uint32_t temp_sample;

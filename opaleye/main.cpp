@@ -54,6 +54,7 @@ int main(int argc, char* argv[])
 	sinks.push_back( std::make_shared<spdlog::sinks::stdout_color_sink_mt>()             );
 	auto tp2 = std::make_shared<spdlog::details::thread_pool>(1024, 1);
 	auto logger = std::make_shared<spdlog::async_logger>("log", begin(sinks), end(sinks), tp2, spdlog::async_overflow_policy::block);
+	logger->set_level(spdlog::level::debug);
 	spdlog::set_default_logger( logger );
 
 	//give gst options

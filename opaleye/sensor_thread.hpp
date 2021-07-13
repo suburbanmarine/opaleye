@@ -21,6 +21,9 @@ public:
 	//MT safe
 	void join();
 protected:
+
+	void dispatch_work();
+
 	std::atomic<bool> m_keep_running;
 	std::thread m_thread;
 };
