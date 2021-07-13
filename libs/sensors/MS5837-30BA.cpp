@@ -81,37 +81,37 @@ bool MS5837_30BA::read_cal_data(CAL_DATA* const out_data)
 		return false;
 	}
 
-	ret = m_i2c->read_cmd(0x76, 0xA1, reinterpret_cast<uint8_t*>(&(out_data->c1)), 2);
+	ret = m_i2c->read_cmd(0x76, 0xA2, reinterpret_cast<uint8_t*>(&(out_data->c1)), 2);
 	if(!ret)
 	{
 		return false;
 	}
 
-	ret = m_i2c->read_cmd(0x76, 0xA2, reinterpret_cast<uint8_t*>(&(out_data->c2)), 2);
+	ret = m_i2c->read_cmd(0x76, 0xA4, reinterpret_cast<uint8_t*>(&(out_data->c2)), 2);
 	if(!ret)
 	{
 		return false;
 	}
 
-	ret = m_i2c->read_cmd(0x76, 0xA3, reinterpret_cast<uint8_t*>(&(out_data->c3)), 2);
+	ret = m_i2c->read_cmd(0x76, 0xA6, reinterpret_cast<uint8_t*>(&(out_data->c3)), 2);
 	if(!ret)
 	{
 		return false;
 	}
 
-	ret = m_i2c->read_cmd(0x76, 0xA4, reinterpret_cast<uint8_t*>(&(out_data->c4)), 2);
+	ret = m_i2c->read_cmd(0x76, 0xA8, reinterpret_cast<uint8_t*>(&(out_data->c4)), 2);
 	if(!ret)
 	{
 		return false;
 	}
 
-	ret = m_i2c->read_cmd(0x76, 0xA5, reinterpret_cast<uint8_t*>(&(out_data->c5)), 2);
+	ret = m_i2c->read_cmd(0x76, 0xAA, reinterpret_cast<uint8_t*>(&(out_data->c5)), 2);
 	if(!ret)
 	{
 		return false;
 	}
 
-	ret = m_i2c->read_cmd(0x76, 0xA6, reinterpret_cast<uint8_t*>(&(out_data->c6)), 2);
+	ret = m_i2c->read_cmd(0x76, 0xAC, reinterpret_cast<uint8_t*>(&(out_data->c6)), 2);
 	if(!ret)
 	{
 		return false;
@@ -142,7 +142,7 @@ double MS5837_30BA::calc_pressure(const uint32_t d1, const uint32_t d2, const CA
 	const int64_t OFF  = int64_t(data.c2) * (1LL << 16) + (int64_t(data.c4) * int64_t(dT)) / (1LL << 7);
 	const int64_t SENS = int64_t(data.c1) * (1LL << 15) + (int64_t(data.c3) * int64_t(dT)) / (1LL << 8);
 
-	const int32_t P_1 = (int64_t(d1) * SENS / (1LL << 21) - OFF) / (1LL << 13);
+	const int32_t P1 = (int64_t(d1) * SENS / (1LL << 21) - OFF) / (1LL << 13);
 
 
 	int64_t OFFi  = 0;
@@ -173,6 +173,8 @@ double MS5837_30BA::calc_pressure(const uint32_t d1, const uint32_t d2, const CA
 	const int64_t SENS2 = SENS - SENSi;
 	const int32_t TEMP2 = (int64_t(TEMP) - int64_t(Ti)) / (100LL);
 	const int32_t P2    = (((int64_t(d1) * SENS2) / (1LL << 21) - OFF2) / (1LL<<13) / 10LL);
+
+	SPDLOG_DEBUG("P1: {:d}, TEMP: {:d}, P2: {:d}, TEMP2: {:d}", P1, TEMP, P2, TEMP2);	
 
 	return double(P2) / 1000.0;
 }
