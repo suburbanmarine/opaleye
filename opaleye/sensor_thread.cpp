@@ -41,7 +41,7 @@ sensor_thread::sensor_thread()
 }
 sensor_thread::~sensor_thread()
 {
-	
+
 }
 
 bool sensor_thread::init()
@@ -51,6 +51,20 @@ bool sensor_thread::init()
 	if(!ret)
 	{
 	    SPDLOG_ERROR("I2C init failed");
+		return false;
+	}
+
+	ret = m_temp.init(m_i2c);
+	if(!ret)
+	{
+		SPDLOG_ERROR("temp init failed");
+		return false;
+	}
+
+	ret = m_baro.init(m_i2c);
+	if(!ret)
+	{
+		SPDLOG_ERROR("baro init failed");
 		return false;
 	}
 

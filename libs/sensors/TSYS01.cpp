@@ -7,6 +7,7 @@
 bool TSYS01::init(const std::shared_ptr<i2c_iface>& i2c)
 {
 	m_i2c = i2c;
+	m_dev_addr = 0x77;
 
 	return true;
 }
