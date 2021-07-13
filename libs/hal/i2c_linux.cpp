@@ -7,6 +7,8 @@
 
 #include <cstring>
 
+#include <spdlog/spdlog.h>
+
 i2c_linux::i2c_linux()
 {
 	m_i2c = -1;
