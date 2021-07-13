@@ -2,6 +2,8 @@
 
 #include <spdlog/spdlog.h>
 
+#include <arpa/inet.h>
+
 #include <thread>
 
 bool TSYS01::init(const std::shared_ptr<i2c_iface>& i2c)
@@ -12,7 +14,7 @@ bool TSYS01::init(const std::shared_ptr<i2c_iface>& i2c)
 	return true;
 }
 
-bool TSYS01::sample()
+bool TSYS01::sample(uint32_t* out_sample)
 {
 	std::array<uint8_t, 1> buf = {0x48};
 	bool ret = m_i2c->write(m_dev_addr, buf.data(), buf.size());
@@ -35,6 +37,8 @@ bool TSYS01::sample()
 
 	uint32_t temp_sample = uint32_t(rx_buf[0]) << 16 | uint32_t(rx_buf[1]) << 8 | uint32_t(rx_buf[2]);
 	SPDLOG_DEBUG("Temp sample: {:08d}", temp_sample);
+
+	*out_sample = temp_sample;
 
 	return true;
 }

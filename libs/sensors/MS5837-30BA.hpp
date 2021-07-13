@@ -10,7 +10,7 @@ class MS5837_30BA
 public:
 	bool init(const std::shared_ptr<i2c_iface>& i2c);
 
-	bool sample();
+	bool sample(uint32_t* out_d1, uint32_t* out_d2);
 	bool reset();
 	
 	struct CAL_DATA

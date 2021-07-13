@@ -107,17 +107,32 @@ void sensor_thread::work()
 
 	while(m_keep_running)
 	{
-		bool ret = m_temp.sample();
+		uint32_t temp_sample;
+		bool ret = m_temp.sample(&temp_sample);
 		if(!ret)
 		{
 			SPDLOG_WARN("temp sample failed");
 		}
+		else
+		{
+			double temp = TSYS01::calc_temp(temp_sample, m_temp_cal_data);
 
-		ret = m_baro.sample();
+			SPDLOG_DEBUG("Temperature is {:f} degC", temp);
+		}
+
+		uint32_t d1, d2;
+		ret = m_baro.sample(&d1, &d2);
 		if(!ret)
 		{
 			SPDLOG_WARN("baro sample failed");
 		}
+		else
+		{
+			double p2 = MS5837_30BA::calc_pressure(d1, d2, m_baro_cal_data);
+
+			SPDLOG_DEBUG("Temperature is {:f} bar", p2);
+		}
+
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(5 * 1000));
 	}
