@@ -18,6 +18,7 @@ bool TSYS01::sample()
 	bool ret = m_i2c->write(m_dev_addr, buf.data(), buf.size());
 	if(!ret)
 	{
+		SPDLOG_WARN("Sample trigger failed");
 		return false;
 	}
 
@@ -28,11 +29,12 @@ bool TSYS01::sample()
 	ret = m_i2c->read_cmd(m_dev_addr, 0x00, rx_buf.data(), rx_buf.size());
 	if(!ret)
 	{
+		SPDLOG_WARN("Sample download failed");
 		return false;
 	}
 
-	uint32_t sample = uint32_t(rx_buf[0]) << 16 | uint32_t(rx_buf[1]) << 8 | uint32_t(rx_buf[2]);
-	SPDLOG_DEBUG("Temp sample: {:08d}", sample);	
+	uint32_t temp_sample = uint32_t(rx_buf[0]) << 16 | uint32_t(rx_buf[1]) << 8 | uint32_t(rx_buf[2]);
+	SPDLOG_DEBUG("Temp sample: {:08d}", temp_sample);
 
 	return true;
 }
@@ -43,6 +45,7 @@ bool TSYS01::reset()
 	bool ret = m_i2c->write(m_dev_addr, buf.data(), buf.size());
 	if(!ret)
 	{
+		SPDLOG_WARN("Reset failed");
 		return false;
 	}
 
@@ -54,30 +57,35 @@ bool TSYS01::read_cal_data(CAL_DATA* const out_data)
 	bool ret = m_i2c->read_cmd(m_dev_addr, 0xA2, reinterpret_cast<uint8_t*>(&(out_data->k4)), 2);
 	if(!ret)
 	{
+		SPDLOG_WARN("Cal A2 failed");
 		return false;
 	}
 
 	ret = m_i2c->read_cmd(m_dev_addr, 0xA4, reinterpret_cast<uint8_t*>(&(out_data->k3)), 2);
 	if(!ret)
 	{
+		SPDLOG_WARN("Cal A4 failed");
 		return false;
 	}
 
 	ret = m_i2c->read_cmd(m_dev_addr, 0xA6, reinterpret_cast<uint8_t*>(&(out_data->k2)), 2);
 	if(!ret)
 	{
+		SPDLOG_WARN("Cal A6 failed");
 		return false;
 	}
 
 	ret = m_i2c->read_cmd(m_dev_addr, 0xA8, reinterpret_cast<uint8_t*>(&(out_data->k1)), 2);
 	if(!ret)
 	{
+		SPDLOG_WARN("Cal A8 failed");
 		return false;
 	}
 
 	ret = m_i2c->read_cmd(m_dev_addr, 0xAA, reinterpret_cast<uint8_t*>(&(out_data->k0)), 2);
 	if(!ret)
 	{
+		SPDLOG_WARN("Cal AA failed");
 		return false;
 	}
 
