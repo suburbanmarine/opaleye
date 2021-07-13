@@ -23,6 +23,15 @@ public:
 
 	static double calc_temp(const uint32_t sample, const CAL_DATA& data);
 
+	bool read_cal_data(CAL_DATA* const out_data);
+	bool read_cal_data();
+
+	bool reset();
+
 protected:
+
 	std::shared_ptr<i2c_iface> m_i2c;
+
+	uint8_t m_dev_addr;
+	CAL_DATA m_cal_data;
 };
