@@ -36,8 +36,8 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
       throw InternalServerError("Could not get Last-Modified timestamp");
     }
 
-    // FCGX_PutS("Content-Type: text/plain\r\n", request->out);
-    FCGX_PutS("Content-Type: text/html\r\n", request->out);
+    FCGX_PutS("Content-Type: text/plain\r\n", request->out);
+    // FCGX_PutS("Content-Type: text/html\r\n", request->out);
     FCGX_FPrintF(request->out, "Content-Length: %d\r\n", str.size());
     FCGX_PutS("Cache-Control: max-age=0, no-store\r\n", request->out);
     FCGX_FPrintF(request->out, "Last-Modified: %s\r\n", time_str.data());
