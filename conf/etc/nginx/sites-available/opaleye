@@ -46,6 +46,12 @@ server {
 		include        fastcgi_params;
 	}
 
+	location /sensors {
+		fastcgi_pass   127.0.0.1:50000;
+
+		include        fastcgi_params;
+	}
+
 	location /video {
 		root /mnt/video/opaleye;
 		autoindex on;
