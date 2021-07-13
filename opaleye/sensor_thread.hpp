@@ -9,14 +9,8 @@
 class thread_base
 {
 public:
-	thread_base() : m_keep_running(true)
-	{
-
-	}
-	virtual ~thread_base()
-	{
-
-	}
+	thread_base();
+	virtual ~thread_base();
 
 	void launch();
 

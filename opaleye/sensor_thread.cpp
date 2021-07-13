@@ -5,6 +5,15 @@
 
 #include <thread>
 
+thread_base::thread_base() : m_keep_running(true)
+{
+
+}
+thread_base::~thread_base()
+{
+
+}
+
 void thread_base::launch()
 {
 	m_thread = std::thread(&thread_base::work, this);
@@ -24,6 +33,15 @@ void thread_base::interrupt()
 void thread_base::join()
 {
 	m_thread.join();
+}
+
+sensor_thread::sensor_thread()
+{
+
+}
+sensor_thread::~sensor_thread()
+{
+	
 }
 
 bool sensor_thread::init()
