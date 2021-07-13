@@ -1,0 +1,26 @@
+# reset
+i2ctransfer -y 0 w1@0x76 0x1E
+
+# read prom
+	# crc / factory
+	i2ctransfer -y 0 w1@0x76 0xA0 r2
+	# c1
+	i2ctransfer -y 0 w1@0x76 0xA1 r2
+	# c2
+	i2ctransfer -y 0 w1@0x76 0xA2 r2
+	# c3
+	i2ctransfer -y 0 w1@0x76 0xA3 r2
+	# c4
+	i2ctransfer -y 0 w1@0x76 0xA4 r2
+	# c5
+	i2ctransfer -y 0 w1@0x76 0xA5 r2
+	# c6
+	i2ctransfer -y 0 w1@0x76 0xA6 r2
+
+# OSR=4096 D1 (pressure)
+i2ctransfer -y 0 w1@0x76 0x48
+i2ctransfer -y 0 w1@0x76 0x00 r3
+
+# OSR=4096 D2 (temp)
+i2ctransfer -y 0 w1@0x76 0x58
+i2ctransfer -y 0 w1@0x76 0x00 r3
