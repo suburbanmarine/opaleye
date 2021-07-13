@@ -9,6 +9,7 @@
 
 #include "gst_app.hpp"
 #include "app_config.hpp"
+#include "sensor_thread.hpp"
 
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
@@ -102,6 +103,15 @@ int main(int argc, char* argv[])
 		SPDLOG_ERROR("cfg_mgr does not have a config");
 		return -1;	
 	}
+
+	sensor_thread sensors;
+	if(!sensors.init())
+	{
+		SPDLOG_ERROR("sensor thread failed");
+		return -1;
+	}
+	sensors.launch();
+
 
 	http_fcgi_svr fcgi_svr;
 

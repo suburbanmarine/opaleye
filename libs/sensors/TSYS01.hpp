@@ -10,7 +10,7 @@ class TSYS01
 public:
 	bool init(const std::shared_ptr<i2c_iface>& i2c);
 
-	bool poll();
+	bool sample();
 
 	struct CAL_DATA
 	{

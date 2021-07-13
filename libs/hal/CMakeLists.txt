@@ -4,6 +4,8 @@ add_library(hal
 
 target_link_libraries(hal
 	i2c
+
+	spdlog::spdlog
 )
 
 target_include_directories(hal

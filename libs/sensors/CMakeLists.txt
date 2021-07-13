@@ -5,6 +5,8 @@ add_library(sensors
 
 target_link_libraries(sensors
 	hal
+	
+	spdlog::spdlog
 )
 
 target_include_directories(sensors

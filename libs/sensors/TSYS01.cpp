@@ -1,6 +1,17 @@
 #include "TSYS01.hpp"
 
-bool TSYS01::poll()
+#include <spdlog/spdlog.h>
+
+#include <thread>
+
+bool TSYS01::init(const std::shared_ptr<i2c_iface>& i2c)
+{
+	m_i2c = i2c;
+
+	return true;
+}
+
+bool TSYS01::sample()
 {
 	std::array<uint8_t, 1> buf = {0x48};
 	bool ret = m_i2c->write(m_dev_addr, buf.data(), buf.size());
@@ -10,6 +21,7 @@ bool TSYS01::poll()
 	}
 
 	//wait for conversion
+	std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
 	std::array<uint8_t, 3> rx_buf;
 	ret = m_i2c->read_cmd(m_dev_addr, 0x00, rx_buf.data(), rx_buf.size());
@@ -17,6 +29,9 @@ bool TSYS01::poll()
 	{
 		return false;
 	}
+
+	uint32_t sample = uint32_t(rx_buf[0]) << 16 | uint32_t(rx_buf[1]) << 8 | uint32_t(rx_buf[2]);
+	SPDLOG_DEBUG("Temp sample: {:08d}", sample);	
 
 	return true;
 }
@@ -35,8 +50,6 @@ bool TSYS01::reset()
 
 bool TSYS01::read_cal_data(CAL_DATA* const out_data)
 {
-	std::array<uint8_t, 1> buf;
-	
 	bool ret = m_i2c->read_cmd(m_dev_addr, 0xA2, reinterpret_cast<uint8_t*>(&(out_data->k4)), 2);
 	if(!ret)
 	{
