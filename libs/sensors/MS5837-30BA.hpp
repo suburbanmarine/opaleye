@@ -24,11 +24,9 @@ public:
 		uint16_t c6; // TEMPSENS
 	};
 
-	double calc_pressure(const uint32_t d1, const uint32_t d2, const CAL_DATA& data);
+	static double calc_pressure(const uint32_t d1, const uint32_t d2, const CAL_DATA& data);
 
 	bool read_cal_data(CAL_DATA* const out_data);
-	bool read_cal_data();
-
 
 protected:
 	std::shared_ptr<i2c_iface> m_i2c;
