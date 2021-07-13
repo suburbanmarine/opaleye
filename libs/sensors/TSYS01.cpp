@@ -36,7 +36,7 @@ bool TSYS01::sample(uint32_t* out_sample)
 	}
 
 	uint32_t temp_sample = (uint32_t(rx_buf[0]) << 16) | (uint32_t(rx_buf[1]) << 8) | (uint32_t(rx_buf[2]) << 0);
-	SPDLOG_DEBUG("Temp sample: {:08d}", temp_sample);
+	SPDLOG_DEBUG("Temp sample: {:d}", temp_sample);
 
 	*out_sample = temp_sample;
 

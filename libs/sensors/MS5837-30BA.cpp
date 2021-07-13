@@ -51,10 +51,10 @@ bool MS5837_30BA::sample(uint32_t* out_d1, uint32_t* out_d2)
 	}
 
 	uint32_t d1_sample = uint32_t(d1[0]) << 16 | uint32_t(d1[1]) << 8 | uint32_t(d1[2]);
-	SPDLOG_DEBUG("d1_sample sample: {:08d}", d1_sample);	
+	SPDLOG_DEBUG("d1_sample sample: {:d}", d1_sample);	
 
 	uint32_t d2_sample = uint32_t(d2[0]) << 16 | uint32_t(d2[1]) << 8 | uint32_t(d2[2]);
-	SPDLOG_DEBUG("d2_sample sample: {:08d}", d2_sample);	
+	SPDLOG_DEBUG("d2_sample sample: {:d}", d2_sample);	
 
 	*out_d1 = d1_sample;
 	*out_d2 = d2_sample;
