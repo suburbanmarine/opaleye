@@ -123,6 +123,9 @@ bool sensor_thread::init()
 
 void sensor_thread::work()
 {	
+	double ext_temp = 0.0;
+	MS5837_30BA::RESULT baro_result;
+
 	while(m_keep_running)
 	{
 		uint32_t temp_sample;
@@ -146,11 +149,16 @@ void sensor_thread::work()
 		}
 		else
 		{
-			double p2 = MS5837_30BA::calc_pressure(d1, d2, m_baro_cal_data);
+			MS5837_30BA::calc_pressure(d1, d2, m_baro_cal_data, &baro_result);
 
-			SPDLOG_DEBUG("Temperature is {:f} bar", p2);
+			SPDLOG_DEBUG("Pressure is {:d} mbar", baro_result.P2_mbar);
 		}
 
+		{
+			std::unique_lock<std::mutex> lock;
+			m_temp_degC = ext_temp;
+			m_baro_data = baro_result;
+		}
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(5 * 1000));
 	}

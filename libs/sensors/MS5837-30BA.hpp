@@ -24,7 +24,15 @@ public:
 		uint16_t c6; // TEMPSENS
 	};
 
-	static double calc_pressure(const uint32_t d1, const uint32_t d2, const CAL_DATA& data);
+	struct RESULT
+	{
+		int32_t P1_mbar;
+		int32_t TEMP1_cdegC;
+		int32_t P2_mbar;
+		int32_t TEMP2_degC;
+	};
+
+	static void calc_pressure(const uint32_t d1, const uint32_t d2, const CAL_DATA& data, RESULT* const out_result);
 
 	bool read_cal_data(CAL_DATA* const out_data);
 

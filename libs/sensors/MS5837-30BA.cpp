@@ -127,7 +127,7 @@ bool MS5837_30BA::read_cal_data(CAL_DATA* const out_data)
 	return true;
 }
 
-double MS5837_30BA::calc_pressure(const uint32_t d1, const uint32_t d2, const CAL_DATA& data)
+void MS5837_30BA::calc_pressure(const uint32_t d1, const uint32_t d2, const CAL_DATA& data, RESULT* const out_result)
 {
 	//dT = D2 - Tref = D2 - C5 * 2^8
 	//TEMP = 20 + dT*TEMPSENS = 2000+dT*C6/2^23
@@ -176,5 +176,8 @@ double MS5837_30BA::calc_pressure(const uint32_t d1, const uint32_t d2, const CA
 
 	SPDLOG_DEBUG("P1: {:d}, TEMP: {:d}, P2: {:d}, TEMP2: {:d}", P1, TEMP, P2, TEMP2);	
 
-	return double(P2) / 1000.0;
+	out_result->P1_mbar     = P1;
+	out_result->TEMP1_cdegC = TEMP;
+	out_result->P2_mbar     = P2;
+	out_result->TEMP2_degC  = TEMP2;
 }

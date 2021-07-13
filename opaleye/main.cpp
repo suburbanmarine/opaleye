@@ -3,6 +3,7 @@
 
 #include "http_fcgi_svr.hpp"
 #include "http_req_callback_file.hpp"
+#include "http_req_callback_sensors.hpp"
 #include "http_req_jpeg.hpp"
 #include "http_req_jsonrpc.hpp"
 #include "signal_handler.hpp"
@@ -105,19 +106,23 @@ int main(int argc, char* argv[])
 		return -1;	
 	}
 
-	sensor_thread sensors;
-	if(!sensors.init())
+	std::shared_ptr<sensor_thread> sensors = std::make_shared<sensor_thread>();
+	if(!sensors->init())
 	{
 		SPDLOG_ERROR("sensor thread failed");
 		return -1;
 	}
-	sensors.launch();
+	sensors->launch();
 
 
 	http_fcgi_svr fcgi_svr;
 
 	std::shared_ptr<http_req_callback_file> req_cb = std::make_shared<http_req_callback_file>();
 	fcgi_svr.register_cb_for_doc_uri("/foo", req_cb);
+
+	std::shared_ptr<http_req_callback_sensors> sensor_cb = std::make_shared<http_req_callback_sensors>();
+	sensor_cb->init(sensors);
+	fcgi_svr.register_cb_for_doc_uri("/sensors", sensor_cb);
 
 	fcgi_svr.start();
 
@@ -186,8 +191,8 @@ int main(int argc, char* argv[])
 	//stop app
 	app.stop();
 
-	sensors.interrupt();
-	sensors.join();
+	sensors->interrupt();
+	sensors->join();
 
 	//sync logs
 	spdlog::shutdown();
