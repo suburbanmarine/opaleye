@@ -150,13 +150,6 @@ double MS5837_30BA::calc_pressure(const uint32_t d1, const uint32_t d2, const CA
 	int64_t Ti    = 0;
 	if((TEMP / 100L) < 20L)
 	{
-		Ti = 2LL * dT*dT / (1LL<<37);
-
-		OFFi  = 1LL * (TEMP - 2000LL) * (TEMP - 2000LL) / (1LL<<4);
-		SENSi = 0;
-	}
-	else
-	{
 		Ti = 3LL * dT*dT / (1LL<<33);
 	
 		OFFi  = 3LL * (TEMP - 2000LL) * (TEMP - 2000LL) / (1LL<<1);
@@ -167,6 +160,13 @@ double MS5837_30BA::calc_pressure(const uint32_t d1, const uint32_t d2, const CA
 			OFFi  = OFFi  + 7LL * (TEMP + 1500LL) * (TEMP + 1500LL);
 			SENSi = SENSi + 4LL * (TEMP + 1500LL) * (TEMP + 1500LL);
 		}
+	}
+	else
+	{
+		Ti = 2LL * int64_t(dT)*int64_t(dT) / (1LL<<37);
+
+		OFFi  = 1LL * (int64_t(TEMP) - 2000LL) * (int64_t(TEMP) - 2000LL) / (1LL<<4);
+		SENSi = 0;
 	}
 
 	const int64_t OFF2  = OFF - OFFi;
