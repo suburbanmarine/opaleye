@@ -74,6 +74,7 @@ bool sensor_thread::init()
 		SPDLOG_ERROR("temp reset failed");
 		return false;
 	}
+	std::this_thread::sleep_for(std::chrono::milliseconds(3));
 
 	ret = m_baro.reset();
 	if(!ret)
@@ -81,7 +82,7 @@ bool sensor_thread::init()
 		SPDLOG_ERROR("baro reset failed");
 		return false;
 	}
-
+	std::this_thread::sleep_for(std::chrono::milliseconds(3));
 
 	ret = m_temp.read_cal_data(&m_temp_cal_data);
 	if(!ret)
