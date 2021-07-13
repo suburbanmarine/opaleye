@@ -122,7 +122,7 @@ double TSYS01::calc_temp(const uint32_t sample, const CAL_DATA& data)
 
 	double temp = 0.0;
 	temp += -2.0 * double(data.k4) * 1e-21 * double(ADC16_4);
-	temp +=  4.0 * double(data.k3) * 1e-26 * double(ADC16_3);
+	temp +=  4.0 * double(data.k3) * 1e-16 * double(ADC16_3);
 	temp += -2.0 * double(data.k2) * 1e-11 * double(ADC16_2);
 	temp +=  1.0 * double(data.k1) * 1e-6  * double(ADC16_1);
 	temp += -1.5 * double(data.k0) * 1e-2;
