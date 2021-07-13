@@ -185,6 +185,9 @@ int main(int argc, char* argv[])
 	//stop app
 	app.stop();
 
+	sensors.interrupt();
+	sensors.join();
+
 	//sync logs
 	spdlog::shutdown();
 
