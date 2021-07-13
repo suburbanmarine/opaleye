@@ -29,9 +29,12 @@ class sensor_thread : public thread_base
 {
 public:
 
-  bool init();
+	sensor_thread();
+	~sensor_thread() override;
 
-  void work() override;
+	bool init();
+
+	void work() override;
 
 protected:
 	std::shared_ptr<i2c_linux> m_i2c;
