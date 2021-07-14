@@ -74,6 +74,13 @@ function btnGetPipelineGraph(event) {
    console.log( "btnGetPipelineGraph" );
    ret = camPod.jrpc.call('get_pipeline_graph');
 }
+
+function refreshSensorData(event) {
+   console.log( "refreshSensorData" );
+
+  $("#sensor_frame").src = $("#sensor_frame").src 
+}
+
 function handleDocumentReady(jQuery) {
   
   var currentLocation = window.location;
@@ -92,6 +99,8 @@ function handleDocumentReady(jQuery) {
   $("#btnRTPStreamStop"     ).on("click", btnRTPStreamStopClick  );
   $("#btnGetPipelineStatus" ).on("click", btnGetPipelineStatus   );
   $("#btnGetPipelineGraph"  ).on("click", btnGetPipelineGraph    );
+
+  camPod.refreshSensorDataIval = setInterval(refreshSensorData, 5000);
 }
 
 $(document).ready(handleDocumentReady);
