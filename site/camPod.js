@@ -12,7 +12,7 @@ function clickedAutoRefreshCb(event) {
     var isChecked = $("#cbAutoRefresh").is(":checked");
     if(isChecked)
     {
-      camPod.cbAutoRefreshIval = setInterval(clickedRefreshButton, 500);
+      camPod.cbAutoRefreshIval = setInterval(clickedRefreshButton, 2000);
     }
     else
     {
