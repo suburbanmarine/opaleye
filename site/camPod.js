@@ -3,8 +3,10 @@ var camPod = {};
 function clickedRefreshButton(event) {
     console.log( "clickedRefreshButton" );
 
-    var url = $("#cam0").attr("src");
-    $("#cam0").removeAttr("src").attr("src", url);
+    // var url = $("#cam0").attr("src");
+    // $("#cam0").removeAttr("src").attr("src", url);
+
+    $("#cam0").attr('src', $("#cam0").attr('src'));
 }
 function clickedAutoRefreshCb(event) {
     console.log( "clickedAutoRefreshCb" );
@@ -78,7 +80,7 @@ function btnGetPipelineGraph(event) {
 function refreshSensorData(event) {
    console.log( "refreshSensorData" );
 
-  $("#sensor_frame").src = $("#sensor_frame").src 
+  $("#sensor_frame").attr('src', $("#sensor_frame").attr('src'));
 }
 
 function handleDocumentReady(jQuery) {
