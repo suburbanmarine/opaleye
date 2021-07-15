@@ -37,7 +37,7 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
     ss << fmt::format("External\r\n");
     ss << fmt::format("\tTemp: {:0.3f} degC\r\n", ext_temp_data);
     ss << fmt::format("\tPres: {:d} mbar\r\n", baro_data.P1_mbar);
-    ss << fmt::format("\r\n", baro_data.P1_mbar);
+    ss << fmt::format("\r\n",);
     ss << fmt::format("Internal\r\n");
     for(const auto t : soc_temp)
     {
