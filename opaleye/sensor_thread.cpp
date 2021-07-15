@@ -160,6 +160,6 @@ void sensor_thread::work()
 			m_baro_data = baro_result;
 		}
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(5 * 1000));
+		std::this_thread::sleep_for(std::chrono::milliseconds(2 * 1000));
 	}
 }

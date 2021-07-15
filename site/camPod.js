@@ -12,7 +12,7 @@ function clickedAutoRefreshCb(event) {
     var isChecked = $("#cbAutoRefresh").is(":checked");
     if(isChecked)
     {
-      camPod.cbAutoRefreshIval = setInterval(clickedRefreshButton, 3000);
+      camPod.cbAutoRefreshIval = setInterval(clickedRefreshButton, 500);
     }
     else
     {
@@ -100,7 +100,7 @@ function handleDocumentReady(jQuery) {
   $("#btnGetPipelineStatus" ).on("click", btnGetPipelineStatus   );
   $("#btnGetPipelineGraph"  ).on("click", btnGetPipelineGraph    );
 
-  camPod.refreshSensorDataIval = setInterval(refreshSensorData, 5000);
+  camPod.refreshSensorDataIval = setInterval(refreshSensorData, 2000);
 }
 
 $(document).ready(handleDocumentReady);
