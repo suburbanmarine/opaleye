@@ -22,7 +22,7 @@ target_link_libraries(opaleye
 	PUBLIC
 		camera-pipes
 		http-bridge
-		sensors
+		opaleye_sensors
 
 		jsonrpc-lean
 

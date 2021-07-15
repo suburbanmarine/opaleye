@@ -1,6 +1,8 @@
 #include "http_req_callback_sensors.hpp"
 #include "http_util.hpp"
 
+#include "linux_thermal_zone.hpp"
+
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/printf.h>
 
@@ -19,13 +21,29 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
 
   MS5837_30BA::RESULT baro_data;
   m_sensors->get_baro_data(&baro_data);
+
+  std::map<std::string, double> soc_temp;
+  linux_thermal_zone lz;
+  if(lz.sample())
+  {
+    lz.get_temps(&soc_temp);
+  }
+
   
   if( true ) // if have data
   {
     std::stringstream ss;
 
-    ss << fmt::format("External Temp: {:0.3f} degC\r\n", ext_temp_data);
-    ss << fmt::format("External Pres: {:d} mbar\r\n", baro_data.P1_mbar);
+    ss << fmt::format("External\r\n");
+    ss << fmt::format("\tTemp: {:0.3f} degC\r\n", ext_temp_data);
+    ss << fmt::format("\tPres: {:d} mbar\r\n", baro_data.P1_mbar);
+    ss << fmt::format("\r\n", baro_data.P1_mbar);
+    ss << fmt::format("Internal\r\n");
+    for(const auto t : soc_temp)
+    {
+      ss << fmt::format("\t{:s}: {0.3f} degC\r\n", t.first, t.second);
+    }
+
 
     std::string str = ss.str();
 
