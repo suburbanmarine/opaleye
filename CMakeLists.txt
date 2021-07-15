@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.5)
-project(opaleye)
+
+project(opaleye 
+	VERSION 0.1.0
+)
 
 add_custom_command(
 	OUTPUT
@@ -143,7 +146,6 @@ INSTALL(
 	DESTINATION
 		/lib/systemd/system
 )
-
 
 set(CPACK_SET_DESTDIR true)
 set(CPACK_INSTALL_PREFIX /opt/suburbanmarine/opaleye)
