@@ -10,6 +10,7 @@ INSTALL(
 INSTALL(
 	FILES
 		"${PROJECT_SOURCE_DIR}/site/static/images/favicon.ico"
+		"${PROJECT_SOURCE_DIR}/site/static/images/sm_logo.png"
 	DESTINATION
 		site/static/images
 )
