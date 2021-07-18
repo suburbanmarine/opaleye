@@ -4,6 +4,8 @@
 
 #include "pipeline/GST_element_base.hpp"
 
+#include "errno_util.hpp"
+
 #include <gstreamermm/caps.h>
 #include <gstreamermm/capsfilter.h>
 #include <gstreamermm/queue.h>
@@ -35,7 +37,20 @@ public:
 //    UVC_base::copy_frame(m_frame_buffer, out_frame);
 //  }
 
+  bool set_exposure_mode();
+  bool set_exposure_value();
+
+  bool get_exposure_mode();
+  bool get_exposure_value();
+
+  bool v4l2_probe();
+  
 protected:
+
+  errno_util m_errno;
+
+  bool v4l2_ctrl_set(uint32_t id, const int32_t val);
+  bool v4l2_ctrl_get(uint32_t id, int32_t* const out_val);
 
   // bool on_bus_message(const Glib::RefPtr<Gst::Bus>& bus, const Glib::RefPtr<Gst::Message>& message);
   void on_bus_message(const Glib::RefPtr<Gst::Message>& message);

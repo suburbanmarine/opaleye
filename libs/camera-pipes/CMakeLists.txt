@@ -49,6 +49,8 @@ target_link_libraries(camera-pipes
 
 		#uvc
 
+		opaleye-util
+
 		spdlog::spdlog
 )
 

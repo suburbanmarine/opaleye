@@ -9,6 +9,14 @@
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/fmt/fmt.h>
 
+#include <sys/ioctl.h>
+
+#include <linux/v4l2-controls.h>
+#include <linux/videodev2.h>
+
+#include <set>
+#include <map>
+
 // v4l2-ctl --list-devices
 // Logitech BRIO (usb-0000:03:00.3-1.1.4.1):
 //   /dev/video2
@@ -410,6 +418,9 @@ bool V4L2_webcam_pipe::init(const char name[])
     m_src->set_property("io-mode", 2);
     // m_src->add_probe(GST_PAD_PROBE_TYPE_IDLE | GST_PAD_PROBE_TYPE_EVENT_BOTH, sigc::mem_fun(&V4L2_webcam_pipe::on_pad_probe, this))
 
+    gint v4l2_fd;
+	m_src->get_property("device-fd", v4l2_fd);
+
     //src caps
     m_src_caps = Gst::Caps::create_simple(
       "image/jpeg",
@@ -472,4 +483,257 @@ bool V4L2_webcam_pipe::init(const char name[])
   // m_capsfilter->link(m_out_queue);
 
   return true;
+}
+
+bool V4L2_webcam_pipe::v4l2_probe()
+{
+    gint v4l2_fd;
+	m_src->get_property("device-fd", v4l2_fd);
+
+	if(v4l2_fd < 0)
+	{
+		return false;
+	}
+
+	v4l2_capability cap;
+	memset(&cap, 0, sizeof(cap));
+	int ret = ioctl(v4l2_fd, VIDIOC_QUERYCAP, &cap);
+	if(ret < 0)
+	{
+		SPDLOG_WARN("VIDIOC_QUERYCAP error: {:s}", m_errno.to_str());
+		return false;
+	}
+
+	// The device supports the single-planar API through the Video Capture interface.
+	//V4L2_CAP_VIDEO_CAPTURE
+	// The device supports the multi-planar API through the Video Capture interface.
+	//V4L2_CAP_VIDEO_CAPTURE_MPLANE
+	// The device supports the single-planar API through the Video Output interface.
+	//V4L2_CAP_VIDEO_OUTPUT
+	// The device supports the multi-planar API through the Video Output interface.
+	//V4L2_CAP_VIDEO_OUTPUT_MPLANE
+	// The device supports the single-planar API through the Video Memory-To-Memory interface.
+	//V4L2_CAP_VIDEO_M2M
+	// The device supports the multi-planar API through the Video Memory-To-Memory interface.
+	//V4L2_CAP_VIDEO_M2M_MPLANE
+	// The device supports the Video Overlay interface. A video overlay device typically stores captured images directly in the video memory of a graphics card, with hardware clipping and scaling.
+	//V4L2_CAP_VIDEO_OVERLAY
+	// The device supports the Raw VBI Capture interface, providing Teletext and Closed Caption data.
+	//V4L2_CAP_VBI_CAPTURE
+	// The device supports the Raw VBI Output interface.
+	//V4L2_CAP_VBI_OUTPUT
+	// The device supports the Sliced VBI Capture interface.
+	//V4L2_CAP_SLICED_VBI_CAPTURE
+	// The device supports the Sliced VBI Output interface.
+	//V4L2_CAP_SLICED_VBI_OUTPUT
+	// The device supports the RDS capture interface.
+	//V4L2_CAP_RDS_CAPTURE
+	// The device supports the Video Output Overlay (OSD) interface. Unlike the Video Overlay interface, this is a secondary function of video output devices and overlays an image onto an outgoing video signal. When the driver sets this flag, it must clear the //V4L2_CAP_VIDEO_OVERLAY flag and vice versa. [1]
+	//V4L2_CAP_VIDEO_OUTPUT_OVERLAY
+	// The device supports the ioctl VIDIOC_S_HW_FREQ_SEEK ioctl for hardware frequency seeking.
+	//V4L2_CAP_HW_FREQ_SEEK
+	// The device supports the RDS output interface.
+	//V4L2_CAP_RDS_OUTPUT
+	// The device has some sort of tuner to receive RF-modulated video signals. For more information about tuner programming see Tuners and Modulators.
+	//V4L2_CAP_TUNER
+	// The device has audio inputs or outputs. It may or may not support audio recording or playback, in PCM or compressed formats. PCM audio support must be implemented as ALSA or OSS interface. For more information on audio inputs and outputs see Audio Inputs and Outputs.
+	//V4L2_CAP_AUDIO
+	// This is a radio receiver.
+	//V4L2_CAP_RADIO
+	// The device has some sort of modulator to emit RF-modulated video/audio signals. For more information about modulator programming see Tuners and Modulators.
+	//V4L2_CAP_MODULATOR
+	// The device supports the SDR Capture interface.
+	//V4L2_CAP_SDR_CAPTURE
+	// The device supports the struct v4l2_pix_format extended fields.
+	//V4L2_CAP_EXT_PIX_FORMAT
+	// The device supports the SDR Output interface.
+	//V4L2_CAP_SDR_OUTPUT
+	// The device supports the Metadata Interface capture interface.
+	//V4L2_CAP_META_CAPTURE
+	// The device supports the read() and/or write() I/O methods.
+	//V4L2_CAP_READWRITE
+	// The device supports the asynchronous I/O methods.
+	//V4L2_CAP_ASYNCIO
+	// The device supports the streaming I/O method.
+	//V4L2_CAP_STREAMING
+	// This is a touch device.
+	//V4L2_CAP_TOUCH
+	// The driver fills the device_caps field. This capability can only appear in the capabilities field and never in the device_caps field.
+	//V4L2_CAP_DEVICE_CAPS
+	if(cap.capabilities & V4L2_CAP_DEVICE_CAPS)
+	{
+		cap.device_caps;
+	}
+
+	std::map<uint32_t, v4l2_query_ext_ctrl> normal_ctrl;
+	std::map<uint32_t, v4l2_query_ext_ctrl> menu_ctrl;
+
+	v4l2_query_ext_ctrl ext_ctrl;
+	uint32_t current_ctrl_id = V4L2_CID_BASE;
+	do
+	{
+		memset(&ext_ctrl, 0, sizeof(ext_ctrl));
+		ext_ctrl.id = current_ctrl_id; // query [V4L2_CID_BASE, V4L2_CID_LASTP1]
+		ret = ioctl(v4l2_fd, VIDIOC_QUERY_EXT_CTRL, &ext_ctrl);
+		if(ret < 0)
+		{
+			if(errno == EINVAL)
+			{
+				//were done
+			}
+			else
+			{
+				SPDLOG_WARN("VIDIOC_QUERY_EXT_CTRL error: {:s}", m_errno.to_str());
+				return false;
+			}
+		}
+		else
+		{
+			SPDLOG_DEBUG("VIDIOC_QUERY_EXT_CTRL {:d} {:s}, {:d}, [{:d}, {:d}]/{:d}",
+				ext_ctrl.id,
+				ext_ctrl.name,
+				ext_ctrl.type,
+				ext_ctrl.minimum,
+				ext_ctrl.maximum,
+				ext_ctrl.step);
+
+			switch(ext_ctrl.type)
+			{
+				case V4L2_CTRL_TYPE_MENU:
+				case V4L2_CTRL_TYPE_INTEGER_MENU:
+				{
+					menu_ctrl.insert(std::make_pair(ext_ctrl.id, ext_ctrl));
+					break;
+				}
+				default:
+				{
+					normal_ctrl.insert(std::make_pair(ext_ctrl.id, ext_ctrl));	
+					break;
+				}
+			}
+
+			current_ctrl_id = ext_ctrl.id | V4L2_CTRL_FLAG_NEXT_CTRL;
+		}
+	} while(ret >= 0);
+
+	std::map<uint32_t, std::set<int64_t>> menu_valid_entries;
+	for(const auto& ctrl : menu_ctrl)
+	{
+		std::set<int64_t> menu_valid_entries_set_ref = menu_valid_entries[ctrl.second.id];
+
+		v4l2_querymenu menu;
+		for(int64_t i = ctrl.second.minimum; i <= ctrl.second.maximum; i += ctrl.second.step)
+		{
+			memset(&menu, 0, sizeof(menu));
+			menu.id    = ctrl.second.id;
+			menu.index = i;
+	
+			ret = ioctl(v4l2_fd, VIDIOC_QUERYMENU, &menu);
+			if(ret < 0)
+			{
+				//menu entries may be sparse - so just note that this is invalid and keep scanning
+				SPDLOG_WARN("VIDIOC_QUERYMENU {:d} {:s}[{:d}]: error: {:s}", 
+					ctrl.second.id,
+					ctrl.second.name,
+					i,
+					m_errno.to_str());
+				continue;
+			}
+			else
+			{
+				menu_valid_entries_set_ref.insert(i);
+
+				switch(ctrl.second.type)
+				{
+					case V4L2_CTRL_TYPE_MENU:
+					{
+						const uint8_t* name = menu.name;
+						SPDLOG_DEBUG("VIDIOC_QUERYMENU {:d} {:s}[{:d}]: {:s}",
+							ctrl.second.id,
+							ctrl.second.name,
+							i,
+							name);
+						break;
+					}
+					case V4L2_CTRL_TYPE_INTEGER_MENU:
+					{
+						int64_t value = menu.value;
+						SPDLOG_DEBUG("VIDIOC_QUERYMENU {:d} {:s}[{:d}]: {:d}",
+							ctrl.second.id,
+							ctrl.second.name,
+							i,
+							value);
+						break;
+					}
+					default:
+					{
+						SPDLOG_WARN("VIDIOC_QUERYMENU invalid type");
+						return false;
+					}
+				}
+			}
+		}
+	}
+
+
+	// V4L2_CID_EXPOSURE_AUTO
+	// V4L2_CID_EXPOSURE_AUTO_PRIORITY
+	// V4L2_CID_EXPOSURE_ABSOLUTE
+
+	return true;
+}
+
+bool V4L2_webcam_pipe::v4l2_ctrl_set(uint32_t id, const int32_t val)
+{
+    gint v4l2_fd;
+	m_src->get_property("device-fd", v4l2_fd);
+
+	v4l2_control ctrl;
+	memset(&ctrl, 0, sizeof(ctrl));
+	ctrl.id = id;
+	ctrl.value = val;
+	int ret = ioctl(v4l2_fd, VIDIOC_S_CTRL, &ctrl);	
+	if(ret < 0)
+	{
+		SPDLOG_WARN("VIDIOC_S_CTRL error: {:s}", m_errno.to_str());
+		return false;
+	}
+
+	return true;
+}
+bool V4L2_webcam_pipe::v4l2_ctrl_get(uint32_t id, int32_t* const out_val)
+{
+    gint v4l2_fd;
+	m_src->get_property("device-fd", v4l2_fd);
+
+	v4l2_control ctrl;
+	memset(&ctrl, 0, sizeof(ctrl));
+	ctrl.id = id;
+	int ret = ioctl(v4l2_fd, VIDIOC_G_CTRL, &ctrl);	
+	if(ret < 0)
+	{
+		SPDLOG_WARN("VIDIOC_S_CTRL error: {:s}", m_errno.to_str());
+		return false;
+	}
+
+	*out_val = ctrl.value;
+	return true;
+}
+
+bool V4L2_webcam_pipe::set_exposure_mode()
+{
+	return v4l2_ctrl_set(V4L2_CID_EXPOSURE_AUTO, 0);
+}
+bool V4L2_webcam_pipe::get_exposure_mode()
+{
+	return false;
+}
+
+bool V4L2_webcam_pipe::set_exposure_value()
+{
+	return false;
+}
+bool V4L2_webcam_pipe::get_exposure_value()
+{
+	return false;
 }
