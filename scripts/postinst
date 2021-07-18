@@ -12,25 +12,25 @@ fi
 
 # add nvidia groups
 # https://stackoverflow.com/a/46651233
-if id -g i2c &>/dev/null ; then
+if getent group i2c &>/dev/null ; then
 	if ! id -nGz opaleye | grep -qzxF i2c ; then
 		adduser opaleye i2c
 	fi
 fi
 
-if id -g gdm &>/dev/null ; then
+if getent group gdm &>/dev/null ; then
 	if ! id -nGz opaleye | grep -qzxF gdm ; then
 		adduser opaleye gdm
 	fi
 fi
 
-if id -g weston-launch &>/dev/null ; then
+if getent group weston-launch &>/dev/null ; then
 	if ! id -nGz opaleye | grep -qzxF weston-launch ; then
 		adduser opaleye weston-launch
 	fi
 fi
 
-if id -g gpio &>/dev/null ; then
+if getent group gpio &>/dev/null ; then
 	if ! id -nGz opaleye | grep -qzxF gpio ; then
 		adduser opaleye gpio
 	fi
