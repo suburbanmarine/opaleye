@@ -14,9 +14,6 @@
 #include <linux/v4l2-controls.h>
 #include <linux/videodev2.h>
 
-#include <set>
-#include <map>
-
 // v4l2-ctl --list-devices
 // Logitech BRIO (usb-0000:03:00.3-1.1.4.1):
 //   /dev/video2
@@ -565,8 +562,7 @@ bool V4L2_webcam_pipe::v4l2_probe()
 		cap.device_caps;
 	}
 
-	std::map<uint32_t, v4l2_query_ext_ctrl> normal_ctrl;
-	std::map<uint32_t, v4l2_query_ext_ctrl> menu_ctrl;
+	std::map<uint32_t, v4l2_query_ext_ctrl> device_ctrl;
 
 	v4l2_query_ext_ctrl ext_ctrl;
 	uint32_t current_ctrl_id = V4L2_CID_BASE;
@@ -597,78 +593,84 @@ bool V4L2_webcam_pipe::v4l2_probe()
 				ext_ctrl.maximum,
 				ext_ctrl.step);
 
-			switch(ext_ctrl.type)
-			{
-				case V4L2_CTRL_TYPE_MENU:
-				case V4L2_CTRL_TYPE_INTEGER_MENU:
-				{
-					menu_ctrl.insert(std::make_pair(ext_ctrl.id, ext_ctrl));
-					break;
-				}
-				default:
-				{
-					normal_ctrl.insert(std::make_pair(ext_ctrl.id, ext_ctrl));	
-					break;
-				}
-			}
+			device_ctrl.insert(std::make_pair(ext_ctrl.id, ext_ctrl));
 
 			current_ctrl_id = ext_ctrl.id | V4L2_CTRL_FLAG_NEXT_CTRL;
 		}
 	} while(ret >= 0);
 
-	std::map<uint32_t, std::set<int64_t>> menu_valid_entries;
-	for(const auto& ctrl : menu_ctrl)
+	menu_entries.clear();
+	for(const auto& ctrl : device_ctrl)
 	{
-		std::set<int64_t> menu_valid_entries_set_ref = menu_valid_entries[ctrl.second.id];
-
-		v4l2_querymenu menu;
-		for(int64_t i = ctrl.second.minimum; i <= ctrl.second.maximum; i += ctrl.second.step)
+		bool is_menu_ctrl = false;
+		switch(ctrl.second.type)
 		{
-			memset(&menu, 0, sizeof(menu));
-			menu.id    = ctrl.second.id;
-			menu.index = i;
-	
-			ret = ioctl(v4l2_fd, VIDIOC_QUERYMENU, &menu);
-			if(ret < 0)
+			case V4L2_CTRL_TYPE_MENU:
+			case V4L2_CTRL_TYPE_INTEGER_MENU:
 			{
-				//menu entries may be sparse - so just note that this is invalid and keep scanning
-				SPDLOG_WARN("VIDIOC_QUERYMENU {:d} {:s}[{:d}]: error: {:s}", 
-					ctrl.second.id,
-					ctrl.second.name,
-					i,
-					m_errno.to_str());
-				continue;
+				is_menu_ctrl = true;
+				break;
 			}
-			else
+			default:
 			{
-				menu_valid_entries_set_ref.insert(i);
+				is_menu_ctrl = false;
+				break;
+			}
+		}
 
-				switch(ctrl.second.type)
+		if(is_menu_ctrl)
+		{
+			std::map<int64_t, v4l2_querymenu> menu_valid_entries_map_ref = menu_entries[ctrl.second.id];
+
+			v4l2_querymenu menu;
+			for(int64_t i = ctrl.second.minimum; i <= ctrl.second.maximum; i += ctrl.second.step)
+			{
+				memset(&menu, 0, sizeof(menu));
+				menu.id    = ctrl.second.id;
+				menu.index = i;
+		
+				ret = ioctl(v4l2_fd, VIDIOC_QUERYMENU, &menu);
+				if(ret < 0)
 				{
-					case V4L2_CTRL_TYPE_MENU:
+					//menu entries may be sparse - so just note that this is invalid and keep scanning
+					SPDLOG_WARN("VIDIOC_QUERYMENU {:d} {:s}[{:d}]: error: {:s}", 
+						ctrl.second.id,
+						ctrl.second.name,
+						i,
+						m_errno.to_str());
+					continue;
+				}
+				else
+				{
+					menu_valid_entries_map_ref.insert(std::make_pair(i, menu));
+
+					switch(ctrl.second.type)
 					{
-						const uint8_t* name = menu.name;
-						SPDLOG_DEBUG("VIDIOC_QUERYMENU {:d} {:s}[{:d}]: {:s}",
-							ctrl.second.id,
-							ctrl.second.name,
-							i,
-							name);
-						break;
-					}
-					case V4L2_CTRL_TYPE_INTEGER_MENU:
-					{
-						int64_t value = menu.value;
-						SPDLOG_DEBUG("VIDIOC_QUERYMENU {:d} {:s}[{:d}]: {:d}",
-							ctrl.second.id,
-							ctrl.second.name,
-							i,
-							value);
-						break;
-					}
-					default:
-					{
-						SPDLOG_WARN("VIDIOC_QUERYMENU invalid type");
-						return false;
+						case V4L2_CTRL_TYPE_MENU:
+						{
+							const uint8_t* name = menu.name;
+							SPDLOG_DEBUG("VIDIOC_QUERYMENU {:d} {:s}[{:d}]: {:s}",
+								ctrl.second.id,
+								ctrl.second.name,
+								i,
+								name);
+							break;
+						}
+						case V4L2_CTRL_TYPE_INTEGER_MENU:
+						{
+							int64_t value = menu.value;
+							SPDLOG_DEBUG("VIDIOC_QUERYMENU {:d} {:s}[{:d}]: {:d}",
+								ctrl.second.id,
+								ctrl.second.name,
+								i,
+								value);
+							break;
+						}
+						default:
+						{
+							SPDLOG_WARN("VIDIOC_QUERYMENU invalid type");
+							return false;
+						}
 					}
 				}
 			}
@@ -682,20 +684,102 @@ bool V4L2_webcam_pipe::v4l2_probe()
 
 	return true;
 }
+#include <rapidjson/rapidjson.h>
+bool V4L2_webcam_pipe::get_property_description()
+{
+//  std::map<uint32_t, v4l2_query_ext_ctrl> device_ctrl;
+//  std::map<uint32_t, std::set<int64_t>> menu_valid_entries;
+//  std::map<uint32_t, std::set<v4l2_querymenu menu>> menu_entries;
+
+  for(const auto& ext_ctrl : device_ctrl)
+  {
+  	ext_ctrl.second.name;
+  	ext_ctrl.second.default_value;
+	ext_ctrl.second.type;
+
+	switch(ext_ctrl.second.type)
+	{
+		case V4L2_CTRL_TYPE_INTEGER:
+		{
+			ext_ctrl.second.minimum;
+			ext_ctrl.second.maximum;
+			ext_ctrl.second.step;
+			break;
+		}
+		case V4L2_CTRL_TYPE_BOOLEAN:
+		{
+			break;
+		}
+		case V4L2_CTRL_TYPE_MENU:
+		{
+			auto it = menu_entries.find(ext_ctrl.second.id);
+			for(const auto& menu_entry : it->second)
+			{
+				menu_entry.second.name;
+				menu_entry.second.index;
+			}
+			break;
+		}
+		case V4L2_CTRL_TYPE_BUTTON:
+		{
+			break;
+		}
+		case V4L2_CTRL_TYPE_INTEGER64:
+		{
+			break;
+		}
+		case V4L2_CTRL_TYPE_CTRL_CLASS:
+		{
+			break;
+		}
+		case V4L2_CTRL_TYPE_STRING:
+		{
+			break;
+		}
+		case V4L2_CTRL_TYPE_BITMASK:
+		{
+			break;
+		}
+		case V4L2_CTRL_TYPE_INTEGER_MENU:
+		{
+			auto it = menu_entries.find(ext_ctrl.second.id);
+			for(const auto& menu_entry : it->second)
+			{
+				menu_entry.second.name;
+				menu_entry.second.index;
+			}
+			break;
+		}
+		default:
+		{
+			return false;
+		}
+	}
+  }
+
+  return true;
+}
 
 bool V4L2_webcam_pipe::v4l2_ctrl_set(uint32_t id, const int32_t val)
 {
     gint v4l2_fd;
 	m_src->get_property("device-fd", v4l2_fd);
 
-	v4l2_control ctrl;
+	v4l2_ext_control ctrl;
 	memset(&ctrl, 0, sizeof(ctrl));
-	ctrl.id = id;
+	ctrl.id    = id;
+	ctrl.size  = sizeof(val);
 	ctrl.value = val;
-	int ret = ioctl(v4l2_fd, VIDIOC_S_CTRL, &ctrl);	
+
+	v4l2_ext_controls ctrls;
+	memset(&ctrls, 0, sizeof(ctrls));
+	ctrls.count = 1;
+	ctrls.controls = &ctrl;
+
+	int ret = ioctl(v4l2_fd, VIDIOC_S_EXT_CTRLS, &ctrl);	
 	if(ret < 0)
 	{
-		SPDLOG_WARN("VIDIOC_S_CTRL error: {:s}", m_errno.to_str());
+		SPDLOG_WARN("VIDIOC_S_EXT_CTRLS error: {:s}", m_errno.to_str());
 		return false;
 	}
 
@@ -706,17 +790,63 @@ bool V4L2_webcam_pipe::v4l2_ctrl_get(uint32_t id, int32_t* const out_val)
     gint v4l2_fd;
 	m_src->get_property("device-fd", v4l2_fd);
 
-	v4l2_control ctrl;
+	v4l2_ext_control ctrl;
 	memset(&ctrl, 0, sizeof(ctrl));
-	ctrl.id = id;
-	int ret = ioctl(v4l2_fd, VIDIOC_G_CTRL, &ctrl);	
+	ctrl.id    = id;
+	ctrl.size  = sizeof(*out_val);
+
+	v4l2_ext_controls ctrls;
+	memset(&ctrls, 0, sizeof(ctrls));
+	ctrls.count = 1;
+	ctrls.controls = &ctrl;
+
+	int ret = ioctl(v4l2_fd, VIDIOC_G_EXT_CTRLS, &ctrl);	
 	if(ret < 0)
 	{
-		SPDLOG_WARN("VIDIOC_S_CTRL error: {:s}", m_errno.to_str());
+		SPDLOG_WARN("VIDIOC_G_EXT_CTRLS error: {:s}", m_errno.to_str());
 		return false;
 	}
 
 	*out_val = ctrl.value;
+	return true;
+}
+
+bool V4L2_webcam_pipe::v4l2_ctrl_set(v4l2_ext_control* const ctrl)
+{
+    gint v4l2_fd;
+	m_src->get_property("device-fd", v4l2_fd);
+
+	v4l2_ext_controls ctrls;
+	memset(&ctrls, 0, sizeof(ctrls));
+	ctrls.count = 1;
+	ctrls.controls = ctrl;
+
+	int ret = ioctl(v4l2_fd, VIDIOC_S_EXT_CTRLS, ctrls);	
+	if(ret < 0)
+	{
+		SPDLOG_WARN("VIDIOC_S_EXT_CTRLS error: {:s}", m_errno.to_str());
+		return false;
+	}
+
+	return true;
+}
+bool V4L2_webcam_pipe::v4l2_ctrl_get(v4l2_ext_control* const ctrl)
+{
+    gint v4l2_fd;
+	m_src->get_property("device-fd", v4l2_fd);
+
+	v4l2_ext_controls ctrls;
+	memset(&ctrls, 0, sizeof(ctrls));
+	ctrls.count = 1;
+	ctrls.controls = ctrl;
+
+	int ret = ioctl(v4l2_fd, VIDIOC_G_EXT_CTRLS, ctrls);	
+	if(ret < 0)
+	{
+		SPDLOG_WARN("VIDIOC_G_EXT_CTRLS error: {:s}", m_errno.to_str());
+		return false;
+	}
+
 	return true;
 }
 

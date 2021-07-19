@@ -11,9 +11,14 @@
 #include <gstreamermm/queue.h>
 #include <gstreamermm/tee.h>
 
+#include <linux/v4l2-controls.h>
+#include <linux/videodev2.h>
+
 #include <atomic>
+#include <map>
 #include <memory>
 #include <mutex>
+#include <set>
 
 class V4L2_webcam_pipe : public GST_element_base
 {
@@ -44,13 +49,24 @@ public:
   bool get_exposure_value();
 
   bool v4l2_probe();
+
+  bool get_property_description();
   
 protected:
+
+  std::map<uint32_t, v4l2_query_ext_ctrl> device_ctrl;
+  std::map<uint32_t, std::map<int64_t, v4l2_querymenu>> menu_entries;
 
   errno_util m_errno;
 
   bool v4l2_ctrl_set(uint32_t id, const int32_t val);
+  bool v4l2_ctrl_set(uint32_t id, const int64_t val);
+
   bool v4l2_ctrl_get(uint32_t id, int32_t* const out_val);
+  bool v4l2_ctrl_get(uint32_t id, int64_t* const out_val);
+
+  bool v4l2_ctrl_set(v4l2_ext_control* const ctrl);
+  bool v4l2_ctrl_get(v4l2_ext_control* const ctrl);
 
   // bool on_bus_message(const Glib::RefPtr<Gst::Bus>& bus, const Glib::RefPtr<Gst::Message>& message);
   void on_bus_message(const Glib::RefPtr<Gst::Message>& message);
