@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cameras/Logitech_brio.hpp"
+#include "v4l2_util.hpp"
 
 #include "pipeline/GST_element_base.hpp"
 
@@ -54,27 +54,13 @@ public:
   
 protected:
 
+
+
   std::map<uint32_t, v4l2_query_ext_ctrl> device_ctrl;
   std::map<uint32_t, std::map<int64_t, v4l2_querymenu>> menu_entries;
 
   errno_util m_errno;
-
-  bool v4l2_ctrl_set(uint32_t id, const bool val);
-  bool v4l2_ctrl_set(uint32_t id, const int32_t val);
-  bool v4l2_ctrl_set(uint32_t id, const int64_t val);
-  bool v4l2_ctrl_set(uint32_t id, const uint8_t val);
-  bool v4l2_ctrl_set(uint32_t id, const uint16_t val);
-  bool v4l2_ctrl_set(uint32_t id, const uint32_t val);
-
-  bool v4l2_ctrl_get(uint32_t id, uint32_t which, bool*    const out_val);
-  bool v4l2_ctrl_get(uint32_t id, uint32_t which, int32_t* const out_val);
-  bool v4l2_ctrl_get(uint32_t id, uint32_t which, int64_t* const out_val);
-  bool v4l2_ctrl_get(uint32_t id, uint32_t which, uint8_t* const out_val);
-  bool v4l2_ctrl_get(uint32_t id, uint32_t which, uint16_t* const out_val);
-  bool v4l2_ctrl_get(uint32_t id, uint32_t which, uint32_t* const out_val);
-
-  bool v4l2_ctrl_set(v4l2_ext_control* const ctrl);
-  bool v4l2_ctrl_get(uint32_t which, v4l2_ext_control* const ctrl);
+  v4l2_util m_v4l2_util;
 
   // bool on_bus_message(const Glib::RefPtr<Gst::Bus>& bus, const Glib::RefPtr<Gst::Message>& message);
   void on_bus_message(const Glib::RefPtr<Gst::Message>& message);

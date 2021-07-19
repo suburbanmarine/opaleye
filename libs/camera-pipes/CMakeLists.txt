@@ -6,6 +6,7 @@ add_library(camera-pipes
 	#pipeline/camera/Logitech_C525_gst.cpp
 	pipeline/camera/Testsrc_pipe.cpp
 	pipeline/camera/v4l2_webcam_pipe.cpp
+	pipeline/camera/v4l2_util.cpp
 
 	pipeline/display/autovideosink_pipe.cpp
 
