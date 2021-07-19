@@ -701,6 +701,8 @@ bool V4L2_webcam_pipe::get_property_description()
 	{
 		case V4L2_CTRL_TYPE_INTEGER:
 		{
+			int32_t value;
+			v4l2_ctrl_get(ext_ctrl.second.id, &value);
 			ext_ctrl.second.minimum;
 			ext_ctrl.second.maximum;
 			ext_ctrl.second.step;
@@ -708,6 +710,8 @@ bool V4L2_webcam_pipe::get_property_description()
 		}
 		case V4L2_CTRL_TYPE_BOOLEAN:
 		{
+			int32_t value;
+			v4l2_ctrl_get(ext_ctrl.second.id, &value);
 			break;
 		}
 		case V4L2_CTRL_TYPE_MENU:
@@ -726,6 +730,11 @@ bool V4L2_webcam_pipe::get_property_description()
 		}
 		case V4L2_CTRL_TYPE_INTEGER64:
 		{
+			int64_t value;
+			v4l2_ctrl_get(ext_ctrl.second.id, &value);
+			ext_ctrl.second.minimum;
+			ext_ctrl.second.maximum;
+			ext_ctrl.second.step;
 			break;
 		}
 		case V4L2_CTRL_TYPE_CTRL_CLASS:
@@ -760,6 +769,26 @@ bool V4L2_webcam_pipe::get_property_description()
   return true;
 }
 
+bool V4L2_webcam_pipe::v4l2_ctrl_set(uint32_t id, const bool val)
+{
+    gint v4l2_fd;
+	m_src->get_property("device-fd", v4l2_fd);
+
+	v4l2_ext_control ctrl;
+	memset(&ctrl, 0, sizeof(ctrl));
+	ctrl.id    = id;
+	ctrl.size  = sizeof(ctrl.value);
+	ctrl.value = (val) ? 1 : 0;
+
+	if( ! v4l2_ctrl_set(&ctrl) )
+	{
+		SPDLOG_WARN("VIDIOC_S_EXT_CTRLS error: {:s}", m_errno.to_str());
+		return false;
+	}
+
+	return true;
+}
+
 bool V4L2_webcam_pipe::v4l2_ctrl_set(uint32_t id, const int32_t val)
 {
     gint v4l2_fd;
@@ -768,16 +797,10 @@ bool V4L2_webcam_pipe::v4l2_ctrl_set(uint32_t id, const int32_t val)
 	v4l2_ext_control ctrl;
 	memset(&ctrl, 0, sizeof(ctrl));
 	ctrl.id    = id;
-	ctrl.size  = sizeof(val);
+	ctrl.size  = sizeof(ctrl.value);
 	ctrl.value = val;
 
-	v4l2_ext_controls ctrls;
-	memset(&ctrls, 0, sizeof(ctrls));
-	ctrls.count = 1;
-	ctrls.controls = &ctrl;
-
-	int ret = ioctl(v4l2_fd, VIDIOC_S_EXT_CTRLS, &ctrl);	
-	if(ret < 0)
+	if( ! v4l2_ctrl_set(&ctrl) )
 	{
 		SPDLOG_WARN("VIDIOC_S_EXT_CTRLS error: {:s}", m_errno.to_str());
 		return false;
@@ -785,6 +808,47 @@ bool V4L2_webcam_pipe::v4l2_ctrl_set(uint32_t id, const int32_t val)
 
 	return true;
 }
+
+bool V4L2_webcam_pipe::v4l2_ctrl_set(uint32_t id, const int64_t val)
+{
+    gint v4l2_fd;
+	m_src->get_property("device-fd", v4l2_fd);
+
+	v4l2_ext_control ctrl;
+	memset(&ctrl, 0, sizeof(ctrl));
+	ctrl.id    = id;
+	ctrl.size  = sizeof(ctrl.value64);
+	ctrl.value64 = val;
+
+	if( ! v4l2_ctrl_set(&ctrl) )
+	{
+		SPDLOG_WARN("VIDIOC_S_EXT_CTRLS error: {:s}", m_errno.to_str());
+		return false;
+	}
+
+	return true;
+}
+
+bool V4L2_webcam_pipe::v4l2_ctrl_get(uint32_t id, bool* const out_val)
+{
+    gint v4l2_fd;
+	m_src->get_property("device-fd", v4l2_fd);
+
+	v4l2_ext_control ctrl;
+	memset(&ctrl, 0, sizeof(ctrl));
+	ctrl.id    = id;
+	ctrl.size  = sizeof(ctrl.value);
+
+	if( ! v4l2_ctrl_get(&ctrl) )
+	{
+		SPDLOG_WARN("VIDIOC_G_EXT_CTRLS error: {:s}", m_errno.to_str());
+		return false;
+	}
+
+	*out_val = (ctrl.value) ? true : false;
+	return true;
+}
+
 bool V4L2_webcam_pipe::v4l2_ctrl_get(uint32_t id, int32_t* const out_val)
 {
     gint v4l2_fd;
@@ -793,21 +857,35 @@ bool V4L2_webcam_pipe::v4l2_ctrl_get(uint32_t id, int32_t* const out_val)
 	v4l2_ext_control ctrl;
 	memset(&ctrl, 0, sizeof(ctrl));
 	ctrl.id    = id;
-	ctrl.size  = sizeof(*out_val);
+	ctrl.size  = sizeof(ctrl.value);
 
-	v4l2_ext_controls ctrls;
-	memset(&ctrls, 0, sizeof(ctrls));
-	ctrls.count = 1;
-	ctrls.controls = &ctrl;
-
-	int ret = ioctl(v4l2_fd, VIDIOC_G_EXT_CTRLS, &ctrl);	
-	if(ret < 0)
+	if( ! v4l2_ctrl_get(&ctrl) )
 	{
 		SPDLOG_WARN("VIDIOC_G_EXT_CTRLS error: {:s}", m_errno.to_str());
 		return false;
 	}
 
 	*out_val = ctrl.value;
+	return true;
+}
+
+bool V4L2_webcam_pipe::v4l2_ctrl_get(uint32_t id, int64_t* const out_val)
+{
+    gint v4l2_fd;
+	m_src->get_property("device-fd", v4l2_fd);
+
+	v4l2_ext_control ctrl;
+	memset(&ctrl, 0, sizeof(ctrl));
+	ctrl.id    = id;
+	ctrl.size  = sizeof(ctrl.value64);
+
+	if( ! v4l2_ctrl_get(&ctrl) )
+	{
+		SPDLOG_WARN("VIDIOC_G_EXT_CTRLS error: {:s}", m_errno.to_str());
+		return false;
+	}
+
+	*out_val = ctrl.value64;
 	return true;
 }
 

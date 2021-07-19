@@ -59,9 +59,11 @@ protected:
 
   errno_util m_errno;
 
+  bool v4l2_ctrl_set(uint32_t id, const bool val);
   bool v4l2_ctrl_set(uint32_t id, const int32_t val);
   bool v4l2_ctrl_set(uint32_t id, const int64_t val);
 
+  bool v4l2_ctrl_get(uint32_t id, bool*    const out_val);
   bool v4l2_ctrl_get(uint32_t id, int32_t* const out_val);
   bool v4l2_ctrl_get(uint32_t id, int64_t* const out_val);
 
