@@ -495,6 +495,8 @@ bool V4L2_webcam_pipe::v4l2_probe()
 		return false;
 	}
 
+	m_v4l2_util.set_fd(v4l2_fd);
+
 	v4l2_capability cap;
 	memset(&cap, 0, sizeof(cap));
 	int ret = ioctl(v4l2_fd, VIDIOC_QUERYCAP, &cap);

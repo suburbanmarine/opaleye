@@ -14,6 +14,11 @@ public:
 	v4l2_util();
 	~v4l2_util();
 
+	void set_fd(int fd)
+	{
+		m_v4l2_fd = fd;
+	}
+
 	bool v4l2_ctrl_set(uint32_t id, const bool val);
 	bool v4l2_ctrl_set(uint32_t id, const int32_t val);
 	bool v4l2_ctrl_set(uint32_t id, const int64_t val);
