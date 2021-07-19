@@ -7,6 +7,8 @@
 #include <gstreamermm/elementfactory.h>
 
 #include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
@@ -567,7 +569,7 @@ bool V4L2_webcam_pipe::v4l2_probe()
 		cap.device_caps;
 	}
 
-	std::map<uint32_t, v4l2_query_ext_ctrl> device_ctrl;
+	device_ctrl.clear();
 
 	v4l2_query_ext_ctrl ext_ctrl;
 	uint32_t current_ctrl_id = V4L2_CID_BASE;
@@ -696,16 +698,13 @@ bool V4L2_webcam_pipe::get_property_description()
 //  std::map<uint32_t, std::set<int64_t>> menu_valid_entries;
 //  std::map<uint32_t, std::set<v4l2_querymenu menu>> menu_entries;
 
-	rapidjson::Document doc;
-	doc.SetObject();
+	rapidjson::Document doc(rapidjson::kObjectType);
 
-	rapidjson::Value ext_ctrl_desc_array;
-	ext_ctrl_desc_array.SetArray();
+	rapidjson::Value ext_ctrl_desc_array(rapidjson::kArrayType);
 
 	for(const auto& ext_ctrl : device_ctrl)
 	{
-		rapidjson::Value ext_ctrl_desc;
-		ext_ctrl_desc.SetObject();
+		rapidjson::Value ext_ctrl_desc(rapidjson::kObjectType);
 
 		ext_ctrl_desc.AddMember<uint32_t>("id",   ext_ctrl.second.id,   doc.GetAllocator());
 		ext_ctrl_desc.AddMember<uint32_t>("type", ext_ctrl.second.type, doc.GetAllocator());
@@ -865,6 +864,14 @@ bool V4L2_webcam_pipe::get_property_description()
 	}
 
 	doc.AddMember("ext_ctrl", ext_ctrl_desc_array, doc.GetAllocator());
+
+	rapidjson::StringBuffer buf;
+	buf.Clear();
+
+	rapidjson::Writer<rapidjson::StringBuffer> writer(buf);
+	doc.Accept(writer);
+
+	SPDLOG_INFO("doc: {:s}", buf.GetString());
 
 	return true;
 }
