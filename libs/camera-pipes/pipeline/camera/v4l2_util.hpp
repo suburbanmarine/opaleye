@@ -10,6 +10,10 @@
 class v4l2_util
 {
 public:
+
+	v4l2_util();
+	~v4l2_util();
+
 	bool v4l2_ctrl_set(uint32_t id, const bool val);
 	bool v4l2_ctrl_set(uint32_t id, const int32_t val);
 	bool v4l2_ctrl_set(uint32_t id, const int64_t val);

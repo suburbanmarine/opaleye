@@ -10,6 +10,15 @@
 
 #include <array>
 
+v4l2_util::v4l2_util()
+{
+	m_v4l2_fd = -1;
+}
+v4l2_util::~v4l2_util()
+{
+
+}
+
 bool v4l2_util::v4l2_ctrl_set(uint32_t id, const bool val)
 {
 	v4l2_ext_control ctrl;
