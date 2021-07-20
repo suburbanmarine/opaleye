@@ -234,7 +234,7 @@ bool v4l2_util::v4l2_ctrl_set(v4l2_ext_control* const ctrl)
 	ctrls.count      = 1;
 	ctrls.controls   = ctrl;
 
-	int ret = ioctl(m_v4l2_fd, VIDIOC_S_EXT_CTRLS, ctrls);	
+	int ret = ioctl(m_v4l2_fd, VIDIOC_S_EXT_CTRLS, &ctrls);	
 	if(ret < 0)
 	{
 		SPDLOG_WARN("VIDIOC_S_EXT_CTRLS error: {:s}", m_errno.to_str());
@@ -252,7 +252,7 @@ bool v4l2_util::v4l2_ctrl_get(uint32_t which, v4l2_ext_control* const ctrl)
 	ctrls.count      = 1;
 	ctrls.controls   = ctrl;
 
-	int ret = ioctl(m_v4l2_fd, VIDIOC_G_EXT_CTRLS, ctrls);	
+	int ret = ioctl(m_v4l2_fd, VIDIOC_G_EXT_CTRLS, &ctrls);	
 	if(ret < 0)
 	{
 		SPDLOG_WARN("VIDIOC_G_EXT_CTRLS error: {:s}", m_errno.to_str());
