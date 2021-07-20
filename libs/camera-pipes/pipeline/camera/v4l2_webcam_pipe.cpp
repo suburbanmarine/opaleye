@@ -627,7 +627,7 @@ bool V4L2_webcam_pipe::v4l2_probe()
 
 		if(is_menu_ctrl)
 		{
-			std::map<int64_t, v4l2_querymenu> menu_valid_entries_map_ref = menu_entries[ctrl.second.id];
+			std::map<int64_t, v4l2_querymenu>& menu_valid_entries_map_ref = menu_entries[ctrl.second.id];
 
 			v4l2_querymenu menu;
 			for(int64_t i = ctrl.second.minimum; i <= ctrl.second.maximum; i += ctrl.second.step)
@@ -684,33 +684,34 @@ bool V4L2_webcam_pipe::v4l2_probe()
 		}
 	}
 
-
-	// V4L2_CID_EXPOSURE_AUTO
-	// V4L2_CID_EXPOSURE_AUTO_PRIORITY
-	// V4L2_CID_EXPOSURE_ABSOLUTE
-
 	return true;
 }
 
+typedef rapidjson::GenericValue<rapidjson::UTF8<>, rapidjson::CrtAllocator> JsonValue;
+typedef rapidjson::GenericDocument<rapidjson::UTF8<>, rapidjson::CrtAllocator, rapidjson::CrtAllocator> JsonDoc;
+
 bool V4L2_webcam_pipe::get_property_description()
 {
-//  std::map<uint32_t, v4l2_query_ext_ctrl> device_ctrl;
-//  std::map<uint32_t, std::set<int64_t>> menu_valid_entries;
-//  std::map<uint32_t, std::set<v4l2_querymenu menu>> menu_entries;
+	rapidjson::CrtAllocator valueAlloc;
+	rapidjson::CrtAllocator parseAlloc;
 
-	rapidjson::Document doc(rapidjson::kObjectType);
+	JsonDoc doc(&valueAlloc, 16*1024, &parseAlloc);
+	doc.SetObject();
+	
+	JsonValue ext_ctrl_desc_array;
+	ext_ctrl_desc_array.SetArray();
 
-	rapidjson::Value ext_ctrl_desc_array(rapidjson::kArrayType);
 
+#if 1
 	for(const auto& ext_ctrl : device_ctrl)
 	{
-		rapidjson::Value ext_ctrl_desc(rapidjson::kObjectType);
+		JsonValue ext_ctrl_desc(rapidjson::kObjectType);
 
 		ext_ctrl_desc.AddMember<uint32_t>("id",   ext_ctrl.second.id,   doc.GetAllocator());
 		ext_ctrl_desc.AddMember<uint32_t>("type", ext_ctrl.second.type, doc.GetAllocator());
 
 		{
-			rapidjson::Value params_name;
+			JsonValue params_name;
 			const char* msg = ext_ctrl.second.name;
 			params_name.SetString(msg, strlen(msg), doc.GetAllocator());
 			ext_ctrl_desc.AddMember("name", params_name, doc.GetAllocator());
@@ -722,7 +723,6 @@ bool V4L2_webcam_pipe::get_property_description()
 			{
 				int32_t value;
 				m_v4l2_util.v4l2_ctrl_get(ext_ctrl.second.id, &value);
-
 
 				ext_ctrl_desc.AddMember<int32_t>("value",   value,                   doc.GetAllocator());
 				ext_ctrl_desc.AddMember<int64_t>("default_value", ext_ctrl.second.default_value, doc.GetAllocator());
@@ -744,7 +744,7 @@ bool V4L2_webcam_pipe::get_property_description()
 			}
 			case V4L2_CTRL_TYPE_MENU:
 			{
-				rapidjson::Value valid_params;
+				JsonValue valid_params;
 				valid_params.SetArray();
 
 				int32_t value;
@@ -754,12 +754,12 @@ bool V4L2_webcam_pipe::get_property_description()
 				ext_ctrl_desc.AddMember<int64_t>("default_value", ext_ctrl.second.default_value, doc.GetAllocator());
 
 				auto it = menu_entries.find(ext_ctrl.second.id);
-				for(const auto& menu_entry : it->second)
+				for(const auto& menu_entry : it->second) // for each index
 				{
-					rapidjson::Value params;
+					JsonValue params;
 					params.SetObject();
 
-					rapidjson::Value params_name;
+					JsonValue params_name;
 					const char* msg = (const char*)menu_entry.second.name;
 					params_name.SetString(msg, strlen(msg), doc.GetAllocator());
 
@@ -813,7 +813,7 @@ bool V4L2_webcam_pipe::get_property_description()
 			}
 			case V4L2_CTRL_TYPE_INTEGER_MENU:
 			{
-				rapidjson::Value valid_params;
+				JsonValue valid_params;
 				valid_params.SetArray();
 
 				int32_t value;
@@ -825,10 +825,10 @@ bool V4L2_webcam_pipe::get_property_description()
 				auto it = menu_entries.find(ext_ctrl.second.id);
 				for(const auto& menu_entry : it->second)
 				{
-					rapidjson::Value params;
+					JsonValue params;
 					params.SetObject();
 
-					rapidjson::Value params_name;
+					JsonValue params_name;
 					const char* msg = (const char*)menu_entry.second.name;
 					params_name.SetString(msg, strlen(msg), doc.GetAllocator());
 
@@ -859,15 +859,15 @@ bool V4L2_webcam_pipe::get_property_description()
 				return false;
 			}
 		}
+		
+		SPDLOG_ERROR("ok");
 
-		ext_ctrl_desc_array.PushBack(ext_ctrl_desc, doc.GetAllocator());
+		ext_ctrl_desc_array.GetArray().PushBack(ext_ctrl_desc, doc.GetAllocator());
 	}
-
+#endif
 	doc.AddMember("ext_ctrl", ext_ctrl_desc_array, doc.GetAllocator());
 
 	rapidjson::StringBuffer buf;
-	buf.Clear();
-
 	rapidjson::Writer<rapidjson::StringBuffer> writer(buf);
 	doc.Accept(writer);
 
