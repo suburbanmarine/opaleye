@@ -71,6 +71,10 @@ add_subdirectory(libs/opaleye-util)
 add_subdirectory(opaleye)
 add_subdirectory(site)
 
+add_executable(jsontest
+	jsontest.cpp
+)
+
 # add_custom_command(
 # 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/external/jquery
 # 	

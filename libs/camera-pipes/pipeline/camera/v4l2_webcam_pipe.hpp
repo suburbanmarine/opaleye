@@ -55,8 +55,9 @@ public:
 protected:
 
 
-
+  // ctrl id -> v4l2_query_ext_ctrl
   std::map<uint32_t, v4l2_query_ext_ctrl> device_ctrl;
+  // ctrl id -> index -> menu_entries
   std::map<uint32_t, std::map<int64_t, v4l2_querymenu>> menu_entries;
 
   errno_util m_errno;

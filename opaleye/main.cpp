@@ -172,6 +172,10 @@ int main(int argc, char* argv[])
 
 	// app.run();
 
+	std::this_thread::sleep_for(std::chrono::seconds(5));
+	app.m_camera.v4l2_probe();
+	app.m_camera.get_property_description();
+
 	if( ! sig_hndl.mask_def_signals() )
 	{
 		SPDLOG_ERROR("Could not mask signals");
