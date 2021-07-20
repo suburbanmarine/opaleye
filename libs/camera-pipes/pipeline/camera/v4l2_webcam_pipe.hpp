@@ -42,11 +42,11 @@ public:
 //    UVC_base::copy_frame(m_frame_buffer, out_frame);
 //  }
 
-  bool set_exposure_mode();
-  bool set_exposure_value();
+  bool set_exposure_mode(int32_t val);
+  bool get_exposure_mode(int32_t* const val);
 
-  bool get_exposure_mode();
-  bool get_exposure_value();
+  bool set_exposure_value(int32_t val);
+  bool get_exposure_value(int32_t* const val);
 
   bool v4l2_probe();
 

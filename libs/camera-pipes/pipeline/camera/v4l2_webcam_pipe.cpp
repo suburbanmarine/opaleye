@@ -878,20 +878,19 @@ bool V4L2_webcam_pipe::get_property_description()
 
 
 
-bool V4L2_webcam_pipe::set_exposure_mode()
+bool V4L2_webcam_pipe::set_exposure_mode(int32_t val)
 {
-	return m_v4l2_util.v4l2_ctrl_set(V4L2_CID_EXPOSURE_AUTO, 0);
+	return m_v4l2_util.v4l2_ctrl_set(V4L2_CID_EXPOSURE_AUTO, val);
 }
-bool V4L2_webcam_pipe::get_exposure_mode()
+bool V4L2_webcam_pipe::get_exposure_mode(int32_t* const val)
 {
-	return false;
+	return m_v4l2_util.v4l2_ctrl_get(V4L2_CID_EXPOSURE_AUTO, val);
 }
-
-bool V4L2_webcam_pipe::set_exposure_value()
+bool V4L2_webcam_pipe::set_exposure_value(int32_t val)
 {
-	return false;
+	return m_v4l2_util.v4l2_ctrl_set(V4L2_CID_EXPOSURE_ABSOLUTE, val);
 }
-bool V4L2_webcam_pipe::get_exposure_value()
+bool V4L2_webcam_pipe::get_exposure_value(int32_t* const val)
 {
-	return false;
+	return m_v4l2_util.v4l2_ctrl_get(V4L2_CID_EXPOSURE_ABSOLUTE, val);
 }
