@@ -183,13 +183,16 @@ bool v4l2_util::v4l2_ctrl_get(uint32_t id, uint32_t which, uint8_t* const out_va
 	ctrl.id    = id;
 	ctrl.size  = 1;
 
+	std::array<uint8_t, 1> arr = {0};
+	ctrl.p_u8  = arr.data();
+
 	if( ! v4l2_ctrl_get(which, &ctrl) )
 	{
 		SPDLOG_WARN("VIDIOC_G_EXT_CTRLS error: {:s}", m_errno.to_str());
 		return false;
 	}
 
-	*out_val = ctrl.p_u8[0];
+	*out_val = arr[0];
 	return true;
 }
 bool v4l2_util::v4l2_ctrl_get(uint32_t id, uint32_t which, uint16_t* const out_val)
@@ -199,13 +202,16 @@ bool v4l2_util::v4l2_ctrl_get(uint32_t id, uint32_t which, uint16_t* const out_v
 	ctrl.id    = id;
 	ctrl.size  = 2;
 
+	std::array<uint16_t, 1> arr = {0};
+	ctrl.p_u16 = arr.data();
+
 	if( ! v4l2_ctrl_get(which, &ctrl) )
 	{
 		SPDLOG_WARN("VIDIOC_G_EXT_CTRLS error: {:s}", m_errno.to_str());
 		return false;
 	}
 
-	*out_val = ctrl.p_u16[0];
+	*out_val = arr[0];
 	return true;
 }
 bool v4l2_util::v4l2_ctrl_get(uint32_t id, uint32_t which, uint32_t* const out_val)
@@ -215,13 +221,16 @@ bool v4l2_util::v4l2_ctrl_get(uint32_t id, uint32_t which, uint32_t* const out_v
 	ctrl.id    = id;
 	ctrl.size  = 4;
 
+	std::array<uint32_t, 1> arr = {0};
+	ctrl.p_u32 = arr.data();
+
 	if( ! v4l2_ctrl_get(which, &ctrl) )
 	{
 		SPDLOG_WARN("VIDIOC_G_EXT_CTRLS error: {:s}", m_errno.to_str());
 		return false;
 	}
 
-	*out_val = ctrl.p_u32[0];
+	*out_val = arr[0];
 	return true;
 }
 
