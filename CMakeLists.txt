@@ -18,9 +18,14 @@ add_custom_target(protoc-gen-grpc-web-target
 		${PROJECT_SOURCE_DIR}/external/grpc-web/javascript/net/grpc/web/protoc-gen-grpc-web
 )
 
+# RAPIDJSON_SSE2
+# RAPIDJSON_SSE42
+# RAPIDJSON_NEON
 add_definitions(
 	-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE
-	-DBOOST_ALL_DYN_LINK	
+	-DBOOST_ALL_DYN_LINK
+	# -DMALLOC_CHECK_=2 # debug heap
+	# -D_GLIBCXX_DEBUG # changes layout of stl types
 )
 
 set (THREADS_PREFER_PTHREAD_FLAG ON)
