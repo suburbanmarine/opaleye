@@ -115,9 +115,6 @@ public:
   Testsrc_pipe       m_test_src;
   V4L2_webcam_pipe   m_camera;
 
-  std::shared_ptr<GST_element_base> m_jpgdec;
-  // std::shared_ptr<GST_element_base> m_h264;
-
   std::shared_ptr<Thumbnail_pipe_base> m_thumb;
 
   GST_interpipesink      m_stream_interpipesink;

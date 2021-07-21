@@ -41,6 +41,9 @@ bool Thumbnail_sw_pipe::init(const char name[])
     m_in_queue->property_max_size_time()         = 1000 * GST_MSECOND;
 
     m_videorate  = Gst::ElementFactory::create_element("videorate");
+
+    m_jpegdec = Gst::ElementFactory::create_element("jpegdec");
+
     m_videoscale = Gst::ElementFactory::create_element("videoscale");
 
     m_scale_queue = Gst::Queue::create();

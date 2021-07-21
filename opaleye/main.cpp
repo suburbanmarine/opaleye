@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	// gst_debug_set_default_threshold(GST_LEVEL_INFO);
+	gst_debug_set_default_threshold(GST_LEVEL_INFO);
 	// gst_debug_set_default_threshold(GST_LEVEL_TRACE);
 
 	spdlog::set_level(spdlog::level::debug);
