@@ -385,11 +385,11 @@ bool test_app::set_camera_property(const std::string& camera_id, const std::stri
   {
     if(property_id == "exposure_mode")
     {
-      ret = m_camera.set_exposure_mode();
+      // ret = m_camera.set_exposure_mode();
     }
     else if(property_id == "exposure_absolute")
     {
-     ret = m_camera.set_exposure_value(); 
+     // ret = m_camera.set_exposure_value(); 
     }
     else
     {
