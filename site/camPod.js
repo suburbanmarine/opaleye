@@ -77,6 +77,23 @@ function btnGetPipelineGraph(event) {
    ret = camPod.jrpc.call('get_pipeline_graph');
 }
 
+function btnSetExposureAbsolute(event) {
+   console.log( "btnSetExposureAbsolute" );
+
+
+  var exposure_setting = $('#exposure_setting_form').val();
+
+
+   ret = camPod.jrpc.call('set_camera_property', {camera_id: 'cam0', property_id: 'exposure_absolute', value: exposure_setting});
+}
+function btnSetExposureMode(event) {
+   console.log( "btnSetExposureMode" );
+
+  var exposure_mode = $('#exposure_mode_form').val();
+
+   ret = camPod.jrpc.call('set_camera_property', {camera_id: 'cam0', property_id: 'exposure_mode', value: exposure_mode});
+}
+
 function refreshSensorData(event) {
    console.log( "refreshSensorData" );
 
@@ -91,16 +108,19 @@ function handleDocumentReady(jQuery) {
 
   camPod.jrpc = simple_jsonrpc.connect_xhr(rpcurl);
 
-  $("#btnRefresh"           ).on("click", clickedRefreshButton   );
-  $("#cbAutoRefresh"        ).on("click", clickedAutoRefreshCb   );
-  $("#btnStillStart"        ).on("click", btnStillStartClick     );
-  $("#btnStillStop"         ).on("click", btnStillStopClick      );
-  $("#btnVideoStart"        ).on("click", btnVideoStartClick     );
-  $("#btnVideoStop"         ).on("click", btnVideoStopClick      );
-  $("#btnRTPStreamStart"    ).on("click", btnRTPStreamStartClick );
-  $("#btnRTPStreamStop"     ).on("click", btnRTPStreamStopClick  );
-  $("#btnGetPipelineStatus" ).on("click", btnGetPipelineStatus   );
-  $("#btnGetPipelineGraph"  ).on("click", btnGetPipelineGraph    );
+  $("#btnRefresh"            ).on("click", clickedRefreshButton   );
+  $("#cbAutoRefresh"         ).on("click", clickedAutoRefreshCb   );
+  $("#btnStillStart"         ).on("click", btnStillStartClick     );
+  $("#btnStillStop"          ).on("click", btnStillStopClick      );
+  $("#btnVideoStart"         ).on("click", btnVideoStartClick     );
+  $("#btnVideoStop"          ).on("click", btnVideoStopClick      );
+  $("#btnRTPStreamStart"     ).on("click", btnRTPStreamStartClick );
+  $("#btnRTPStreamStop"      ).on("click", btnRTPStreamStopClick  );
+  $("#btnGetPipelineStatus"  ).on("click", btnGetPipelineStatus   );
+  $("#btnGetPipelineGraph"   ).on("click", btnGetPipelineGraph    );
+  $("#btnSetExposureAbsolute").on("click", btnSetExposureAbsolute);
+  $("#btnSetExposureMode"    ).on("click", btnSetExposureMode    );
+
 
   camPod.refreshSensorDataIval = setInterval(refreshSensorData, 2000);
 }
