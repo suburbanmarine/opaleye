@@ -159,6 +159,8 @@ int main(int argc, char* argv[])
 	jsonrpc_svr_disp->GetDispatcher().AddMethod("get_pipeline_status", &test_app::get_pipeline_status, app);
 	jsonrpc_svr_disp->GetDispatcher().AddMethod("get_pipeline_graph",  &test_app::get_pipeline_graph,  app);
 
+	jsonrpc_svr_disp->GetDispatcher().AddMethod("set_camera_property",  &test_app::set_camera_property,  app);
+
 	std::shared_ptr<http_req_jsonrpc> jsonrpc_api_req = std::make_shared<http_req_jsonrpc>();
 	jsonrpc_api_req->set_rpc_server(jsonrpc_svr_disp);
 	fcgi_svr.register_cb_for_doc_uri("/api/v1", jsonrpc_api_req);
