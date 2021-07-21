@@ -100,6 +100,7 @@ bool Thumbnail_sw_pipe::init(const char name[])
 
     m_bin->add(m_in_queue);
     m_bin->add(m_videorate);
+    m_bin->add(m_jpegdec);
     m_bin->add(m_videoscale);
     m_bin->add(m_scale_queue);
     m_bin->add(m_jpegenc);
@@ -108,7 +109,8 @@ bool Thumbnail_sw_pipe::init(const char name[])
   }
 
   m_in_queue->link(m_videorate);
-  m_videorate->link(m_videoscale);
+  m_in_queue->link(m_jpegdec);
+  m_jpegdec->link(m_videoscale);
   m_videoscale->link(m_scale_queue);
   m_scale_queue->link(m_jpegenc);
   m_jpegenc->link(m_out_capsfilter);
