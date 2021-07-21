@@ -111,24 +111,18 @@ bool test_app::init()
 
   //add elements to top level bin
   m_camera.add_to_bin(m_pipeline);
-  // m_test_src.add_to_bin(m_pipeline);
+
   m_thumb->add_to_bin(m_pipeline);
-  // m_h264->add_to_bin(m_pipeline);
   m_stream_interpipesink.add_to_bin(m_pipeline);
-  // m_mkv.add_to_bin(m_pipeline);
-  // m_display.add_to_bin(m_pipeline);
   m_rtppay.add_to_bin(m_pipeline);
   m_rtpsink.add_to_bin(m_pipeline);
 
   //link pipeline
   m_camera.link_back(m_thumb->front());
 
-  // m_test_src.link_back(m_display.front());
-  // m_test_src.link_back(m_h264->front());
-
   m_camera.link_back(m_stream_interpipesink.front());
+  
   m_camera.link_back(m_rtppay.front());
-
   m_rtppay.link_back(m_rtpsink.front());
 
   return true;

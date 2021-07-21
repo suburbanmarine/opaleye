@@ -108,8 +108,8 @@ bool Thumbnail_sw_pipe::init(const char name[])
     m_bin->add(m_appsink);
   }
 
-  m_in_queue->link(m_videorate);
   m_in_queue->link(m_jpegdec);
+  m_videorate->link(m_jpegdec);
   m_jpegdec->link(m_videoscale);
   m_videoscale->link(m_scale_queue);
   m_scale_queue->link(m_jpegenc);
