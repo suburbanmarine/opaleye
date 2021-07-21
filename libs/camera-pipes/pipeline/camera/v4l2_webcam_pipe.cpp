@@ -429,10 +429,10 @@ bool V4L2_webcam_pipe::init(const char name[])
       "format","MJPG",
       "pixel-aspect-ratio", Gst::Fraction(1, 1),
       "framerate",          Gst::Fraction(30, 1),
-      // "width",              3840,
-      // "height",             2160
-      "width",              1920,
-      "height",             1080
+      "width",              3840,
+      "height",             2160
+      // "width",              1920,
+      // "height",             1080
 
       );
 
