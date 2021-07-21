@@ -3,8 +3,23 @@ var camPod = {};
 function clickedRefreshButton(event) {
     console.log( "clickedRefreshButton" );
 
-    var url = $("#cam0").attr("src");
-    $("#cam0").removeAttr("src").attr("src", url);
+    // var url = $("#cam0").attr("src");
+    // $("#cam0").removeAttr("src").attr("src", url);
+
+    $("#cam0").attr('src', $("#cam0").attr('src'));
+}
+function clickedAutoRefreshCb(event) {
+    console.log( "clickedAutoRefreshCb" );
+
+    var isChecked = $("#cbAutoRefresh").is(":checked");
+    if(isChecked)
+    {
+      camPod.cbAutoRefreshIval = setInterval(clickedRefreshButton, 2000);
+    }
+    else
+    {
+      clearInterval(camPod.cbAutoRefreshIval);
+    }
 }
 function clickedStartButton(event) {
     console.log( "btnGstStart" );
@@ -61,6 +76,30 @@ function btnGetPipelineGraph(event) {
    console.log( "btnGetPipelineGraph" );
    ret = camPod.jrpc.call('get_pipeline_graph');
 }
+
+function btnSetExposureAbsolute(event) {
+   console.log( "btnSetExposureAbsolute" );
+
+
+  var exposure_setting = $('#exposure_setting_form').val();
+
+
+   ret = camPod.jrpc.call('set_camera_property', {camera_id: 'cam0', property_id: 'exposure_absolute', value: exposure_setting});
+}
+function btnSetExposureMode(event) {
+   console.log( "btnSetExposureMode" );
+
+  var exposure_mode = $('#exposure_mode_form').val();
+
+   ret = camPod.jrpc.call('set_camera_property', {camera_id: 'cam0', property_id: 'exposure_mode', value: exposure_mode});
+}
+
+function refreshSensorData(event) {
+   console.log( "refreshSensorData" );
+
+  $("#sensor_frame").attr('src', $("#sensor_frame").attr('src'));
+}
+
 function handleDocumentReady(jQuery) {
   
   var currentLocation = window.location;
@@ -69,15 +108,21 @@ function handleDocumentReady(jQuery) {
 
   camPod.jrpc = simple_jsonrpc.connect_xhr(rpcurl);
 
-  $("#btnRefresh"           ).on("click", clickedRefreshButton   );
-  $("#btnStillStart"        ).on("click", btnStillStartClick     );
-  $("#btnStillStop"         ).on("click", btnStillStopClick      );
-  $("#btnVideoStart"        ).on("click", btnVideoStartClick     );
-  $("#btnVideoStop"         ).on("click", btnVideoStopClick      );
-  $("#btnRTPStreamStart"    ).on("click", btnRTPStreamStartClick );
-  $("#btnRTPStreamStop"     ).on("click", btnRTPStreamStopClick  );
-  $("#btnGetPipelineStatus" ).on("click", btnGetPipelineStatus   );
-  $("#btnGetPipelineGraph"  ).on("click", btnGetPipelineGraph    );
+  $("#btnRefresh"            ).on("click", clickedRefreshButton   );
+  $("#cbAutoRefresh"         ).on("click", clickedAutoRefreshCb   );
+  $("#btnStillStart"         ).on("click", btnStillStartClick     );
+  $("#btnStillStop"          ).on("click", btnStillStopClick      );
+  $("#btnVideoStart"         ).on("click", btnVideoStartClick     );
+  $("#btnVideoStop"          ).on("click", btnVideoStopClick      );
+  $("#btnRTPStreamStart"     ).on("click", btnRTPStreamStartClick );
+  $("#btnRTPStreamStop"      ).on("click", btnRTPStreamStopClick  );
+  $("#btnGetPipelineStatus"  ).on("click", btnGetPipelineStatus   );
+  $("#btnGetPipelineGraph"   ).on("click", btnGetPipelineGraph    );
+  $("#btnSetExposureAbsolute").on("click", btnSetExposureAbsolute);
+  $("#btnSetExposureMode"    ).on("click", btnSetExposureMode    );
+
+
+  camPod.refreshSensorDataIval = setInterval(refreshSensorData, 2000);
 }
 
 $(document).ready(handleDocumentReady);

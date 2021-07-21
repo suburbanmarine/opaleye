@@ -40,9 +40,10 @@ bool test_app::init()
     // libjpeg and nvjpegdec may not be used in the same program...
     // m_jpgdec = std::make_shared<jpeg_nvdec_pipe>();
     // m_jpgdec = std::make_shared<jpeg_swdec_bin>();
-    m_jpgdec = std::make_shared<jpeg_nvdec_bin>();
+    // m_jpgdec = std::make_shared<jpeg_nvdec_bin>();
+    m_jpgdec = std::make_shared<jpeg_swdec_bin>();
     // m_h264   = std::make_shared<h264_nvenc_bin>();
-    m_thumb  = std::make_shared<Thumbnail_nv_pipe>();
+    m_thumb  = std::make_shared<Thumbnail_sw_pipe>();
   }
   else
   {
@@ -378,4 +379,30 @@ std::vector<std::string> test_app::get_camera_list() const
 {
   SPDLOG_INFO("test_app::get_camera_list");
   return std::vector<std::string>();
+}
+
+bool test_app::set_camera_property(const std::string& camera_id, const std::string& property_id, const std::string& value)
+{
+  bool ret = false;
+  if(camera_id == "cam0")
+  {
+    if(property_id == "exposure_mode")
+    {
+      ret = m_camera.set_exposure_mode();
+    }
+    else if(property_id == "exposure_absolute")
+    {
+     ret = m_camera.set_exposure_value(); 
+    }
+    else
+    {
+      ret = false; 
+    }
+  }
+  else
+  {
+    ret = false; 
+  }
+
+  return ret;
 }

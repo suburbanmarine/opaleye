@@ -97,13 +97,19 @@ public:
   /// Force a WD reset
   ///
   bool test_watchdog() const;
+
   ///
   /// on, off, blink
   ///
   bool set_user_led(const std::string& mode) const;
+
+  /* info */
   std::string get_sw_version() const;
   std::string get_hw_version() const;
   std::string get_serial_number() const;
+
+  /* cameras */
+  bool set_camera_property(const std::string& camera_id, const std::string& property_id, const std::string& value);
 
 // protected:
   Testsrc_pipe       m_test_src;

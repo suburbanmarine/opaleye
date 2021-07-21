@@ -3,12 +3,14 @@
 
 #include "http_fcgi_svr.hpp"
 #include "http_req_callback_file.hpp"
+#include "http_req_callback_sensors.hpp"
 #include "http_req_jpeg.hpp"
 #include "http_req_jsonrpc.hpp"
 #include "signal_handler.hpp"
 
 #include "gst_app.hpp"
 #include "app_config.hpp"
+#include "sensor_thread.hpp"
 
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
@@ -53,6 +55,7 @@ int main(int argc, char* argv[])
 	sinks.push_back( std::make_shared<spdlog::sinks::stdout_color_sink_mt>()             );
 	auto tp2 = std::make_shared<spdlog::details::thread_pool>(1024, 1);
 	auto logger = std::make_shared<spdlog::async_logger>("log", begin(sinks), end(sinks), tp2, spdlog::async_overflow_policy::block);
+	logger->set_level(spdlog::level::debug);
 	spdlog::set_default_logger( logger );
 
 	//give gst options
@@ -103,10 +106,23 @@ int main(int argc, char* argv[])
 		return -1;	
 	}
 
+	std::shared_ptr<sensor_thread> sensors = std::make_shared<sensor_thread>();
+	if(!sensors->init())
+	{
+		SPDLOG_ERROR("sensor thread failed");
+		return -1;
+	}
+	sensors->launch();
+
+
 	http_fcgi_svr fcgi_svr;
 
 	std::shared_ptr<http_req_callback_file> req_cb = std::make_shared<http_req_callback_file>();
 	fcgi_svr.register_cb_for_doc_uri("/foo", req_cb);
+
+	std::shared_ptr<http_req_callback_sensors> sensor_cb = std::make_shared<http_req_callback_sensors>();
+	sensor_cb->init(sensors);
+	fcgi_svr.register_cb_for_doc_uri("/sensors", sensor_cb);
 
 	fcgi_svr.start();
 
@@ -143,6 +159,8 @@ int main(int argc, char* argv[])
 	jsonrpc_svr_disp->GetDispatcher().AddMethod("get_pipeline_status", &test_app::get_pipeline_status, app);
 	jsonrpc_svr_disp->GetDispatcher().AddMethod("get_pipeline_graph",  &test_app::get_pipeline_graph,  app);
 
+	jsonrpc_svr_disp->GetDispatcher().AddMethod("set_camera_property",  &test_app::set_camera_property,  app);
+
 	std::shared_ptr<http_req_jsonrpc> jsonrpc_api_req = std::make_shared<http_req_jsonrpc>();
 	jsonrpc_api_req->set_rpc_server(jsonrpc_svr_disp);
 	fcgi_svr.register_cb_for_doc_uri("/api/v1", jsonrpc_api_req);
@@ -155,6 +173,10 @@ int main(int argc, char* argv[])
 	app.make_debug_dot_ts("vid-app");
 
 	// app.run();
+
+	std::this_thread::sleep_for(std::chrono::seconds(5));
+	app.m_camera.v4l2_probe();
+	app.m_camera.get_property_description();
 
 	if( ! sig_hndl.mask_def_signals() )
 	{
@@ -174,6 +196,9 @@ int main(int argc, char* argv[])
 
 	//stop app
 	app.stop();
+
+	sensors->interrupt();
+	sensors->join();
 
 	//sync logs
 	spdlog::shutdown();

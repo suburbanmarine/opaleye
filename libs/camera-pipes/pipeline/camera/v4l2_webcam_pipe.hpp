@@ -1,17 +1,24 @@
 #pragma once
 
-#include "cameras/Logitech_brio.hpp"
+#include "v4l2_util.hpp"
 
 #include "pipeline/GST_element_base.hpp"
+
+#include "errno_util.hpp"
 
 #include <gstreamermm/caps.h>
 #include <gstreamermm/capsfilter.h>
 #include <gstreamermm/queue.h>
 #include <gstreamermm/tee.h>
 
+#include <linux/v4l2-controls.h>
+#include <linux/videodev2.h>
+
 #include <atomic>
+#include <map>
 #include <memory>
 #include <mutex>
+#include <set>
 
 class V4L2_webcam_pipe : public GST_element_base
 {
@@ -35,7 +42,26 @@ public:
 //    UVC_base::copy_frame(m_frame_buffer, out_frame);
 //  }
 
+  bool set_exposure_mode(int32_t val);
+  bool get_exposure_mode(int32_t* const val);
+
+  bool set_exposure_value(int32_t val);
+  bool get_exposure_value(int32_t* const val);
+
+  bool v4l2_probe();
+
+  bool get_property_description();
+  
 protected:
+
+
+  // ctrl id -> v4l2_query_ext_ctrl
+  std::map<uint32_t, v4l2_query_ext_ctrl> device_ctrl;
+  // ctrl id -> index -> menu_entries
+  std::map<uint32_t, std::map<int64_t, v4l2_querymenu>> menu_entries;
+
+  errno_util m_errno;
+  v4l2_util m_v4l2_util;
 
   // bool on_bus_message(const Glib::RefPtr<Gst::Bus>& bus, const Glib::RefPtr<Gst::Message>& message);
   void on_bus_message(const Glib::RefPtr<Gst::Message>& message);

@@ -11,14 +11,17 @@
 <body>
 
   <div class="sidebar">
-    <a href="#">foo</a>
-    <a href="#">bar</a>
-    <a href="#">baz</a>
-    <a href="#">woo</a>
+    <a href="#">CAMERA</a>
+    <a href="#sensor-table">SENSORS</a>
+    <a href="#status-table">STATUS</a>
+    <a href="#about-table">ABOUT</a>
   </div>
 
   <div class="main">
     <div class="row">
+      <div class="column">
+        <img src="/static/images/sm_logo.png" alt="sm_logo" id="sm_logo" height="100">
+      </div>
       <div class="column">
         OpalEYE
       </div>
@@ -43,8 +46,11 @@
         <div class="column">
           <button id="btnRefresh">Refresh</button>
         </div>
+        <div class="column">
+          <input type="checkbox" id="cbAutoRefresh">AutoRefresh</input>
+        </div>
       </div>
-      <div class="row">
+      <div class="row" style="display:none">
         <div class="column">
           Gstreamer
         </div>
@@ -55,7 +61,7 @@
           <button id="btnGstStop">Stop</button>
         </div>
       </div>
-      <div class="row">
+      <div class="row" style="display:none">
         <div class="column">
           Still Frame Capture
         </div>
@@ -79,7 +85,7 @@
       </div>
       <div class="row">
         <div class="column">
-          RTP stream
+          Video stream
         </div>
         <div class="column">
           <button id="btnRTPStreamStart">Start</button>
@@ -88,7 +94,7 @@
           <button id="btnRTPStreamStop">Stop</button>
         </div>
       </div>
-      <div class="row">
+      <div class="row" style="display:none">
         <div class="column">
           Debug
         </div>
@@ -99,7 +105,71 @@
           <button id="btnGetPipelineGraph">Graph</button>
         </div>
       </div>
+      <div class="row" style="display:none">
+        <div class="column">
+          Clear Videos
+        </div>
+        <div class="column">
+          <button id="btnClearVideoStorage">Status</button>
+        </div>
+      </div>
     </div>
+
+    <div id="camera-settng-table" class="cam">
+      <div class="row">
+        <div class="column">
+          Settings
+        </div>
+      </div>
+      <div class="row">
+        <div class="column">
+          Exposure Setting
+        </div>
+        <div class="column">
+          <form id="exposure_setting_form">
+            <input type="text" id="exposure_setting_form" name="expsosure_setting" value=100>
+          </form>
+        </div>
+        <div class="column">
+          <button id="btnSetExposureAbsolute">Submit</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="column">
+          Exposure Mode
+        </div>
+        <div class="column">
+          <form id="exposure_mode_form">
+            <input type="text" id="exposure_mode_form" name="exposure_mode" value=0>
+          </form>
+        </div>
+        <div class="column">
+          <button id="btnSetExposureMode">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="sensor-table" class="row">
+      <div class="column">
+        SENSOR
+      </div>
+      <div class="column">
+        <iframe src="sensors" title="Sensor Data" id="sensor_frame" style="border:none;display:block;width:100%;"></iframe>
+      </div>
+    </div>
+
+    <div id="status-table" class="row">
+      <div class="column">
+        STATUS
+      </div>
+    </div>
+
+    <div id="about-table" class="row">
+      <div class="column">
+        ABOUT
+      </div>
+    </div>
+
   </div>
 </body>
 </html>

@@ -11,6 +11,9 @@ add_executable(opaleye
 
 	http_req_jpeg.cpp
 	http_req_jsonrpc.cpp
+	http_req_callback_sensors.cpp
+
+	sensor_thread.cpp
 
 	signal_handler.cpp
 )
@@ -19,6 +22,7 @@ target_link_libraries(opaleye
 	PUBLIC
 		camera-pipes
 		http-bridge
+		opaleye_sensors
 
 		jsonrpc-lean
 

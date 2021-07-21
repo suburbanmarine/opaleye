@@ -10,24 +10,30 @@ if ! id -u opaleye &>/dev/null ; then
 	useradd opaleye -s /usr/sbin/nologin --create-home --system -U -G cdrom,audio,dip,video,plugdev,lightdm
 fi
 
-if id -g i2c &>/dev/null ; then
-	# add nvidia groups
-	adduser opaleye i2c
+# add nvidia groups
+# https://stackoverflow.com/a/46651233
+if getent group i2c &>/dev/null ; then
+	if ! id -nGz opaleye | grep -qzxF i2c ; then
+		adduser opaleye i2c
+	fi
 fi
 
-if id -g gdm &>/dev/null ; then
-	# add nvidia groups
-	adduser opaleye gdm
+if getent group gdm &>/dev/null ; then
+	if ! id -nGz opaleye | grep -qzxF gdm ; then
+		adduser opaleye gdm
+	fi
 fi
 
-if id -g weston-launch &>/dev/null ; then
-	# add nvidia groups
-	adduser opaleye weston-launch
+if getent group weston-launch &>/dev/null ; then
+	if ! id -nGz opaleye | grep -qzxF weston-launch ; then
+		adduser opaleye weston-launch
+	fi
 fi
 
-if id -g gpio &>/dev/null ; then
-	# add nvidia groups
-	adduser opaleye gpio
+if getent group gpio &>/dev/null ; then
+	if ! id -nGz opaleye | grep -qzxF gpio ; then
+		adduser opaleye gpio
+	fi
 fi
 
 if [[ -f /etc/nginx/sites-enabled/opaleye  ]]; then
