@@ -12,8 +12,7 @@
 
 mp4_splitmuxsink::mp4_splitmuxsink()/* : m_got_eos(false)*/
 {
-    // top_storage_dir = "/opt/suburbanmarine/opaleye/video";
-    top_storage_dir = "/home/rounin/suburbanmarine/opaleye";
+    top_storage_dir = "/opt/suburbanmarine/opaleye/video";
     starting_id     = 0; 
 }
 

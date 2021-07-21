@@ -120,7 +120,7 @@ public:
 
   std::shared_ptr<Thumbnail_pipe_base> m_thumb;
 
-  GST_interpipesink      m_h264_interpipesink;
+  GST_interpipesink      m_stream_interpipesink;
 
   rtp_mjpeg_pipe         m_rtppay;
   rtpsink_pipe           m_rtpsink;

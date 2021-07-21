@@ -2,6 +2,8 @@
 
 #include "pipeline/GST_element_base.hpp"
 
+#include <boost/filesystem.hpp>
+
 #include <gstreamermm/caps.h>
 #include <gstreamermm/capsfilter.h>
 #include <gstreamermm/queue.h>
@@ -44,6 +46,8 @@ public:
   void handle_muxer_added();
   void handle_sink_added();
 
+  static gchararray dispatch_format_location(GstElement* splitmux, guint fragment_id, void* ctx);
+
   // void send_eos();
 
   // void install_wait_for_eos();
@@ -52,13 +56,21 @@ public:
 
 protected:
 
+  gchararray handle_format_location(GstElement* splitmux, guint fragment_id);
+
   Gst::PadProbeReturn on_pad_probe(const Glib::RefPtr<Gst::Pad>& pad, const Gst::PadProbeInfo& probe_info);
 
   Glib::RefPtr<Gst::Bin>        m_bin;
 
   Glib::RefPtr<Gst::Queue>      m_in_queue;
+  Glib::RefPtr<Gst::Element>    m_mux;
   Glib::RefPtr<Gst::Element>    m_splitmuxsink;
 
-  std::string location;
-  int index;
+  //parameters
+  boost::filesystem::path top_storage_dir;
+
+  //locals
+  std::string             current_filename;
+  boost::filesystem::path current_path;
+  guint                   starting_id;
 };
