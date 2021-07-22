@@ -420,9 +420,6 @@ bool V4L2_webcam_pipe::init(const char name[])
     m_src->set_property("io-mode", 2);
     // m_src->add_probe(GST_PAD_PROBE_TYPE_IDLE | GST_PAD_PROBE_TYPE_EVENT_BOTH, sigc::mem_fun(&V4L2_webcam_pipe::on_pad_probe, this))
 
-    gint v4l2_fd;
-	m_src->get_property("device-fd", v4l2_fd);
-
     //src caps
     m_src_caps = Gst::Caps::create_simple(
       "image/jpeg",
