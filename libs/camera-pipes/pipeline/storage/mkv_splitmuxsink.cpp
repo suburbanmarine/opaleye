@@ -81,11 +81,7 @@ bool mkv_splitmuxsink::init(const char name[])
   {
     m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
 
-    m_mux = Gst::ElementFactory::create_element("matroskamux");
-    m_mux->set_property("version", 2);
-    m_mux->set_property("streamable", false);
-    m_mux->set_property<Glib::ustring>("writing-app", "cam-pod");
-    m_mux->set_property("offset-to-zero", false);
+    m_mux = Gst::ElementFactory::create_element("avimux");
 
     m_in_queue    = Gst::Queue::create();
     m_in_queue->property_max_size_buffers()      = 0;
