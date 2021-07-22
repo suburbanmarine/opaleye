@@ -44,7 +44,7 @@ bool udpsink_pipe::init(const char name[])
     m_udpsink->set_property("buffer-size",  10 * 1400);
     // m_udpsink->set_property("blocksize",    2 * 1400);
     m_udpsink->set_property("max-lateness", 500 * GST_MSECOND);
-    m_udpsink->set_property("processing-deadline", 250 * GST_MSECOND);
+    m_udpsink->set_property("processing-deadline", 500 * GST_MSECOND);
 
     m_bin->add(m_in_queue);
     m_bin->add(m_udpsink);
