@@ -1,7 +1,7 @@
 #include "pipeline/GST_app_base.hpp"
 #include "pipeline/GST_interpipesrc.hpp"
 
-#include "pipeline/storage/mp4_splitmuxsink.hpp"
+#include "pipeline/storage/mkv_splitmuxsink.hpp"
 
 class gst_filesink_pipeline : public GST_app_base
 {
@@ -28,5 +28,5 @@ protected:
     boost::filesystem::path top_storage_dir;
 
 	GST_interpipesrc m_interpipe_src;
-	mp4_splitmuxsink m_mux;
+	mkv_splitmuxsink m_mux;
 };
