@@ -130,11 +130,6 @@ bool mkv_splitmuxsink::init(const char name[])
   return true;
 }
 
-void mkv_splitmuxsink::set_location(const std::string& s)
-{
-
-}
-
 gchararray mkv_splitmuxsink::dispatch_format_location(GstElement* splitmux, guint fragment_id, void* ctx)
 {
     mkv_splitmuxsink* const inst = static_cast<mkv_splitmuxsink*>(ctx);
