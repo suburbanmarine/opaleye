@@ -118,7 +118,7 @@ bool test_app::init()
   m_rtpsink.add_to_bin(m_pipeline);
 
   //link pipeline
-  m_camera.link_back(m_thumb->front());
+  // m_camera.link_back(m_thumb->front());
 
   m_camera.link_back(m_stream_interpipesink.front());
   

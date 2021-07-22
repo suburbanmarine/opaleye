@@ -40,10 +40,9 @@ bool Thumbnail_sw_pipe::init(const char name[])
     m_in_queue->property_max_size_bytes()        = 0;
     m_in_queue->property_max_size_time()         = 1000 * GST_MSECOND;
 
-    m_videorate  = Gst::ElementFactory::create_element("videorate");
-
     m_jpegdec = Gst::ElementFactory::create_element("jpegdec");
 
+    m_videorate  = Gst::ElementFactory::create_element("videorate");
     m_videoscale = Gst::ElementFactory::create_element("videoscale");
 
     m_scale_queue = Gst::Queue::create();
@@ -109,8 +108,8 @@ bool Thumbnail_sw_pipe::init(const char name[])
   }
 
   m_in_queue->link(m_jpegdec);
-  m_videorate->link(m_jpegdec);
-  m_jpegdec->link(m_videoscale);
+  m_jpegdec->link(m_videorate);
+  m_videorate->link(m_videoscale);
   m_videoscale->link(m_scale_queue);
   m_scale_queue->link(m_jpegenc);
   m_jpegenc->link(m_out_capsfilter);
