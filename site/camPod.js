@@ -24,14 +24,14 @@ function clickedAutoRefreshCb(event) {
 function clickedAdvancedMode(event) {
     console.log( "clickedAdvancedMode" );
 
-    var isChecked = $("#clickedAdvancedMode").is(":checked");
+    var isChecked = $("#cbAdvancedMode").is(":checked");
     if(isChecked)
     {
-      $("#debug").attr("style", ""); 
+      $("#debug").css("display", "");
     }
     else
     {
-      $("#debug").attr("style", "display:none");
+      $("#debug").css("display", "none");
     }
 }
 
