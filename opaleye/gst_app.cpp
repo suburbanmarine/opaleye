@@ -151,7 +151,7 @@ bool test_app::start_video_capture(const std::string& camera)
   m_mkv_pipe->set_top_storage_dir(m_config->video_path.string());
   if(m_mkv_pipe->init())
   {
-    m_mkv_pipe->set_listen_to("h264_ipsink_0");
+    m_mkv_pipe->set_listen_to("stream_ipsink_0");
     if(m_mkv_pipe->start())
     {
       return true;

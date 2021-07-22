@@ -69,11 +69,11 @@ bool mkv_splitmuxsink::init(const char name[])
             }
         }
 
-        SPDLOG_INFO("mp4_splitmuxsink::init Starting from index {:d}", starting_id);
+        SPDLOG_INFO("mkv_splitmuxsink::init Starting from index {:d}", starting_id);
     }
     else
     {
-        SPDLOG_INFO("mp4_splitmuxsink::init Dir {:s} does not exist, creating", top_storage_dir.string());
+        SPDLOG_INFO("mkv_splitmuxsink::init Dir {:s} does not exist, creating", top_storage_dir.string());
         boost::filesystem::create_directory(top_storage_dir);
     }
 
