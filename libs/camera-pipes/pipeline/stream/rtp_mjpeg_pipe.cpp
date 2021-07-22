@@ -36,15 +36,10 @@ bool rtp_mjpeg_pipe::init(const char name[])
     m_in_queue->property_max_size_bytes()        = 0;
     m_in_queue->property_max_size_time()         = 1 * GST_SECOND;
     
-    // m_in_queue->property_min_threshold_buffers() = 0;
-    // m_in_queue->property_min_threshold_bytes()   = 0;
-    // m_in_queue->property_min_threshold_time()    = 2 * GST_SECOND;
-
     m_rtpmjpegpay = Gst::ElementFactory::create_element("rtpjpegpay");
-    // m_rtpmjpegpay->set_property("config-interval", -1);
     m_rtpmjpegpay->set_property("name", Glib::ustring("pay0"));
-    // m_rtpmjpegpay->set_property("pt", 96);
-    // m_rtpmjpegpay->set_property("aggregate-mode", 1);
+    m_rtpmjpegpay->set_property("encoding-name", Glib::ustring("JPEG"));
+    m_rtpmjpegpay->set_property("pt", 26);
 
     //output tee
     m_out_tee = Gst::Tee::create();
