@@ -37,7 +37,7 @@ if getent group gpio &>/dev/null ; then
 fi
 
 if [[ -f /etc/nginx/sites-enabled/opaleye  ]]; then
-	exit -1
+	rm /etc/nginx/sites-enabled/opaleye
 fi
 
 if [[ -f /etc/nginx/sites-enabled/default  ]]; then
@@ -70,14 +70,14 @@ if [[ -d /mnt/video/opaleye  ]]; then
 	mkdir -p /mnt/video/opaleye/record/image
 	mkdir -p /mnt/video/opaleye/log
 
-	chown nvidia:nvidia   /mnt/video/opaleye
+	chown nvidia:nvidia /mnt/video/opaleye
 
-	chown opaleye:opaleye /mnt/video/opaleye/record/video
-	chmod g+w             /mnt/video/opaleye/record/video
-	chown opaleye:opaleye /mnt/video/opaleye/record/image
-	chmod g+w             /mnt/video/opaleye/record/image
-	chown opaleye:opaleye /mnt/video/opaleye/log
-	chmod g+w             /mnt/video/opaleye/log
+	chown nvidia:video  /mnt/video/opaleye/record/video
+	chmod g+w           /mnt/video/opaleye/record/video
+	chown nvidia:video  /mnt/video/opaleye/record/image
+	chmod g+w           /mnt/video/opaleye/record/image
+	chown nvidia:video  /mnt/video/opaleye/log
+	chmod g+w           /mnt/video/opaleye/log
 fi
 
 # systemctl enable ptp4l.service 
