@@ -10,6 +10,7 @@
 #include "pipeline/camera/v4l2_webcam_pipe.hpp"
 #include "pipeline/display/autovideosink_pipe.hpp"
 #include "pipeline/stream/rtp_h264_pipe.hpp"
+#include "pipeline/stream/rtp_mjpeg_pipe.hpp"
 #include "pipeline/stream/rtpsink_pipe.hpp"
 #include "pipeline/Thumbnail_sw_pipe.hpp"
 #include "pipeline/Thumbnail_nv_pipe.hpp"
@@ -26,13 +27,13 @@ protected:
   // boost::
 };
 
-class test_app : public GST_app_base
+class test_app_mjpeg : public GST_app_base
 {
 public:
 
-  test_app();
+  test_app_mjpeg();
 
-  ~test_app() override;
+  ~test_app_mjpeg() override;
 
   bool init() override;
 
@@ -114,14 +115,11 @@ public:
   Testsrc_pipe       m_test_src;
   V4L2_webcam_pipe   m_camera;
 
-  std::shared_ptr<GST_element_base> m_jpgdec;
-  std::shared_ptr<GST_element_base> m_h264;
-
   std::shared_ptr<Thumbnail_pipe_base> m_thumb;
 
-  GST_interpipesink      m_h264_interpipesink;
+  GST_interpipesink      m_stream_interpipesink;
 
-  rtp_h264_pipe          m_rtppay;
+  rtp_mjpeg_pipe         m_rtppay;
   rtpsink_pipe           m_rtpsink;
   autovideosink_pipe     m_display;
 

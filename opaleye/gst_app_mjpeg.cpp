@@ -1,4 +1,4 @@
-#include "gst_app.hpp"
+#include "gst_app_mjpeg.hpp"
 
 #include "pipeline/encode/h264_swenc_bin.hpp"
 #include "pipeline/decode/jpeg_swdec_bin.hpp"
@@ -9,17 +9,17 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/printf.h>
 
-test_app::test_app()
+test_app_mjpeg::test_app_mjpeg()
 {
 
 }
 
-test_app::~test_app()
+test_app_mjpeg::~test_app_mjpeg()
 {
 
 }
 
-bool test_app::init()
+bool test_app_mjpeg::init()
 {
   if ( ! GST_app_base::init() )
   {
@@ -40,16 +40,17 @@ bool test_app::init()
     // libjpeg and nvjpegdec may not be used in the same program...
     // m_jpgdec = std::make_shared<jpeg_nvdec_pipe>();
     // m_jpgdec = std::make_shared<jpeg_swdec_bin>();
-    m_jpgdec = std::make_shared<jpeg_swdec_bin>();
-    m_h264   = std::make_shared<h264_nvenc_bin>();
+    // m_jpgdec = std::make_shared<jpeg_nvdec_bin>();
+    // m_jpgdec = std::make_shared<jpeg_swdec_bin>();
+    // m_h264   = std::make_shared<h264_nvenc_bin>();
     m_thumb  = std::make_shared<Thumbnail_sw_pipe>();
   }
   else
   {
     SPDLOG_INFO("CPU mode");
 
-    m_jpgdec = std::make_shared<jpeg_swdec_bin>();
-    m_h264   = std::make_shared<h264_swenc_bin>();
+    // m_jpgdec = std::make_shared<jpeg_swdec_bin>();
+    // m_h264   = std::make_shared<h264_swenc_bin>();
     m_thumb  = std::make_shared<Thumbnail_sw_pipe>();
     
   }
@@ -66,27 +67,21 @@ bool test_app::init()
    return false;
   }
 
-  if( ! m_jpgdec->init("jpgdec_0") )
-  {
-   SPDLOG_ERROR("Could not init jpgdec");
-   return false;
-  }
-
   if( ! m_thumb->init("thumb_0") )
   {
    SPDLOG_ERROR("Could not init thumb");
    return false;
   }
 
-  if( ! m_h264->init("h264_0") )
-  {
-   SPDLOG_ERROR("Could not init h264");
-   return false;
-  }
+  // if( ! m_h264->init("h264_0") )
+  // {
+  //  SPDLOG_ERROR("Could not init h264");
+  //  return false;
+  // }
 
-  if( ! m_h264_interpipesink.init("h264_ipsink_0") )
+  if( ! m_stream_interpipesink.init("stream_ipsink_0") )
   {
-   SPDLOG_ERROR("Could not init h264 interpipe");
+   SPDLOG_ERROR("Could not init stream interpipe");
    return false;
   }
   
@@ -116,47 +111,36 @@ bool test_app::init()
 
   //add elements to top level bin
   m_camera.add_to_bin(m_pipeline);
-  m_jpgdec->add_to_bin(m_pipeline);
-  // m_test_src.add_to_bin(m_pipeline);
-  m_thumb->add_to_bin(m_pipeline);
-  m_h264->add_to_bin(m_pipeline);
-  m_h264_interpipesink.add_to_bin(m_pipeline);
-  // m_mkv.add_to_bin(m_pipeline);
-  // m_display.add_to_bin(m_pipeline);
+
+  // m_thumb->add_to_bin(m_pipeline);
+  m_stream_interpipesink.add_to_bin(m_pipeline);
   m_rtppay.add_to_bin(m_pipeline);
   m_rtpsink.add_to_bin(m_pipeline);
 
   //link pipeline
-  m_camera.link_back(m_jpgdec->front());
+  // m_camera.link_back(m_thumb->front());
 
-  // m_jpgdec->link_back(m_display.front());
-  m_jpgdec->link_back(m_h264->front());
-  m_jpgdec->link_back(m_thumb->front());
-
-  // m_test_src.link_back(m_display.front());
-  // m_test_src.link_back(m_h264->front());
-
-  m_h264->link_back(m_rtppay.front());
-  m_h264->link_back(m_h264_interpipesink.front());
-
+  m_camera.link_back(m_stream_interpipesink.front());
+  
+  m_camera.link_back(m_rtppay.front());
   m_rtppay.link_back(m_rtpsink.front());
 
   return true;
 }
-bool test_app::start_camera(const std::string& camera)
+bool test_app_mjpeg::start_camera(const std::string& camera)
 {
-  SPDLOG_INFO("test_app::start_camera({:s})", camera);
+  SPDLOG_INFO("test_app_mjpeg::start_camera({:s})", camera);
   return true;
 }
-bool test_app::stop_camera(const std::string& camera)
+bool test_app_mjpeg::stop_camera(const std::string& camera)
 {
-  SPDLOG_INFO("test_app::stop_camera({:s})", camera);
+  SPDLOG_INFO("test_app_mjpeg::stop_camera({:s})", camera);
   return true;
 }
 
-bool test_app::start_video_capture(const std::string& camera)
+bool test_app_mjpeg::start_video_capture(const std::string& camera)
 {
-  SPDLOG_INFO("test_app::start_video_capture({:s})", camera);
+  SPDLOG_INFO("test_app_mjpeg::start_video_capture({:s})", camera);
 
   if(m_mkv_pipe)
   {
@@ -167,7 +151,7 @@ bool test_app::start_video_capture(const std::string& camera)
   m_mkv_pipe->set_top_storage_dir(m_config->video_path.string());
   if(m_mkv_pipe->init())
   {
-    m_mkv_pipe->set_listen_to("h264_ipsink_0");
+    m_mkv_pipe->set_listen_to("stream_ipsink_0");
     if(m_mkv_pipe->start())
     {
       return true;
@@ -189,9 +173,9 @@ bool test_app::start_video_capture(const std::string& camera)
 
   return true;
 }
-bool test_app::stop_video_capture(const std::string& camera)
+bool test_app_mjpeg::stop_video_capture(const std::string& camera)
 {
-  SPDLOG_INFO("test_app::stop_video_capture({:s})", camera);
+  SPDLOG_INFO("test_app_mjpeg::stop_video_capture({:s})", camera);
 
   if(!m_mkv_pipe)
   {
@@ -207,20 +191,20 @@ bool test_app::stop_video_capture(const std::string& camera)
   return true;
 }
 
-bool test_app::start_still_capture(const std::string& camera)
+bool test_app_mjpeg::start_still_capture(const std::string& camera)
 {
-  SPDLOG_INFO("test_app::start_still_capture({:s})", camera);
+  SPDLOG_INFO("test_app_mjpeg::start_still_capture({:s})", camera);
   return true;
 }
-bool test_app::stop_still_capture(const std::string& camera)
+bool test_app_mjpeg::stop_still_capture(const std::string& camera)
 {
-  SPDLOG_INFO("test_app::stop_still_capture({:s})", camera);
+  SPDLOG_INFO("test_app_mjpeg::stop_still_capture({:s})", camera);
   return true;
 }
 
-bool test_app::start_rtp_stream(const std::string& ip_addr, int port)
+bool test_app_mjpeg::start_rtp_stream(const std::string& ip_addr, int port)
 {
-  SPDLOG_INFO("test_app::start_rtp_stream {:s}:{:d}", ip_addr, port);
+  SPDLOG_INFO("test_app_mjpeg::start_rtp_stream {:s}:{:d}", ip_addr, port);
 
   if( (port < 0) || (port > 65535))
   {
@@ -229,9 +213,9 @@ bool test_app::start_rtp_stream(const std::string& ip_addr, int port)
 
   return m_rtpsink.add_udp_client(ip_addr, port);
 }
-bool test_app::stop_rtp_stream(const std::string& ip_addr, int port)
+bool test_app_mjpeg::stop_rtp_stream(const std::string& ip_addr, int port)
 {
-  SPDLOG_INFO("test_app::stop_rtp_stream {:s}:{:d}", ip_addr, port);
+  SPDLOG_INFO("test_app_mjpeg::stop_rtp_stream {:s}:{:d}", ip_addr, port);
 
   if( (port < 0) || (port > 65535))
   {
@@ -240,14 +224,14 @@ bool test_app::stop_rtp_stream(const std::string& ip_addr, int port)
 
   return m_rtpsink.remove_udp_client(ip_addr, port);
 }
-bool test_app::stop_rtp_all_stream()
+bool test_app_mjpeg::stop_rtp_all_stream()
 {
-  SPDLOG_INFO("test_app::stop_rtp_all_stream");
+  SPDLOG_INFO("test_app_mjpeg::stop_rtp_all_stream");
   return false;
 }
-std::string test_app::get_pipeline_status()
+std::string test_app_mjpeg::get_pipeline_status()
 {
-  SPDLOG_INFO("test_app::get_pipeline_status");
+  SPDLOG_INFO("test_app_mjpeg::get_pipeline_status");
   Glib::RefPtr<Gst::Bin> bin = m_pipeline;
   Gst::State state;
   Gst::State pending_state;
@@ -320,9 +304,9 @@ std::string test_app::get_pipeline_status()
 
   return fmt::format("{:s}-{:s}", state_str, ret_str);
 }
-std::string test_app::get_pipeline_graph()
+std::string test_app_mjpeg::get_pipeline_graph()
 {
-  SPDLOG_INFO("test_app::get_pipeline_graph");
+  SPDLOG_INFO("test_app_mjpeg::get_pipeline_graph");
   
   make_debug_dot("pipeline");
   int ret = system("dot -Tpdf -o /tmp/pipeline.dot.pdf /tmp/pipeline.dot");
@@ -343,41 +327,41 @@ std::string test_app::get_pipeline_graph()
 
   return std::string();
 }
-void test_app::set_config(const std::string& config)
+void test_app_mjpeg::set_config(const std::string& config)
 {
-  SPDLOG_INFO("test_app::set_config()");
+  SPDLOG_INFO("test_app_mjpeg::set_config()");
 }
-std::string test_app::get_config() const
+std::string test_app_mjpeg::get_config() const
 {
-  SPDLOG_INFO("test_app::get_config");
+  SPDLOG_INFO("test_app_mjpeg::get_config");
   return std::string();
 }
 
-void test_app::set_default_config()
+void test_app_mjpeg::set_default_config()
 {
-  SPDLOG_INFO("test_app::set_default_config");
+  SPDLOG_INFO("test_app_mjpeg::set_default_config");
 }
 
-void test_app::restart_software()
+void test_app_mjpeg::restart_software()
 {
-  SPDLOG_INFO("test_app::restart_software");
+  SPDLOG_INFO("test_app_mjpeg::restart_software");
 }
-void test_app::reboot()
+void test_app_mjpeg::reboot()
 {
-  SPDLOG_INFO("test_app::reboot");
+  SPDLOG_INFO("test_app_mjpeg::reboot");
 }
-void test_app::shutdown()
+void test_app_mjpeg::shutdown()
 {
-  SPDLOG_INFO("test_app::shutdown");
+  SPDLOG_INFO("test_app_mjpeg::shutdown");
 }
 
-std::vector<std::string> test_app::get_camera_list() const
+std::vector<std::string> test_app_mjpeg::get_camera_list() const
 {
-  SPDLOG_INFO("test_app::get_camera_list");
+  SPDLOG_INFO("test_app_mjpeg::get_camera_list");
   return std::vector<std::string>();
 }
 
-bool test_app::set_camera_property(const std::string& camera_id, const std::string& property_id, const std::string& value)
+bool test_app_mjpeg::set_camera_property(const std::string& camera_id, const std::string& property_id, const std::string& value)
 {
   bool ret = false;
   if(camera_id == "cam0")

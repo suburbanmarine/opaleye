@@ -5,6 +5,7 @@ add_subdirectory(
 add_executable(opaleye
 	main.cpp
 	gst_app.cpp
+	gst_app_mjpeg.cpp
 	gst_filesink_pipeline.cpp
 	gst_framesink_pipeline.cpp
 	app_config.cpp
