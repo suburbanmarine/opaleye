@@ -50,6 +50,10 @@ if systemctl is-active --quiet nginx ; then
 	service nginx reload
 fi
 
+if systemctl is-active --quiet smbd ; then
+	systemctl restart smbd
+fi
+
 mkdir -p /opt/suburbanmarine/opaleye/record/video
 mkdir -p /opt/suburbanmarine/opaleye/record/image
 mkdir -p /opt/suburbanmarine/opaleye/log
