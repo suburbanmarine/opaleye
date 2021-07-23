@@ -137,6 +137,13 @@ INSTALL(
 
 INSTALL(
 	FILES
+		"${PROJECT_SOURCE_DIR}/conf/etc/samba/smb.conf"
+	DESTINATION
+		/etc/samba
+)
+
+INSTALL(
+	FILES
 		"${PROJECT_SOURCE_DIR}/conf/etc/udev/rules.d/99-uvc.rules"
 	DESTINATION
 		/etc/udev/rules.d
