@@ -16,10 +16,10 @@
 void http_req_callback_sensors::handle(FCGX_Request* const request)
 {
   //this is per-req since we could have several threads
-  double ext_temp_data;
+  double ext_temp_data = 0.0;
   m_sensors->get_temp_data(&ext_temp_data);
 
-  MS5837_30BA::RESULT baro_data;
+  MS5837_30BA::RESULT baro_data = {};
   m_sensors->get_baro_data(&baro_data);
 
   std::map<std::string, double> soc_temp;
