@@ -66,16 +66,16 @@ chown opaleye:opaleye /opt/suburbanmarine/opaleye/log
 chmod g+w             /opt/suburbanmarine/opaleye/log
 
 if [[ -d /mnt/video/opaleye  ]]; then
-	mkdir -p /mnt/video/opaleye/record/video
-	mkdir -p /mnt/video/opaleye/record/image
+	mkdir -p /mnt/video/opaleye/video
+	mkdir -p /mnt/video/opaleye/image
 	mkdir -p /mnt/video/opaleye/log
 
-	chown nvidia:nvidia /mnt/video/opaleye
+	chown nvidia:nvidia /mnt/video/opaleye/
 
-	chown nvidia:video  /mnt/video/opaleye/record/video
-	chmod g+w           /mnt/video/opaleye/record/video
-	chown nvidia:video  /mnt/video/opaleye/record/image
-	chmod g+w           /mnt/video/opaleye/record/image
+	chown nvidia:video  /mnt/video/opaleye/video
+	chmod g+w           /mnt/video/opaleye/video
+	chown nvidia:video  /mnt/video/opaleye/image
+	chmod g+w           /mnt/video/opaleye/image
 	chown nvidia:video  /mnt/video/opaleye/log
 	chmod g+w           /mnt/video/opaleye/log
 fi
