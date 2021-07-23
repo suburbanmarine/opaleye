@@ -62,6 +62,9 @@ bool multiudpsink_pipe::init(const char name[])
     m_in_queue->property_max_size_bytes()   = 0;
     m_in_queue->property_max_size_time()    = 1 * GST_SECOND;
 
+    m_chop = Gst::ElementFactory::create_element("chopmydata");
+    m_chop->set_property("max-size", 1316);
+
     m_multiudpsink = Gst::ElementFactory::create_element("multiudpsink");
     m_multiudpsink_obj = m_multiudpsink;
 
@@ -96,9 +99,11 @@ bool multiudpsink_pipe::init(const char name[])
 
 
     m_bin->add(m_in_queue);
+    m_bin->add(m_chop);
     m_bin->add(m_multiudpsink);
 
-    m_in_queue->link(m_multiudpsink);
+    m_in_queue->link(m_chop);
+    m_chop->link(m_multiudpsink);
 
     m_bin_sink = m_bin->add_ghost_pad(m_in_queue, "sink", "sink");
   }

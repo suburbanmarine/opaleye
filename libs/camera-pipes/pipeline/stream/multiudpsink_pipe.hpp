@@ -66,6 +66,7 @@ protected:
   Glib::RefPtr<Gst::GhostPad>   m_bin_sink;
 
   Glib::RefPtr<Gst::Queue>      m_in_queue;
+  Glib::RefPtr<Gst::Element>    m_chop;
   Glib::RefPtr<Gst::Element>    m_multiudpsink;
   Glib::RefPtr<Glib::Object>    m_multiudpsink_obj;
 
