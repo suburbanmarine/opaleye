@@ -65,6 +65,21 @@ chmod g+w             /opt/suburbanmarine/opaleye/record/image
 chown opaleye:opaleye /opt/suburbanmarine/opaleye/log
 chmod g+w             /opt/suburbanmarine/opaleye/log
 
+if [[ -d /mnt/video/opaleye  ]]; then
+	mkdir -p /mnt/video/opaleye/record/video
+	mkdir -p /mnt/video/opaleye/record/image
+	mkdir -p /mnt/video/opaleye/log
+
+	chown nvidia:nvidia   /mnt/video/opaleye
+
+	chown opaleye:opaleye /mnt/video/opaleye/record/video
+	chmod g+w             /mnt/video/opaleye/record/video
+	chown opaleye:opaleye /mnt/video/opaleye/record/image
+	chmod g+w             /mnt/video/opaleye/record/image
+	chown opaleye:opaleye /mnt/video/opaleye/log
+	chmod g+w             /mnt/video/opaleye/log
+fi
+
 # systemctl enable ptp4l.service 
 systemctl enable opaleye.service 
 
