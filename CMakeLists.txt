@@ -6,7 +6,6 @@ cmake_policy(SET CMP0048 NEW)
 project(opaleye 
 	VERSION 0.2.0
 	DESCRIPTION "Opaleye smart maritime node"
-	HOMEPAGE_URL "https://github.com/suburbanmarine/opaleye"
 	LANGUAGES C CXX
 )
 
