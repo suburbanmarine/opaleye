@@ -47,6 +47,7 @@ int main(int argc, char* argv[])
 	// gst_debug_set_default_threshold(GST_LEVEL_TRACE);
 
 	//spdlog init
+	auto spdlog_glbl_thread_pool = std::make_shared<spdlog::details::thread_pool>(1024, 1);
 	{
 		spdlog::set_level(spdlog::level::debug);
 		
@@ -54,8 +55,7 @@ int main(int argc, char* argv[])
 		
 		std::vector<spdlog::sink_ptr> sinks;
 		sinks.push_back( std::make_shared<spdlog::sinks::stdout_color_sink_mt>()             );
-		auto tp2 = std::make_shared<spdlog::details::thread_pool>(1024, 1);
-		auto logger = std::make_shared<spdlog::async_logger>("log", begin(sinks), end(sinks), tp2, spdlog::async_overflow_policy::block);
+		auto logger = std::make_shared<spdlog::async_logger>("log", begin(sinks), end(sinks), spdlog_glbl_thread_pool, spdlog::async_overflow_policy::block);
 		logger->set_level(spdlog::level::debug);
 		spdlog::set_default_logger( logger );
 	}
