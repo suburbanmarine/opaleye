@@ -214,7 +214,7 @@ int main(int argc, char* argv[])
 	sensors->interrupt();
 	sensors->join();
 
-	//sync logs
+	//sync logs - the threadpool dies at end of main so global objects need to stop logging
 	spdlog::shutdown();
 
 	return 0;
