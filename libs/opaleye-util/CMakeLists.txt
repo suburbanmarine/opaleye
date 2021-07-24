@@ -4,7 +4,7 @@ add_library(opaleye-util
 )
 
 target_link_libraries(opaleye-util
-
+	rt
 )
 
 target_include_directories(opaleye-util

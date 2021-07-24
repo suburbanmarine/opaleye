@@ -83,6 +83,8 @@ add_subdirectory(libs/opaleye-util)
 add_subdirectory(opaleye)
 add_subdirectory(site)
 
+#add_subdirectory(libs/jetson-multimedia-api)
+
 add_executable(jsontest
 	jsontest.cpp
 )
@@ -183,5 +185,5 @@ set(CPACK_GENERATOR "DEB")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "SM")
 set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${PROJECT_SOURCE_DIR}/scripts/postinst;${PROJECT_SOURCE_DIR}/scripts/prerm;${PROJECT_SOURCE_DIR}/scripts/postrm")
 # gstreamer1.0-vaapi, gstreamer1.0-omx-generic
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libgstreamer1.0-0, libgstreamer-plugins-base1.0-0, libgstreamer-plugins-good1.0-0, libgstreamer-plugins-bad1.0-0, libgstreamermm-1.0-1, libfcgi0ldbl, liblockfile1, libprotobuf10, libprotobuf-c1, libprotoc10, libgrpc++1, libgrpc3, graphviz, libi2c0, samba")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libgstreamer1.0-0, libgstreamer-plugins-base1.0-0, libgstreamer-plugins-good1.0-0, libgstreamer-plugins-bad1.0-0, libgstreamermm-1.0-1, libfcgi0ldbl, liblockfile1, libprotobuf10, libprotobuf-c1, libprotoc10, libgrpc++1, libgrpc3, graphviz, libi2c0, samba, nvidia-jetpack")
 include(CPack)
