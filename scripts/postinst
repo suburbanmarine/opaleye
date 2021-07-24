@@ -70,14 +70,18 @@ if [[ -d /mnt/video/opaleye  ]]; then
 	mkdir -p /mnt/video/opaleye/image
 	mkdir -p /mnt/video/opaleye/log
 
-	chown nvidia:nvidia /mnt/video/opaleye/
+	chown nvidia:nvidia /mnt/video/opaleye
+	chmod 0755          /mnt/video/opaleye
 
-	chown nvidia:video  /mnt/video/opaleye/video
-	chmod g+w           /mnt/video/opaleye/video
-	chown nvidia:video  /mnt/video/opaleye/image
-	chmod g+w           /mnt/video/opaleye/image
-	chown nvidia:video  /mnt/video/opaleye/log
-	chmod g+w           /mnt/video/opaleye/log
+	chown nvidia:opaleye /mnt/video/opaleye/video
+	chmod g+w            /mnt/video/opaleye/video
+	chmod g+s            /mnt/video/opaleye/video
+	chown nvidia:opaleye /mnt/video/opaleye/image
+	chmod g+w            /mnt/video/opaleye/image
+	chmod g+s            /mnt/video/opaleye/image
+	chown nvidia:opaleye /mnt/video/opaleye/log
+	chmod g+w            /mnt/video/opaleye/log
+	chmod g+s            /mnt/video/opaleye/log
 fi
 
 # systemctl enable ptp4l.service 
