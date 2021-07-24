@@ -16,16 +16,6 @@
 
 #include <memory>
 
-class test_app_config
-{
-public:
-  bool serialize();
-  bool deserialize();
-  void set_default();
-protected:
-  // boost::
-};
-
 class test_app : public GST_app_base
 {
 public:

@@ -2,6 +2,6 @@
 <config>
 	<video_path>/mnt/video/opaleye/video</video_path>
 	<image_path>/mnt/video/opaleye/image</image_path>
-	<log_path>/opt/suburbanmarine/opaleye/log</log_path>
+	<log_path>/mnt/video/opaleye/log</log_path>
 	<h264_mode>nv</h264_mode>
 </config>

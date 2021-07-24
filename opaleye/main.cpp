@@ -46,21 +46,19 @@ int main(int argc, char* argv[])
 	// gst_debug_set_default_threshold(GST_LEVEL_INFO);
 	// gst_debug_set_default_threshold(GST_LEVEL_TRACE);
 
-	spdlog::set_level(spdlog::level::debug);
-
-	spdlog::init_thread_pool(1024, 1);
-
-	std::vector<spdlog::sink_ptr> sinks;
-	sinks.push_back( std::make_shared<spdlog::sinks::rotating_file_sink_mt>("/opt/suburbanmarine/opaleye/log/cam-pod_logfile.txt", 1024*1024, 3, true) );
-	sinks.push_back( std::make_shared<spdlog::sinks::stdout_color_sink_mt>()             );
-	auto tp2 = std::make_shared<spdlog::details::thread_pool>(1024, 1);
-	auto logger = std::make_shared<spdlog::async_logger>("log", begin(sinks), end(sinks), tp2, spdlog::async_overflow_policy::block);
-	logger->set_level(spdlog::level::debug);
-	spdlog::set_default_logger( logger );
-
-	//give gst options
-	Glib::init();
-	Gst::init(argc, argv);
+	//spdlog init
+	auto spdlog_glbl_thread_pool = std::make_shared<spdlog::details::thread_pool>(1024, 1);
+	{
+		spdlog::set_level(spdlog::level::debug);
+		
+		spdlog::init_thread_pool(1024, 1);
+		
+		std::vector<spdlog::sink_ptr> sinks;
+		sinks.push_back( std::make_shared<spdlog::sinks::stdout_color_sink_mt>()             );
+		auto logger = std::make_shared<spdlog::async_logger>("log", begin(sinks), end(sinks), spdlog_glbl_thread_pool, spdlog::async_overflow_policy::block);
+		logger->set_level(spdlog::level::debug);
+		spdlog::set_default_logger( logger );
+	}
 
 	//Parse program options
 	boost::program_options::variables_map vm;
@@ -70,6 +68,7 @@ int main(int argc, char* argv[])
 		bpo::options_description desc("Options"); 
 	    desc.add_options() 
 			("help"  , "Print usage information and exit")
+			("config", bpo::value<std::string>()->default_value("/opt/suburbanmarine/opaleye/conf/config.xml"), "Path to config file")
 			;
 	
 		//Parse options
@@ -89,22 +88,37 @@ int main(int argc, char* argv[])
 	    {
 	    	std::cout << e.what() << std::endl;
 		  	std::cout << desc << std::endl;
-			  return -1;
+			return -1;
 	    }
 	}
 
+	//load config and add a file sink logger
 	app_config_mgr cfg_mgr;
-	if(!cfg_mgr.deserialize("/opt/suburbanmarine/opaleye/conf/config.xml"))
 	{
-		SPDLOG_ERROR("cfg_mgr deserialize failed");
-		return -1;
-	}
+		if(!cfg_mgr.deserialize(vm["config"].as<std::string>()))
+		{
+			std::cout << "cfg_mgr deserialize failed";
+			return -1;
+		}
 
-	if( ! cfg_mgr.get_config() )
-	{
-		SPDLOG_ERROR("cfg_mgr does not have a config");
-		return -1;	
+		if( ! cfg_mgr.get_config() )
+		{
+			std::cout << "cfg_mgr does not have a config";
+			return -1;	
+		}
+
+		{
+			boost::filesystem::path log_path = cfg_mgr.get_config()->log_path / "cam-pod_logfile.txt";
+			auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(log_path.string(), 1024*1024, 3, true);
+			spdlog::default_logger()->sinks().push_back(file_sink);
+		}
 	}
+	//now spdlog is ready to be used
+
+
+	//give gst options
+	Glib::init();
+	Gst::init(argc, argv);
 
 	std::shared_ptr<sensor_thread> sensors = std::make_shared<sensor_thread>();
 	if(!sensors->init())
@@ -200,7 +214,7 @@ int main(int argc, char* argv[])
 	sensors->interrupt();
 	sensors->join();
 
-	//sync logs
+	//sync logs - the threadpool dies at end of main so global objects need to stop logging
 	spdlog::shutdown();
 
 	return 0;
