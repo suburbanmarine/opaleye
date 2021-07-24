@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
 	    {
 	    	std::cout << e.what() << std::endl;
 		  	std::cout << desc << std::endl;
-			  return -1;
+			return -1;
 	    }
 	}
 
@@ -97,13 +97,13 @@ int main(int argc, char* argv[])
 	{
 		if(!cfg_mgr.deserialize(vm["config"].as<std::string>()))
 		{
-			SPDLOG_ERROR("cfg_mgr deserialize failed");
+			std::cout << "cfg_mgr deserialize failed";
 			return -1;
 		}
 
 		if( ! cfg_mgr.get_config() )
 		{
-			SPDLOG_ERROR("cfg_mgr does not have a config");
+			std::cout << "cfg_mgr does not have a config";
 			return -1;	
 		}
 
@@ -113,6 +113,8 @@ int main(int argc, char* argv[])
 			spdlog::default_logger()->sinks().push_back(file_sink);
 		}
 	}
+	//now spdlog is ready to be used
+
 
 	//give gst options
 	Glib::init();
