@@ -2,8 +2,6 @@
 
 #include "pipeline/gst_common.hpp"
 
-#include "Stopwatch.h"
-
 #include <gstreamermm/buffer.h>
 #include <gstreamermm/elementfactory.h>
 

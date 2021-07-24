@@ -5,6 +5,8 @@
 #include "pipeline/GST_element_base.hpp"
 #include "Thumbnail_sw_pipe.hpp"
 
+#include "Stopwatch.hpp"
+
 #include <gstreamermm/appsink.h>
 #include <gstreamermm/caps.h>
 #include <gstreamermm/capsfilter.h>
