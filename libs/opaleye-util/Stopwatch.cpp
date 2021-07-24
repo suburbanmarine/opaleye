@@ -1,4 +1,4 @@
-#include "Stopwatch.h"
+#include "Stopwatch.hpp"
 
 #include <sys/time.h>
 
