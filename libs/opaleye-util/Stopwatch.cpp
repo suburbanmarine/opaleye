@@ -32,7 +32,7 @@ std::chrono::nanoseconds Stopwatch::now() const
 		throw std::runtime_error("clock_settime failed");
 	}
 
-	return std::chrono::seconds(tp.tv_sec) + std::chrono::nanoseconds(tp.tv_nsec);
+	return std::chrono::seconds(ts.tv_sec) + std::chrono::nanoseconds(ts.tv_nsec);
 }
 
 std::chrono::nanoseconds Stopwatch::duration() const
