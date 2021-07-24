@@ -4,8 +4,14 @@ cmake_minimum_required(VERSION 3.5)
 cmake_policy(SET CMP0048 NEW)
 
 project(opaleye 
-	VERSION 0.2.0
-	LANGUAGES C CXX
+	VERSION 
+		0.2.0
+	DESCRIPTION
+		"Opaleye smart maritime node"
+	HOMEPAGE_URL 
+		"https://github.com/suburbanmarine/opaleye"
+	LANGUAGES 
+		C CXX
 )
 
 add_custom_command(
