@@ -1,13 +1,15 @@
 cmake_minimum_required(VERSION 3.5)
 
-# CMP0048 - The project() command manages VERSION variables.
-cmake_policy(SET CMP0048 NEW)
-
 project(opaleye 
 	VERSION 0.2.0
 	DESCRIPTION "Opaleye smart maritime node"
 	LANGUAGES C CXX
 )
+
+# PROJECT_VERSION_MAJOR
+# PROJECT_VERSION_MINOR
+# PROJECT_VERSION_PATCH
+# PROJECT_VERSION_TWEAK
 
 add_custom_command(
 	OUTPUT
@@ -168,6 +170,12 @@ INSTALL(
 	DESTINATION
 		/lib/systemd/system
 )
+
+if(${CMAKE_VERSION} VERSION_LESS "3.12.0") 
+	set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR}}
+	set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR}}
+	set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH}}
+endif()
 
 set(CPACK_SET_DESTDIR true)
 set(CPACK_INSTALL_PREFIX /opt/suburbanmarine/opaleye)
