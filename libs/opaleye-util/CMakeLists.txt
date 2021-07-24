@@ -6,6 +6,7 @@ add_library(opaleye-util
 
 target_link_libraries(opaleye-util
 	rt
+	spdlog
 )
 
 target_include_directories(opaleye-util
