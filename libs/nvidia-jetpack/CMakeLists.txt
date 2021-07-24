@@ -4,6 +4,8 @@ target_include_directories(nvidia-jetpack
 	INTERFACE
 		/usr/src/jetson_multimedia_api/include
 		/usr/src/jetson_multimedia_api/include/libjpeg-8b
+		/usr/src/jetson_multimedia_api/samples/common/algorithm/cuda
+		/usr/src/jetson_multimedia_api/samples/common/algorithm/trt
 		/usr/local/cuda/include
 		/usr/include/libdrm
 		/usr/include/opencv4
