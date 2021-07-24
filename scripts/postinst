@@ -37,7 +37,7 @@ if getent group gpio &>/dev/null ; then
 fi
 
 if [[ -f /etc/nginx/sites-enabled/opaleye  ]]; then
-	exit -1
+	rm /etc/nginx/sites-enabled/opaleye
 fi
 
 if [[ -f /etc/nginx/sites-enabled/default  ]]; then
@@ -50,6 +50,10 @@ if systemctl is-active --quiet nginx ; then
 	service nginx reload
 fi
 
+if systemctl is-active --quiet smbd ; then
+	systemctl restart smbd
+fi
+
 mkdir -p /opt/suburbanmarine/opaleye/record/video
 mkdir -p /opt/suburbanmarine/opaleye/record/image
 mkdir -p /opt/suburbanmarine/opaleye/log
@@ -60,6 +64,25 @@ chown opaleye:opaleye /opt/suburbanmarine/opaleye/record/image
 chmod g+w             /opt/suburbanmarine/opaleye/record/image
 chown opaleye:opaleye /opt/suburbanmarine/opaleye/log
 chmod g+w             /opt/suburbanmarine/opaleye/log
+
+if [[ -d /mnt/video/opaleye  ]]; then
+	mkdir -p /mnt/video/opaleye/video
+	mkdir -p /mnt/video/opaleye/image
+	mkdir -p /mnt/video/opaleye/log
+
+	chown nvidia:nvidia /mnt/video/opaleye
+	chmod 0755          /mnt/video/opaleye
+
+	chown nvidia:opaleye /mnt/video/opaleye/video
+	chmod g+w            /mnt/video/opaleye/video
+	chmod g+s            /mnt/video/opaleye/video
+	chown nvidia:opaleye /mnt/video/opaleye/image
+	chmod g+w            /mnt/video/opaleye/image
+	chmod g+s            /mnt/video/opaleye/image
+	chown nvidia:opaleye /mnt/video/opaleye/log
+	chmod g+w            /mnt/video/opaleye/log
+	chmod g+s            /mnt/video/opaleye/log
+fi
 
 # systemctl enable ptp4l.service 
 systemctl enable opaleye.service 
