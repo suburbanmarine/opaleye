@@ -8,7 +8,7 @@ public:
 	Stopwatch();
 	~Stopwatch();
 
-	void reset()
+	void reset();
 
 	std::chrono::nanoseconds now() const;
 	std::chrono::nanoseconds duration() const;
