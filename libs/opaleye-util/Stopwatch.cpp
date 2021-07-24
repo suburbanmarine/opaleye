@@ -2,6 +2,9 @@
 
 #include <sys/time.h>
 
+#include <stdexcept>
+
+
 Stopwatch::Stopwatch()
 {
 	m_t0       = std::chrono::nanosecond::zero();
@@ -24,8 +27,8 @@ std::chrono::nanosecond Stopwatch::now() const
 
 	if(ret != 0)
 	{
-		SPDLOG_ERROR()
-		throw std::runtime_error
+		SPDLOG_ERROR("clock_settime failed");
+		throw std::runtime_error("clock_settime failed");
 	}
 
 	return std::chrono::second(tp.tv_sec) + std::chrono::nanosecond(tp.tv_nsec);
