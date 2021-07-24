@@ -83,7 +83,7 @@ add_subdirectory(libs/opaleye-util)
 add_subdirectory(opaleye)
 add_subdirectory(site)
 
-#add_subdirectory(libs/nvidia-jetpack)
+add_subdirectory(libs/nvidia-jetpack)
 
 add_executable(jsontest
 	jsontest.cpp
