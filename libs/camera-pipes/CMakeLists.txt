@@ -53,7 +53,7 @@ target_link_libraries(camera-pipes
 
 		opaleye-util
 
-		jetson-multimedia-api
+		nvidia-jetpack
 
 		spdlog::spdlog
 )
