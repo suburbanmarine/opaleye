@@ -1,9 +1,10 @@
 #include "Stopwatch.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <sys/time.h>
 
 #include <stdexcept>
-
 
 Stopwatch::Stopwatch()
 {
