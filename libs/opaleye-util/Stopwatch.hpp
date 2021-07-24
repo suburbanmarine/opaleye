@@ -13,7 +13,7 @@ public:
 	std::chrono::nanoseconds now() const;
 	std::chrono::nanoseconds duration() const;
 
-	bool is_expired() const
+	bool is_expired() const;
 
 protected:
 	std::chrono::nanoseconds m_t0;
