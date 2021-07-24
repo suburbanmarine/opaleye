@@ -1,7 +1,11 @@
 cmake_minimum_required(VERSION 3.5)
 
+# CMP0048 - The project() command manages VERSION variables.
+cmake_policy(SET CMP0048 NEW)
+
 project(opaleye 
-	VERSION 0.1.0
+	VERSION 0.2.0
+	LANGUAGES C CXX
 )
 
 add_custom_command(
