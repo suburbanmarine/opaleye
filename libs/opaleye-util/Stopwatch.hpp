@@ -10,12 +10,12 @@ public:
 
 	void reset()
 
-	std::chrono::nanosecond now() const;
-	std::chrono::nanosecond duration() const;
+	std::chrono::nanoseconds now() const;
+	std::chrono::nanoseconds duration() const;
 
 	bool is_expired() const
 
 protected:
-	std::chrono::nanosecond m_t0;
-	std::chrono::nanosecond m_alarm_dt;
+	std::chrono::nanoseconds m_t0;
+	std::chrono::nanoseconds m_alarm_dt;
 };

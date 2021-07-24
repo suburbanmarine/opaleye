@@ -7,8 +7,8 @@
 
 Stopwatch::Stopwatch()
 {
-	m_t0       = std::chrono::nanosecond::zero();
-	m_alarm_dt = std::chrono::nanosecond::zero();
+	m_t0       = std::chrono::nanoseconds::zero();
+	m_alarm_dt = std::chrono::nanoseconds::zero();
 }
 Stopwatch::~Stopwatch()
 {
@@ -20,7 +20,7 @@ void Stopwatch::reset()
 	m_t0 = now();
 }
 
-std::chrono::nanosecond Stopwatch::now() const
+std::chrono::nanoseconds Stopwatch::now() const
 {
 	timespec ts;
 	int ret = clock_settime(CLOCK_MONOTONIC, &ts);
@@ -31,10 +31,10 @@ std::chrono::nanosecond Stopwatch::now() const
 		throw std::runtime_error("clock_settime failed");
 	}
 
-	return std::chrono::second(tp.tv_sec) + std::chrono::nanosecond(tp.tv_nsec);
+	return std::chrono::seconds(tp.tv_sec) + std::chrono::nanoseconds(tp.tv_nsec);
 }
 
-std::chrono::nanosecond Stopwatch::duration() const
+std::chrono::nanoseconds Stopwatch::duration() const
 {
 	return now() - m_t0;
 }
