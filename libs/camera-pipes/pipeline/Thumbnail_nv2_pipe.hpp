@@ -7,15 +7,51 @@
 
 #include "Stopwatch.hpp"
 
+#include "NvUtils.h"
+#include "NvCudaProc.h"
+#include "nvbuf_utils.h"
+#include "NvVideoEncoder.h"
+#include "NvVideoDecoder.h"
+
 #include <gstreamermm/appsink.h>
 #include <gstreamermm/caps.h>
-#include <gstreamermm/capsfilter.h>
 #include <gstreamermm/queue.h>
-#include <gstreamermm/tee.h>
 
 #include <atomic>
 #include <memory>
 #include <mutex>
+
+class nv_dma_buf
+{
+public:
+  nv_dma_buf()
+  {
+    m_fd = -1;
+  }
+  nv_dma_buf(int fd)
+  {
+    m_fd = fd;
+  }
+  ~nv_dma_buf()
+  {
+    destroy();
+  }
+
+  void destroy()
+  {
+    if(m_fd >= 0)
+    {
+      int ret = NvBufferDestroy(m_fd);
+      if(ret != 0)
+      {
+        SPDLOG_ERROR("NvBufferDestroy failed");
+      }
+      m_fd = -1
+    }
+  }
+
+  int m_fd;
+};
 
 /// NV accelerated but non-gstreamer thumbnail stream
 class Thumbnail_nv2_pipe : public Thumbnail_pipe_base

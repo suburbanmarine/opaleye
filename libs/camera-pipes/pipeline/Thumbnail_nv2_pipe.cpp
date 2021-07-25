@@ -142,39 +142,6 @@ void Thumbnail_nv2_pipe::handle_new_sample()
   downsample_jpeg();
 }
 
-
-#include "NvUtils.h"
-#include "NvCudaProc.h"
-#include "nvbuf_utils.h"
-#include "NvVideoEncoder.h"
-#include "NvVideoDecoder.h"
-
-class nv_dma_buf
-{
-public:
-  nv_dma_buf()
-  {
-    m_fd = -1;
-  }
-  nv_dma_buf(int fd)
-  {
-    m_fd = fd;
-  }
-  ~nv_dma_buf()
-  {
-    if(m_fd >= 0)
-    {
-      int ret = NvBufferDestroy(m_fd);
-      if(ret != 0)
-      {
-        SPDLOG_ERROR("NvBufferDestroy failed");
-      }
-    }
-  }
-
-  int m_fd;
-};
-
 bool downsample_jpeg()
 {
   int ret = 0;
@@ -226,6 +193,7 @@ bool downsample_jpeg()
   transform_params.dst_rect.height  = thumb_height;
   transform_params.transform_params.session = NULL;
 
+  //todo - input size changes rarely, cache this thumb buffer so we don't need to alloc all the time
   nv_dma_buf thumb_buffer_fd;
   NvBufferCreateParams thumb_buffer_params;
   memset(&thumb_buffer_params, 0, sizeof(thumb_buffer_params));
@@ -254,7 +222,7 @@ bool downsample_jpeg()
     return false;
   }
 
-  // m_jpegenc->setScaledEncodeParams(6, 6);// does this scale be 1/6?
+  // m_jpegenc->setScaledEncodeParams(6, 6);// does this scale be 1/6? That could be really nice
   m_jpegenc->encodeFromFd(thumb_buffer_fd, JCS_YCbCr, &m_thumb_jpeg_buffer_back, m_thumb_jpeg_buffer_back_size, 75);
   if(ret != 0)
   {
@@ -268,4 +236,6 @@ bool downsample_jpeg()
     std::swap(m_thumb_jpeg_buffer_front, m_thumb_jpeg_buffer_back);
     std::swap(m_thumb_jpeg_buffer_front_size, m_thumb_jpeg_buffer_back_size);
   }
+
+  return true;
 }
