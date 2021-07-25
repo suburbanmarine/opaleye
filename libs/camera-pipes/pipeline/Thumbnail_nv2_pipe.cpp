@@ -144,7 +144,7 @@ void Thumbnail_nv2_pipe::handle_new_sample()
 
 }
 
-bool downsample_jpeg()
+bool Thumbnail_nv2_pipe::downsample_jpeg()
 {
   int ret = 0;
 
