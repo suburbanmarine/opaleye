@@ -9,6 +9,7 @@
 
 #include "NvJpegEncoder.h"
 #include "NvJpegDecoder.h"
+#include "nvbuf_utils.h"
 
 #include <spdlog/spdlog.h>
 

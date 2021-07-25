@@ -5,10 +5,6 @@
 #include <gstreamermm/buffer.h>
 #include <gstreamermm/elementfactory.h>
 
-#include "NvUtils.h"
-#include "NvCudaProc.h"
-#include "nvbuf_utils.h"
-
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/fmt/fmt.h>
 
