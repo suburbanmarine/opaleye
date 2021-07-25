@@ -157,7 +157,7 @@ bool Thumbnail_nv2_pipe::downsample_jpeg()
 
     //decompress full size frame
     int temp_fd = -1;
-    ret = m_jpegdec->decodeToFd(&temp_fd, m_frame_buffer->data(), m_frame_buffer->size(), pixfmt, width, height)
+    ret = m_jpegdec->decodeToFd(temp_fd, m_frame_buffer->data(), m_frame_buffer->size(), pixfmt, width, height)
     if(ret != 0)
     {
       SPDLOG_ERROR("m_jpegdec->decodeToBuffer failed");
