@@ -88,8 +88,8 @@ bool Thumbnail_nv2_pipe::init(const char name[])
   m_frame_buffer = std::make_shared<std::vector<uint8_t>>();
   m_frame_buffer->reserve(3480UL*2160UL*3UL);
 
-  m_jpegenc = std::shared_ptr<NvJPEGEncoder>(NvJPEGDecoder:createJPEGEncoder("jpegenc"));
-  m_jpegdec = std::shared_ptr<NvJPEGDecoder>(NvJPEGEncoder::createJPEGDecoder("jpegdec"));
+  m_jpegenc = std::shared_ptr<NvJPEGEncoder>(NvJPEGEncoder::createJPEGEncoder("jpegenc"));
+  m_jpegdec = std::shared_ptr<NvJPEGDecoder>(NvJPEGDecoder::createJPEGDecoder("jpegdec"));
 
   m_stopwatch.set_alarm_dt(std::chrono::milliseconds(1000));
 
@@ -157,7 +157,7 @@ bool Thumbnail_nv2_pipe::downsample_jpeg()
 
     //decompress full size frame
     int temp_fd = -1;
-    ret = m_jpegdec->decodeToFd(&temp_fd, m_frame_buffer.data(), m_frame_buffer.size(), pixfmt, width, height)
+    ret = m_jpegdec->decodeToFd(&temp_fd, m_frame_buffer->data(), m_frame_buffer->size(), pixfmt, width, height)
     if(ret != 0)
     {
       SPDLOG_ERROR("m_jpegdec->decodeToBuffer failed");
@@ -217,7 +217,7 @@ bool Thumbnail_nv2_pipe::downsample_jpeg()
     thumb_buffer_fd.m_fd = temp_fd;
   }
 
-  ret = NvBufferTransform(frame_buffer_fd.m_fd, thumb_buffer_fd, &transform_params);
+  ret = NvBufferTransform(frame_buffer_fd.m_fd, thumb_buffer_fd.m_fd, &transform_params);
   if(ret != 0)
   {
     SPDLOG_ERROR("NvBufferTransform failed");
