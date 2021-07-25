@@ -95,6 +95,8 @@ bool Thumbnail_nv2_pipe::init(const char name[])
   m_jpegenc = std::shared_ptr<NvJPEGEncoder>(NvJPEGDecoder:createJPEGEncoder("jpegenc"));
   m_jpegdec = std::shared_ptr<NvJPEGDecoder>(NvJPEGEncoder::createJPEGDecoder("jpegdec"));
 
+  m_stopwatch.set_alarm_dt(std::chrono::milliseconds(1000));
+
   return true;
 }
 

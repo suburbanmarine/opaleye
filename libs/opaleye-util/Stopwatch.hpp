@@ -11,6 +11,7 @@ public:
 	Stopwatch(clockid_t clk_id);
 	~Stopwatch();
 
+	/// reset epoch
 	void reset();
 
 	std::chrono::nanoseconds now() const;
@@ -24,6 +25,13 @@ public:
 	void set_alarm_dt(const std::chrono::duration<Rep, Period>& dt)
 	{
 		m_alarm_dt = dt;
+	}
+
+	///set clockid after construction. Invalidates current alarm and epoch
+	///call reset after calling this to refresh epoch
+	void set_clockid(clockid_t clk_id)
+	{
+		m_clk_id = clk_id;
 	}
 
 protected:
