@@ -57,5 +57,5 @@ bool Stopwatch::is_expired() const
 std::chrono::nanoseconds Stopwatch::time_left() const
 {
 	const std::chrono::nanoseconds dt = (m_t0 + m_alarm_dt) - now();
-	return (dt > 0) ? (dt) : (std::chrono::nanoseconds::zero());
+	return (dt > std::chrono::nanoseconds::zero()) ? (dt) : (std::chrono::nanoseconds::zero());
 }
