@@ -134,7 +134,7 @@ void Thumbnail_nv2_pipe::handle_new_sample()
 
     if( ! downsample_jpeg() )
     {
-       SPDLOG_error("Thumbnail_nv2_pipe::downsample_jpeg failed");    
+       SPDLOG_ERROR("Thumbnail_nv2_pipe::downsample_jpeg failed");    
     }
   }
   else
