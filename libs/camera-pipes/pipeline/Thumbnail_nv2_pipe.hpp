@@ -82,7 +82,8 @@ public:
       std::unique_lock<std::mutex> lock(m_thumb_jpeg_mutex);
       if(m_thumb_jpeg_buffer_front && out_frame_buffer)
       {
-        *out_frame_buffer = *m_thumb_jpeg_buffer_front;
+        out_frame_buffer->resize(m_thumb_jpeg_buffer_front_size);
+        std::copy_n(out_frame_buffer.begin(), m_thumb_jpeg_buffer_front_size, m_thumb_jpeg_buffer_front);
       }
     }
   }
