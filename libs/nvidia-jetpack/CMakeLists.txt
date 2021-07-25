@@ -21,7 +21,6 @@ target_link_libraries(nvidia-jetpack
 		nvbuf_utils
 		nvinfer
 		nvjpeg
-		nvjpeg
 		nvonnxparser
 		nvosd
 		nvparsers
@@ -29,4 +28,9 @@ target_link_libraries(nvidia-jetpack
 		X11
 
 		Threads::Threads
+)
+target_link_directories(
+	PUBLIC
+		/usr/lib/aarch64-linux-gnu/tegra/
+		/usr/local/cuda-10.2/targets/aarch64-linux/lib/
 )
