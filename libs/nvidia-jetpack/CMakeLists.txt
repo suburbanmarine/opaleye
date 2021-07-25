@@ -29,7 +29,7 @@ target_link_libraries(nvidia-jetpack
 
 		Threads::Threads
 )
-target_link_directories(
+target_link_directories(nvidia-jetpack
 	PUBLIC
 		/usr/lib/aarch64-linux-gnu/tegra/
 		/usr/local/cuda-10.2/targets/aarch64-linux/lib/
