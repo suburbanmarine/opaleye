@@ -14,7 +14,23 @@
 
 Thumbnail_nv2_pipe::Thumbnail_nv2_pipe()
 {
-  
+  m_thumb_jpeg_buffer_front      = nullptr;
+  m_thumb_jpeg_buffer_front_size = 0;
+  m_thumb_jpeg_buffer_back       = nullptr;
+  m_thumb_jpeg_buffer_back_size  = 0;  
+}
+Thumbnail_nv2_pipe::~Thumbnail_nv2_pipe() override
+{
+  if(m_thumb_jpeg_buffer_front)
+  {
+    free(m_thumb_jpeg_buffer_front);
+    m_thumb_jpeg_buffer_front = nullptr; 
+  }
+  if(m_thumb_jpeg_buffer_back)
+  {
+    free(m_thumb_jpeg_buffer_back);
+    m_thumb_jpeg_buffer_back = nullptr; 
+  }
 }
 
 void Thumbnail_nv2_pipe::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
@@ -76,12 +92,6 @@ bool Thumbnail_nv2_pipe::init(const char name[])
   m_frame_buffer = std::make_shared<std::vector<uint8_t>>();
   m_frame_buffer->reserve(3480UL*2160UL*3UL);
 
-  m_thumb_jpeg_buffer_front = std::make_shared<std::vector<uint8_t>>();
-  m_thumb_jpeg_buffer_front->reserve(640UL*360UL*3UL);
-
-  m_thumb_jpeg_buffer_back = std::make_shared<std::vector<uint8_t>>();
-  m_thumb_jpeg_buffer_back->reserve(640UL*360UL*3UL);
-
   m_jpegenc = std::shared_ptr<NvJPEGEncoder>(NvJPEGDecoder:createJPEGEncoder("jpegenc"));
   m_jpegdec = std::shared_ptr<NvJPEGDecoder>(NvJPEGEncoder::createJPEGDecoder("jpegdec"));
 
@@ -139,65 +149,123 @@ void Thumbnail_nv2_pipe::handle_new_sample()
 #include "NvVideoEncoder.h"
 #include "NvVideoDecoder.h"
 
+class nv_dma_buf
+{
+public:
+  nv_dma_buf()
+  {
+    m_fd = -1;
+  }
+  nv_dma_buf(int fd)
+  {
+    m_fd = fd;
+  }
+  ~nv_dma_buf()
+  {
+    if(m_fd >= 0)
+    {
+      int ret = NvBufferDestroy(m_fd);
+      if(ret != 0)
+      {
+        SPDLOG_ERROR("NvBufferDestroy failed");
+      }
+    }
+  }
+
+  int m_fd;
+};
 
 bool downsample_jpeg()
 {
-  int pixfmt = 0;
-  int width  = 0;
-  int height = 0;
+  int ret = 0;
+
+  nv_dma_buf frame_buffer_fd;
+  uint32_t pixfmt = 0;
+  uint32_t width  = 0;
+  uint32_t height = 0;
   {  
     std::unique_lock<std::mutex> lock(m_frame_buffer_mutex);
 
     //decompress full size frame
-    NvBuffer* frame_buffer = nullptr;
-    m_jpegdec->decodeToBuffer(&frame_buffer, m_frame_buffer.data(), m_frame_buffer.size(), pixfmt, width, height)
+    int temp_fd = -1;
+    ret = m_jpegdec->decodeToFd(&temp_fd, m_frame_buffer.data(), m_frame_buffer.size(), pixfmt, width, height)
+    if(ret != 0)
+    {
+      SPDLOG_ERROR("m_jpegdec->decodeToBuffer failed");
+      return false;
+    }
+
+    frame_buffer_fd.m_fd = temp_fd;
   }
 
+  NvBufferParamsEx frame_buffer_params;
+  memset(&frame_buffer_params, 0, sizeof(frame_buffer_params));
+  ret = NvBufferGetParamsEx(frame_buffer_fd.m_fd, &frame_buffer_params);
+  if(ret != 0)
+  {
+    SPDLOG_ERROR("NvBufferGetParamsEx failed");
+    return false;
+  }
 
   //downsample
+  const int thumb_width  = width  / 6;
+  const int thumb_height = height / 6;
+
   NvBufferTransformParams transform_params;
   memset(&transform_params, 0, sizeof(transform_params));
-
-  /** flag to indicate which of the transform parameters are valid. */
   transform_params.transform_flag   = NVBUFFER_TRANSFORM_FILTER;
   transform_params.transform_flip   = NvBufferTransform_None;
-  transform_params.transform_filter = NvBufferTransform_Filter_Bilinear;
-  transform_params.src_rect.top;
-  transform_params.src_rect.left;
-  transform_params.src_rect.width;
-  transform_params.src_rect.height;
-
-  transform_params.dst_rect.top;
-  transform_params.dst_rect.left;
-  transform_params.dst_rect.width;
-  transform_params.dst_rect.height;
+  transform_params.transform_filter = NvBufferTransform_Filter_Bilinear; // NvBufferTransform_Filter_Nearest, NvBufferTransform_Filter_Smart, NvBufferTransform_Filter_Nicest
+  transform_params.src_rect.top     = 0;
+  transform_params.src_rect.left    = 0;
+  transform_params.src_rect.width   = width;
+  transform_params.src_rect.height  = height;
+  transform_params.dst_rect.top     = 0;
+  transform_params.dst_rect.left    = 0;
+  transform_params.dst_rect.width   = thumb_width;
+  transform_params.dst_rect.height  = thumb_height;
   transform_params.transform_params.session = NULL;
 
-  int thumb_width  = width  / 6;
-  int thumb_height = height / 6;
+  nv_dma_buf thumb_buffer_fd;
+  NvBufferCreateParams thumb_buffer_params;
+  memset(&thumb_buffer_params, 0, sizeof(thumb_buffer_params));
+  thumb_buffer_params.width       = thumb_width;
+  thumb_buffer_params.height      = thumb_height;
+  thumb_buffer_params.layout      = NvBufferLayout_Pitch;
+  thumb_buffer_params.payloadType = NvBufferPayload_SurfArray;
+  thumb_buffer_params.colorFormat = frame_buffer_params.params.pixel_format;
+  thumb_buffer_params.nvbuf_tag   = NvBufferTag_NONE;
+  {
+    int temp_fd = -1;
+    ret = NvBufferCreateEx(&temp_fd, &thumb_buffer_params);
+    if(ret != 0)
+    {
+      SPDLOG_ERROR("NvBufferCreateEx failed");
+      return false;
+    }
 
-  NvBuffer thumb_buffer(pixfmt, thumb_width, thumb_height, 0);
-  buffer.allocateMem();
+    thumb_buffer_fd.m_fd = temp_fd;
+  }
 
-  int ret = NvBufferTransform(frame_buffer->planes[0].fd, thumb_buffer.planes[0].fd, &transform_params)
+  ret = NvBufferTransform(frame_buffer_fd, thumb_buffer_fd, &transform_params);
+  if(ret != 0)
+  {
+    SPDLOG_ERROR("NvBufferTransform failed");
+    return false;
+  }
 
-  //compress thumbnail
-  NvBuffer jpeg_thumb_buffer(V4L2_PIX_FMT_YUV420M, thumb_width, thumb_height, 0);
-  buffer.allocateMem();
-
-  m_thumb_jpeg_buffer_back.resize(m_thumb_jpeg_buffer_back.capacity());
-  unsigned long out_buf_size = m_thumb_jpeg_buffer_back.capacity()*sizeof(m_thumb_jpeg_buffer_back[0]);
-  m_jpegenc->encodeFromBuffer(thumb_buffer, JCS_YCbCr, m_thumb_jpeg_buffer_back.data(), out_buf_size, 75), 
-  m_thumb_jpeg_buffer_back.resize(out_buf_size);
+  // m_jpegenc->setScaledEncodeParams(6, 6);// does this scale be 1/6?
+  m_jpegenc->encodeFromFd(thumb_buffer_fd, JCS_YCbCr, &m_thumb_jpeg_buffer_back, m_thumb_jpeg_buffer_back_size, 75);
+  if(ret != 0)
+  {
+    SPDLOG_ERROR("jpeg_thumb_buffer.encodeFromBuffer failed");
+    return false;
+  }
 
   //flip pages
   {  
     std::unique_lock<std::mutex> lock(m_thumb_jpeg_mutex);
-    m_thumb_jpeg_buffer_front.swap(m_thumb_jpeg_buffer_back);
+    std::swap(m_thumb_jpeg_buffer_front, m_thumb_jpeg_buffer_back);
+    std::swap(m_thumb_jpeg_buffer_front_size, m_thumb_jpeg_buffer_back_size);
   }
-
-  frame_buffer->deallocateMemory();
-  thumb_buffer.deallocateMemory();
-  jpeg_thumb_buffer.deallocateMemory();
-
 }

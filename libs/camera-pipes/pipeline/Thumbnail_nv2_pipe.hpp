@@ -22,6 +22,7 @@ class Thumbnail_nv2_pipe : public Thumbnail_pipe_base
 {
 public:
   Thumbnail_nv2_pipe();
+  ~Thumbnail_nv2_pipe() override;
 
   void add_to_bin(const Glib::RefPtr<Gst::Bin>& bin) override;
   bool link_front(const Glib::RefPtr<Gst::Element>& node) override;
@@ -72,7 +73,9 @@ protected:
 
   //output scaled down jpeg
   mutable std::mutex m_thumb_jpeg_mutex;
-  std::shared_ptr<std::vector<uint8_t>> m_thumb_jpeg_buffer_front;
-  std::shared_ptr<std::vector<uint8_t>> m_thumb_jpeg_buffer_back;
+  unsigned char* m_thumb_jpeg_buffer_front;
+  unsigned long  m_thumb_jpeg_buffer_front_size;
+  unsigned char* m_thumb_jpeg_buffer_back;
+  unsigned long  m_thumb_jpeg_buffer_back_size;
 
 };
