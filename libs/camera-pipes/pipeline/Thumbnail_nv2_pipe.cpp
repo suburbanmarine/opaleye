@@ -5,10 +5,10 @@
 #include <gstreamermm/buffer.h>
 #include <gstreamermm/elementfactory.h>
 
-#include </usr/src/jetson_multimedia_api/include/NvJpegDecoder.h>
-#include </usr/src/jetson_multimedia_api/include/NvJpegEncoder.h>
+#include "NvUtils.h"
+#include "NvCudaProc.h"
+#include "nvbuf_utils.h"
 
-#include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/fmt/fmt.h>
 
@@ -19,7 +19,7 @@ Thumbnail_nv2_pipe::Thumbnail_nv2_pipe()
   m_thumb_jpeg_buffer_back       = nullptr;
   m_thumb_jpeg_buffer_back_size  = 0;  
 }
-Thumbnail_nv2_pipe::~Thumbnail_nv2_pipe() override
+Thumbnail_nv2_pipe::~Thumbnail_nv2_pipe()
 {
   if(m_thumb_jpeg_buffer_front)
   {

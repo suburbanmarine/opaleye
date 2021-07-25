@@ -7,11 +7,10 @@
 
 #include "Stopwatch.hpp"
 
-#include "NvUtils.h"
-#include "NvCudaProc.h"
-#include "nvbuf_utils.h"
-#include "NvVideoEncoder.h"
-#include "NvVideoDecoder.h"
+#include "NvJpegEncoder.h"
+#include "NvJpegDecoder.h"
+
+#include <spdlog/spdlog.h>
 
 #include <gstreamermm/appsink.h>
 #include <gstreamermm/caps.h>
@@ -83,7 +82,7 @@ public:
       if(m_thumb_jpeg_buffer_front && out_frame_buffer)
       {
         out_frame_buffer->resize(m_thumb_jpeg_buffer_front_size);
-        std::copy_n(out_frame_buffer.begin(), m_thumb_jpeg_buffer_front_size, m_thumb_jpeg_buffer_front);
+        std::copy_n(out_frame_buffer->begin(), m_thumb_jpeg_buffer_front_size, m_thumb_jpeg_buffer_front);
       }
       else
       {
