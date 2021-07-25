@@ -193,7 +193,7 @@ bool Thumbnail_nv2_pipe::downsample_jpeg()
   transform_params.dst_rect.left    = 0;
   transform_params.dst_rect.width   = thumb_width;
   transform_params.dst_rect.height  = thumb_height;
-  transform_params.transform_params.session = NULL;
+  transform_params.session = NULL;
 
   //todo - input size changes rarely, cache this thumb buffer so we don't need to alloc all the time
   nv_dma_buf thumb_buffer_fd;
@@ -217,7 +217,7 @@ bool Thumbnail_nv2_pipe::downsample_jpeg()
     thumb_buffer_fd.m_fd = temp_fd;
   }
 
-  ret = NvBufferTransform(frame_buffer_fd, thumb_buffer_fd, &transform_params);
+  ret = NvBufferTransform(frame_buffer_fd.m_fd, thumb_buffer_fd, &transform_params);
   if(ret != 0)
   {
     SPDLOG_ERROR("NvBufferTransform failed");
@@ -225,7 +225,7 @@ bool Thumbnail_nv2_pipe::downsample_jpeg()
   }
 
   // m_jpegenc->setScaledEncodeParams(6, 6);// does this scale be 1/6? That could be really nice
-  m_jpegenc->encodeFromFd(thumb_buffer_fd, JCS_YCbCr, &m_thumb_jpeg_buffer_back, m_thumb_jpeg_buffer_back_size, 75);
+  m_jpegenc->encodeFromFd(thumb_buffer_fd.m_fd, JCS_YCbCr, &m_thumb_jpeg_buffer_back, m_thumb_jpeg_buffer_back_size, 75);
   if(ret != 0)
   {
     SPDLOG_ERROR("jpeg_thumb_buffer.encodeFromBuffer failed");

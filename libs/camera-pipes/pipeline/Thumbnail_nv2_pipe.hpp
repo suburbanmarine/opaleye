@@ -46,7 +46,7 @@ public:
       {
         SPDLOG_ERROR("NvBufferDestroy failed");
       }
-      m_fd = -1
+      m_fd = -1;
     }
   }
 
