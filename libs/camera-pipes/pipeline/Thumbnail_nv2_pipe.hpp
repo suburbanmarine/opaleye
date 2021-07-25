@@ -85,6 +85,10 @@ public:
         out_frame_buffer->resize(m_thumb_jpeg_buffer_front_size);
         std::copy_n(out_frame_buffer.begin(), m_thumb_jpeg_buffer_front_size, m_thumb_jpeg_buffer_front);
       }
+      else
+      {
+        out_frame_buffer->clear();
+      }
     }
   }
 

@@ -133,13 +133,17 @@ void Thumbnail_nv2_pipe::handle_new_sample()
         mem_i->unmap(map_info);
       }
     }
+
+    if( ! downsample_jpeg() )
+    {
+       SPDLOG_error("Thumbnail_nv2_pipe::downsample_jpeg failed");    
+    }
   }
   else
   {
     SPDLOG_INFO("Thumbnail_nv2_pipe::handle_new_sample has null sample"); 
   }
 
-  downsample_jpeg();
 }
 
 bool downsample_jpeg()
