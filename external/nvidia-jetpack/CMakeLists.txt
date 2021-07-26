@@ -1,4 +1,4 @@
-add_library(jetson_multimedia_api_common
+add_library(jetson_multimedia_api_common SHARED
 	/usr/src/jetson_multimedia_api/samples/common/classes/NvApplicationProfiler.cpp
 	/usr/src/jetson_multimedia_api/samples/common/classes/NvBuffer.cpp
 	/usr/src/jetson_multimedia_api/samples/common/classes/NvDrmRenderer.cpp
