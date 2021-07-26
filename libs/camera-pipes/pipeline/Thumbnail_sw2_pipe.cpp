@@ -17,16 +17,7 @@ Thumbnail_sw2_pipe::Thumbnail_sw2_pipe()
 }
 Thumbnail_sw2_pipe::~Thumbnail_sw2_pipe()
 {
-  if(m_thumb_jpeg_buffer_front)
-  {
-    free(m_thumb_jpeg_buffer_front);
-    m_thumb_jpeg_buffer_front = nullptr; 
-  }
-  if(m_thumb_jpeg_buffer_back)
-  {
-    free(m_thumb_jpeg_buffer_back);
-    m_thumb_jpeg_buffer_back = nullptr; 
-  }
+
 }
 
 void Thumbnail_sw2_pipe::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
