@@ -42,7 +42,7 @@ bool test_app::init()
     // m_jpgdec = std::make_shared<jpeg_swdec_bin>();
     m_jpgdec = std::make_shared<jpeg_swdec_bin>();
     m_h264   = std::make_shared<h264_nvenc_bin>();
-    m_thumb  = std::make_shared<Thumbnail_nv2_pipe>();
+    m_thumb  = std::make_shared<Thumbnail_sw_pipe>();
   }
   else
   {
