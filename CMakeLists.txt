@@ -6,11 +6,6 @@ project(opaleye
 	LANGUAGES C CXX
 )
 
-# PROJECT_VERSION_MAJOR
-# PROJECT_VERSION_MINOR
-# PROJECT_VERSION_PATCH
-# PROJECT_VERSION_TWEAK
-
 add_custom_command(
 	OUTPUT
 		${PROJECT_SOURCE_DIR}/external/grpc-web/javascript/net/grpc/web/protoc-gen-grpc-web
@@ -69,6 +64,7 @@ pkg_check_modules(GSTRTSP
 
 add_subdirectory(external/spdlog)
 add_subdirectory(external/googletest)
+add_subdirectory(external/nvidia-jetpack)
 
 add_library(jsonrpc-lean INTERFACE)
 target_include_directories(jsonrpc-lean
@@ -84,7 +80,6 @@ add_subdirectory(libs/opaleye-util)
 add_subdirectory(opaleye)
 add_subdirectory(site)
 
-add_subdirectory(libs/nvidia-jetpack)
 
 add_executable(jsontest
 	jsontest.cpp
@@ -173,12 +168,6 @@ INSTALL(
 	DESTINATION
 		/lib/systemd/system
 )
-
-if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
-	set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
-	set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
-	set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
-endif()
 
 set(CPACK_SET_DESTDIR true)
 set(CPACK_INSTALL_PREFIX /opt/suburbanmarine/opaleye)
