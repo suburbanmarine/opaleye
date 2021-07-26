@@ -2,7 +2,7 @@ add_library(camera-pipes-nv
 	pipeline/encode/h264_nvenc_bin.cpp
 	pipeline/decode/jpeg_nvdec_bin.cpp
 	pipeline/Thumbnail_nv_pipe.cpp
-	pipeline/Thumbnail_nv2_pipe.cpp
+	# pipeline/Thumbnail_nv2_pipe.cpp
 )
 
 target_link_libraries(camera-pipes-nv
@@ -48,6 +48,7 @@ add_library(camera-pipes
 	pipeline/GST_interpipesrc.cpp
 	pipeline/GST_interpipesink.cpp
 	pipeline/Thumbnail_sw_pipe.cpp
+	pipeline/Thumbnail_sw2_pipe.cpp
 )
 
 target_link_libraries(camera-pipes
