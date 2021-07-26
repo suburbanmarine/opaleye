@@ -21,7 +21,7 @@ add_executable(opaleye
 target_link_libraries(opaleye
 	PUBLIC
 		camera-pipes
-		camera-pipes-nv
+		#camera-pipes-nv
 		http-bridge
 		opaleye_sensors
 
