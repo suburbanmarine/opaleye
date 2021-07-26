@@ -128,7 +128,7 @@ bool test_app::init()
 
   //link pipeline
   m_camera.link_back(m_jpgdec->front());
-  link->link_back(m_thumb->front());
+  m_camera->link_back(m_thumb->front());
 
   // m_jpgdec->link_back(m_display.front());
   m_jpgdec->link_back(m_h264->front());
