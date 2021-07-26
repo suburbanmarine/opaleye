@@ -59,6 +59,8 @@ target_link_libraries(camera-pipes
 		${GSTMM_LIBRARIES}
 	#	${GSTRTSP_LIBRARIES}
 
+		${OpenCV_LIBS}
+
 		#uvc
 
 		opaleye-util
@@ -75,6 +77,7 @@ target_include_directories(camera-pipes
 		${GST_INCLUDE_DIRS}
 		${GSTMM_INCLUDE_DIRS}
 #		${GSTRTSP_INCLUDE_DIRS}
+		${OpenCV_INCLUDE_DIRS}
 )
 
 target_compile_options(camera-pipes

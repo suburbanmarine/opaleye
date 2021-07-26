@@ -8,8 +8,8 @@
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/fmt/fmt.h>
 
-#include <opencv/core.hpp>
-#include <opencv/highgui.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/highgui.hpp>
 
 Thumbnail_sw2_pipe::Thumbnail_sw2_pipe()
 {
