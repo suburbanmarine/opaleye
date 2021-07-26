@@ -15,15 +15,16 @@ target_link_libraries(nvidia-jetpack
 	INTERFACE
 		cuda
 		cudart
-		drm
-		EGL 
-		GLESv2 
 		nvbuf_utils
 		nvinfer
 		nvjpeg
 		nvonnxparser
 		nvosd
 		nvparsers
+		
+		drm
+		EGL 
+		GLESv2 
 		v4l2
 		X11
 
