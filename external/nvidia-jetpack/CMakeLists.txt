@@ -25,6 +25,25 @@ target_include_directories(jetson_multimedia_api_common
 		/usr/include/libdrm
 		/usr/include/opencv4
 )
+target_link_libraries(jetson_multimedia_api_common
+	INTERFACE
+		cuda
+		cudart
+		nvbuf_utils
+		nvinfer
+		nvjpeg
+		nvonnxparser
+		nvosd
+		nvparsers
+		
+		drm
+		EGL 
+		GLESv2 
+		v4l2
+		X11
+
+		Threads::Threads
+)
 
 add_library(nvidia-jetpack INTERFACE)
 
