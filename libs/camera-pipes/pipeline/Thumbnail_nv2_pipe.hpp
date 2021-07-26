@@ -105,8 +105,8 @@ protected:
 
   Stopwatch m_stopwatch;
 
-  std::shared_ptr<NvJPEGDecoder> m_jpegdec;
-  std::shared_ptr<NvJPEGEncoder> m_jpegenc;
+  NvJPEGDecoder* m_jpegdec;
+  NvJPEGEncoder* m_jpegenc;
 
   //input jpeg from pipeline
   mutable std::mutex m_frame_buffer_mutex;

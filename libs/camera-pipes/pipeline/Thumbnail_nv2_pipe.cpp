@@ -88,8 +88,8 @@ bool Thumbnail_nv2_pipe::init(const char name[])
   m_frame_buffer = std::make_shared<std::vector<uint8_t>>();
   m_frame_buffer->reserve(3480UL*2160UL*3UL);
 
-  m_jpegenc = std::shared_ptr<NvJPEGEncoder>(NvJPEGEncoder::createJPEGEncoder("jpegenc"));
-  m_jpegdec = std::shared_ptr<NvJPEGDecoder>(NvJPEGDecoder::createJPEGDecoder("jpegdec"));
+  m_jpegenc = NvJPEGEncoder::createJPEGEncoder("jpegenc");
+  m_jpegdec = NvJPEGDecoder::createJPEGDecoder("jpegdec");
 
   m_stopwatch.set_alarm_dt(std::chrono::milliseconds(1000));
 
