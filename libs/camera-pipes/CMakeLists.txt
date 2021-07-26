@@ -8,6 +8,7 @@ add_library(camera-pipes-nv
 target_link_libraries(camera-pipes-nv
 	PUBLIC
 		camera-pipes
+		nvidia-jetpack
 )
 
 add_library(camera-pipes
