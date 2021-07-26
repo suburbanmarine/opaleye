@@ -63,7 +63,7 @@ target_link_libraries(camera-pipes
 
 		opaleye-util
 
-		nvidia-jetpack
+	#	nvidia-jetpack
 
 		spdlog::spdlog
 )
