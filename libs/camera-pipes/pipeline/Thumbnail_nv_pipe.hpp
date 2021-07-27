@@ -32,7 +32,7 @@ public:
 
   void handle_new_sample();
 
-  void copy_frame_buffer(std::vector<uint8_t>* const out_frame_buffer)
+  void copy_frame_buffer(std::vector<uint8_t>* const out_frame_buffer) override
   {
     {
       std::unique_lock<std::mutex> lock(m_frame_buffer_mutex);
