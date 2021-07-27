@@ -160,16 +160,17 @@ bool Thumbnail_sw2_pipe::downsample_jpeg()
   }
 
   //downsample
+  cv::resize(decode_jpeg, cv::size(640, 360), 0, 0, cv::INTER_LINEAR);
 
   //encode
   std::vector< int > params;
-  params.push_back(IMWRITE_JPEG_QUALITY);
+  params.push_back(cv::IMWRITE_JPEG_QUALITY);
   params.push_back(75);
-  params.push_back(IMWRITE_JPEG_PROGRESSIVE);
+  params.push_back(cv::IMWRITE_JPEG_PROGRESSIVE);
   params.push_back(1);
-  params.push_back(IMWRITE_JPEG_OPTIMIZE);
+  params.push_back(cv::IMWRITE_JPEG_OPTIMIZE);
   params.push_back(1);
-  cv::imencode(".jpg", decode_jpeg, m_thumb_jpeg_buffer_back, params);
+  cv::imencode(".jpg", decode_jpeg, m_thumb_jpeg_buffer_back.get(), params);
 
   //flip pages
   {  
