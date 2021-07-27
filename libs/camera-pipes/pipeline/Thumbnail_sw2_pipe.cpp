@@ -172,7 +172,7 @@ bool Thumbnail_sw2_pipe::downsample_jpeg()
   params.push_back(1);
   params.push_back(cv::IMWRITE_JPEG_OPTIMIZE);
   params.push_back(1);
-  cv::imencode(".jpg", decode_frame_thumb, m_thumb_jpeg_buffer_back.get(), params);
+  cv::imencode(".jpg", decode_frame_thumb, *m_thumb_jpeg_buffer_back, params);
 
   //flip pages
   {  
