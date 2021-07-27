@@ -149,7 +149,7 @@ void Thumbnail_sw2_pipe::handle_new_sample()
 
 bool Thumbnail_sw2_pipe::downsample_jpeg()
 {
-  int ret = 0;
+  bool ret = true;
 
   cv::Mat decode_frame;
   {  
@@ -185,8 +185,8 @@ bool Thumbnail_sw2_pipe::downsample_jpeg()
   else
   {
     SPDLOG_WARN("Thumbnail_sw2_pipe::downsample_jpeg decode failed"); 
+    ret = false;
   }
 
-
-  return true;
+  return ret;
 }

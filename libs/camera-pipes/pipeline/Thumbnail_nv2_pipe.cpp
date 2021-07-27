@@ -57,16 +57,16 @@ bool Thumbnail_nv2_pipe::init(const char name[])
     m_in_queue->property_max_size_time()         = 1000 * GST_MSECOND;
 
     //out caps
-    m_appsink_caps = Gst::Caps::create_simple(
-      "image/jpeg",
-      "pixel-aspect-ratio", Gst::Fraction(1, 1),
-      // "format","JPG",
-      "width",              3840,
-      "height",             2160
-      );
+    // m_appsink_caps = Gst::Caps::create_simple(
+    //   "image/jpeg",
+    //   "pixel-aspect-ratio", Gst::Fraction(1, 1),
+    //   // "format","JPG",
+    //   "width",              3840,
+    //   "height",             2160
+    //   );
 
     m_appsink = Gst::AppSink::create();
-    m_appsink->property_caps().set_value(m_appsink_caps);
+    // m_appsink->property_caps().set_value(m_appsink_caps);
     m_appsink->property_emit_signals() = true;
     m_appsink->property_drop()         = true;
     m_appsink->property_max_buffers()  = 1;
