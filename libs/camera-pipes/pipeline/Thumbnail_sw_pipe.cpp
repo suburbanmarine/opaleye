@@ -45,8 +45,6 @@ bool Thumbnail_sw_pipe::init(const char name[])
     m_in_queue->property_max_size_bytes()        = 0;
     m_in_queue->property_max_size_time()         = 1000 * GST_MSECOND;
 
-    m_jpegdec = Gst::ElementFactory::create_element("jpegdec");
-
     m_videorate  = Gst::ElementFactory::create_element("videorate");
     m_videoscale = Gst::ElementFactory::create_element("videoscale");
 
@@ -73,7 +71,7 @@ bool Thumbnail_sw_pipe::init(const char name[])
       // "format","MJPG",
       "framerate",          Gst::Fraction(1, 1),
       "width",              640,
-      "height",             480
+      "height",             360
       );
 
     m_out_capsfilter = Gst::CapsFilter::create("outcaps");
@@ -84,7 +82,7 @@ bool Thumbnail_sw_pipe::init(const char name[])
       "pixel-aspect-ratio", Gst::Fraction(1, 1),
       // "format","JPG",
       "width",              640,
-      "height",             480
+      "height",             360
       );
 
     m_appsink = Gst::AppSink::create();
@@ -104,7 +102,6 @@ bool Thumbnail_sw_pipe::init(const char name[])
 
     m_bin->add(m_in_queue);
     m_bin->add(m_videorate);
-    m_bin->add(m_jpegdec);
     m_bin->add(m_videoscale);
     m_bin->add(m_scale_queue);
     m_bin->add(m_jpegenc);
@@ -112,8 +109,7 @@ bool Thumbnail_sw_pipe::init(const char name[])
     m_bin->add(m_appsink);
   }
 
-  m_in_queue->link(m_jpegdec);
-  m_jpegdec->link(m_videorate);
+  m_in_queue->link(m_videorate);
   m_videorate->link(m_videoscale);
   m_videoscale->link(m_scale_queue);
   m_scale_queue->link(m_jpegenc);

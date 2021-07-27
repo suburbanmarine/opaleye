@@ -4,7 +4,7 @@
 #include "pipeline/decode/jpeg_swdec_bin.hpp"
 
 #include "pipeline/encode/h264_nvenc_bin.hpp"
-#include "pipeline/decode/jpeg_nvdec_bin.hpp"
+#include "pipeline/decode/jpeg_nvv4l2decoder_bin.hpp"
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/printf.h>
@@ -36,21 +36,14 @@ bool test_app_mjpeg::init()
   if(m_config->h264_mode == "nv")
   {
     SPDLOG_INFO("NV mode");
-    // https://forums.developer.nvidia.com/t/bus-error-with-gstreamer-and-opencv/110657/5
-    // libjpeg and nvjpegdec may not be used in the same program...
-    // m_jpgdec = std::make_shared<jpeg_nvdec_pipe>();
-    // m_jpgdec = std::make_shared<jpeg_swdec_bin>();
-    // m_jpgdec = std::make_shared<jpeg_nvdec_bin>();
-    // m_jpgdec = std::make_shared<jpeg_swdec_bin>();
-    // m_h264   = std::make_shared<h264_nvenc_bin>();
+    m_jpgdec = std::make_shared<jpeg_nvv4l2decoder_bin>();
     m_thumb  = std::make_shared<Thumbnail_sw_pipe>();
   }
   else
   {
     SPDLOG_INFO("CPU mode");
 
-    // m_jpgdec = std::make_shared<jpeg_swdec_bin>();
-    // m_h264   = std::make_shared<h264_swenc_bin>();
+    m_jpgdec = std::make_shared<jpeg_swdec_bin>();
     m_thumb  = std::make_shared<Thumbnail_sw_pipe>();
     
   }
@@ -67,35 +60,23 @@ bool test_app_mjpeg::init()
    return false;
   }
 
+  if( ! m_jpgdec->init("jpgdec_0") )
+  {
+   SPDLOG_ERROR("Could not init thumb");
+   return false;
+  }
+
   if( ! m_thumb->init("thumb_0") )
   {
    SPDLOG_ERROR("Could not init thumb");
    return false;
   }
 
-  // if( ! m_h264->init("h264_0") )
-  // {
-  //  SPDLOG_ERROR("Could not init h264");
-  //  return false;
-  // }
-
   if( ! m_stream_interpipesink.init("stream_ipsink_0") )
   {
    SPDLOG_ERROR("Could not init stream interpipe");
    return false;
   }
-  
-  // if( ! m_mkv.init("mkv_0") )
-  // {
-  //  SPDLOG_ERROR("Could not init mkv");
-  //  return false;
-  // }
-
-  // if( ! m_display.init("display_0") )
-  // {
-  //  SPDLOG_ERROR("Could not init m_display");
-  //  return false;
-  // }
 
   if( ! m_rtppay.init("rtp_0") )
   {
@@ -111,18 +92,20 @@ bool test_app_mjpeg::init()
 
   //add elements to top level bin
   m_camera.add_to_bin(m_pipeline);
-
-  // m_thumb->add_to_bin(m_pipeline);
+  m_jpgdec.add_to_bin(m_pipeline);
+  m_thumb->add_to_bin(m_pipeline);
   m_stream_interpipesink.add_to_bin(m_pipeline);
   m_rtppay.add_to_bin(m_pipeline);
   m_rtpsink.add_to_bin(m_pipeline);
 
   //link pipeline
-  // m_camera.link_back(m_thumb->front());
 
+  m_camera.link_back(m_jpgdec->front());
   m_camera.link_back(m_stream_interpipesink.front());
-  
   m_camera.link_back(m_rtppay.front());
+
+  m_jpgdec.link_back(m_thumb->front());
+
   m_rtppay.link_back(m_rtpsink.front());
 
   return true;

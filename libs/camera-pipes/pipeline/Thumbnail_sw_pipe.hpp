@@ -71,8 +71,6 @@ protected:
   
   Glib::RefPtr<Gst::Element>    m_videorate;
 
-  Glib::RefPtr<Gst::Element>    m_jpegdec;
-
   Glib::RefPtr<Gst::Element>    m_videoscale;
   
   Glib::RefPtr<Gst::Queue>      m_scale_queue;
