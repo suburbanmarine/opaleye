@@ -3,6 +3,8 @@
 
 #include "linux_thermal_zone.hpp"
 
+#include <Unit_conv.hpp>
+
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/printf.h>
 
@@ -16,10 +18,10 @@
 void http_req_callback_sensors::handle(FCGX_Request* const request)
 {
   //this is per-req since we could have several threads
-  double ext_temp_data;
+  double ext_temp_data = 0.0;
   m_sensors->get_temp_data(&ext_temp_data);
 
-  MS5837_30BA::RESULT baro_data;
+  MS5837_30BA::RESULT baro_data = {};
   m_sensors->get_baro_data(&baro_data);
 
   std::map<std::string, double> soc_temp;
@@ -35,7 +37,7 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
     std::stringstream ss;
 
     ss << fmt::format("External\r\n");
-    ss << fmt::format("\tTemp: {:0.3f} degC\r\n", ext_temp_data);
+    ss << fmt::format("\tTemp: {:0.1f} degC / {:0.1f} degF\r\n", ext_temp_data, Unit_conv::degC_to_degF(ext_temp_data));
     ss << fmt::format("\tPres: {:d} mbar\r\n", baro_data.P1_mbar);
     ss << fmt::format("\r\n");
     ss << fmt::format("Internal\r\n");
