@@ -8,8 +8,8 @@
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/fmt/fmt.h>
 
-// #include <opencv2/core.hpp>
-// #include <opencv2/highgui.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/highgui.hpp>
 
 Thumbnail_sw2_pipe::Thumbnail_sw2_pipe()
 {
@@ -150,18 +150,26 @@ bool Thumbnail_sw2_pipe::downsample_jpeg()
 {
   int ret = 0;
 
+  cv::Mat decode_jpeg;
   {  
     std::unique_lock<std::mutex> lock(m_frame_buffer_mutex);
 
     //decompress full size frame
-    // cv::Mat rawjpeg(1, m_frame_buffer->size(), CV_8UC1, m_frame_buffer->data());
-    // cv::Mat decode_jpeg = cv::imdecode(rawjpeg, cv::IMREAD_COLOR);
+    cv::Mat rawjpeg(1, m_frame_buffer->size(), CV_8UC1, m_frame_buffer->data());
+    decode_jpeg = cv::imdecode(rawjpeg, cv::IMREAD_COLOR);
   }
 
   //downsample
 
   //encode
-
+  std::vector< int > params;
+  params.push_back(IMWRITE_JPEG_QUALITY);
+  params.push_back(75);
+  params.push_back(IMWRITE_JPEG_PROGRESSIVE);
+  params.push_back(1);
+  params.push_back(IMWRITE_JPEG_OPTIMIZE);
+  params.push_back(1);
+  cv::imencode(".jpg", decode_jpeg, m_thumb_jpeg_buffer_back, params);
 
   //flip pages
   {  
