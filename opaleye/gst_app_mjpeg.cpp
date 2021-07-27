@@ -48,12 +48,6 @@ bool test_app_mjpeg::init()
     
   }
 
-  // if( ! m_test_src.init("cam_1") )
-  // {
-  //  SPDLOG_ERROR("Could not init camera");
-  //  return false;
-  // }
-
   if( ! m_camera.init("cam_0") )
   {
    SPDLOG_ERROR("Could not init camera");
@@ -92,19 +86,18 @@ bool test_app_mjpeg::init()
 
   //add elements to top level bin
   m_camera.add_to_bin(m_pipeline);
-  m_jpgdec.add_to_bin(m_pipeline);
+  m_jpgdec->add_to_bin(m_pipeline);
   m_thumb->add_to_bin(m_pipeline);
   m_stream_interpipesink.add_to_bin(m_pipeline);
   m_rtppay.add_to_bin(m_pipeline);
   m_rtpsink.add_to_bin(m_pipeline);
 
   //link pipeline
-
   m_camera.link_back(m_jpgdec->front());
   m_camera.link_back(m_stream_interpipesink.front());
   m_camera.link_back(m_rtppay.front());
 
-  m_jpgdec.link_back(m_thumb->front());
+  m_jpgdec->link_back(m_thumb->front());
 
   m_rtppay.link_back(m_rtpsink.front());
 
