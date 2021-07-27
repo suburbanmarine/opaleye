@@ -17,7 +17,7 @@
 #include <memory>
 #include <mutex>
 
-/// NV accelerated but non-gstreamer thumbnail stream
+/// Non-gstreamer thumbnail stream
 class Thumbnail_sw2_pipe : public Thumbnail_pipe_base
 {
 public:
