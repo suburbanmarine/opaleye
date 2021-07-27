@@ -154,7 +154,7 @@ int main(int argc, char* argv[])
 	}
 
 	std::shared_ptr<http_req_jpeg> jpg_cb = std::make_shared<http_req_jpeg>();
-	jpg_cb->set_get_image_cb(std::bind(&Thumbnail_pipe_base::copy_frame_buffer, app.m_thumb.get(), std::placeholders::_1));
+	jpg_cb->set_get_image_cb(std::bind(&Thumbnail_pipe_base::copy_frame_buffer, &app.m_thumb, std::placeholders::_1));
 
 	fcgi_svr.register_cb_for_doc_uri("/cameras/cam0.jpg", jpg_cb);
 
