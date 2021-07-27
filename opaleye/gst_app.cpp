@@ -5,6 +5,7 @@
 
 #include "pipeline/encode/h264_nvenc_bin.hpp"
 #include "pipeline/decode/jpeg_nvdec_bin.hpp"
+#include "pipeline/decode/jpeg_nvv4l2decoder_bin.hpp"
 
 #include "pipeline/Thumbnail_sw2_pipe.hpp"
 // #include "pipeline/Thumbnail_nv2_pipe.hpp"
@@ -43,7 +44,7 @@ bool test_app::init()
     // libjpeg and nvjpegdec may not be used in the same program...
     // m_jpgdec = std::make_shared<jpeg_nvdec_pipe>();
     // m_jpgdec = std::make_shared<jpeg_swdec_bin>();
-    m_jpgdec = std::make_shared<jpeg_swdec_bin>();
+    m_jpgdec = std::make_shared<jpeg_nvv4l2decoder_bin>();
     m_h264   = std::make_shared<h264_nvenc_bin>();
     m_thumb  = std::make_shared<Thumbnail_sw2_pipe>();
   }

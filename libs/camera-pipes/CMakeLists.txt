@@ -24,6 +24,7 @@ add_library(camera-pipes
 	pipeline/display/autovideosink_pipe.cpp
 
 	pipeline/decode/jpeg_swdec_bin.cpp
+	pipeline/decode/jpeg_nvv4l2decoder_bin.cpp
 
 	pipeline/encode/h264_swenc_bin.cpp
 
