@@ -80,8 +80,8 @@ bool multiudpsink_pipe::init(const char name[])
 
     m_multiudpsink->set_property("buffer-size",  10 * 1400);
     // m_multiudpsink->set_property("blocksize",    2 * 1400);
-    m_multiudpsink->set_property("max-lateness", 250 * GST_MSECOND);
-    m_multiudpsink->set_property("processing-deadline", 250 * GST_MSECOND);
+    m_multiudpsink->set_property("max-lateness", 500 * GST_MSECOND);
+    m_multiudpsink->set_property("processing-deadline", 500 * GST_MSECOND);
 
     // m_multiudpsink->set_property("multicast-iface", "");
     // m_multiudpsink->set_property("auto-multicast", "");
@@ -108,7 +108,7 @@ bool multiudpsink_pipe::init(const char name[])
 
 void multiudpsink_pipe::handle_client_added(gchararray host, gint port)
 {
-  SPDLOG_DEBUG("handle_client_added {:s}:{:d}", host, port);
+  SPDLOG_INFO("multiudpsink_pipe::handle_client_added {:s}:{:d}", host, port);
 
   const ConnType conn = std::make_pair(host, port);
   {
@@ -119,7 +119,7 @@ void multiudpsink_pipe::handle_client_added(gchararray host, gint port)
 }
 void multiudpsink_pipe::handle_client_removed(gchararray host, gint port)
 {
-  SPDLOG_DEBUG("handle_client_removed {:s}:{:d}", host, port);
+  SPDLOG_INFO("multiudpsink_pipe::handle_client_removed {:s}:{:d}", host, port);
 
   const ConnType conn = std::make_pair(host, port);
   {
