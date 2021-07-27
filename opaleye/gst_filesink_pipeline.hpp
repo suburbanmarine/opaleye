@@ -1,3 +1,5 @@
+#pragma once
+
 #include "pipeline/GST_app_base.hpp"
 #include "pipeline/GST_interpipesrc.hpp"
 
