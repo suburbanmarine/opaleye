@@ -6,6 +6,9 @@
 #include "pipeline/encode/h264_nvenc_bin.hpp"
 #include "pipeline/decode/jpeg_nvdec_bin.hpp"
 
+#include "pipeline/Thumbnail_sw2_pipe.hpp"
+#include "pipeline/Thumbnail_nv2_pipe.hpp"
+
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/printf.h>
 

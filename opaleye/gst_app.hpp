@@ -12,7 +12,6 @@
 #include "pipeline/stream/rtp_h264_pipe.hpp"
 #include "pipeline/stream/rtpsink_pipe.hpp"
 #include "pipeline/Thumbnail_sw_pipe.hpp"
-#include "pipeline/Thumbnail_sw2_pipe.hpp"
 
 #include <memory>
 
