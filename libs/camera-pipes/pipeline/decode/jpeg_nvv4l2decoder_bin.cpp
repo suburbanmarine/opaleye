@@ -57,14 +57,12 @@ bool jpeg_nvv4l2decoder_bin::init(const char name[])
     m_out_tee = Gst::Tee::create();
 
     m_bin->add(m_in_queue);
-    m_bin->add(m_jpegparse);
     m_bin->add(m_jpegdec);
     m_bin->add(m_videoconvert);
     m_bin->add(m_capsfilter);
     m_bin->add(m_out_tee);
 
-    m_in_queue->link(m_jpegparse);
-    m_jpegparse->link(m_jpegdec);
+    m_in_queue->link(m_jpegdec);
     m_jpegdec->link(m_videoconvert);
     m_videoconvert->link(m_capsfilter);
     m_capsfilter->link(m_out_tee);
