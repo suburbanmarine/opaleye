@@ -95,7 +95,7 @@ function btnSetExposureAbsolute(event) {
    console.log( "btnSetExposureAbsolute" );
 
 
-  var exposure_setting = $('#exposure_setting_form').val();
+  var exposure_setting = $('#exposure_setting_form_input').val();
 
 
    ret = camPod.jrpc.call('set_camera_property', {camera_id: 'cam0', property_id: 'exposure_absolute', value: exposure_setting});
@@ -103,7 +103,7 @@ function btnSetExposureAbsolute(event) {
 function btnSetExposureMode(event) {
    console.log( "btnSetExposureMode" );
 
-  var exposure_mode = $('#exposure_mode_form').val();
+  var exposure_mode = $('#exposure_mode_form_input').val();
 
    ret = camPod.jrpc.call('set_camera_property', {camera_id: 'cam0', property_id: 'exposure_mode', value: exposure_mode});
 }
