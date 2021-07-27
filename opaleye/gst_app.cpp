@@ -383,7 +383,7 @@ std::vector<std::string> test_app::get_camera_list() const
   return std::vector<std::string>();
 }
 
-bool test_app::set_camera_property(const std::string& camera_id, const std::string& property_id, const std::string& value)
+std::string test_app::set_camera_property(const std::string& camera_id, const std::string& property_id, const std::string& value)
 {
   bool ret = false;
   if(camera_id == "cam0")
@@ -406,5 +406,5 @@ bool test_app::set_camera_property(const std::string& camera_id, const std::stri
     ret = false; 
   }
 
-  return ret;
+  return "";
 }
