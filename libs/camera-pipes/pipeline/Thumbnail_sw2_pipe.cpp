@@ -52,8 +52,8 @@ bool Thumbnail_sw2_pipe::init(const char name[])
       "image/jpeg",
       "pixel-aspect-ratio", Gst::Fraction(1, 1),
       // "format","JPG",
-      "width",              3840,
-      "height",             2160
+      // "width",              3840,
+      // "height",             2160
       );
 
     m_appsink = Gst::AppSink::create();
@@ -81,10 +81,10 @@ bool Thumbnail_sw2_pipe::init(const char name[])
   m_frame_buffer->reserve(3480UL*2160UL*3UL);
 
   m_thumb_jpeg_buffer_front = std::make_shared<std::vector<uint8_t>>();
-  m_thumb_jpeg_buffer_front->reserve(3480UL*2160UL*3UL);
+  m_thumb_jpeg_buffer_front->reserve(640UL*360UL*3UL);
 
   m_thumb_jpeg_buffer_back = std::make_shared<std::vector<uint8_t>>();
-  m_thumb_jpeg_buffer_back->reserve(3480UL*2160UL*3UL);
+  m_thumb_jpeg_buffer_back->reserve(640UL*360UL*3UL);
 
   m_stopwatch.set_alarm_dt(std::chrono::milliseconds(1000));
 
