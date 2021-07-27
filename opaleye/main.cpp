@@ -140,7 +140,8 @@ int main(int argc, char* argv[])
 
 	fcgi_svr.start();
 
-	test_app_mjpeg app;
+	// test_app_mjpeg app;
+	test_app app;
 	app.m_config = cfg_mgr.get_config();
 	if( ! app.init() )
 	{
