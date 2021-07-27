@@ -13,6 +13,10 @@ Thumbnail_sw_pipe::Thumbnail_sw_pipe()
 {
   
 }
+Thumbnail_sw_pipe::~Thumbnail_sw_pipe()
+{
+  
+}
 
 void Thumbnail_sw_pipe::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
 {

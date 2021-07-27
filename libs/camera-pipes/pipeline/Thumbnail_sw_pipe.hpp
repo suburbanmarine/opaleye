@@ -34,6 +34,7 @@ class Thumbnail_sw_pipe : public Thumbnail_pipe_base
 {
 public:
   Thumbnail_sw_pipe();
+  ~Thumbnail_sw_pipe() override;
 
   void add_to_bin(const Glib::RefPtr<Gst::Bin>& bin) override;
   bool link_front(const Glib::RefPtr<Gst::Element>& node) override;
