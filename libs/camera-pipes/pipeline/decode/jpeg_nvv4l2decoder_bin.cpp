@@ -41,6 +41,8 @@ bool jpeg_nvv4l2decoder_bin::init(const char name[])
     m_jpegdec = Gst::ElementFactory::create_element("nvv4l2decoder");
     m_jpegdec->set_property("mjpeg", 1);
 
+    m_videoconvert = Gst::ElementFactory::create_element("nvvidconv");
+
     //out caps
     // m_out_caps = Gst::Caps::create_simple(
     //   "video/x-raw(memory:NVMM)",
@@ -59,12 +61,14 @@ bool jpeg_nvv4l2decoder_bin::init(const char name[])
     m_bin->add(m_in_queue);
     m_bin->add(m_jpegparse);
     m_bin->add(m_jpegdec);
+    m_bin->add(m_videoconvert);
     m_bin->add(m_capsfilter);
     m_bin->add(m_out_tee);
 
     m_in_queue->link(m_jpegparse);
     m_jpegparse->link(m_jpegdec);
-    m_jpegdec->link(m_capsfilter);
+    m_jpegdec->link(m_videoconvert);
+    m_videoconvert->link(m_capsfilter);
     m_capsfilter->link(m_out_tee);
   }
 

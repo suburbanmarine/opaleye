@@ -34,6 +34,7 @@ protected:
   Glib::RefPtr<Gst::Queue>      m_in_queue;
   Glib::RefPtr<Gst::Element>    m_jpegparse;
   Glib::RefPtr<Gst::Element>    m_jpegdec;
+  Glib::RefPtr<Gst::Element>    m_videoconvert;
   Glib::RefPtr<Gst::Caps>       m_out_caps;
   Glib::RefPtr<Gst::CapsFilter> m_capsfilter;
   Glib::RefPtr<Gst::Tee>        m_out_tee;
