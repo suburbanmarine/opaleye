@@ -97,7 +97,7 @@ public:
   std::string get_serial_number() const;
 
   /* cameras */
-  std::string set_camera_property(const std::string& camera_id, const std::string& property_id, int value);
+  bool set_camera_property(const std::string& camera_id, const std::string& property_id, int value);
 
 // protected:
   Testsrc_pipe       m_test_src;
