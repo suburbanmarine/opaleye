@@ -8,7 +8,7 @@
 #include "pipeline/decode/jpeg_nvv4l2decoder_bin.hpp"
 
 #include "pipeline/Thumbnail_sw2_pipe.hpp"
-// #include "pipeline/Thumbnail_nv2_pipe.hpp"
+#include "pipeline/Thumbnail_nv_pipe.hpp"
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/printf.h>
