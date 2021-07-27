@@ -27,7 +27,8 @@ void Thumbnail_sw2_pipe::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
 
 bool Thumbnail_sw2_pipe::link_front(const Glib::RefPtr<Gst::Element>& node)
 {
-  return false;
+  node->link(m_in_queue);
+  return true;
 }
 
 bool Thumbnail_sw2_pipe::init(const char name[])
