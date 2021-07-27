@@ -78,7 +78,6 @@ bool test_app_mjpeg::init()
 
   //add elements to top level bin
   m_camera.add_to_bin(m_pipeline);
-  m_jpgdec->add_to_bin(m_pipeline);
   m_thumb->add_to_bin(m_pipeline);
   m_stream_interpipesink.add_to_bin(m_pipeline);
   m_rtppay.add_to_bin(m_pipeline);
