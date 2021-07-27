@@ -161,7 +161,7 @@ bool Thumbnail_sw2_pipe::downsample_jpeg()
   }
 
   //downsample
-  cv::Mat decode_frame_thumb;
+  cv::Mat decode_frame_thumb(cv::Size(640, 360), CV_8UC3);
   cv::resize(decode_frame, decode_frame_thumb, cv::Size(640, 360), 0, 0, cv::INTER_LINEAR);
 
   //encode
