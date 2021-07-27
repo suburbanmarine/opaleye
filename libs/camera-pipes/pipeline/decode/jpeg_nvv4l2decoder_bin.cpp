@@ -36,8 +36,6 @@ bool jpeg_nvv4l2decoder_bin::init(const char name[])
     m_in_queue->property_max_size_bytes()        = 0;
     m_in_queue->property_max_size_time()         = 1 * GST_SECOND;
 
-    m_jpegparse = Gst::ElementFactory::create_element("jpegparse");
-
     m_jpegdec = Gst::ElementFactory::create_element("nvv4l2decoder");
     m_jpegdec->set_property("mjpeg", 1);
 
