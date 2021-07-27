@@ -32,11 +32,12 @@ add_library(camera-pipes
 	pipeline/storage/mp4_splitmuxsink.cpp
 	pipeline/storage/framegrab_bin.cpp
 
-	pipeline/stream/rtp_h264_pipe.cpp
-	pipeline/stream/udpsink_pipe.cpp
 	pipeline/stream/multiudpsink_pipe.cpp
+	pipeline/stream/rtp_h264_pipe.cpp
+	pipeline/stream/rtp_mjpeg_pipe.cpp
 	pipeline/stream/rtpsink_pipe.cpp
 	pipeline/stream/rtsp_svr_pipe.cpp
+	pipeline/stream/udpsink_pipe.cpp
 
 	pipeline/GST_app_base.cpp
 	pipeline/GST_element_base.cpp

@@ -21,6 +21,20 @@ function clickedAutoRefreshCb(event) {
       clearInterval(camPod.cbAutoRefreshIval);
     }
 }
+function clickedAdvancedMode(event) {
+    console.log( "clickedAdvancedMode" );
+
+    var isChecked = $("#cbAdvancedMode").is(":checked");
+    if(isChecked)
+    {
+      $("#debug").css("display", "");
+    }
+    else
+    {
+      $("#debug").css("display", "none");
+    }
+}
+
 function clickedStartButton(event) {
     console.log( "btnGstStart" );
     camPod.jrpc.call('start', ['cam0']);
@@ -120,6 +134,7 @@ function handleDocumentReady(jQuery) {
   $("#btnGetPipelineGraph"   ).on("click", btnGetPipelineGraph    );
   $("#btnSetExposureAbsolute").on("click", btnSetExposureAbsolute);
   $("#btnSetExposureMode"    ).on("click", btnSetExposureMode    );
+  $("#cbAdvancedMode"        ).on("click", clickedAdvancedMode   );
 
 
   camPod.refreshSensorDataIval = setInterval(refreshSensorData, 2000);
