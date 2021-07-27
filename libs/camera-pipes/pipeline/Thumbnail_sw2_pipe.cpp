@@ -156,7 +156,7 @@ bool Thumbnail_sw2_pipe::downsample_jpeg()
     std::unique_lock<std::mutex> lock(m_frame_buffer_mutex);
 
     //decompress full size frame
-    cv::Mat rawjpeg(1, m_frame_buffer->size(), CV_8UC1, m_frame_buffer->data());
+    cv::Mat rawjpeg(1, m_frame_buffer->size(), CV_8UC3, m_frame_buffer->data());
     decode_frame = cv::imdecode(rawjpeg, cv::IMREAD_COLOR);
   }
 
