@@ -94,47 +94,54 @@ bool Thumbnail_sw2_pipe::init(const char name[])
 void Thumbnail_sw2_pipe::handle_new_sample()
 {
   Glib::RefPtr<Gst::Sample> sample = m_appsink->try_pull_sample(0);
-  if(sample && m_stopwatch.is_expired())
+  if(m_stopwatch.is_expired())
   {
-    m_stopwatch.reset();
-
-    Glib::RefPtr<Gst::Buffer> buffer = sample->get_buffer();
-
-    SPDLOG_INFO("Thumbnail_sw2_pipe::handle_new_sample has {}", buffer->get_size());
+    if(sample)
     {
-      std::unique_lock<std::mutex> lock(m_frame_buffer_mutex);
+      m_stopwatch.reset();
 
-      m_frame_buffer->resize(buffer->get_size());
-      uint8_t* out_ptr = m_frame_buffer->data();
+      Glib::RefPtr<Gst::Buffer> buffer = sample->get_buffer();
 
-      guint num = buffer->n_memory();
-      for(guint i = 0; i < num; i++)
+      SPDLOG_INFO("Thumbnail_sw2_pipe::handle_new_sample has {}", buffer->get_size());
       {
-        Glib::RefPtr<Gst::Memory> mem_i = buffer->peek_memory(i);
+        std::unique_lock<std::mutex> lock(m_frame_buffer_mutex);
 
-        Gst::MapInfo map_info;
-        mem_i->map(map_info, Gst::MAP_READ);
+        m_frame_buffer->resize(buffer->get_size());
+        uint8_t* out_ptr = m_frame_buffer->data();
 
-        SPDLOG_INFO("Thumbnail_sw2_pipe::handle_new_sample block {} is {}", i, map_info.get_size());
+        guint num = buffer->n_memory();
+        for(guint i = 0; i < num; i++)
+        {
+          Glib::RefPtr<Gst::Memory> mem_i = buffer->peek_memory(i);
 
-        guint8* blk_ptr = map_info.get_data();
-        gsize   blk_len = map_info.get_size();
+          Gst::MapInfo map_info;
+          mem_i->map(map_info, Gst::MAP_READ);
 
-        std::copy_n(blk_ptr, blk_len, out_ptr);
-        out_ptr += blk_len;
+          SPDLOG_INFO("Thumbnail_sw2_pipe::handle_new_sample block {} is {}", i, map_info.get_size());
 
-        mem_i->unmap(map_info);
+          guint8* blk_ptr = map_info.get_data();
+          gsize   blk_len = map_info.get_size();
+
+          std::copy_n(blk_ptr, blk_len, out_ptr);
+          out_ptr += blk_len;
+
+          mem_i->unmap(map_info);
+        }
+      }
+
+      if( ! downsample_jpeg() )
+      {
+         SPDLOG_ERROR("Thumbnail_sw2_pipe::downsample_jpeg failed");    
       }
     }
-
-    if( ! downsample_jpeg() )
+    else
     {
-       SPDLOG_ERROR("Thumbnail_sw2_pipe::downsample_jpeg failed");    
+      SPDLOG_WARN("Thumbnail_sw2_pipe::handle_new_sample has null sample"); 
     }
   }
   else
   {
-    SPDLOG_INFO("Thumbnail_sw2_pipe::handle_new_sample has null sample"); 
+    //not time yet
   }
 
 }
