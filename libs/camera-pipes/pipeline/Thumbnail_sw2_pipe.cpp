@@ -57,7 +57,7 @@ bool Thumbnail_sw2_pipe::init(const char name[])
       );
 
     m_appsink = Gst::AppSink::create();
-    m_appsink->property_caps().set_value(m_appsink_caps);
+    // m_appsink->property_caps().set_value(m_appsink_caps);
     m_appsink->property_emit_signals() = true;
     m_appsink->property_drop()         = true;
     m_appsink->property_max_buffers()  = 1;
