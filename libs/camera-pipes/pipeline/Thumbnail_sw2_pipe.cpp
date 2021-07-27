@@ -50,7 +50,7 @@ bool Thumbnail_sw2_pipe::init(const char name[])
     //out caps
     m_appsink_caps = Gst::Caps::create_simple(
       "image/jpeg",
-      "pixel-aspect-ratio", Gst::Fraction(1, 1),
+      "pixel-aspect-ratio", Gst::Fraction(1, 1)
       // "format","JPG",
       // "width",              3840,
       // "height",             2160
