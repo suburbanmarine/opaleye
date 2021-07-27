@@ -163,19 +163,19 @@ int main(int argc, char* argv[])
 	std::shared_ptr<jsonrpc::Server> jsonrpc_svr_disp = std::make_shared<jsonrpc::Server>();
 	jsonrpc::JsonFormatHandler jsonFormatHandler;
 	jsonrpc_svr_disp->RegisterFormatHandler(jsonFormatHandler);
-	jsonrpc_svr_disp->GetDispatcher().AddMethod("start_camera", &test_app_mjpeg::start_camera, app);
-	jsonrpc_svr_disp->GetDispatcher().AddMethod("get_camera_list", &test_app_mjpeg::get_camera_list, app);
+	jsonrpc_svr_disp->GetDispatcher().AddMethod("start_camera", &test_app::start_camera, app);
+	jsonrpc_svr_disp->GetDispatcher().AddMethod("get_camera_list", &test_app::get_camera_list, app);
 
-	jsonrpc_svr_disp->GetDispatcher().AddMethod("start_still_capture", &test_app_mjpeg::start_still_capture, app);
-	jsonrpc_svr_disp->GetDispatcher().AddMethod("stop_still_capture",  &test_app_mjpeg::stop_still_capture,  app);
-	jsonrpc_svr_disp->GetDispatcher().AddMethod("start_video_capture", &test_app_mjpeg::start_video_capture, app);
-	jsonrpc_svr_disp->GetDispatcher().AddMethod("stop_video_capture",  &test_app_mjpeg::stop_video_capture,  app);
-	jsonrpc_svr_disp->GetDispatcher().AddMethod("start_rtp_stream",    &test_app_mjpeg::start_rtp_stream,    app);
-	jsonrpc_svr_disp->GetDispatcher().AddMethod("stop_rtp_stream",     &test_app_mjpeg::stop_rtp_stream,     app);
-	jsonrpc_svr_disp->GetDispatcher().AddMethod("get_pipeline_status", &test_app_mjpeg::get_pipeline_status, app);
-	jsonrpc_svr_disp->GetDispatcher().AddMethod("get_pipeline_graph",  &test_app_mjpeg::get_pipeline_graph,  app);
+	jsonrpc_svr_disp->GetDispatcher().AddMethod("start_still_capture", &test_app::start_still_capture, app);
+	jsonrpc_svr_disp->GetDispatcher().AddMethod("stop_still_capture",  &test_app::stop_still_capture,  app);
+	jsonrpc_svr_disp->GetDispatcher().AddMethod("start_video_capture", &test_app::start_video_capture, app);
+	jsonrpc_svr_disp->GetDispatcher().AddMethod("stop_video_capture",  &test_app::stop_video_capture,  app);
+	jsonrpc_svr_disp->GetDispatcher().AddMethod("start_rtp_stream",    &test_app::start_rtp_stream,    app);
+	jsonrpc_svr_disp->GetDispatcher().AddMethod("stop_rtp_stream",     &test_app::stop_rtp_stream,     app);
+	jsonrpc_svr_disp->GetDispatcher().AddMethod("get_pipeline_status", &test_app::get_pipeline_status, app);
+	jsonrpc_svr_disp->GetDispatcher().AddMethod("get_pipeline_graph",  &test_app::get_pipeline_graph,  app);
 
-	jsonrpc_svr_disp->GetDispatcher().AddMethod("set_camera_property",  &test_app_mjpeg::set_camera_property,  app);
+	jsonrpc_svr_disp->GetDispatcher().AddMethod("set_camera_property",  &test_app::set_camera_property,  app);
 
 	std::shared_ptr<http_req_jsonrpc> jsonrpc_api_req = std::make_shared<http_req_jsonrpc>();
 	jsonrpc_api_req->set_rpc_server(jsonrpc_svr_disp);
