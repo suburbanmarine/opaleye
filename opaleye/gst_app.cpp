@@ -383,18 +383,18 @@ std::vector<std::string> test_app::get_camera_list() const
   return std::vector<std::string>();
 }
 
-std::string test_app::set_camera_property(const std::string& camera_id, const std::string& property_id, const std::string& value)
+std::string test_app::set_camera_property(const std::string& camera_id, const std::string& property_id, int value)
 {
   bool ret = false;
   if(camera_id == "cam0")
   {
     if(property_id == "exposure_mode")
     {
-      ret = m_camera.set_exposure_mode(boost::lexical_cast<int>(value)); 
+      ret = m_camera.set_exposure_mode(value); 
     }
     else if(property_id == "exposure_absolute")
     {
-     ret = m_camera.set_exposure_value(boost::lexical_cast<int>(value)); 
+     ret = m_camera.set_exposure_value(value); 
     }
     else
     {
