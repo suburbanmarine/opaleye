@@ -8,8 +8,8 @@
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/fmt/fmt.h>
 
-#include <opencv2/core.hpp>
-#include <opencv2/highgui.hpp>
+// #include <opencv2/core.hpp>
+// #include <opencv2/highgui.hpp>
 
 Thumbnail_sw2_pipe::Thumbnail_sw2_pipe()
 {
@@ -147,8 +147,8 @@ bool Thumbnail_sw2_pipe::downsample_jpeg()
     std::unique_lock<std::mutex> lock(m_frame_buffer_mutex);
 
     //decompress full size frame
-    cv::Mat rawjpeg(1, m_frame_buffer->size(), CV_8UC1, m_frame_buffer->data());
-    cv::Mat decode_jpeg = cv::imdecode(rawjpeg, cv::IMREAD_COLOR);
+    // cv::Mat rawjpeg(1, m_frame_buffer->size(), CV_8UC1, m_frame_buffer->data());
+    // cv::Mat decode_jpeg = cv::imdecode(rawjpeg, cv::IMREAD_COLOR);
   }
 
   //downsample

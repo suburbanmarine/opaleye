@@ -56,6 +56,10 @@ public:
       {
         *out_frame_buffer = *m_frame_buffer;
       }
+      else
+      {
+        out_frame_buffer->clear();
+      }
     }
   }
 
