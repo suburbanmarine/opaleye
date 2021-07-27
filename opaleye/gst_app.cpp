@@ -10,6 +10,8 @@
 #include "pipeline/Thumbnail_sw2_pipe.hpp"
 #include "pipeline/Thumbnail_nv_pipe.hpp"
 
+#include <boost/lexical_cast.hpp>
+
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/printf.h>
 
@@ -388,11 +390,11 @@ bool test_app::set_camera_property(const std::string& camera_id, const std::stri
   {
     if(property_id == "exposure_mode")
     {
-      // ret = m_camera.set_exposure_mode();
+      ret = m_camera.set_exposure_mode(boost::lexical_cast<int>(value)); 
     }
     else if(property_id == "exposure_absolute")
     {
-     // ret = m_camera.set_exposure_value(); 
+     ret = m_camera.set_exposure_value(boost::lexical_cast<int>(value)); 
     }
     else
     {
