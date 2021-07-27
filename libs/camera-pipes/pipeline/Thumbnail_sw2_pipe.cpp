@@ -151,17 +151,18 @@ bool Thumbnail_sw2_pipe::downsample_jpeg()
 {
   int ret = 0;
 
-  cv::Mat decode_jpeg;
+  cv::Mat decode_frame;
   {  
     std::unique_lock<std::mutex> lock(m_frame_buffer_mutex);
 
     //decompress full size frame
     cv::Mat rawjpeg(1, m_frame_buffer->size(), CV_8UC1, m_frame_buffer->data());
-    decode_jpeg = cv::imdecode(rawjpeg, cv::IMREAD_COLOR);
+    decode_frame = cv::imdecode(rawjpeg, cv::IMREAD_COLOR);
   }
 
   //downsample
-  cv::resize(decode_jpeg, cv::Size(640, 360), 0, 0, cv::INTER_LINEAR);
+  cv::Mat decode_frame_thumb;
+  cv::resize(decode_frame, decode_frame_thumb, cv::Size(640, 360), 0, 0, cv::INTER_LINEAR);
 
   //encode
   std::vector< int > params;
@@ -171,7 +172,7 @@ bool Thumbnail_sw2_pipe::downsample_jpeg()
   params.push_back(1);
   params.push_back(cv::IMWRITE_JPEG_OPTIMIZE);
   params.push_back(1);
-  cv::imencode(".jpg", decode_jpeg, m_thumb_jpeg_buffer_back.get(), params);
+  cv::imencode(".jpg", decode_frame_thumb, m_thumb_jpeg_buffer_back.get(), params);
 
   //flip pages
   {  
