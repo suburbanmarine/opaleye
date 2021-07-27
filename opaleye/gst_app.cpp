@@ -46,7 +46,7 @@ bool test_app::init()
     // m_jpgdec = std::make_shared<jpeg_swdec_bin>();
     m_jpgdec = std::make_shared<jpeg_nvv4l2decoder_bin>();
     m_h264   = std::make_shared<h264_nvenc_bin>();
-    m_thumb  = std::make_shared<Thumbnail_sw2_pipe>();
+    m_thumb  = std::make_shared<Thumbnail_sw_pipe>();
   }
   else
   {
@@ -132,10 +132,10 @@ bool test_app::init()
 
   //link pipeline
   m_camera.link_back(m_jpgdec->front());
-  m_camera.link_back(m_thumb->front());
 
   // m_jpgdec->link_back(m_display.front());
   m_jpgdec->link_back(m_h264->front());
+  m_jpgdec->link_back(m_thumb->front());
 
   // m_test_src.link_back(m_display.front());
   // m_test_src.link_back(m_h264->front());
