@@ -161,7 +161,7 @@ bool Thumbnail_sw2_pipe::downsample_jpeg()
   }
 
   //downsample
-  cv::resize(decode_jpeg, cv::size(640, 360), 0, 0, cv::INTER_LINEAR);
+  cv::resize(decode_jpeg, cv::Size(640, 360), 0, 0, cv::INTER_LINEAR);
 
   //encode
   std::vector< int > params;
