@@ -66,7 +66,7 @@ find_package( OpenCV REQUIRED )
 
 add_subdirectory(external/spdlog)
 add_subdirectory(external/googletest)
-add_subdirectory(external/nvidia-jetpack)
+# add_subdirectory(external/nvidia-jetpack)
 
 add_library(jsonrpc-lean INTERFACE)
 target_include_directories(jsonrpc-lean

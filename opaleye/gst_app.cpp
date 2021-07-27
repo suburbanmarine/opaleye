@@ -7,7 +7,7 @@
 #include "pipeline/decode/jpeg_nvdec_bin.hpp"
 
 #include "pipeline/Thumbnail_sw2_pipe.hpp"
-#include "pipeline/Thumbnail_nv2_pipe.hpp"
+// #include "pipeline/Thumbnail_nv2_pipe.hpp"
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/printf.h>
@@ -45,7 +45,7 @@ bool test_app::init()
     // m_jpgdec = std::make_shared<jpeg_swdec_bin>();
     m_jpgdec = std::make_shared<jpeg_swdec_bin>();
     m_h264   = std::make_shared<h264_nvenc_bin>();
-    m_thumb  = std::make_shared<Thumbnail_nv2_pipe>();
+    m_thumb  = std::make_shared<Thumbnail_sw2_pipe>();
   }
   else
   {
