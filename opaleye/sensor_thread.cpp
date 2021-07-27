@@ -56,7 +56,8 @@ void thread_base::dispatch_work()
 
 sensor_thread::sensor_thread()
 {
-
+	m_temp_degC = 0.0;
+	m_baro_data = {};
 }
 sensor_thread::~sensor_thread()
 {
