@@ -156,29 +156,37 @@ bool Thumbnail_sw2_pipe::downsample_jpeg()
     std::unique_lock<std::mutex> lock(m_frame_buffer_mutex);
 
     //decompress full size frame
-    cv::Mat rawjpeg(1, m_frame_buffer->size(), CV_8UC3, m_frame_buffer->data());
+    cv::Mat rawjpeg(1, m_frame_buffer->size(), CV_8UC1, m_frame_buffer->data());
     decode_frame = cv::imdecode(rawjpeg, cv::IMREAD_COLOR);
   }
 
-  //downsample
-  cv::Mat decode_frame_thumb(cv::Size(640, 360), CV_8UC3);
-  cv::resize(decode_frame, decode_frame_thumb, cv::Size(640, 360), 0, 0, cv::INTER_LINEAR);
+  if(decode_frame.data)
+  {
+    //downsample
+    cv::Mat decode_frame_thumb(cv::Size(640, 360), CV_8UC3);
+    cv::resize(decode_frame, decode_frame_thumb, cv::Size(640, 360), 0, 0, cv::INTER_LINEAR);
 
-  //encode
-  std::vector< int > params;
-  params.push_back(cv::IMWRITE_JPEG_QUALITY);
-  params.push_back(75);
-  params.push_back(cv::IMWRITE_JPEG_PROGRESSIVE);
-  params.push_back(1);
-  params.push_back(cv::IMWRITE_JPEG_OPTIMIZE);
-  params.push_back(1);
-  cv::imencode(".jpg", decode_frame_thumb, *m_thumb_jpeg_buffer_back, params);
+    //encode
+    std::vector< int > params;
+    params.push_back(cv::IMWRITE_JPEG_QUALITY);
+    params.push_back(75);
+    params.push_back(cv::IMWRITE_JPEG_PROGRESSIVE);
+    params.push_back(1);
+    params.push_back(cv::IMWRITE_JPEG_OPTIMIZE);
+    params.push_back(1);
+    cv::imencode(".jpg", decode_frame_thumb, *m_thumb_jpeg_buffer_back, params);
 
-  //flip pages
-  {  
-    std::unique_lock<std::mutex> lock(m_thumb_jpeg_mutex);
-    std::swap(m_thumb_jpeg_buffer_front, m_thumb_jpeg_buffer_back);
+    //flip pages
+    {  
+      std::unique_lock<std::mutex> lock(m_thumb_jpeg_mutex);
+      std::swap(m_thumb_jpeg_buffer_front, m_thumb_jpeg_buffer_back);
+    }
   }
+  else
+  {
+    SPDLOG_WARN("Thumbnail_sw2_pipe::downsample_jpeg decode failed"); 
+  }
+
 
   return true;
 }
