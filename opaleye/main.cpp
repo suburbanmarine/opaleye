@@ -8,6 +8,7 @@
 #include "http_req_jsonrpc.hpp"
 #include "signal_handler.hpp"
 
+#include "gst_app.hpp"
 #include "gst_app_mjpeg.hpp"
 #include "app_config.hpp"
 #include "sensor_thread.hpp"
