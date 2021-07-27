@@ -72,7 +72,7 @@ bool test_app::init()
    return false;
   }
 
-  if( ! m_thumb->init("thumb_0") )
+  if( ! m_thumb.init("thumb_0") )
   {
    SPDLOG_ERROR("Could not init thumb");
    return false;
@@ -118,7 +118,7 @@ bool test_app::init()
   m_camera.add_to_bin(m_pipeline);
   m_jpgdec->add_to_bin(m_pipeline);
   // m_test_src.add_to_bin(m_pipeline);
-  m_thumb->add_to_bin(m_pipeline);
+  m_thumb.add_to_bin(m_pipeline);
   m_h264->add_to_bin(m_pipeline);
   m_h264_interpipesink.add_to_bin(m_pipeline);
   // m_mkv.add_to_bin(m_pipeline);
@@ -127,7 +127,7 @@ bool test_app::init()
   m_rtpsink.add_to_bin(m_pipeline);
 
   //link pipeline
-  m_camera.link_back(m_thumb->front());
+  m_camera.link_back(m_thumb.front());
   m_camera.link_back(m_jpgdec->front());
 
   // m_jpgdec->link_back(m_display.front());

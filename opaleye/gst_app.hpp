@@ -107,7 +107,7 @@ public:
   std::shared_ptr<GST_element_base> m_jpgdec;
   std::shared_ptr<GST_element_base> m_h264;
 
-  std::shared_ptr<Thumbnail_pipe_base> m_thumb;
+  Thumbnail_sw2_pipe m_thumb;
 
   GST_interpipesink      m_h264_interpipesink;
 
