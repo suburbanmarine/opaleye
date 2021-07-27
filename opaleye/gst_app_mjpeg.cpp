@@ -36,14 +36,12 @@ bool test_app_mjpeg::init()
   if(m_config->h264_mode == "nv")
   {
     SPDLOG_INFO("NV mode");
-    m_jpgdec = std::make_shared<jpeg_nvv4l2decoder_bin>();
-    m_thumb  = std::make_shared<Thumbnail_sw_pipe>();
+    m_thumb  = std::make_shared<Thumbnail_nv_pipe>();
   }
   else
   {
     SPDLOG_INFO("CPU mode");
 
-    m_jpgdec = std::make_shared<jpeg_swdec_bin>();
     m_thumb  = std::make_shared<Thumbnail_sw_pipe>();
     
   }
@@ -51,12 +49,6 @@ bool test_app_mjpeg::init()
   if( ! m_camera.init("cam_0") )
   {
    SPDLOG_ERROR("Could not init camera");
-   return false;
-  }
-
-  if( ! m_jpgdec->init("jpgdec_0") )
-  {
-   SPDLOG_ERROR("Could not init thumb");
    return false;
   }
 
@@ -93,11 +85,9 @@ bool test_app_mjpeg::init()
   m_rtpsink.add_to_bin(m_pipeline);
 
   //link pipeline
-  m_camera.link_back(m_jpgdec->front());
+  m_camera.link_back(m_thumb->front());
   m_camera.link_back(m_stream_interpipesink.front());
   m_camera.link_back(m_rtppay.front());
-
-  m_jpgdec->link_back(m_thumb->front());
 
   m_rtppay.link_back(m_rtpsink.front());
 

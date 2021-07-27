@@ -42,6 +42,10 @@ bool Thumbnail_nv_pipe::init(const char name[])
     m_in_queue->property_max_size_time()         = 1000 * GST_MSECOND;
 
     m_videorate  = Gst::ElementFactory::create_element("videorate");
+    
+    m_jpegdec = Gst::ElementFactory::create_element("nvv4l2decoder");
+    m_jpegdec->set_property("mjpeg", 1);
+
     m_videoscale = Gst::ElementFactory::create_element("nvvidconv");
 
     m_scale_queue = Gst::Queue::create();
@@ -97,6 +101,7 @@ bool Thumbnail_nv_pipe::init(const char name[])
     );
 
     m_bin->add(m_in_queue);
+    m_bin->add(m_jpegdec);
     m_bin->add(m_videorate);
     m_bin->add(m_videoscale);
     m_bin->add(m_scale_queue);
@@ -106,7 +111,8 @@ bool Thumbnail_nv_pipe::init(const char name[])
   }
 
   m_in_queue->link(m_videorate);
-  m_videorate->link(m_videoscale);
+  m_videorate->link(m_jpegdec);
+  m_jpegdec->link(m_videoscale);
   m_videoscale->link(m_scale_queue);
   m_scale_queue->link(m_jpegenc);
   m_jpegenc->link(m_out_capsfilter);
