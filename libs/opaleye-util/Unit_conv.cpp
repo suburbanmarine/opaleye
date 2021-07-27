@@ -5,11 +5,11 @@ constexpr double Unit_conv::METER_TO_FEET;
 
 double Unit_conv::degC_to_degF(const double val)
 {
-	return (val - 32.0) * 5.0 / 9.0;
+	return val * 9.0 / 5.0 + 32.0;
 }
 double Unit_conv::degF_to_degC(const double val)
 {
-	return val * 9.0 / 5.0 + 32.0;
+	return (val - 32.0) * 5.0 / 9.0;
 }
 
 double Unit_conv::meter_to_feet(const double val)
