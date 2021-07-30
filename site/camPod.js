@@ -162,9 +162,13 @@ function handleDocumentReady(jQuery) {
   $("#btnRTPStreamStop"      ).on("click", btnRTPStreamStopClick  );
   $("#btnGetPipelineStatus"  ).on("click", btnGetPipelineStatus   );
   $("#btnGetPipelineGraph"   ).on("click", btnGetPipelineGraph    );
-  $("#btnSetExposureAbsolute").on("click", btnSetExposureAbsolute);
-  $("#btnSetExposureMode"    ).on("click", btnSetExposureMode    );
-  $("#cbAdvancedMode"        ).on("click", clickedAdvancedMode   );
+  $("#btnSetExposureAbsolute").on("click", btnSetExposureAbsolute );
+  $("#btnSetExposureMode"    ).on("click", btnSetExposureMode     );
+  $("#cbAdvancedMode"        ).on("click", clickedAdvancedMode    );
+  $("#btnSetFocusAbsolute"   ).on("click", btnSetFocusAbsolute    );
+  $("#btnSetFocusAuto"       ).on("click", btnSetFocusAuto        );
+  $("#btnSetBrightness"      ).on("click", btnSetBrightness       );
+  $("#btnSetGain"            ).on("click", btnSetGain             );
 
 
   camPod.refreshSensorDataIval = setInterval(refreshSensorData, 2000);
