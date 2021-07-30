@@ -92,22 +92,50 @@ function btnGetPipelineGraph(event) {
 }
 
 function btnSetExposureAbsolute(event) {
-   console.log( "btnSetExposureAbsolute" );
+  console.log( "btnSetExposureAbsolute" );
 
 
   var exposure_setting = $('#exposure_setting_form_input').val();
 
 
-   // ret = camPod.jrpc.call('set_camera_property', {camera_id: 'cam0', property_id: 'exposure_absolute', value: exposure_setting});
-   ret = camPod.jrpc.call('set_camera_property', ['cam0', 'exposure_absolute', parseInt(exposure_setting)]);
+  // ret = camPod.jrpc.call('set_camera_property', {camera_id: 'cam0', property_id: 'exposure_absolute', value: exposure_setting});
+  ret = camPod.jrpc.call('set_camera_property', ['cam0', 'exposure_absolute', parseInt(exposure_setting)]);
 }
 function btnSetExposureMode(event) {
-   console.log( "btnSetExposureMode" );
+  console.log( "btnSetExposureMode" );
 
   var exposure_mode = $('#exposure_mode_form_input').val();
 
-   // ret = camPod.jrpc.call('set_camera_property', {camera_id: 'cam0', property_id: 'exposure_mode', value: exposure_mode});
-   ret = camPod.jrpc.call('set_camera_property', ['cam0', 'exposure_mode', parseInt(exposure_mode)]);
+  // ret = camPod.jrpc.call('set_camera_property', {camera_id: 'cam0', property_id: 'exposure_mode', value: exposure_mode});
+  ret = camPod.jrpc.call('set_camera_property', ['cam0', 'exposure_mode', parseInt(exposure_mode)]);
+}
+function btnSetFocusAbsolute(event) {
+  console.log( "btnSetFocusAbsolute" );
+
+  var val = $('#focus_absolute_form_input').val();
+
+  ret = camPod.jrpc.call('set_camera_property', ['cam0', 'focus_absolute', parseInt(val)]);
+}
+function btnSetFocusAuto(event) {
+  console.log( "btnSetFocusAuto" );
+
+  var val = $('#focus_auto_form_input').val();
+
+  ret = camPod.jrpc.call('set_camera_property', ['cam0', 'focus_auto', parseInt(val)]);
+}
+function btnSetBrightness(event) {
+  console.log( "btnSetBrightness" );
+
+  var val = $('#brightness_form_input').val();
+
+  ret = camPod.jrpc.call('set_camera_property', ['cam0', 'brightness', parseInt(val)]);
+}
+function btnSetGain(event) {
+  console.log( "btnSetGain" );
+
+  var val = $('#gain_form_input').val();
+
+  ret = camPod.jrpc.call('set_camera_property', ['cam0', 'gain', parseInt(val)]);
 }
 
 function refreshSensorData(event) {
