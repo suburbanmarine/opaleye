@@ -30,8 +30,14 @@ public:
 		
 	// }
 
-	virtual bool link_front(const Glib::RefPtr<Gst::Element>& node) = 0;
-	virtual bool link_back(const Glib::RefPtr<Gst::Element>& node) = 0;
+	virtual bool link_front(const Glib::RefPtr<Gst::Element>& node)
+	{
+		return false;
+	}
+	virtual bool link_back(const Glib::RefPtr<Gst::Element>& node)
+	{
+		return false;
+	}
 
 	virtual bool unlink_front(const Glib::RefPtr<Gst::Element>& node)
 	{

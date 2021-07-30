@@ -1,15 +1,10 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.13)
 
 project(opaleye 
 	VERSION 0.2.0
 	DESCRIPTION "Opaleye smart maritime node"
 	LANGUAGES C CXX
 )
-
-# PROJECT_VERSION_MAJOR
-# PROJECT_VERSION_MINOR
-# PROJECT_VERSION_PATCH
-# PROJECT_VERSION_TWEAK
 
 add_custom_command(
 	OUTPUT
@@ -67,8 +62,11 @@ pkg_check_modules(GSTRTSP
 		gstreamer-rtsp-1.0
 )
 
+find_package( OpenCV REQUIRED )
+
 add_subdirectory(external/spdlog)
 add_subdirectory(external/googletest)
+# add_subdirectory(external/nvidia-jetpack)
 
 add_library(jsonrpc-lean INTERFACE)
 target_include_directories(jsonrpc-lean
@@ -83,6 +81,7 @@ add_subdirectory(libs/sensors)
 add_subdirectory(libs/opaleye-util)
 add_subdirectory(opaleye)
 add_subdirectory(site)
+
 
 add_executable(jsontest
 	jsontest.cpp
@@ -172,17 +171,11 @@ INSTALL(
 		/lib/systemd/system
 )
 
-if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
-	set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
-	set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
-	set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
-endif()
-
 set(CPACK_SET_DESTDIR true)
 set(CPACK_INSTALL_PREFIX /opt/suburbanmarine/opaleye)
 set(CPACK_GENERATOR "DEB")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "SM")
 set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${PROJECT_SOURCE_DIR}/scripts/postinst;${PROJECT_SOURCE_DIR}/scripts/prerm;${PROJECT_SOURCE_DIR}/scripts/postrm")
-# gstreamer1.0-vaapi, gstreamer1.0-omx-generic
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libgstreamer1.0-0, libgstreamer-plugins-base1.0-0, libgstreamer-plugins-good1.0-0, libgstreamer-plugins-bad1.0-0, libgstreamermm-1.0-1, libfcgi0ldbl, liblockfile1, libprotobuf10, libprotobuf-c1, libprotoc10, libgrpc++1, libgrpc3, graphviz, libi2c0, samba, googletest")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libgstreamer1.0-0, libgstreamer-plugins-base1.0-0, libgstreamer-plugins-good1.0-0, libgstreamer-plugins-bad1.0-0, libgstreamermm-1.0-1, libfcgi0ldbl, liblockfile1, libprotobuf10, libprotobuf-c1, libprotoc10, libgrpc++1, libgrpc3, graphviz, libi2c0, samba, googletest, nvidia-jetpack")
 include(CPack)
+

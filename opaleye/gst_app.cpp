@@ -5,6 +5,12 @@
 
 #include "pipeline/encode/h264_nvenc_bin.hpp"
 #include "pipeline/decode/jpeg_nvdec_bin.hpp"
+#include "pipeline/decode/jpeg_nvv4l2decoder_bin.hpp"
+
+#include "pipeline/Thumbnail_sw2_pipe.hpp"
+#include "pipeline/Thumbnail_nv_pipe.hpp"
+
+#include <boost/lexical_cast.hpp>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/printf.h>
@@ -40,9 +46,9 @@ bool test_app::init()
     // libjpeg and nvjpegdec may not be used in the same program...
     // m_jpgdec = std::make_shared<jpeg_nvdec_pipe>();
     // m_jpgdec = std::make_shared<jpeg_swdec_bin>();
-    m_jpgdec = std::make_shared<jpeg_swdec_bin>();
+    m_jpgdec = std::make_shared<jpeg_nvv4l2decoder_bin>();
     m_h264   = std::make_shared<h264_nvenc_bin>();
-    m_thumb  = std::make_shared<Thumbnail_sw_pipe>();
+    m_thumb  = std::make_shared<Thumbnail_nv_pipe>();
   }
   else
   {
@@ -128,10 +134,10 @@ bool test_app::init()
 
   //link pipeline
   m_camera.link_back(m_jpgdec->front());
+  m_camera.link_back(m_thumb->front());
 
   // m_jpgdec->link_back(m_display.front());
   m_jpgdec->link_back(m_h264->front());
-  m_jpgdec->link_back(m_thumb->front());
 
   // m_test_src.link_back(m_display.front());
   // m_test_src.link_back(m_h264->front());
@@ -377,18 +383,18 @@ std::vector<std::string> test_app::get_camera_list() const
   return std::vector<std::string>();
 }
 
-bool test_app::set_camera_property(const std::string& camera_id, const std::string& property_id, const std::string& value)
+bool test_app::set_camera_property(const std::string& camera_id, const std::string& property_id, int value)
 {
   bool ret = false;
   if(camera_id == "cam0")
   {
     if(property_id == "exposure_mode")
     {
-      // ret = m_camera.set_exposure_mode();
+      ret = m_camera.set_exposure_mode(value); 
     }
     else if(property_id == "exposure_absolute")
     {
-     // ret = m_camera.set_exposure_value(); 
+     ret = m_camera.set_exposure_value(value); 
     }
     else
     {

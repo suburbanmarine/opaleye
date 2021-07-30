@@ -34,13 +34,10 @@ class Thumbnail_sw_pipe : public Thumbnail_pipe_base
 {
 public:
   Thumbnail_sw_pipe();
+  ~Thumbnail_sw_pipe() override;
 
   void add_to_bin(const Glib::RefPtr<Gst::Bin>& bin) override;
   bool link_front(const Glib::RefPtr<Gst::Element>& node) override;
-  bool link_back(const Glib::RefPtr<Gst::Element>& node) override
-  {
-    return false;
-  }
 
   Glib::RefPtr<Gst::Element> front() override
   {
@@ -51,13 +48,17 @@ public:
 
   void handle_new_sample();
 
-  void copy_frame_buffer(std::vector<uint8_t>* const out_frame_buffer)
+  void copy_frame_buffer(std::vector<uint8_t>* const out_frame_buffer) override
   {
     {
       std::unique_lock<std::mutex> lock(m_frame_buffer_mutex);
       if(m_frame_buffer && out_frame_buffer)
       {
         *out_frame_buffer = *m_frame_buffer;
+      }
+      else
+      {
+        out_frame_buffer->clear();
       }
     }
   }
@@ -69,8 +70,6 @@ protected:
   Glib::RefPtr<Gst::Queue>      m_in_queue;
   
   Glib::RefPtr<Gst::Element>    m_videorate;
-
-  Glib::RefPtr<Gst::Element>    m_jpegdec;
 
   Glib::RefPtr<Gst::Element>    m_videoscale;
   

@@ -57,3 +57,5 @@ protobuf-compiler
 protobuf-compiler-grpc
 rapidjson-dev
 i2c-tools
+nvidia-l4t-jetson-multimedia-api nvidia-l4t-multimedia nvidia-l4t-multimedia-utils
+sudo apt install nvidia-jetpack
