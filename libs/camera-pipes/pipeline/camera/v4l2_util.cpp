@@ -239,7 +239,7 @@ bool v4l2_util::v4l2_ctrl_set(v4l2_ext_control* const ctrl)
 	v4l2_ext_controls ctrls;
 	memset(&ctrls, 0, sizeof(ctrls));
 	ctrls.which      = V4L2_CTRL_WHICH_CUR_VAL;
-	ctrls.ctrl_class = V4L2_CTRL_ID2CLASS(ctrl->id);
+	ctrls.ctrl_class = 0;
 	ctrls.count      = 1;
 	ctrls.controls   = ctrl;
 
@@ -257,7 +257,7 @@ bool v4l2_util::v4l2_ctrl_get(uint32_t which, v4l2_ext_control* const ctrl)
 	v4l2_ext_controls ctrls;
 	memset(&ctrls, 0, sizeof(ctrls));
 	ctrls.which      = which;
-	ctrls.ctrl_class = V4L2_CTRL_ID2CLASS(ctrl->id);
+	ctrls.ctrl_class = 0;
 	ctrls.count      = 1;
 	ctrls.controls   = ctrl;
 
