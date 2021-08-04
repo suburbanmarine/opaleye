@@ -87,6 +87,30 @@ add_executable(jsontest
 	jsontest.cpp
 )
 
+add_custom_command(
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/external/js-cookie
+	
+	COMMAND grunt
+
+	DEPENDS external/js-cookie/src/api.mjs
+
+	OUTPUT 
+		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.js"
+		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.min.js"
+		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.min.mjs"
+		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.mjs"
+
+	VERBATIM
+)
+
+INSTALL(
+	FILES
+		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.js"
+		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.min.js"
+	DESTINATION
+		site/static/scripts
+)
+
 # add_custom_command(
 # 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/external/jquery
 # 	
