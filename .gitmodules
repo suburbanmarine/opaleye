@@ -13,3 +13,6 @@
 [submodule "external/grpc-web"]
 	path = external/grpc-web
 	url = git@github.com:suburbanmarine/grpc-web.git
+[submodule "external/js-cookie"]
+	path = external/js-cookie
+	url = git@github.com:suburbanmarine/js-cookie.git
