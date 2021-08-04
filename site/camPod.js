@@ -1,5 +1,3 @@
-import Cookies from 'js-cookie'
-
 var camPod = {};
 
 function clickedRefreshButton(event) {
