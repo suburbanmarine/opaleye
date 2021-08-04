@@ -103,6 +103,14 @@ add_custom_command(
 	VERBATIM
 )
 
+add_custom_target(js-cookie ALL
+	DEPENDS
+		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.js"
+		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.min.js"
+		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.min.mjs"
+		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.mjs"
+)
+
 INSTALL(
 	FILES
 		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.js"
