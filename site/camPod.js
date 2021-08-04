@@ -69,7 +69,7 @@ function btnRTPStreamStartClick(event) {
     // var client_ip = data['client_ip'];
 
     var client_ip = $('#client_ip').val();
-    Cookies.get("client_ip", client_ip);
+    Cookies.set("client_ip", client_ip);
 
     camPod.jrpc.call('start_rtp_stream', [client_ip, 5000]);
 }
