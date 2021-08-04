@@ -87,34 +87,36 @@ add_executable(jsontest
 	jsontest.cpp
 )
 
-add_custom_command(
-	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/external/js-cookie
-	
-	COMMAND grunt
+# add_custom_command(
+# 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/external/js-cookie
+# 
+# 	COMMAND npm install -d && grunt
+# 
+# 	DEPENDS external/js-cookie/src/api.mjs
+# 
+# 	OUTPUT 
+# 		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.js"
+# 		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.min.js"
+# 		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.min.mjs"
+# 		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.mjs"
+# 
+# 	VERBATIM
+# )
 
-	DEPENDS external/js-cookie/src/api.mjs
-
-	OUTPUT 
-		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.js"
-		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.min.js"
-		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.min.mjs"
-		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.mjs"
-
-	VERBATIM
-)
-
-add_custom_target(js-cookie ALL
-	DEPENDS
-		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.js"
-		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.min.js"
-		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.min.mjs"
-		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.mjs"
-)
+# add_custom_target(js-cookie ALL
+# 	DEPENDS
+# 		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.js"
+# 		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.min.js"
+# 		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.min.mjs"
+# 		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.mjs"
+# )
 
 INSTALL(
 	FILES
 		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.js"
 		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.min.js"
+		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.min.mjs"
+		"${PROJECT_SOURCE_DIR}/external/js-cookie/dist/js.cookie.mjs"
 	DESTINATION
 		site/static/scripts
 )
