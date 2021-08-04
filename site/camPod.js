@@ -1,3 +1,5 @@
+import Cookies from 'js-cookie'
+
 var camPod = {};
 
 function clickedRefreshButton(event) {
@@ -69,6 +71,7 @@ function btnRTPStreamStartClick(event) {
     // var client_ip = data['client_ip'];
 
     var client_ip = $('#client_ip').val();
+    Cookies.get("client_ip", client_ip);
 
     camPod.jrpc.call('start_rtp_stream', [client_ip, 5000]);
 }
@@ -140,6 +143,8 @@ function handleDocumentReady(jQuery) {
 
 
   camPod.refreshSensorDataIval = setInterval(refreshSensorData, 2000);
+
+  $('#client_ip').val(Cookies.get("client_ip"));
 }
 
 $(document).ready(handleDocumentReady);
