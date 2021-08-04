@@ -3,7 +3,7 @@ var camPod = {};
 function clickedRefreshButton(event) {
     console.log( "clickedRefreshButton" );
 
-    // var url = $("#cam0").attr("src");
+    // let url = $("#cam0").attr("src");
     // $("#cam0").removeAttr("src").attr("src", url);
 
     $("#cam0").attr('src', $("#cam0").attr('src'));
@@ -95,7 +95,7 @@ function btnSetExposureAbsolute(event) {
     console.log( "btnSetExposureAbsolute" );
 
 
-    var exposure_setting = $('#exposure_setting_form_input').val();
+    let exposure_setting = $('#exposure_setting_form_input').val();
 
 
     // ret = camPod.jrpc.call('set_camera_property', {camera_id: 'cam0', property_id: 'exposure_absolute', value: exposure_setting});
@@ -104,7 +104,7 @@ function btnSetExposureAbsolute(event) {
 function btnSetExposureMode(event) {
     console.log( "btnSetExposureMode" );
 
-    var exposure_mode = $('#exposure_mode_form_input').val();
+    let exposure_mode = $('#exposure_mode_form_input').val();
 
     // ret = camPod.jrpc.call('set_camera_property', {camera_id: 'cam0', property_id: 'exposure_mode', value: exposure_mode});
     ret = camPod.jrpc.call('set_camera_property', ['cam0', 'exposure_mode', parseInt(exposure_mode)]);
@@ -119,14 +119,14 @@ function refreshSensorData(event) {
 function loadConfigFromCookie() {
     $('#client_ip').val(Cookies.get("client_ip"));
 
-    $('#cbAutoRefresh').val(Cookies.get("cbAutoRefresh"));
+    $('#cbAutoRefresh').prop('checked', Cookies.get("cbAutoRefresh"));
 }
 
 function saveConfigToCookie() {
 
     Cookies.set("client_ip", $('#client_ip').val());
 
-    Cookies.set("cbAutoRefresh", $('#cbAutoRefresh').val());
+    Cookies.set("cbAutoRefresh", $('#cbAutoRefresh').is(':checked'));
 
     let test = {a: "A", b: "B"};
     Cookies.set("test", JSON.stringify(test));
