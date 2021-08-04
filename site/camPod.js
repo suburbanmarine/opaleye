@@ -129,7 +129,7 @@ function saveConfigToCookie() {
     Cookies.set("cbAutoRefresh", $('#cbAutoRefresh').val());
 
     let test = {a: "A", b: "B"};
-    Cookies.set("test", test);
+    Cookies.set("test", JSON.stringify(test));
 }
 
 function handleDocumentReady(jQuery) {
