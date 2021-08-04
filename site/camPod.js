@@ -11,7 +11,7 @@ function clickedRefreshButton(event) {
 function clickedAutoRefreshCb(event) {
     console.log( "clickedAutoRefreshCb" );
 
-    var isChecked = $("#cbAutoRefresh").is(":checked");
+    let isChecked = $("#cbAutoRefresh").is(":checked");
     if(isChecked)
     {
       camPod.cbAutoRefreshIval = setInterval(clickedRefreshButton, 2000);
@@ -24,7 +24,7 @@ function clickedAutoRefreshCb(event) {
 function clickedAdvancedMode(event) {
     console.log( "clickedAdvancedMode" );
 
-    var isChecked = $("#cbAdvancedMode").is(":checked");
+    let isChecked = $("#cbAdvancedMode").is(":checked");
     if(isChecked)
     {
       $("#debug").css("display", "");
@@ -65,63 +65,78 @@ function btnVideoStopClick(event) {
 function btnRTPStreamStartClick(event) {
     console.log( "btnRTPStreamStartClick" );
 
-    // var data = $('#ipform').serializeArray();
-    // var client_ip = data['client_ip'];
+    // let data = $('#ipform').serializeArray();
+    // let client_ip = data['client_ip'];
 
-    var client_ip = $('#client_ip').val();
-    Cookies.set("client_ip", client_ip);
+    saveConfigToCookie();
 
     camPod.jrpc.call('start_rtp_stream', [client_ip, 5000]);
 }
 function btnRTPStreamStopClick(event) {
     console.log( "btnRTPStreamStopClick" );
 
-    // var data = $('#ipform').serializeArray();
-    // var client_ip = data['client_ip'];
+    // let data = $('#ipform').serializeArray();
+    // let client_ip = data['client_ip'];
 
-    var client_ip = $('#client_ip').val();
+    let client_ip = $('#client_ip').val();
 
     camPod.jrpc.call('stop_rtp_stream', [client_ip, 5000]);
 }
 function btnGetPipelineStatus(event) {
-   console.log( "btnGetPipelineStatus" );
-   ret = camPod.jrpc.call('get_pipeline_status');
+    console.log( "btnGetPipelineStatus" );
+    let ret = camPod.jrpc.call('get_pipeline_status');
 }
 function btnGetPipelineGraph(event) {
-   console.log( "btnGetPipelineGraph" );
-   ret = camPod.jrpc.call('get_pipeline_graph');
+    console.log( "btnGetPipelineGraph" );
+    letret = camPod.jrpc.call('get_pipeline_graph');
 }
 
 function btnSetExposureAbsolute(event) {
-   console.log( "btnSetExposureAbsolute" );
+    console.log( "btnSetExposureAbsolute" );
 
 
-  var exposure_setting = $('#exposure_setting_form_input').val();
+    var exposure_setting = $('#exposure_setting_form_input').val();
 
 
-   // ret = camPod.jrpc.call('set_camera_property', {camera_id: 'cam0', property_id: 'exposure_absolute', value: exposure_setting});
-   ret = camPod.jrpc.call('set_camera_property', ['cam0', 'exposure_absolute', parseInt(exposure_setting)]);
+    // ret = camPod.jrpc.call('set_camera_property', {camera_id: 'cam0', property_id: 'exposure_absolute', value: exposure_setting});
+    ret = camPod.jrpc.call('set_camera_property', ['cam0', 'exposure_absolute', parseInt(exposure_setting)]);
 }
 function btnSetExposureMode(event) {
-   console.log( "btnSetExposureMode" );
+    console.log( "btnSetExposureMode" );
 
-  var exposure_mode = $('#exposure_mode_form_input').val();
+    var exposure_mode = $('#exposure_mode_form_input').val();
 
-   // ret = camPod.jrpc.call('set_camera_property', {camera_id: 'cam0', property_id: 'exposure_mode', value: exposure_mode});
-   ret = camPod.jrpc.call('set_camera_property', ['cam0', 'exposure_mode', parseInt(exposure_mode)]);
+    // ret = camPod.jrpc.call('set_camera_property', {camera_id: 'cam0', property_id: 'exposure_mode', value: exposure_mode});
+    ret = camPod.jrpc.call('set_camera_property', ['cam0', 'exposure_mode', parseInt(exposure_mode)]);
 }
 
 function refreshSensorData(event) {
-   console.log( "refreshSensorData" );
+    console.log( "refreshSensorData" );
 
-  $("#sensor_frame").attr('src', $("#sensor_frame").attr('src'));
+    $("#sensor_frame").attr('src', $("#sensor_frame").attr('src'));
+}
+
+function loadConfigFromCookie() {
+    $('#client_ip').val(Cookies.get("client_ip"));
+
+    $('#cbAutoRefresh').val(Cookies.get("cbAutoRefresh"));
+}
+
+function saveConfigToCookie() {
+
+    Cookies.set("client_ip", $('#client_ip').val());
+
+    Cookies.set("cbAutoRefresh", $('#cbAutoRefresh').val());
+
+    let test = {a: "A", b: "B"};
+    Cookies.set("test", test);
 }
 
 function handleDocumentReady(jQuery) {
   
   //RPC
-  var currentLocation = window.location;
-  var rpcurl = 'http://' + currentLocation.hostname + '/api/v1';
+  let currentLocation = window.location;
+  let rpcurl = 'http://' + currentLocation.hostname + '/api/v1';
   camPod.jrpc = simple_jsonrpc.connect_xhr(rpcurl);
 
   //Callbacks
@@ -143,7 +158,7 @@ function handleDocumentReady(jQuery) {
   camPod.refreshSensorDataIval = setInterval(refreshSensorData, 2000);
 
   // Configuration
-  $('#client_ip').val(Cookies.get("client_ip"));
+  loadConfigFromCookie();
 }
 
 $(document).ready(handleDocumentReady);
