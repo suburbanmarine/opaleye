@@ -120,6 +120,8 @@ function loadConfigFromCookie() {
     $('#client_ip').val(Cookies.get("client_ip"));
 
     $('#cbAutoRefresh').prop('checked', Cookies.get("cbAutoRefresh"));
+
+    let test = JSON.parse(Cookies.get("test"));
 }
 
 function saveConfigToCookie() {
@@ -127,6 +129,16 @@ function saveConfigToCookie() {
     Cookies.set("client_ip", $('#client_ip').val());
 
     Cookies.set("cbAutoRefresh", $('#cbAutoRefresh').is(':checked'));
+
+    let test = {a: "A", b: "B"};
+    Cookies.set("test", JSON.stringify(test));
+}
+
+function saveDefaultConfigToCookie() {
+
+    Cookies.set("client_ip", '127.0.0.1');
+
+    Cookies.set("cbAutoRefresh", true);
 
     let test = {a: "A", b: "B"};
     Cookies.set("test", JSON.stringify(test));
