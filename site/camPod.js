@@ -119,12 +119,12 @@ function refreshSensorData(event) {
 
 function handleDocumentReady(jQuery) {
   
+  //RPC
   var currentLocation = window.location;
-
   var rpcurl = 'http://' + currentLocation.hostname + '/api/v1';
-
   camPod.jrpc = simple_jsonrpc.connect_xhr(rpcurl);
 
+  //Callbacks
   $("#btnRefresh"            ).on("click", clickedRefreshButton   );
   $("#cbAutoRefresh"         ).on("click", clickedAutoRefreshCb   );
   $("#btnStillStart"         ).on("click", btnStillStartClick     );
@@ -139,9 +139,10 @@ function handleDocumentReady(jQuery) {
   $("#btnSetExposureMode"    ).on("click", btnSetExposureMode    );
   $("#cbAdvancedMode"        ).on("click", clickedAdvancedMode   );
 
-
+  // Event handlers
   camPod.refreshSensorDataIval = setInterval(refreshSensorData, 2000);
 
+  // Configuration
   $('#client_ip').val(Cookies.get("client_ip"));
 }
 
