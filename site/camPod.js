@@ -176,6 +176,13 @@ function saveDefaultConfigToCookie() {
     Cookies.set("test", JSON.stringify(test));
 }
 
+function isConfigValid() {
+  let ret = jQuery.isEmptyObject(Cookies.get("client_ip"));
+      ret = ret && jQuery.isEmptyObject(Cookies.get("cbAutoRefresh"));
+
+  return ret;
+}
+
 function handleDocumentReady(jQuery) {
   
   //RPC
@@ -206,7 +213,15 @@ function handleDocumentReady(jQuery) {
   camPod.refreshSensorDataIval = setInterval(refreshSensorData, 2000);
 
   // Configuration
-  loadConfigFromCookie();
+  if(isConfigValid())
+  {
+    loadConfigFromCookie();
+  }
+  else
+  {
+    saveDefaultConfigToCookie();
+    loadConfigFromCookie();
+  }
 }
 
 $(document).ready(handleDocumentReady);
