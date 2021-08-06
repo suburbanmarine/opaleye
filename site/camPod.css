@@ -59,6 +59,7 @@ p {
 .camsettings {
   padding: 10px 10px;
   border: 2px solid black;
+  /* font-size: large; */
 }
 
 .imgview {
