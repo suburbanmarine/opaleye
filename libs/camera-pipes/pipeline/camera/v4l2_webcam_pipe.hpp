@@ -48,6 +48,18 @@ public:
   bool set_exposure_value(int32_t val);
   bool get_exposure_value(int32_t* const val);
 
+  bool set_focus_absolute(int32_t val);
+  bool get_focus_absolute(int32_t* const val);
+
+  bool set_focus_auto(bool val);
+  bool get_focus_auto(bool* const val);
+
+  bool set_brightness(int32_t val);
+  bool get_brightness(int32_t* const val);
+
+  bool set_gain(int32_t val);
+  bool get_gain(int32_t* const val);
+
   bool v4l2_probe();
 
   bool get_property_description();
