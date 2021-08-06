@@ -177,7 +177,7 @@ function saveDefaultConfigToCookie() {
 }
 
 function isConfigValid() {
-  let ret = jQuery.isEmptyObject(Cookies.get("client_ip"));
+  let ret =        jQuery.isEmptyObject(Cookies.get("client_ip"    ));
       ret = ret || jQuery.isEmptyObject(Cookies.get("cbAutoRefresh"));
 
   return ! ret;
