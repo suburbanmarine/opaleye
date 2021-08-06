@@ -394,7 +394,23 @@ bool test_app::set_camera_property(const std::string& camera_id, const std::stri
     }
     else if(property_id == "exposure_absolute")
     {
-     ret = m_camera.set_exposure_value(value); 
+     ret = m_camera.set_exposure_value(value);
+    }
+    else if(property_id == "focus_absolute")
+    {
+      ret = m_camera.set_focus_absolute(value);
+    }
+    else if(property_id == "focus_auto")
+    {
+      ret = m_camera.set_focus_auto(value);
+    }
+    else if(property_id == "brightness")
+    {
+      ret = m_camera.set_brightness(value);
+    }
+    else if(property_id == "gain")
+    {
+      ret = m_camera.set_gain(value);
     }
     else
     {

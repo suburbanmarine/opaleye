@@ -891,3 +891,39 @@ bool V4L2_webcam_pipe::get_exposure_value(int32_t* const val)
 {
 	return m_v4l2_util.v4l2_ctrl_get(V4L2_CID_EXPOSURE_ABSOLUTE, val);
 }
+
+bool V4L2_webcam_pipe::set_focus_absolute(int32_t val)
+{
+	return m_v4l2_util.v4l2_ctrl_set(V4L2_CID_FOCUS_ABSOLUTE, val);
+}
+bool V4L2_webcam_pipe::get_focus_absolute(int32_t* const val)
+{
+	return m_v4l2_util.v4l2_ctrl_get(V4L2_CID_FOCUS_ABSOLUTE, val);
+}
+
+bool V4L2_webcam_pipe::set_focus_auto(bool val)
+{
+	return m_v4l2_util.v4l2_ctrl_set(V4L2_CID_FOCUS_AUTO, val);
+}
+bool V4L2_webcam_pipe::get_focus_auto(bool* const val)
+{
+	return m_v4l2_util.v4l2_ctrl_get(V4L2_CID_FOCUS_AUTO, val);
+}
+
+bool V4L2_webcam_pipe::set_brightness(int32_t val)
+{
+	return m_v4l2_util.v4l2_ctrl_set(V4L2_CID_BRIGHTNESS, val);
+}
+bool V4L2_webcam_pipe::get_brightness(int32_t* const val)
+{
+	return m_v4l2_util.v4l2_ctrl_get(V4L2_CID_BRIGHTNESS, val);
+}
+
+bool V4L2_webcam_pipe::set_gain(int32_t val)
+{
+	return m_v4l2_util.v4l2_ctrl_set(V4L2_CID_GAIN, val);
+}
+bool V4L2_webcam_pipe::get_gain(int32_t* const val)
+{
+	return m_v4l2_util.v4l2_ctrl_get(V4L2_CID_GAIN, val);
+}

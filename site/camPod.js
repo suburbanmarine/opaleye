@@ -94,9 +94,7 @@ function btnGetPipelineGraph(event) {
 function btnSetExposureAbsolute(event) {
     console.log( "btnSetExposureAbsolute" );
 
-
     let exposure_setting = $('#exposure_setting_form_input').val();
-
 
     // ret = camPod.jrpc.call('set_camera_property', {camera_id: 'cam0', property_id: 'exposure_absolute', value: exposure_setting});
     ret = camPod.jrpc.call('set_camera_property', ['cam0', 'exposure_absolute', parseInt(exposure_setting)]);
@@ -104,10 +102,44 @@ function btnSetExposureAbsolute(event) {
 function btnSetExposureMode(event) {
     console.log( "btnSetExposureMode" );
 
+    // ret = camPod.jrpc.call('set_camera_property', {camera_id: 'cam0', property_id: 'exposure_absolute', value: exposure_setting});
+    ret = camPod.jrpc.call('set_camera_property', ['cam0', 'exposure_absolute', parseInt(exposure_setting)]);
+}
+function btnSetExposureMode(event) {
+  console.log( "btnSetExposureMode" );
+
     let exposure_mode = $('#exposure_mode_form_input').val();
 
     // ret = camPod.jrpc.call('set_camera_property', {camera_id: 'cam0', property_id: 'exposure_mode', value: exposure_mode});
     ret = camPod.jrpc.call('set_camera_property', ['cam0', 'exposure_mode', parseInt(exposure_mode)]);
+}
+function btnSetFocusAbsolute(event) {
+  console.log( "btnSetFocusAbsolute" );
+
+  var val = $('#focus_absolute_form_input').val();
+
+  ret = camPod.jrpc.call('set_camera_property', ['cam0', 'focus_absolute', parseInt(val)]);
+}
+function btnSetFocusAuto(event) {
+  console.log( "btnSetFocusAuto" );
+
+  var val = $('#focus_auto_form_input').val();
+
+  ret = camPod.jrpc.call('set_camera_property', ['cam0', 'focus_auto', parseInt(val)]);
+}
+function btnSetBrightness(event) {
+  console.log( "btnSetBrightness" );
+
+  var val = $('#brightness_form_input').val();
+
+  ret = camPod.jrpc.call('set_camera_property', ['cam0', 'brightness', parseInt(val)]);
+}
+function btnSetGain(event) {
+  console.log( "btnSetGain" );
+
+  var val = $('#gain_form_input').val();
+
+  ret = camPod.jrpc.call('set_camera_property', ['cam0', 'gain', parseInt(val)]);
 }
 
 function refreshSensorData(event) {
@@ -162,9 +194,13 @@ function handleDocumentReady(jQuery) {
   $("#btnRTPStreamStop"      ).on("click", btnRTPStreamStopClick  );
   $("#btnGetPipelineStatus"  ).on("click", btnGetPipelineStatus   );
   $("#btnGetPipelineGraph"   ).on("click", btnGetPipelineGraph    );
-  $("#btnSetExposureAbsolute").on("click", btnSetExposureAbsolute);
-  $("#btnSetExposureMode"    ).on("click", btnSetExposureMode    );
-  $("#cbAdvancedMode"        ).on("click", clickedAdvancedMode   );
+  $("#btnSetExposureAbsolute").on("click", btnSetExposureAbsolute );
+  $("#btnSetExposureMode"    ).on("click", btnSetExposureMode     );
+  $("#cbAdvancedMode"        ).on("click", clickedAdvancedMode    );
+  $("#btnSetFocusAbsolute"   ).on("click", btnSetFocusAbsolute    );
+  $("#btnSetFocusAuto"       ).on("click", btnSetFocusAuto        );
+  $("#btnSetBrightness"      ).on("click", btnSetBrightness       );
+  $("#btnSetGain"            ).on("click", btnSetGain             );
 
   // Event handlers
   camPod.refreshSensorDataIval = setInterval(refreshSensorData, 2000);
