@@ -56,6 +56,11 @@ p {
   border: 2px solid black;
 }
 
+.camsettings {
+  padding: 10px 10px;
+  border: 2px solid black;
+}
+
 .imgview {
   display: block;
   margin-left: auto;
