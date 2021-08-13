@@ -1,3 +1,9 @@
+/**
+ * @author Jacob Schloss <jacob.schloss@suburbanmarine.io>
+ * @copyright Copyright (c) 2021 Suburban Marine, Inc. All rights reserved.
+ * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
+*/
+
 #include "http_req_error_handler.hpp"
 
 void http_req_error_handler::handle(FCGX_Request* const request)

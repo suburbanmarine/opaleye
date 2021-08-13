@@ -1,8 +1,14 @@
+/**
+ * @author Jacob Schloss <jacob.schloss@suburbanmarine.io>
+ * @copyright Copyright (c) 2021 Suburban Marine, Inc. All rights reserved.
+ * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
+*/
+
 #include "signal_handler.hpp"
 
 #include <spdlog/spdlog.h>
 
- #include <signal.h>
+#include <signal.h>
 
 bool Signal_handler::mask_all_signals()
 {
