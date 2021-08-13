@@ -2,7 +2,12 @@
 
 trap 'exit -1' err
 
-systemctl stop opaleye.service 
-# systemctl stop ptp4l.service 
+if systemctl is-active --quiet opaleye ; then
+	systemctl stop opaleye
+fi
+
+# if systemctl is-active --quiet ptp4l ; then
+# 	systemctl stop ptp4l
+# fi
 
 exit 0
