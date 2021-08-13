@@ -87,8 +87,15 @@ Opaleye depends on a number of external components.
 ### Tools
  - build-essential
  - cmake
+ - git
+ - grunt
  - gtk-doc-tools
  - lm-sensors
+ - node-grunt-cli
+ - nodejs
+ - npm
+ - openssh-client
+ - openssh-server
 
 ### Libraries
  - i2c-tools
@@ -125,6 +132,7 @@ Opaleye depends on a number of external components.
  - nano
  - rsync
  - screen
+ - vlc
 
 * TBD.
 
