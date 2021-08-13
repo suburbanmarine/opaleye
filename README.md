@@ -128,6 +128,9 @@ Opaleye is intended to be controlled by both humans and by other software. An RP
 
 Opaleye uses the FastCGI protocol to integrate with a web server and respond to client HTTP requests. Normally NGINX is used as the web server, although others that support fcgi will work as well.
 
+ - /camera
+ - /sensor
+
 ### json-rpc over HTTP
 
 Opaleye provides a number of API calls over json-rpc/http at /api/v1.
