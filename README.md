@@ -10,6 +10,7 @@ Opaleye is a demonstration platform for underwater video acquisition and streami
  - Local sensor integration (eg, I2C external temperature and pressure)
  - Health monitoring
  - Operation on 802.3bt POE Gigabit Ethernet tether
+ - Allow extensibility with co-located 3rd party applications for edge computing, payload integration
 
 The intention is to form a basis for a "smart node" that can be used as part of a larger autonomous or remote-piloted robotic system.
 
