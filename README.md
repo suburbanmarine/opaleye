@@ -16,7 +16,6 @@ In the future, we hope to grow these capibilities:
      - Local reduction and processing of sensor data using DSP, neural networks
  - Networking
      - 1588v2 timestamping - microsecond level accurate global timestamps on video and sensor data across a large network
-     - Redundant ring networking
      - High bandwidth two wire ethernet
  - Video
      - RTSP - automatic video stream negotation
@@ -182,6 +181,20 @@ foo@bar:~$ sudo jetson_clocks
 - 6 AUX2 / CAN_H
 - 7 VDSL2 CPE T1
 - 8 VDSL2 CPE R1
+
+## Standards
+
+ - HTTP
+     - rfc2616 - HTTP/1
+     - rfc7230 - HTTP/1.1: Message Syntax and Routing
+     - rfc7231 - HTTP/1.1: Semantics and Content
+     - rfc7234 - HTTP/1.1: Caching 
+     - rfc7540 - HTTP/2
+ - JSON-RPC 2.0
+     - http://www.simple-is-better.org/json-rpc/transport_http.html
+     - https://www.simple-is-better.org/json-rpc/jsonrpc20.html
+ - Protobuf
+ - gRPC
 
 # About
 
