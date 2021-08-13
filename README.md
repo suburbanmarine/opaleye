@@ -58,7 +58,7 @@ Opaleye depends on a number of external components.
 
 ### HTTP
 
-Opaleye uses the FastCGI protocol to integrate with a web server and respond to client HTTP requests. Opaleye normally uses NGINX as the web server, although others that support fcgi will work as well.
+Opaleye uses the FastCGI protocol to integrate with a web server and respond to client HTTP requests. Normally NGINX is used as the web server, although others that support fcgi will work as well.
 
 ### json-rpc over HTTP
 
@@ -78,7 +78,7 @@ gst-launch-1.0 nvarguscamerasrc do-timestamp=true num-buffers=10 ! 'video/x-raw(
 
 ## Supported Hardware
 
-Opaleye is very portable, the main hardware dependency is the hardware accelerated codec pipelines. Support for new hardware platforms mostly consists of adding the few jpeg and h.264 gstreamer blocks and making a new top level application that builds these blocks into the video pipeline. It is expected Opaleye could run with little additional code on NXP i.MX and Qualcomm Snapdragon MPUs.
+Opaleye is very portable. The main hardware dependency is the hardware accelerated codec pipelines. Support for new hardware platforms mostly consists of adding the few jpeg and h.264 gstreamer blocks and making a new top level application that builds these blocks into the video pipeline. It is expected Opaleye could run with little additional code on NXP i.MX and Qualcomm Snapdragon MPUs.
 
 - Nvidia Xavier NX
 - Nvidia Jetson nano
