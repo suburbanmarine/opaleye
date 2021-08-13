@@ -113,12 +113,20 @@ Opaleye depends on a number of external components.
  - nvidia-l4t-multimedia
  - nvidia-l4t-multimedia-utils
 
-## Runtime Dependencies
- - gdebi
+### Runtime Dependencies
+ - chrony
  - graphviz
- - nano
  - nginx-full
+ - ptp4l*
+ - samba
+
+### Recomended Utilities
+ - gdebi
+ - nano
+ - rsync
  - screen
+
+* TBD.
 
 ## API
 
