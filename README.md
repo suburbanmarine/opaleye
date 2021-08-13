@@ -28,7 +28,7 @@ Opaleye is provided under the terms of the BSD-3-Clause license by Suburban Mari
 
 ## Contributing
 
-We hope you find Opaleye useful as a reference design of an embedded C++ application.
+We hope you find Opaleye useful as a reference design of an embedded C++ application. We welcome forks and contributions.
 
 All contributions to Opaleye require a Contributor License Agreement. Please see details at https://code.suburbanmarine.io/cla and the agreement texts in CLA/CLA_entity.md and CLA/CLA_individual.md. Please contact code@suburbanmarine.io with questions or to execute a CLA.
 
@@ -118,6 +118,8 @@ Opaleye depends on a number of external components.
  - screen
 
 ## API
+
+Opaleye is intended to be controlled by both humans and by other software. An RPC API is provided for software integration.
 
 ### HTTP
 
