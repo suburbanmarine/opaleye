@@ -68,7 +68,7 @@ foo@bar:~$ git submodule --update
 
 ## Building Instructions
 
-Opaleye provides CMake toolkits for the Jetson nano, Xavier NX, and generic x86. please run the correpsonding generate_cmake_X script so the correct toolchain file is used.
+Opaleye provides CMake toolkits for the Jetson Nano, Xavier NX, and generic x86. please run the correpsonding generate_cmake_X script so the correct toolchain file is used.
 
 Eg, for the Jetson Nano:
 
