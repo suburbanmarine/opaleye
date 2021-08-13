@@ -1,8 +1,26 @@
-# Opaleye Smart Maritime Node
+# Opaleye, A Smart Maritime Node
 
 ## Summary
 
+Opaleye is a demonstration platform for underwater video acquisition and streaming. It has the following primary goals:
 
+ - 4k30 video capture, h.264 encoding, streaming, storage
+ - Local sensor integration (eg, I2C external temperature and pressure)
+ - Remote control over software API, eg json-rpc and gRPC
+
+The intention is to form a basis for a "smart node" that can be used as part of a larger autonomous or remote-piloted robotic system.
+
+In the future, we hope to grow these capibilities:
+
+ - Edge computing
+     - Local reduction and processing of sensor data using DSP, neural networks
+ - Networking
+     - 1588v2 timestamping - microsecond level accurate global timestamps on video and sensor data across a large network
+     - Redundant ring networking
+     - High bandwidth two wire ethernet
+ - Video
+     - RTSP - automatic video stream negotation
+     - RTCP - automatic video stream quality adjustment based on bandwidth
 
 ## License
 
@@ -10,9 +28,54 @@ Opaleye is provided under the terms of the BSD-3-Clause license by Suburban Mari
 
 ## Contributing
 
-We hope you find Opaleye useful as a reference design of an embedded C++ application. 
+We hope you find Opaleye useful as a reference design of an embedded C++ application.
 
 All contributions to Opaleye require a Contributor License Agreement. Please see details at https://code.suburbanmarine.io/cla and the agreement texts in CLA/CLA_entity.md and CLA/CLA_individual.md. Please contact code@suburbanmarine.io with questions or to execute a CLA.
+
+## Hardware Design Files
+
+Portions of the Opaleye reference design are also open hardware.
+
+### BOM
+
+TBD
+
+### Mechanical Drawings
+
+TBD
+
+## Cloning Instructions
+
+Ensure you have ssh keys registered for git-over-ssh based cloning. Opaleye's submodules are referenced via ssh urls and require git-over-ssh.
+
+```console
+foo@bar:~$ git clone git@github.com:suburbanmarine/opaleye.git
+```
+
+Opaleye uses a number of git submodules, so makre sure those are set up as well. For first clone:
+
+```console
+foo@bar:~$ git submodule --init --update
+```
+
+And later, to make sure they are checked out at the correct commit:
+
+```console
+foo@bar:~$ git submodule --update
+```
+
+## Building Instructions
+
+Opaleye provides CMake toolkits for the Jetson nano, Xavier NX, and generic x86. please run the correpsonding generate_cmake_X script so the correct toolchain file is used.
+
+Eg, for the Jetson Nano:
+
+```console
+foo@bar:~$ ./generate_cmake_nano.sh
+foo@bar:~$ cd build/debug
+foo@bar:~$ make -j`nproc`
+foo@bar:~$ make package
+```
 
 ## Build Dependencies
 
@@ -48,11 +111,11 @@ Opaleye depends on a number of external components.
  - nvidia-l4t-multimedia-utils
 
 ## Runtime Dependencies
- - nano
- - screen
  - gdebi
  - graphviz
+ - nano
  - nginx-full
+ - screen
 
 ## API
 
@@ -72,18 +135,16 @@ TBD
 
 TBD
 
-## Gstreamer notes
-
-gst-launch-1.0 nvarguscamerasrc do-timestamp=true num-buffers=10 ! 'video/x-raw(memory:NVMM), width=(int)3280, height=(int)2464' ! nvvidconv ! nvjpegenc ! multifilesink location=test_%05d.jpeg
-
 ## Supported Hardware
 
 Opaleye is very portable. The main hardware dependency is the hardware accelerated codec pipelines. Support for new hardware platforms mostly consists of adding the few jpeg and h.264 gstreamer blocks and making a new top level application that builds these blocks into the video pipeline. It is expected Opaleye could run with little additional code on NXP i.MX and Qualcomm Snapdragon MPUs.
 
 - Nvidia Xavier NX
-- Nvidia Jetson nano
+- Nvidia Jetson Nano
 
-### Jetson Notes
+### Jetson Nano Notes
+
+The Nvidia Jetson Nano must be placed in 10W mode or Max Power mode for 4k video encoding to be sucessful.
 
 5W mode
 ```console
@@ -93,7 +154,7 @@ foo@bar:~$ sudo nvpmodel -m 1
 ```console
 foo@bar:~$ sudo nvpmodel -m 0
 ```
-MAX POWER
+Max Power
 ```console
 foo@bar:~$ sudo jetson_clocks
 ```
@@ -119,3 +180,7 @@ foo@bar:~$ sudo jetson_clocks
 - 6 AUX2 / CAN_H
 - 7 VDSL2 CPE T1
 - 8 VDSL2 CPE R1
+
+# About
+
+Suburban Marine, Inc. is a nimble engineering company in Southern California.
