@@ -86,30 +86,36 @@ Opaleye is very portable, the main hardware dependency is the hardware accelerat
 ### Jetson Notes
 
 5W mode
-sudo nvpmodel -m 1
+```console
+foo@bar:~$ sudo nvpmodel -m 1
+```
 10W mode
-sudo nvpmodel -m 0
+```console
+foo@bar:~$ sudo nvpmodel -m 0
+```
 MAX POWER
-jetson_clocks
+```console
+foo@bar:~$ sudo jetson_clocks
+```
 
 ## Opaleye Pinout
 
-X1 802.3af / 802.3at POE 30W 37.0-57.0
-1 DA+
-2 DA-
-3 DB+
-4 DC+
-5 DC-
-6 DB-
-7 DD+
-8 DD-
+### X1 802.3af / 802.3at POE 30W 37.0-57.0
+- 1 DA+
+- 2 DA-
+- 3 DB+
+- 4 DC+
+- 5 DC-
+- 6 DB-
+- 7 DD+
+- 8 DD-
 
-X2 
-1 9V - 36V
-2 GND (PWR & SIG)
-3 RS232 TX
-4 RS232 RX
-5 AUX1 / CAN_L
-6 AUX2 / CAN_H
-7 VDSL2 CPE T1
-8 VDSL2 CPE R1
+### X2
+- 1 9V - 36V
+- 2 GND (PWR & SIG)
+- 3 RS232 TX
+- 4 RS232 RX
+- 5 AUX1 / CAN_L
+- 6 AUX2 / CAN_H
+- 7 VDSL2 CPE T1
+- 8 VDSL2 CPE R1
