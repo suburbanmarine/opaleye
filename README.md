@@ -9,7 +9,7 @@ Opaleye is a demonstration platform for underwater video acquisition and streami
  - Remote control over software API, eg json-rpc and gRPC, for system integration
  - Local sensor integration (eg, I2C external temperature and pressure)
  - Health monitoring
- - Operation on 802.3bt POE Gigibit Ethernet tether
+ - Operation on 802.3bt POE Gigabit Ethernet tether
 
 The intention is to form a basis for a "smart node" that can be used as part of a larger autonomous or remote-piloted robotic system.
 
