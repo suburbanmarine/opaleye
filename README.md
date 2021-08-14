@@ -58,13 +58,13 @@ foo@bar:~$ git clone git@github.com:suburbanmarine/opaleye.git
 Opaleye uses a number of git submodules, so makre sure those are set up as well. For first clone:
 
 ```console
-foo@bar:~$ git submodule --init --update
+foo@bar:~$ git submodule update --init --recursive
 ```
 
 And later, to make sure they are checked out at the correct commit:
 
 ```console
-foo@bar:~$ git submodule --update
+foo@bar:~$ git submodule update
 ```
 
 ## Building Instructions
