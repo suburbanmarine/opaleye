@@ -16,3 +16,6 @@
 [submodule "external/js-cookie"]
 	path = external/js-cookie
 	url = git@github.com:suburbanmarine/js-cookie.git
+[submodule "external/roboto-fonts"]
+	path = external/roboto-fonts
+	url = git@github.com:suburbanmarine/roboto-fonts.git
