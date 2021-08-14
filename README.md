@@ -124,7 +124,7 @@ Opaleye depends on a number of external components.
  - chrony
  - graphviz
  - nginx-full
- - ptp4l*
+ - ptp4l
  - samba
 
 ### Recomended Utilities
@@ -133,8 +133,6 @@ Opaleye depends on a number of external components.
  - rsync
  - screen
  - vlc
-
-* TBD.
 
 ## API
 
