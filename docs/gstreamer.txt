@@ -1,0 +1,1 @@
+gst-launch-1.0 nvarguscamerasrc do-timestamp=true num-buffers=10 ! 'video/x-raw(memory:NVMM), width=(int)3280, height=(int)2464' ! nvvidconv ! nvjpegenc ! multifilesink location=test_%05d.jpeg

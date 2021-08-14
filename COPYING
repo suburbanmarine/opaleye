@@ -1,0 +1,5 @@
+Opaleye is provided under the terms of the BSD-3-Clause license by Suburban Marine, Inc., a California corporation. A copy of this license is in the LICENSE.txt file.
+
+Opaleye depends on and links with other 3rd party software. That software is not part of Opaleye and is licensed under terms set by it's respective owners.
+
+All contributions to Opaleye require a Contributor License Agreement. Please see details at https://code.suburbanmarine.io/cla and the agreement texts in CLA/CLA_entity.md and CLA/CLA_individual.md. Please contact code@suburbanmarine.io with questions or to execute a CLA.

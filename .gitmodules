@@ -1,0 +1,18 @@
+[submodule "external/spdlog"]
+	path = external/spdlog
+	url = git@github.com:suburbanmarine/spdlog.git
+[submodule "external/simple-jsonrpc-js"]
+	path = external/simple-jsonrpc-js
+	url = git@github.com:suburbanmarine/simple-jsonrpc-js.git
+[submodule "external/jquery"]
+	path = external/jquery
+	url = git@github.com:suburbanmarine/jquery.git
+[submodule "external/jsonrpc-lean"]
+	path = external/jsonrpc-lean
+	url = git@github.com:suburbanmarine/jsonrpc-lean.git
+[submodule "external/grpc-web"]
+	path = external/grpc-web
+	url = git@github.com:suburbanmarine/grpc-web.git
+[submodule "external/js-cookie"]
+	path = external/js-cookie
+	url = git@github.com:suburbanmarine/js-cookie.git

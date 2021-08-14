@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Camera Pod</title>
+  <script type="text/javascript" src="static/scripts/jquery.js"></script>
+  <script type="text/javascript" src="static/scripts/simple-jsonrpc-js.js"></script>
+  <script type="text/javascript" src="static/scripts/js.cookie.js"></script>
+  <script type="text/javascript" src="camPod.js"></script>
+  <link   rel="stylesheet"       href="camPod.css">
+  <link   rel="shortcut icon"    type="image/jpg" href="static/images/favicon.ico">
+</head>
+<body>
+
+  <div class="sidebar">
+    <a href="#">CAMERA</a>
+    <a href="#sensor-table">SENSORS</a>
+    <a href="#status-table">STATUS</a>
+    <a href="#about-table">ABOUT</a>
+  </div>
+
+  <div class="main">
+    <div class="row">
+      <div class="column">
+        <img src="/static/images/sm_logo.png" alt="sm_logo" id="sm_logo" height="100">
+      </div>
+      <div class="column">
+        OpalEYE
+      </div>
+    </div>
+
+    <div class="cam">
+      <div class="row">
+        <div class="imgview">
+          <img src="/cameras/cam0.jpg" alt="cam0" id="cam0">
+        </div>
+      </div>
+      <div class="row">
+        <div class="column">
+          Preview
+        </div>
+        <div class="column">
+          <button id="btnRefresh">Refresh</button>
+        </div>
+        <div class="column">
+          <input type="checkbox" id="cbAutoRefresh">AutoRefresh</input>
+        </div>
+      </div>
+      <div class="row" style="display:none">
+        <div class="column">
+          Gstreamer
+        </div>
+        <div class="column">
+          <button id="btnGstStart">Start</button>
+        </div>
+        <div class="column">
+          <button id="btnGstStop">Stop</button>
+        </div>
+      </div>
+      <div class="row" style="display:none">
+        <div class="column">
+          Still Frame Capture
+        </div>
+        <div class="column">
+          <button id="btnStillStart">Start</button>
+        </div>
+        <div class="column">
+          <button id="btnStillStop">Stop</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="column">
+          Video Capture
+        </div>
+        <div class="column">
+          <button id="btnVideoStart">Start</button>
+        </div>
+        <div class="column">
+          <button id="btnVideoStop">Stop</button>
+        </div>
+      </div>
+      <div id="debug" class="row" style="display:none">
+        <div class="column">
+          Debug
+        </div>
+        <div class="column">
+          <button id="btnGetPipelineStatus">Status</button>
+        </div>
+        <div class="column">
+          <button id="btnGetPipelineGraph">Graph</button>
+        </div>
+      </div>
+      <div class="row" style="display:none">
+        <div class="column">
+          Clear Videos
+        </div>
+        <div class="column">
+          <button id="btnClearVideoStorage">Status</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="stream-table" class="cam">
+      <div class="row">
+        <form id="ipform">
+          <label for="client_ip">IP addr</label>
+          <input type="text" id="client_ip" name="client_ip" value="127.0.0.1">
+        </form>
+      </div>
+      <div class="row">
+        <div class="column">
+          Video stream
+        </div>
+        <div class="column">
+          <button id="btnRTPStreamStart">Start</button>
+        </div>
+        <div class="column">
+          <button id="btnRTPStreamStop">Stop</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="camera-settng-table" class="camsettings">
+
+      <div class="row">
+        <div class="column">
+          Exposure Mode
+        </div>
+        <div class="column">
+          1=manual, 3=auto
+        </div>
+        <div class="column">
+          <form id="exposure_mode_form">
+            <input type="text" id="exposure_mode_form_input" name="exposure_mode" value=3>
+          </form>
+        </div>
+        <div class="column">
+          <button id="btnSetExposureMode">Submit</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="column">
+          Exposure Setting
+        </div>
+        <div class="column">
+          [3 - 2047]
+        </div>
+        <div class="column">
+          <form id="exposure_setting_form">
+            <input type="text" id="exposure_setting_form_input" name="exposure_setting" value=250>
+          </form>
+        </div>
+        <div class="column">
+          <button id="btnSetExposureAbsolute">Submit</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="column">
+          Brightness
+        </div>
+        <div class="column">
+          [0 - 255]
+        </div>
+        <div class="column">
+          <form id="brightness_form">
+            <input type="text" id="brightness_form_input" name="brightness" value=128>
+          </form>
+        </div>
+        <div class="column">
+          <button id="btnSetBrightness">Submit</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="column">
+          Gain
+        </div>
+        <div class="column">
+          [0 - 255]
+        </div>
+        <div class="column">
+          <form id="gain_form">
+            <input type="text" id="gain_form_input" name="gain" value=127>
+          </form>
+        </div>
+        <div class="column">
+          <button id="btnSetGain">Submit</button>
+        </div>
+      </div>
+    </div>
+    
+    <div id="focus-settng-table" class="camsettings">
+      <div class="row">
+        <div class="column">
+          Focus Auto
+        </div>
+        <div class="column">
+          0, 1
+        </div>
+        <div class="column">
+          <form id="focus_auto_form">
+            <input type="text" id="focus_auto_form_input" name="focus_auto" value=1>
+          </form>
+        </div>
+        <div class="column">
+          <button id="btnSetFocusAuto">Submit</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="column">
+          Focus Absolute
+        </div>
+        <div class="column">
+          [0 - 255]
+        </div>
+        <div class="column">
+          <form id="focus_absolute_form">
+            <input type="text" id="focus_absolute_form_input" name="focus_absolute" value=0>
+          </form>
+        </div>
+        <div class="column">
+          <button id="btnSetFocusAbsolute">Submit</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div id="sensor-table" class="row">
+      <div class="column">
+        SENSOR
+      </div>
+      <div class="column">
+        <iframe src="sensors" title="Sensor Data" id="sensor_frame" style="border:none;display:block;width:100%;"></iframe>
+      </div>
+    </div>
+
+    <div id="status-table" class="row">
+      <div class="column">
+        STATUS
+      </div>
+    </div>
+
+    <div id="about-table" class="cam">
+      <div class="row">
+        ABOUT
+      </div>
+      <div class="row">
+        <input type="checkbox" id="cbAdvancedMode">Advanced Mode</input>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

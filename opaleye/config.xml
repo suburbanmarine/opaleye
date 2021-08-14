@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<video_path>/mnt/video/opaleye/video</video_path>
+	<image_path>/mnt/video/opaleye/image</image_path>
+	<log_path>/mnt/video/opaleye/log</log_path>
+	<h264_mode>nv</h264_mode>
+</config>

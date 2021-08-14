@@ -1,0 +1,93 @@
+#!/bin/bash
+
+# set -x
+# trap read debug
+
+trap 'exit -1' err
+
+if ! id -u opaleye &>/dev/null ; then
+	# create a no-login system user with a home dir
+	useradd opaleye -s /usr/sbin/nologin --create-home --system -U -G cdrom,audio,dip,video,plugdev,lightdm
+fi
+
+# add nvidia groups
+# https://stackoverflow.com/a/46651233
+if getent group i2c &>/dev/null ; then
+	if ! id -nGz opaleye | grep -qzxF i2c ; then
+		adduser opaleye i2c
+	fi
+fi
+
+if getent group gdm &>/dev/null ; then
+	if ! id -nGz opaleye | grep -qzxF gdm ; then
+		adduser opaleye gdm
+	fi
+fi
+
+if getent group weston-launch &>/dev/null ; then
+	if ! id -nGz opaleye | grep -qzxF weston-launch ; then
+		adduser opaleye weston-launch
+	fi
+fi
+
+if getent group gpio &>/dev/null ; then
+	if ! id -nGz opaleye | grep -qzxF gpio ; then
+		adduser opaleye gpio
+	fi
+fi
+
+if [[ -f /etc/nginx/sites-enabled/opaleye  ]]; then
+	rm /etc/nginx/sites-enabled/opaleye
+fi
+
+if [[ -f /etc/nginx/sites-enabled/default  ]]; then
+	rm /etc/nginx/sites-enabled/default
+fi
+
+ln -s /etc/nginx/sites-available/opaleye /etc/nginx/sites-enabled/opaleye 
+
+if systemctl is-active --quiet nginx ; then
+	service nginx reload
+fi
+
+if systemctl is-active --quiet smbd ; then
+	systemctl restart smbd
+fi
+
+mkdir -p /opt/suburbanmarine/opaleye/record/video
+mkdir -p /opt/suburbanmarine/opaleye/record/image
+mkdir -p /opt/suburbanmarine/opaleye/log
+
+chown opaleye:opaleye /opt/suburbanmarine/opaleye/record/video
+chmod g+w             /opt/suburbanmarine/opaleye/record/video
+chown opaleye:opaleye /opt/suburbanmarine/opaleye/record/image
+chmod g+w             /opt/suburbanmarine/opaleye/record/image
+chown opaleye:opaleye /opt/suburbanmarine/opaleye/log
+chmod g+w             /opt/suburbanmarine/opaleye/log
+
+if [[ -d /mnt/video/opaleye  ]]; then
+	mkdir -p /mnt/video/opaleye/video
+	mkdir -p /mnt/video/opaleye/image
+	mkdir -p /mnt/video/opaleye/log
+
+	chown nvidia:nvidia /mnt/video/opaleye
+	chmod 0755          /mnt/video/opaleye
+
+	chown nvidia:opaleye /mnt/video/opaleye/video
+	chmod g+w            /mnt/video/opaleye/video
+	chmod g+s            /mnt/video/opaleye/video
+	chown nvidia:opaleye /mnt/video/opaleye/image
+	chmod g+w            /mnt/video/opaleye/image
+	chmod g+s            /mnt/video/opaleye/image
+	chown nvidia:opaleye /mnt/video/opaleye/log
+	chmod g+w            /mnt/video/opaleye/log
+	chmod g+s            /mnt/video/opaleye/log
+fi
+
+# systemctl enable ptp4l.service 
+systemctl enable opaleye.service 
+
+# systemctl start ptp4l.service 
+systemctl start opaleye.service 
+
+exit 0

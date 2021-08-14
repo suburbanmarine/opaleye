@@ -1,0 +1,104 @@
+# Cam-pod server configuration
+#
+server {
+	listen 80 default_server;
+	listen [::]:80 default_server;
+
+	root /opt/suburbanmarine/opaleye/site;
+
+	# Add index.php to the list if you are using PHP
+	index index.html index.htm index.nginx-debian.html;
+
+	server_name $hostname;
+
+
+	location / {
+		# First attempt to serve request as file, then
+		# as directory, then fall back to displaying a 404.
+		try_files $uri $uri/ =404;
+
+		# use item if younger than expires, otherwise verify etag
+		add_header Cache-Control must-revalidate;
+		expires    60;
+		etag on;
+	}
+
+	location /static {
+
+		# use item if younger than expires, otherwise verify etag
+		add_header Cache-Control must-revalidate;
+		expires    3600;
+		etag on;
+
+		sendfile           on;
+		sendfile_max_chunk 1m;
+	}
+
+	location /api/v1 {
+		fastcgi_pass   127.0.0.1:50000;
+
+		include        fastcgi_params;
+	}
+
+	location /cameras {
+		fastcgi_pass   127.0.0.1:50000;
+
+		include        fastcgi_params;
+	}
+
+	location /sensors {
+		fastcgi_pass   127.0.0.1:50000;
+
+		include        fastcgi_params;
+	}
+
+	location /video {
+		root /mnt/video/opaleye;
+		autoindex on;
+
+		# do not cache
+		add_header Cache-Control no-store;
+		expires    0;
+		etag on;
+
+		directio 4m;
+		directio_alignment 4k;
+	}
+
+	location /image {
+		root /mnt/video/opaleye;
+		autoindex on;
+
+		# verify etag before using item
+		# add_header Cache-Control no-cache;
+		# etag on;
+
+		# use item if younger than expires, otherwise verify etag
+		add_header Cache-Control must-revalidate;
+		expires    3600;
+		etag on;
+
+		directio 4m;
+		directio_alignment 4k;
+	}
+}
+
+
+# Virtual Host configuration for example.com
+#
+# You can move that to a different file under sites-available/ and symlink that
+# to sites-enabled/ to enable it.
+#
+#server {
+# listen 80;
+# listen [::]:80;
+#
+# server_name example.com;
+#
+# root /var/www/example.com;
+# index index.html;
+#
+# location / {
+#   try_files $uri $uri/ =404;
+# }
+#}

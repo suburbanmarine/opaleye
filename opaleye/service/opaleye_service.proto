@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+import "opaleye_msg.proto";
+
+service Opaleye
+{
+	rpc start_camera(StartCameraRequest) returns (StartCameraReply) {}
+}
