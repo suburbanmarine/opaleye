@@ -16,6 +16,8 @@
 #include "pipeline/Thumbnail_sw2_pipe.hpp"
 #include "pipeline/Thumbnail_nv_pipe.hpp"
 
+#include "jsonrpc-lean/fault.h"
+
 #include <boost/lexical_cast.hpp>
 
 #include <spdlog/spdlog.h>
@@ -429,4 +431,55 @@ bool test_app::set_camera_property(const std::string& camera_id, const std::stri
   }
 
   return ret;
+}
+
+bool test_app::get_camera_property(const std::string& camera_id, const std::string& property_id, int value)
+{
+  int value = 0;
+
+  bool ret = false;
+  if(camera_id == "cam0")
+  {
+    if(property_id == "exposure_mode")
+    {
+      ret = m_camera.get_exposure_mode(&value); 
+    }
+    else if(property_id == "exposure_absolute")
+    {
+     ret = m_camera.get_exposure_value(&value);
+    }
+    else if(property_id == "focus_absolute")
+    {
+      ret = m_camera.get_focus_absolute(&value);
+    }
+    else if(property_id == "focus_auto")
+    {
+      ret = m_camera.get_focus_auto(&value);
+    }
+    else if(property_id == "brightness")
+    {
+      ret = m_camera.get_brightness(&value);
+    }
+    else if(property_id == "gain")
+    {
+      ret = m_camera.get_gain(&value);
+    }
+    else
+    {
+      throw jsonrpc::Fault("Property not found", jsonrpc::Fault::INVALID_PARAMETERS)
+      ret = false; 
+    }
+  }
+  else
+  {
+    throw jsonrpc::Fault("Camera not found", jsonrpc::Fault::INVALID_PARAMETERS)
+    ret = false; 
+  }
+
+  if( ! ret )
+  {
+    throw jsonrpc::Fault("Request failed", jsonrpc::Fault::INTERNAL_ERROR)
+  }
+
+  return value; 
 }

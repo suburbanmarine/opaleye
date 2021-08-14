@@ -104,6 +104,7 @@ public:
 
   /* cameras */
   bool set_camera_property(const std::string& camera_id, const std::string& property_id, int value);
+  int get_camera_property(const std::string& camera_id, const std::string& property_id);
 
 // protected:
   Testsrc_pipe       m_test_src;
