@@ -41,11 +41,11 @@ Portions of the Opaleye reference design are also open hardware.
 
 ### BOM
 
-TBD
+[Link](https://github.com/suburbanmarine/opaleye-hardware#bom)
 
 ### Mechanical Drawings
 
-TBD
+[Link](https://github.com/suburbanmarine/opaleye-hardware)
 
 ## Cloning Instructions
 
