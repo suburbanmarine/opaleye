@@ -96,6 +96,7 @@ Opaleye depends on a number of external components.
  - npm
  - openssh-client
  - openssh-server
+ - device-tree-compiler
 
 ### Libraries
  - i2c-tools
@@ -163,6 +164,11 @@ Opaleye is very portable. The main hardware dependency is the hardware accelerat
 
 - Nvidia Xavier NX
 - Nvidia Jetson Nano
+  - Developer SOM: P3448-0000
+  - Dev MoBo: p3449-0000-a02
+  - Dev MoBo: p3449-0000-b00
+  - Production 16GB: P3448-0002
+  - Production 2GB: P3448-0003
 
 ### Jetson Nano Notes
 
