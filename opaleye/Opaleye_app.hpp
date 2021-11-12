@@ -21,13 +21,13 @@
 
 #include <memory>
 
-class test_app : public GST_app_base
+class Opaleye_app : public GST_app_base
 {
 public:
 
-  test_app();
+  Opaleye_app();
 
-  ~test_app() override;
+  ~Opaleye_app() override;
 
   bool init() override;
 

@@ -4,7 +4,7 @@
  * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
 */
 
-#include "gst_app.hpp"
+#include "Opaleye_app.hpp"
 
 #include "pipeline/encode/h264_swenc_bin.hpp"
 #include "pipeline/decode/jpeg_swdec_bin.hpp"
@@ -21,17 +21,17 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/printf.h>
 
-test_app::test_app()
+Opaleye_app::Opaleye_app()
 {
 
 }
 
-test_app::~test_app()
+Opaleye_app::~Opaleye_app()
 {
 
 }
 
-bool test_app::init()
+bool Opaleye_app::init()
 {
   if ( ! GST_app_base::init() )
   {
@@ -155,20 +155,20 @@ bool test_app::init()
 
   return true;
 }
-bool test_app::start_camera(const std::string& camera)
+bool Opaleye_app::start_camera(const std::string& camera)
 {
-  SPDLOG_INFO("test_app::start_camera({:s})", camera);
+  SPDLOG_INFO("Opaleye_app::start_camera({:s})", camera);
   return true;
 }
-bool test_app::stop_camera(const std::string& camera)
+bool Opaleye_app::stop_camera(const std::string& camera)
 {
-  SPDLOG_INFO("test_app::stop_camera({:s})", camera);
+  SPDLOG_INFO("Opaleye_app::stop_camera({:s})", camera);
   return true;
 }
 
-bool test_app::start_video_capture(const std::string& camera)
+bool Opaleye_app::start_video_capture(const std::string& camera)
 {
-  SPDLOG_INFO("test_app::start_video_capture({:s})", camera);
+  SPDLOG_INFO("Opaleye_app::start_video_capture({:s})", camera);
 
   if(m_mkv_pipe)
   {
@@ -201,9 +201,9 @@ bool test_app::start_video_capture(const std::string& camera)
 
   return true;
 }
-bool test_app::stop_video_capture(const std::string& camera)
+bool Opaleye_app::stop_video_capture(const std::string& camera)
 {
-  SPDLOG_INFO("test_app::stop_video_capture({:s})", camera);
+  SPDLOG_INFO("Opaleye_app::stop_video_capture({:s})", camera);
 
   if(!m_mkv_pipe)
   {
@@ -219,20 +219,20 @@ bool test_app::stop_video_capture(const std::string& camera)
   return true;
 }
 
-bool test_app::start_still_capture(const std::string& camera)
+bool Opaleye_app::start_still_capture(const std::string& camera)
 {
-  SPDLOG_INFO("test_app::start_still_capture({:s})", camera);
+  SPDLOG_INFO("Opaleye_app::start_still_capture({:s})", camera);
   return true;
 }
-bool test_app::stop_still_capture(const std::string& camera)
+bool Opaleye_app::stop_still_capture(const std::string& camera)
 {
-  SPDLOG_INFO("test_app::stop_still_capture({:s})", camera);
+  SPDLOG_INFO("Opaleye_app::stop_still_capture({:s})", camera);
   return true;
 }
 
-bool test_app::start_rtp_stream(const std::string& ip_addr, int port)
+bool Opaleye_app::start_rtp_stream(const std::string& ip_addr, int port)
 {
-  SPDLOG_INFO("test_app::start_rtp_stream {:s}:{:d}", ip_addr, port);
+  SPDLOG_INFO("Opaleye_app::start_rtp_stream {:s}:{:d}", ip_addr, port);
 
   if( (port < 0) || (port > 65535))
   {
@@ -241,9 +241,9 @@ bool test_app::start_rtp_stream(const std::string& ip_addr, int port)
 
   return m_rtpsink.add_udp_client(ip_addr, port);
 }
-bool test_app::stop_rtp_stream(const std::string& ip_addr, int port)
+bool Opaleye_app::stop_rtp_stream(const std::string& ip_addr, int port)
 {
-  SPDLOG_INFO("test_app::stop_rtp_stream {:s}:{:d}", ip_addr, port);
+  SPDLOG_INFO("Opaleye_app::stop_rtp_stream {:s}:{:d}", ip_addr, port);
 
   if( (port < 0) || (port > 65535))
   {
@@ -252,14 +252,14 @@ bool test_app::stop_rtp_stream(const std::string& ip_addr, int port)
 
   return m_rtpsink.remove_udp_client(ip_addr, port);
 }
-bool test_app::stop_rtp_all_stream()
+bool Opaleye_app::stop_rtp_all_stream()
 {
-  SPDLOG_INFO("test_app::stop_rtp_all_stream");
+  SPDLOG_INFO("Opaleye_app::stop_rtp_all_stream");
   return false;
 }
-std::string test_app::get_pipeline_status()
+std::string Opaleye_app::get_pipeline_status()
 {
-  SPDLOG_INFO("test_app::get_pipeline_status");
+  SPDLOG_INFO("Opaleye_app::get_pipeline_status");
   Glib::RefPtr<Gst::Bin> bin = m_pipeline;
   Gst::State state;
   Gst::State pending_state;
@@ -332,9 +332,9 @@ std::string test_app::get_pipeline_status()
 
   return fmt::format("{:s}-{:s}", state_str, ret_str);
 }
-std::string test_app::get_pipeline_graph()
+std::string Opaleye_app::get_pipeline_graph()
 {
-  SPDLOG_INFO("test_app::get_pipeline_graph");
+  SPDLOG_INFO("Opaleye_app::get_pipeline_graph");
   
   make_debug_dot("pipeline");
   int ret = system("dot -Tpdf -o /tmp/pipeline.dot.pdf /tmp/pipeline.dot");
@@ -355,41 +355,41 @@ std::string test_app::get_pipeline_graph()
 
   return std::string();
 }
-void test_app::set_config(const std::string& config)
+void Opaleye_app::set_config(const std::string& config)
 {
-  SPDLOG_INFO("test_app::set_config()");
+  SPDLOG_INFO("Opaleye_app::set_config()");
 }
-std::string test_app::get_config() const
+std::string Opaleye_app::get_config() const
 {
-  SPDLOG_INFO("test_app::get_config");
+  SPDLOG_INFO("Opaleye_app::get_config");
   return std::string();
 }
 
-void test_app::set_default_config()
+void Opaleye_app::set_default_config()
 {
-  SPDLOG_INFO("test_app::set_default_config");
+  SPDLOG_INFO("Opaleye_app::set_default_config");
 }
 
-void test_app::restart_software()
+void Opaleye_app::restart_software()
 {
-  SPDLOG_INFO("test_app::restart_software");
+  SPDLOG_INFO("Opaleye_app::restart_software");
 }
-void test_app::reboot()
+void Opaleye_app::reboot()
 {
-  SPDLOG_INFO("test_app::reboot");
+  SPDLOG_INFO("Opaleye_app::reboot");
 }
-void test_app::shutdown()
+void Opaleye_app::shutdown()
 {
-  SPDLOG_INFO("test_app::shutdown");
+  SPDLOG_INFO("Opaleye_app::shutdown");
 }
 
-std::vector<std::string> test_app::get_camera_list() const
+std::vector<std::string> Opaleye_app::get_camera_list() const
 {
-  SPDLOG_INFO("test_app::get_camera_list");
+  SPDLOG_INFO("Opaleye_app::get_camera_list");
   return std::vector<std::string>();
 }
 
-bool test_app::set_camera_property(const std::string& camera_id, const std::string& property_id, int value)
+bool Opaleye_app::set_camera_property(const std::string& camera_id, const std::string& property_id, int value)
 {
   bool ret = false;
   if(camera_id == "cam0")
