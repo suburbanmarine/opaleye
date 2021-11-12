@@ -21,6 +21,22 @@
 
 #include <memory>
 
+class Gstreamer_pipeline
+{
+public:
+
+  bool make_pipeline(const pipeline_config& config);
+
+protected:
+    
+    bool make_brio_pipeline();
+    bool make_imx219_pipeline();
+
+    std::map<std::string, std::shared_ptr<GST_element_base>> m_node_storage;
+
+    pipeline_config m_config;
+};
+
 class Opaleye_app : public GST_app_base
 {
 public:
@@ -106,6 +122,10 @@ public:
   bool set_camera_property(const std::string& camera_id, const std::string& property_id, int value);
 
 // protected:
+
+  //pipeline name to pipeline
+  std::map<std::string, std::shared_ptr<Gstreamer_pipeline>> m_pipelines;
+
   Testsrc_pipe       m_test_src;
   V4L2_webcam_pipe   m_camera;
 
