@@ -21,17 +21,39 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/printf.h>
 
-bool Gstreamer_pipeline::make_pipeline(const pipeline_config& config)
+Gstreamer_pipeline::Gstreamer_pipeline()
 {
-  m_config = config;
+
+}
+
+Gstreamer_pipeline::~Gstreamer_pipeline()
+{
+
+}
+
+bool Gstreamer_pipeline::init()
+{
+  if ( ! GST_app_base::init() )
+  {
+    SPDLOG_ERROR("Could not init GST_app_base");
+    return false;
+  }
+
+  return true;
+}
+
+bool Gstreamer_pipeline::make_pipeline(const std::shared_ptr<const app_config>& app_config, const pipeline_config& pipe_config)
+{
+  m_app_config = app_config;
+  m_pipeline_config = pipe_config;
 
   bool ret = false;
 
-  if(m_config.type == "brio")
+  if(m_pipeline_config.type == "brio")
   {
     ret = make_brio_pipeline();
   }
-  else if(m_config.type == "imx219")
+  else if(m_pipeline_config.type == "imx219")
   {
     make_imx219_pipeline();
   }
@@ -45,8 +67,8 @@ bool Gstreamer_pipeline::make_pipeline(const pipeline_config& config)
 
 bool Gstreamer_pipeline::make_brio_pipeline()
 {
-  #if 0
-  if(m_config->h264_mode == "nv")
+  #if 1
+  if(m_app_config->h264_mode == "nv")
   {
     SPDLOG_INFO("NV mode");
     // https://forums.developer.nvidia.com/t/bus-error-with-gstreamer-and-opencv/110657/5
@@ -155,7 +177,7 @@ bool Gstreamer_pipeline::make_brio_pipeline()
   m_rtppay.link_back(m_rtpsink.front());
   #endif
 
-  return false;
+  return true;
 }
 
 bool Gstreamer_pipeline::make_imx219_pipeline()
@@ -175,125 +197,26 @@ Opaleye_app::~Opaleye_app()
 
 bool Opaleye_app::init()
 {
-  if ( ! GST_app_base::init() )
-  {
-    SPDLOG_ERROR("Could not init GST_app_base");
-    return false;
-  }
-
   if(!m_config)
   {
     m_config = std::make_shared<app_config>();
     m_config->make_default();
   }
 
-  if(m_config->h264_mode == "nv")
   {
-    SPDLOG_INFO("NV mode");
-    // https://forums.developer.nvidia.com/t/bus-error-with-gstreamer-and-opencv/110657/5
-    // libjpeg and nvjpegdec may not be used in the same program...
-    // m_jpgdec = std::make_shared<jpeg_nvdec_pipe>();
-    // m_jpgdec = std::make_shared<jpeg_swdec_bin>();
-    m_jpgdec = std::make_shared<jpeg_nvv4l2decoder_bin>();
-    m_h264   = std::make_shared<h264_nvenc_bin>();
-    m_thumb  = std::make_shared<Thumbnail_nv_pipe>();
-  }
-  else
-  {
-    SPDLOG_INFO("CPU mode");
+    std::shared_ptr<Gstreamer_pipeline> pipeline0 = std::make_shared<Gstreamer_pipeline>();
+    if( ! pipeline0->init() )
+    {
+      return false;
+    }
 
-    m_jpgdec = std::make_shared<jpeg_swdec_bin>();
-    m_h264   = std::make_shared<h264_swenc_bin>();
-    m_thumb  = std::make_shared<Thumbnail_sw_pipe>();
+    if( ! pipeline0->make_pipeline(m_config, m_config->camera_configs["cam0"].pipeline) )
+    {
+      return false;
+    }
     
+    m_pipelines["pipe0"] = pipeline0;
   }
-
-  // if( ! m_test_src.init("cam_1") )
-  // {
-  //  SPDLOG_ERROR("Could not init camera");
-  //  return false;
-  // }
-
-  if( ! m_camera.init("cam_0") )
-  {
-   SPDLOG_ERROR("Could not init camera");
-   return false;
-  }
-
-  if( ! m_jpgdec->init("jpgdec_0") )
-  {
-   SPDLOG_ERROR("Could not init jpgdec");
-   return false;
-  }
-
-  if( ! m_thumb->init("thumb_0") )
-  {
-   SPDLOG_ERROR("Could not init thumb");
-   return false;
-  }
-
-  if( ! m_h264->init("h264_0") )
-  {
-   SPDLOG_ERROR("Could not init h264");
-   return false;
-  }
-
-  if( ! m_h264_interpipesink.init("h264_ipsink_0") )
-  {
-   SPDLOG_ERROR("Could not init h264 interpipe");
-   return false;
-  }
-  
-  // if( ! m_mkv.init("mkv_0") )
-  // {
-  //  SPDLOG_ERROR("Could not init mkv");
-  //  return false;
-  // }
-
-  // if( ! m_display.init("display_0") )
-  // {
-  //  SPDLOG_ERROR("Could not init m_display");
-  //  return false;
-  // }
-
-  if( ! m_rtppay.init("rtp_0") )
-  {
-   SPDLOG_ERROR("Could not init m_rtp");
-   return false;
-  }
-
-  if( ! m_rtpsink.init("udp_0") )
-  {
-   SPDLOG_ERROR("Could not init m_udp");
-   return false;
-  }
-
-  //add elements to top level bin
-  m_camera.add_to_bin(m_pipeline);
-  m_jpgdec->add_to_bin(m_pipeline);
-  // m_test_src.add_to_bin(m_pipeline);
-  m_thumb->add_to_bin(m_pipeline);
-  m_h264->add_to_bin(m_pipeline);
-  m_h264_interpipesink.add_to_bin(m_pipeline);
-  // m_mkv.add_to_bin(m_pipeline);
-  // m_display.add_to_bin(m_pipeline);
-  m_rtppay.add_to_bin(m_pipeline);
-  m_rtpsink.add_to_bin(m_pipeline);
-
-  //link pipeline
-  m_camera.link_back(m_jpgdec->front());
-  m_camera.link_back(m_thumb->front());
-
-  // m_jpgdec->link_back(m_display.front());
-  m_jpgdec->link_back(m_h264->front());
-
-  // m_test_src.link_back(m_display.front());
-  // m_test_src.link_back(m_h264->front());
-
-  m_h264->link_back(m_rtppay.front());
-  m_h264->link_back(m_h264_interpipesink.front());
-
-  m_rtppay.link_back(m_rtpsink.front());
 
   return true;
 }
@@ -311,6 +234,8 @@ bool Opaleye_app::stop_camera(const std::string& camera)
 bool Opaleye_app::start_video_capture(const std::string& camera)
 {
   SPDLOG_INFO("Opaleye_app::start_video_capture({:s})", camera);
+
+  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe = m_pipelines["pipe0"]->m_mkv_pipe;
 
   if(m_mkv_pipe)
   {
@@ -347,6 +272,8 @@ bool Opaleye_app::stop_video_capture(const std::string& camera)
 {
   SPDLOG_INFO("Opaleye_app::stop_video_capture({:s})", camera);
 
+  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe = m_pipelines["pipe0"]->m_mkv_pipe;
+
   if(!m_mkv_pipe)
   {
     return false;
@@ -381,6 +308,8 @@ bool Opaleye_app::start_rtp_stream(const std::string& ip_addr, int port)
     throw std::domain_error("port must be in [0, 65535]");
   }
 
+  rtpsink_pipe& m_rtpsink = m_pipelines["pipe0"]->m_rtpsink;
+
   return m_rtpsink.add_udp_client(ip_addr, port);
 }
 bool Opaleye_app::stop_rtp_stream(const std::string& ip_addr, int port)
@@ -392,6 +321,8 @@ bool Opaleye_app::stop_rtp_stream(const std::string& ip_addr, int port)
     throw std::domain_error("port must be in [0, 65535]");
   }
 
+  rtpsink_pipe& m_rtpsink = m_pipelines["pipe0"]->m_rtpsink;
+
   return m_rtpsink.remove_udp_client(ip_addr, port);
 }
 bool Opaleye_app::stop_rtp_all_stream()
@@ -399,10 +330,38 @@ bool Opaleye_app::stop_rtp_all_stream()
   SPDLOG_INFO("Opaleye_app::stop_rtp_all_stream");
   return false;
 }
+
+bool Opaleye_app::start()
+{
+  SPDLOG_INFO("Opaleye_app::start");
+  
+  bool ret = true;
+
+  for(auto& v : m_pipelines)
+  {
+    ret = ret && v.second->start();
+  }
+
+  return ret;
+}
+bool Opaleye_app::stop()
+{
+  SPDLOG_INFO("Opaleye_app::stop");
+
+  bool ret = true;
+
+  for(auto& v : m_pipelines)
+  {
+    ret = ret && v.second->stop();
+  }
+
+  return ret;
+}
+
 std::string Opaleye_app::get_pipeline_status()
 {
   SPDLOG_INFO("Opaleye_app::get_pipeline_status");
-  Glib::RefPtr<Gst::Bin> bin = m_pipeline;
+  Glib::RefPtr<Gst::Bin> bin = m_pipelines["pipe0"]->get_pipeline();
   Gst::State state;
   Gst::State pending_state;
   Gst::StateChangeReturn ret = bin->get_state(state, pending_state, 0);
@@ -478,13 +437,14 @@ std::string Opaleye_app::get_pipeline_graph()
 {
   SPDLOG_INFO("Opaleye_app::get_pipeline_graph");
   
-  make_debug_dot("pipeline");
+  m_pipelines["pipe0"]->make_debug_dot("pipeline");
   int ret = system("dot -Tpdf -o /tmp/pipeline.dot.pdf /tmp/pipeline.dot");
   if(ret == -1)
   {
     SPDLOG_ERROR("Could not create pdf");
   }
 
+  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe = m_pipelines["pipe0"]->m_mkv_pipe;
   if(m_mkv_pipe)
   {
     m_mkv_pipe->make_debug_dot("pipeline_mkv");
@@ -533,6 +493,8 @@ std::vector<std::string> Opaleye_app::get_camera_list() const
 
 bool Opaleye_app::set_camera_property(const std::string& camera_id, const std::string& property_id, int value)
 {
+  V4L2_webcam_pipe& m_camera = m_pipelines["pipe0"]->m_camera;
+
   bool ret = false;
   if(camera_id == "cam0")
   {

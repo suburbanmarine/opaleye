@@ -159,7 +159,7 @@ int main(int argc, char* argv[])
 	}
 
 	std::shared_ptr<http_req_jpeg> jpg_cb = std::make_shared<http_req_jpeg>();
-	jpg_cb->set_get_image_cb(std::bind(&Thumbnail_pipe_base::copy_frame_buffer, app.m_thumb.get(), std::placeholders::_1));
+	jpg_cb->set_get_image_cb(std::bind(&Thumbnail_pipe_base::copy_frame_buffer, app.m_pipelines["pipe0"]->m_thumb.get(), std::placeholders::_1));
 
 	fcgi_svr.register_cb_for_doc_uri("/cameras/cam0.jpg", jpg_cb);
 
@@ -188,14 +188,14 @@ int main(int argc, char* argv[])
 	// cam.open();
 	// cam.start();
 
-	app.make_debug_dot("vid-app");
-	app.make_debug_dot_ts("vid-app");
+	app.m_pipelines["pipe0"]->make_debug_dot("vid-app");
+	app.m_pipelines["pipe0"]->make_debug_dot_ts("vid-app");
 
 	// app.run();
 
 	std::this_thread::sleep_for(std::chrono::seconds(5));
-	app.m_camera.v4l2_probe();
-	app.m_camera.get_property_description();
+	app.m_pipelines["pipe0"]->m_camera.v4l2_probe();
+	app.m_pipelines["pipe0"]->m_camera.get_property_description();
 
 	if( ! sig_hndl.mask_def_signals() )
 	{

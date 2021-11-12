@@ -13,7 +13,7 @@
 			<properties>
 			</properties>
 			<pipeline>
-				<name>cam0_primary</name>
+				<name>pipe0</name>
 				<type>brio</type>
 			</pipeline>
 		<camera>
@@ -29,7 +29,7 @@
 			</properties>
 
 			<pipeline>
-				<name>cam1_primary</name>
+				<name>pipe1</name>
 				<type>brio</type>
 			</pipeline>
 		<camera>

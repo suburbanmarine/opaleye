@@ -40,6 +40,11 @@ public:
 
   void run_glib_main();
 
+  Glib::RefPtr<Gst::Pipeline> get_pipeline()
+  {
+    return m_pipeline;
+  }
+
 protected:
   Glib::RefPtr<Glib::MainContext>  m_mainloop_context;
   Glib::RefPtr<Glib::MainLoop>     m_mainloop;

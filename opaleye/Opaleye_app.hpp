@@ -23,49 +23,76 @@
 
 // REST URL endpoints
 
-// /sensors/
-// /sensors/pressure
-// /sensors/temperature
+// Get sensor data
+// /api/v1/sensors/
+// /api/v1/sensors/pressure
+// /api/v1/sensors/pressure/0
+// /api/v1/sensors/temperature
+// /api/v1/sensors/temperature/0
+// /api/v1/sensors/temperature/1
 
-// /cameras/
-// /cameras/XXX/properties
-// /cameras/XXX/live/full
-// /cameras/XXX/live/preview
+// Get camera info
+// /api/v1/cameras/
+// /api/v1/cameras/cam0/properties
+// /api/v1/cameras/cam0/live/full
+// /api/v1/cameras/cam0/live/preview
 
-// /pipelines
-// /pipelines/YYY/properties
-// /pipelines/YYY/graph
+// Get pipeline info
+// /api/v1/pipelines
+// /api/v1/pipelines/pipe0/properties
+// /api/v1/pipelines/pipe0/graph
 
-// /api/v1
+// Other RPC calls
+// /api/v1/rpc
 
-class Gstreamer_pipeline
+class Gstreamer_pipeline : public GST_app_base
 {
 public:
 
-  bool make_pipeline(const pipeline_config& config);
+  Gstreamer_pipeline();
 
-protected:
+  ~Gstreamer_pipeline() override;
+
+  bool init() override;
+  bool make_pipeline(const std::shared_ptr<const app_config>& app_config, const pipeline_config& pipe_config);
+
+// protected:
     
-    bool make_brio_pipeline();
-    bool make_imx219_pipeline();
+  bool make_brio_pipeline();
+  bool make_imx219_pipeline();
+  bool make_virtual_pipeline();
 
-    std::map<std::string, std::shared_ptr<GST_element_base>> m_node_storage;
+  // std::map<std::string, std::shared_ptr<GST_element_base>> m_node_storage;
 
-    pipeline_config m_config;
+  Testsrc_pipe       m_test_src;
+  V4L2_webcam_pipe   m_camera;
 
-    Glib::RefPtr<Gst::Pipeline> m_pipeline;
-    Glib::RefPtr<Gst::Bus>      m_pipeline_bus;
+  std::shared_ptr<GST_element_base> m_jpgdec;
+  std::shared_ptr<GST_element_base> m_h264;
+
+  std::shared_ptr<Thumbnail_pipe_base> m_thumb;
+
+  GST_interpipesink      m_h264_interpipesink;
+
+  rtp_h264_pipe          m_rtppay;
+  rtpsink_pipe           m_rtpsink;
+  autovideosink_pipe     m_display;
+
+  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe;
+
+  pipeline_config                   m_pipeline_config;
+  std::shared_ptr<const app_config> m_app_config;
 };
 
-class Opaleye_app : public GST_app_base
+class Opaleye_app
 {
 public:
 
   Opaleye_app();
 
-  ~Opaleye_app() override;
+  ~Opaleye_app();
 
-  bool init() override;
+  bool init();
 
   //The API Handlers
   //May be called by local code or the jsonrpc interface or the FCGI interface
@@ -87,9 +114,14 @@ public:
   std::string get_sdp_file() const;
 
   ///
-  /// Stop most activity.
+  /// Start all pipelines.
   ///
-  // bool stop();
+  bool start();
+
+  ///
+  /// Stop all pipelines.
+  ///
+  bool stop();
 
   ///
   /// Null, running, paused, ...
@@ -145,22 +177,6 @@ public:
 
   //pipeline name to pipeline
   std::map<std::string, std::shared_ptr<Gstreamer_pipeline>> m_pipelines;
-
-  Testsrc_pipe       m_test_src;
-  V4L2_webcam_pipe   m_camera;
-
-  std::shared_ptr<GST_element_base> m_jpgdec;
-  std::shared_ptr<GST_element_base> m_h264;
-
-  std::shared_ptr<Thumbnail_pipe_base> m_thumb;
-
-  GST_interpipesink      m_h264_interpipesink;
-
-  rtp_h264_pipe          m_rtppay;
-  rtpsink_pipe           m_rtpsink;
-  autovideosink_pipe     m_display;
-
-  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe;
 
   std::shared_ptr<app_config> m_config;
 
