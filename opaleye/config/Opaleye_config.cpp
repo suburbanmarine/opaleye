@@ -13,6 +13,7 @@
 #include <spdlog/spdlog.h>
 
 #include <sstream>
+#include <stdexcept>
 
 bool app_config::deserialize(const boost::property_tree::ptree& tree)
 {
@@ -84,7 +85,7 @@ std::string app_config::to_xml_string() const
 
 	if( ! serialize(&temp) )
 	{
-
+		throw std::domain_error("Could not serialize configuration");
 	}
 
 	std::stringstream ss;
@@ -98,7 +99,7 @@ std::string app_config::to_json_string() const
 
 	if( ! serialize(&temp) )
 	{
-		
+		throw std::domain_error("Could not serialize configuration");
 	}
 
 	std::stringstream ss;
