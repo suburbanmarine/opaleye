@@ -18,12 +18,30 @@ In the future, we hope to grow these capibilities:
 
  - Edge computing
      - Local reduction and processing of sensor data using DSP, neural networks
+ - Information Security
+     - HW TRNG
+     - Secure key enclave
  - Networking
      - 1588v2 timestamping - microsecond level accurate global timestamps on video and sensor data across a large network
      - High bandwidth two wire ethernet
  - Video
      - RTSP - automatic video stream negotation
      - RTCP - automatic video stream quality adjustment based on bandwidth
+
+## Software Overview
+
+### Supported Cameras
+
+- Logitech Brio
+- imx219
+
+### Processing Model
+
+Opaleye can configure multiple cameras, identified by name. These can drive multiple pipelines, identified by name.
+
+A REST api is provided to allow accessing frames and controlling over json-rpc.
+
+The idea is to allow both high res and low bandwidth preview streams to be created, or perhaps video and still frame creation. Additional pipelines are teed after the basic camera element. Some work may need to be added to share things like basic image processing / demosaic / overlay.
 
 ## License
 
@@ -55,7 +73,7 @@ Ensure you have ssh keys registered for git-over-ssh based cloning. Opaleye's su
 foo@bar:~$ git clone git@github.com:suburbanmarine/opaleye.git
 ```
 
-Opaleye uses a number of git submodules, so makre sure those are set up as well. For first clone:
+Opaleye uses a number of git submodules, so make sure those are set up as well. For first clone:
 
 ```console
 foo@bar:~$ git submodule update --init --recursive

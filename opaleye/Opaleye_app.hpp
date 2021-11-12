@@ -21,6 +21,23 @@
 
 #include <memory>
 
+// REST URL endpoints
+
+// /sensors/
+// /sensors/pressure
+// /sensors/temperature
+
+// /cameras/
+// /cameras/XXX/properties
+// /cameras/XXX/live/full
+// /cameras/XXX/live/preview
+
+// /pipelines
+// /pipelines/YYY/properties
+// /pipelines/YYY/graph
+
+// /api/v1
+
 class Gstreamer_pipeline
 {
 public:
@@ -35,6 +52,9 @@ protected:
     std::map<std::string, std::shared_ptr<GST_element_base>> m_node_storage;
 
     pipeline_config m_config;
+
+    Glib::RefPtr<Gst::Pipeline> m_pipeline;
+    Glib::RefPtr<Gst::Bus>      m_pipeline_bus;
 };
 
 class Opaleye_app : public GST_app_base
@@ -50,7 +70,7 @@ public:
   //The API Handlers
   //May be called by local code or the jsonrpc interface or the FCGI interface
   //Must be MT safe - multiple calls may be concurrent on different threads
-  //May block
+  //May block - this will gate new client connection processing, this is configurable between NGINX and our FCGI settings
   std::vector<std::string> get_camera_list() const;
   bool start_camera(const std::string& camera);
   bool stop_camera(const std::string& camera);
