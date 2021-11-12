@@ -162,6 +162,7 @@ int main(int argc, char* argv[])
 	jpg_cb->set_get_image_cb(std::bind(&Thumbnail_pipe_base::copy_frame_buffer, app.m_pipelines["pipe0"]->m_thumb.get(), std::placeholders::_1));
 
 	fcgi_svr.register_cb_for_doc_uri("/cameras/cam0.jpg", jpg_cb);
+	fcgi_svr.register_cb_for_doc_uri("/api/v1/cameras/cam0/live/full", jpg_cb);
 
 	std::shared_ptr<jsonrpc::Server> jsonrpc_svr_disp = std::make_shared<jsonrpc::Server>();
 	jsonrpc::JsonFormatHandler jsonFormatHandler;
