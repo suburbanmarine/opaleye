@@ -12,8 +12,8 @@
 #include "signal_handler.hpp"
 
 #include "Opaleye_app.hpp"
+#include "config/Opaleye_config.hpp"
 
-#include "app_config.hpp"
 #include "sensor_thread.hpp"
 
 #include <boost/filesystem.hpp>

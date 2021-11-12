@@ -6,8 +6,13 @@
 
 #pragma once
 
+#include "config/Opaleye_config_camera.hpp"
+
 #include <boost/filesystem.hpp>
-#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/ptree_fwd.hpp>
+
+#include <map>
+#include <string>
 
 class app_config
 {
@@ -17,30 +22,17 @@ public:
 	boost::filesystem::path	log_path;
 
 	std::string h264_mode;
+
+	std::map<std::string, camera_config> camera_configs;
 	
 	bool make_default();
 
 	bool deserialize(const boost::property_tree::ptree& tree);
-	bool serialize(boost::property_tree::ptree* const tree);
+	bool serialize(boost::property_tree::ptree* const tree) const;
+
+	std::string to_xml_string() const;
+	std::string to_json_string() const;
 
 protected:
 
-};
-
-class app_config_mgr
-{
-public:
-	bool deserialize(const boost::filesystem::path& p);
-	bool serialize(const boost::filesystem::path& p);
-
-
-	std::shared_ptr<app_config> get_config()
-	{
-		return m_config;
-	}
-
-protected:
-	boost::property_tree::ptree m_tree;
-
-	std::shared_ptr<app_config> m_config;
 };

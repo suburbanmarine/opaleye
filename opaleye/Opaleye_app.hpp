@@ -6,7 +6,7 @@
 
 #include "gst_filesink_pipeline.hpp"
 
-#include "app_config.hpp"
+#include "config/Opaleye_config_mgr.hpp"
 
 #include "pipeline/GST_app_base.hpp"
 #include "pipeline/GST_interpipesink.hpp"
