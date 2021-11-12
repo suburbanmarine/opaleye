@@ -1,7 +1,9 @@
 set(CMAKE_SYSTEM_NAME Linux)
 
-set(CXX_STANDARD 17)
-set(C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_EXTENSIONS   OFF)
 
 set(FLAGS_ARCH  "-mmmx -msse -msse2 -msse3 -mssse3")
 set(FLAGS_DBG   " ") # -fstack-protector-all -fsanitize=address

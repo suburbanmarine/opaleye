@@ -1,7 +1,9 @@
 set(CMAKE_SYSTEM_NAME Linux)
 
-set(CXX_STANDARD 17)
-set(C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_EXTENSIONS   OFF)
 
 set(FLAGS_ARCH  "-march=armv8-a+crypto+crc -mtune=cortex-a57")
 set(FLAGS_GEN   "-ffunction-sections -fdata-sections")
