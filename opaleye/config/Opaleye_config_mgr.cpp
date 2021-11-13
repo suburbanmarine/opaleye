@@ -12,7 +12,7 @@ bool app_config_mgr::deserialize(const boost::filesystem::path& p)
 	}
 	catch(const std::exception& e)
 	{
-	    SPDLOG_ERROR("app_config_mgr::deserialize Config XML parse failed", e.what());
+	    SPDLOG_ERROR("app_config_mgr::deserialize Config XML parse failed: {:s}", e.what());
 	    return false;
 	}
 
