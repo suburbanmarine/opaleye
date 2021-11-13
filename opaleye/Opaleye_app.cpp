@@ -302,7 +302,7 @@ bool Opaleye_app::init()
       return false;
     }
     
-    m_pipelines["pipe0"] = pipeline;
+    m_pipelines.emplace("pipe0", pipeline);
   }
 
   {
@@ -317,7 +317,7 @@ bool Opaleye_app::init()
       return false;
     }
     
-    m_pipelines["pipe1"] = pipeline;
+    m_pipelines.emplace("pipe1", pipeline);
   }
 
   return true;
