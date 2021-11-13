@@ -55,11 +55,11 @@ bool Gstreamer_pipeline::make_pipeline(const std::shared_ptr<const app_config>& 
   }
   else if(m_pipeline_config.type == "imx219")
   {
-    make_imx219_pipeline();
+    ret = make_imx219_pipeline();
   }
   else if(m_pipeline_config.type == "virtual")
   {
-    make_virtual_pipeline();
+    ret = make_virtual_pipeline();
   }
   else
   {
