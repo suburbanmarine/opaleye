@@ -37,10 +37,15 @@
 // /api/v1/cameras/cam0/live/full
 // /api/v1/cameras/cam0/live/preview
 
+// Get camera RTP stream
+// /api/v1/cameras/
+// /api/v1/cameras/cam0/rtp
+// /api/v1/cameras/cam0/rtp/clients
+
 // Get pipeline info
-// /api/v1/pipelines
-// /api/v1/pipelines/pipe0/properties
-// /api/v1/pipelines/pipe0/graph
+// /api/v1/cameras/cam0/pipelines
+// /api/v1/cameras/cam0/pipelines/pipe0/properties
+// /api/v1/cameras/cam0/pipelines/pipe0/graph
 
 // Other RPC calls
 // /api/v1/rpc
@@ -182,4 +187,3 @@ public:
   std::shared_ptr<app_config> m_config;
 
 };
-

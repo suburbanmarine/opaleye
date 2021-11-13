@@ -310,7 +310,7 @@ bool Opaleye_app::init()
       return false;
     }
     
-    m_pipelines.emplace("pipe0", pipeline);
+    m_pipelines.emplace("cam0", pipeline);
   }
 
   {
@@ -327,7 +327,7 @@ bool Opaleye_app::init()
       return false;
     }
     
-    m_pipelines.emplace("pipe1", pipeline);
+    m_pipelines.emplace("cam1", pipeline);
   }
 
   return true;
@@ -347,7 +347,14 @@ bool Opaleye_app::start_video_capture(const std::string& camera)
 {
   SPDLOG_INFO("Opaleye_app::start_video_capture({:s})", camera);
 
-  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe = m_pipelines["pipe0"]->m_mkv_pipe;
+  auto pipeline_it = m_pipelines.find(camera);
+  if(pipeline_it == m_pipelines.end())
+  {
+    SPDLOG_WARN("Opaleye_app::start_video_capture({:s}), {:s} does not exist", camera, camera);
+    return false;
+  }
+
+  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe = pipeline_it->second->m_mkv_pipe;
 
   if(m_mkv_pipe)
   {
@@ -384,7 +391,14 @@ bool Opaleye_app::stop_video_capture(const std::string& camera)
 {
   SPDLOG_INFO("Opaleye_app::stop_video_capture({:s})", camera);
 
-  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe = m_pipelines["pipe0"]->m_mkv_pipe;
+  auto pipeline_it = m_pipelines.find(camera);
+  if(pipeline_it == m_pipelines.end())
+  {
+    SPDLOG_WARN("Opaleye_app::start_video_capture({:s}), {:s} does not exist", camera, camera);
+    return false;
+  }
+
+  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe = pipeline_it->second->m_mkv_pipe;
 
   if(!m_mkv_pipe)
   {
