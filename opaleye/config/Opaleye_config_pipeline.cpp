@@ -10,6 +10,16 @@
 
 #include <spdlog/spdlog.h>
 
+bool pipeline_config::is_valid() const
+{
+	return true;
+}
+
+bool pipeline_config::is_valid() const
+{
+
+}
+
 bool pipeline_config::deserialize(const boost::property_tree::ptree& tree)
 {
 	name = tree.get<std::string>("name");

@@ -30,7 +30,7 @@
 
 			<pipeline>
 				<name>pipe1</name>
-				<type>brio</type>
+				<type>virtual</type>
 			</pipeline>
 		<camera>
 

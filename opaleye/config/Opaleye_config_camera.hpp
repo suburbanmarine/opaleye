@@ -19,6 +19,8 @@ public:
 	std::string type;
 	pipeline_config pipeline;
 
+	bool is_valid() const;
+
 	bool deserialize(const boost::property_tree::ptree& tree);
 	bool serialize(boost::property_tree::ptree* const tree) const;
 };

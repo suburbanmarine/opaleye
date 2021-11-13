@@ -57,6 +57,10 @@ bool Gstreamer_pipeline::make_pipeline(const std::shared_ptr<const app_config>& 
   {
     make_imx219_pipeline();
   }
+  else if(m_pipeline_config.type == "virtual")
+  {
+    make_virtual_pipeline();
+  }
   else
   {
     SPDLOG_ERROR("Unknown Pipeline Type");
@@ -185,6 +189,115 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
   return true;
 }
 
+bool Gstreamer_pipeline::make_virtual_pipeline()
+{
+  #if 1
+  if(m_app_config->h264_mode == "nv")
+  {
+    SPDLOG_INFO("NV mode");
+    // https://forums.developer.nvidia.com/t/bus-error-with-gstreamer-and-opencv/110657/5
+    // libjpeg and nvjpegdec may not be used in the same program...
+    // m_jpgdec = std::make_shared<jpeg_nvdec_pipe>();
+    // m_jpgdec = std::make_shared<jpeg_swdec_bin>();
+    m_jpgdec = std::make_shared<jpeg_nvv4l2decoder_bin>();
+    m_h264   = std::make_shared<h264_nvenc_bin>();
+    m_thumb  = std::make_shared<Thumbnail_nv_pipe>();
+  }
+  else
+  {
+    SPDLOG_INFO("CPU mode");
+
+    m_jpgdec = std::make_shared<jpeg_swdec_bin>();
+    m_h264   = std::make_shared<h264_swenc_bin>();
+    m_thumb  = std::make_shared<Thumbnail_sw_pipe>();
+    
+  }
+
+  if( ! m_test_src.init("cam_0") )
+  {
+   SPDLOG_ERROR("Could not init camera");
+   return false;
+  }
+
+  if( ! m_jpgdec->init("jpgdec_0") )
+  {
+   SPDLOG_ERROR("Could not init jpgdec");
+   return false;
+  }
+
+  if( ! m_thumb->init("thumb_0") )
+  {
+   SPDLOG_ERROR("Could not init thumb");
+   return false;
+  }
+
+  if( ! m_h264->init("h264_0") )
+  {
+   SPDLOG_ERROR("Could not init h264");
+   return false;
+  }
+
+  if( ! m_h264_interpipesink.init("h264_ipsink_0") )
+  {
+   SPDLOG_ERROR("Could not init h264 interpipe");
+   return false;
+  }
+  
+  // if( ! m_mkv.init("mkv_0") )
+  // {
+  //  SPDLOG_ERROR("Could not init mkv");
+  //  return false;
+  // }
+
+  // if( ! m_display.init("display_0") )
+  // {
+  //  SPDLOG_ERROR("Could not init m_display");
+  //  return false;
+  // }
+
+  if( ! m_rtppay.init("rtp_0") )
+  {
+   SPDLOG_ERROR("Could not init m_rtp");
+   return false;
+  }
+
+  if( ! m_rtpsink.init("udp_0") )
+  {
+   SPDLOG_ERROR("Could not init m_udp");
+   return false;
+  }
+
+  //add elements to top level bin
+  m_camera.add_to_bin(m_pipeline);
+  m_jpgdec->add_to_bin(m_pipeline);
+  // m_test_src.add_to_bin(m_pipeline);
+  m_thumb->add_to_bin(m_pipeline);
+  m_h264->add_to_bin(m_pipeline);
+  m_h264_interpipesink.add_to_bin(m_pipeline);
+  // m_mkv.add_to_bin(m_pipeline);
+  // m_display.add_to_bin(m_pipeline);
+  m_rtppay.add_to_bin(m_pipeline);
+  m_rtpsink.add_to_bin(m_pipeline);
+
+  //link pipeline
+  m_camera.link_back(m_jpgdec->front());
+  m_camera.link_back(m_thumb->front());
+
+  // m_jpgdec->link_back(m_display.front());
+  m_jpgdec->link_back(m_h264->front());
+
+  // m_test_src.link_back(m_display.front());
+  // m_test_src.link_back(m_h264->front());
+
+  m_h264->link_back(m_rtppay.front());
+  m_h264->link_back(m_h264_interpipesink.front());
+
+  m_rtppay.link_back(m_rtpsink.front());
+  #endif
+
+  return true;
+}
+
 Opaleye_app::Opaleye_app()
 {
 
@@ -204,18 +317,33 @@ bool Opaleye_app::init()
   }
 
   {
-    std::shared_ptr<Gstreamer_pipeline> pipeline0 = std::make_shared<Gstreamer_pipeline>();
-    if( ! pipeline0->init() )
+    std::shared_ptr<Gstreamer_pipeline> pipeline = std::make_shared<Gstreamer_pipeline>();
+    if( ! pipeline->init() )
     {
       return false;
     }
 
-    if( ! pipeline0->make_pipeline(m_config, m_config->camera_configs["cam0"].pipeline) )
+    if( ! pipeline->make_pipeline(m_config, m_config->camera_configs["cam0"].pipeline) )
     {
       return false;
     }
     
-    m_pipelines["pipe0"] = pipeline0;
+    m_pipelines["pipe0"] = pipeline;
+  }
+
+  {
+    std::shared_ptr<Gstreamer_pipeline> pipeline = std::make_shared<Gstreamer_pipeline>();
+    if( ! pipeline->init() )
+    {
+      return false;
+    }
+
+    if( ! pipeline->make_pipeline(m_config, m_config->camera_configs["cam1"].pipeline) )
+    {
+      return false;
+    }
+    
+    m_pipelines["pipe1"] = pipeline;
   }
 
   return true;

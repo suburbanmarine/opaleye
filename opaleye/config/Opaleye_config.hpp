@@ -25,6 +25,8 @@ public:
 
 	std::map<std::string, camera_config> camera_configs;
 	
+	bool is_valid() const;
+
 	bool make_default();
 
 	bool deserialize(const boost::property_tree::ptree& tree);

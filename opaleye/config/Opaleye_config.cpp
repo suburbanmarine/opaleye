@@ -15,6 +15,11 @@
 #include <sstream>
 #include <stdexcept>
 
+bool app_config::is_valid() const
+{
+	return true;
+}
+
 bool app_config::deserialize(const boost::property_tree::ptree& tree)
 {
 	video_path = tree.get<std::string>("config.video_path");
@@ -30,6 +35,8 @@ bool app_config::deserialize(const boost::property_tree::ptree& tree)
 		{
 			return false;
 		}
+
+		camera_configs[cfg.name] = cfg;
 	}
 
 	return true;

@@ -10,6 +10,11 @@
 
 #include <spdlog/spdlog.h>
 
+bool camera_config::is_valid() const
+{
+	
+}
+
 bool camera_config::deserialize(const boost::property_tree::ptree& tree)
 {
 	name = tree.get<std::string>("name");

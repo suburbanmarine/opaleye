@@ -16,6 +16,8 @@ public:
 	std::string name;
 	std::string type;
 
+	bool is_valid() const;
+
 	bool deserialize(const boost::property_tree::ptree& tree);
 	bool serialize(boost::property_tree::ptree* const tree) const;
 };
