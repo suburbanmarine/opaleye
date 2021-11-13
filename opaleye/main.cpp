@@ -197,14 +197,14 @@ int main(int argc, char* argv[])
 	// cam.open();
 	// cam.start();
 
-	app.m_pipelines["pipe0"]->make_debug_dot("vid-app");
-	app.m_pipelines["pipe0"]->make_debug_dot_ts("vid-app");
+	app.m_pipelines["cam0"]->make_debug_dot("vid-app");
+	app.m_pipelines["cam0"]->make_debug_dot_ts("vid-app");
 
 	// app.run();
 
 	std::this_thread::sleep_for(std::chrono::seconds(5));
-	app.m_pipelines["pipe0"]->m_camera.v4l2_probe();
-	app.m_pipelines["pipe0"]->m_camera.get_property_description();
+	app.m_pipelines["cam0"]->m_camera.v4l2_probe();
+	app.m_pipelines["cam0"]->m_camera.get_property_description();
 
 	if( ! sig_hndl.mask_def_signals() )
 	{
