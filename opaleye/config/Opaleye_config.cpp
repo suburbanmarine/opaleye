@@ -17,6 +17,16 @@
 
 bool app_config::is_valid() const
 {
+	bool ret = true;
+
+	//verify top level stuff
+
+	//verify cameras
+	for(const auto& it : camera_configs)
+	{
+		ret = ret && it.second.is_valid();
+	}
+
 	return true;
 }
 

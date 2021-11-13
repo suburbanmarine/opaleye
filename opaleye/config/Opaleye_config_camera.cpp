@@ -12,7 +12,7 @@
 
 bool camera_config::is_valid() const
 {
-	
+	return pipeline.is_valid();	
 }
 
 bool camera_config::deserialize(const boost::property_tree::ptree& tree)
