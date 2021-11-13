@@ -68,6 +68,7 @@ public:
   V4L2_webcam_pipe   m_camera;
 
   std::shared_ptr<GST_element_base> m_jpgdec;
+  std::shared_ptr<GST_element_base> m_jpgenc;
   std::shared_ptr<GST_element_base> m_h264;
 
   std::shared_ptr<Thumbnail_pipe_base> m_thumb;

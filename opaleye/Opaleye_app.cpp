@@ -201,7 +201,7 @@ bool Gstreamer_pipeline::make_virtual_pipeline()
     // m_jpgdec = std::make_shared<jpeg_swdec_bin>();
     m_jpgdec = std::make_shared<jpeg_nvv4l2decoder_bin>();
     m_h264   = std::make_shared<h264_nvenc_bin>();
-    m_thumb  = std::make_shared<Thumbnail_nv_pipe>();
+    m_thumb  = std::make_shared<Thumbnail_sw_pipe>();
   }
   else
   {
@@ -210,7 +210,6 @@ bool Gstreamer_pipeline::make_virtual_pipeline()
     m_jpgdec = std::make_shared<jpeg_swdec_bin>();
     m_h264   = std::make_shared<h264_swenc_bin>();
     m_thumb  = std::make_shared<Thumbnail_sw_pipe>();
-    
   }
 
   if( ! m_test_src.init("cam_0") )
@@ -251,6 +250,7 @@ bool Gstreamer_pipeline::make_virtual_pipeline()
 
   //add elements to top level bin
   m_test_src.add_to_bin(m_pipeline);
+
   m_thumb->add_to_bin(m_pipeline);
   m_h264->add_to_bin(m_pipeline);
   m_h264_interpipesink.add_to_bin(m_pipeline);
