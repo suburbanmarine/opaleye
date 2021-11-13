@@ -23,6 +23,7 @@ bool camera_config::deserialize(const boost::property_tree::ptree& tree)
 	const boost::property_tree::ptree& pipeline_tree = tree.get_child("pipeline");
 	if( ! pipeline.deserialize(pipeline_tree) )
 	{
+		SPDLOG_ERROR("camera_config::deserialize pipeline deserialize failed");
 		return false;
 	}
 

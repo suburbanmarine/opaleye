@@ -43,6 +43,7 @@ bool app_config::deserialize(const boost::property_tree::ptree& tree)
 		camera_config cfg;
 		if( ! cfg.deserialize(camera_i.second) )
 		{
+			SPDLOG_ERROR("app_config::deserialize failed, camera {:s}", camera_i.first);
 			return false;
 		}
 
