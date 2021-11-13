@@ -284,6 +284,12 @@ Opaleye_app::~Opaleye_app()
 
 bool Opaleye_app::init()
 {
+  if( ! m_pipelines.empty() )
+  {
+    SPDLOG_INFO("Opaleye_app::init piplines already loaded");
+    return false;
+  }
+
   if(!m_config)
   {
     m_config = std::make_shared<app_config>();
@@ -294,11 +300,13 @@ bool Opaleye_app::init()
     std::shared_ptr<Gstreamer_pipeline> pipeline = std::make_shared<Gstreamer_pipeline>();
     if( ! pipeline->init() )
     {
+      SPDLOG_ERROR("Opaleye_app::init init pipe0 failed");
       return false;
     }
 
     if( ! pipeline->make_pipeline(m_config, m_config->camera_configs["cam0"].pipeline) )
     {
+      SPDLOG_ERROR("Opaleye_app::init make pipe0 failed");
       return false;
     }
     
@@ -309,11 +317,13 @@ bool Opaleye_app::init()
     std::shared_ptr<Gstreamer_pipeline> pipeline = std::make_shared<Gstreamer_pipeline>();
     if( ! pipeline->init() )
     {
+      SPDLOG_ERROR("Opaleye_app::init init pipe1 failed");
       return false;
     }
 
     if( ! pipeline->make_pipeline(m_config, m_config->camera_configs["cam1"].pipeline) )
     {
+      SPDLOG_ERROR("Opaleye_app::init make pipe1 failed");
       return false;
     }
     
