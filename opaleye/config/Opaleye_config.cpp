@@ -76,7 +76,7 @@ bool app_config::serialize(boost::property_tree::ptree* const tree) const
 		tree->put_child("config.cameras", cameras_tree);
 	}
 
-	return false;
+	return true;
 }
 bool app_config::make_default()
 {
