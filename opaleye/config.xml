@@ -16,7 +16,7 @@
 				<name>pipe0</name>
 				<type>brio</type>
 			</pipeline>
-		<camera>
+		</camera>
 
 		<camera>
 			<name>cam1</name>
@@ -32,7 +32,7 @@
 				<name>pipe1</name>
 				<type>virtual</type>
 			</pipeline>
-		<camera>
+		</camera>
 
 	</cameras>
 </config>
