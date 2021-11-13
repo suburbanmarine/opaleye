@@ -259,7 +259,6 @@ bool Gstreamer_pipeline::make_virtual_pipeline()
   m_rtpsink.add_to_bin(m_pipeline);
 
   //link pipeline
-  m_test_src.link_back(m_jpgdec->front());
   m_test_src.link_back(m_thumb->front());
 
   m_test_src.link_back(m_h264->front());
