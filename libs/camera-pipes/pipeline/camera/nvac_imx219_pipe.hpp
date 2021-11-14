@@ -67,21 +67,8 @@ public:
 
   bool set_gain(int32_t val);
   bool get_gain(int32_t* const val);
-
-  bool v4l2_probe();
-
-  bool get_property_description();
   
 protected:
-
-
-  // ctrl id -> v4l2_query_ext_ctrl
-  std::map<uint32_t, v4l2_query_ext_ctrl> device_ctrl;
-  // ctrl id -> index -> menu_entries
-  std::map<uint32_t, std::map<int64_t, v4l2_querymenu>> menu_entries;
-
-  errno_util m_errno;
-  v4l2_util m_v4l2_util;
 
   // bool on_bus_message(const Glib::RefPtr<Gst::Bus>& bus, const Glib::RefPtr<Gst::Message>& message);
   void on_bus_message(const Glib::RefPtr<Gst::Message>& message);
