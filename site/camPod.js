@@ -228,7 +228,9 @@ function handleDocumentReady(jQuery) {
   camPod.xhttp_sensor_preview.onreadystatechange = function() {
       if (this.readyState == 4 && this.status == 200) {
           window.URL.revokeObjectURL($("#sensor_frame").attr('src'))
-          $("#sensor_frame").attr('src', new_thumb_url);
+          $("#sensor_frame").contentDocument.open()
+          $("#sensor_frame").contentDocument.write(this.response)
+          $("#sensor_frame").contentDocument.close()
       }
   };
 
