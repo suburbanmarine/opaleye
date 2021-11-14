@@ -72,8 +72,7 @@ function btnVideoStopClick(event) {
 function btnRTPStreamStartClick(event) {
     console.log( "btnRTPStreamStartClick" );
 
-    let data = $('#ipform').serializeArray();
-    let client_ip = data['client_ip'];
+    let client_ip = $('#client_ip').val();
 
     saveConfigToCookie();
 
