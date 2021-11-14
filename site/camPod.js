@@ -154,7 +154,7 @@ function refreshSensorData(event) {
     console.log( "refreshSensorData" );
 
     camPod.xhttp_sensor_preview.open("GET", "/api/v1/sensors", true);
-    camPod.xhttp_sensor_preview.responseType = 'document';
+    camPod.xhttp_sensor_preview.responseType = 'text';
     camPod.xhttp_sensor_preview.send()
 
     // $("#sensor_frame").attr('src', $("#sensor_frame").attr('src'));
@@ -229,7 +229,7 @@ function handleDocumentReady(jQuery) {
       if (this.readyState == 4 && this.status == 200) {
           var iframe_contentDocument = $("#sensor_frame").get(0).contentDocument
           iframe_contentDocument.open()
-          iframe_contentDocument.write(this.response)
+          iframe_contentDocument.write(this.responseText)
           iframe_contentDocument.close()
       }
   };
