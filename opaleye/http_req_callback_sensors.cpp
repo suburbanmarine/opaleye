@@ -11,6 +11,10 @@
 
 #include <Unit_conv.hpp>
 
+#include "http_common.hpp"
+
+#include <boost/filesystem/path.hpp>
+
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
@@ -55,6 +59,14 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
     std::stringstream ss;
     boost::property_tree::write_json(ss, temp);
     SPDLOG_DEBUG("request info: {:s}", ss.str());
+  }
+
+  http_common::REQUEST_METHOD REQUEST_METHOD = http_common::parse_req_method(FCGX_GetParam("REQUEST_METHOD",  request->envp));
+  boost::filesystem::path DOCUMENT_URI       = FCGX_GetParam("DOCUMENT_URI",    request->envp);
+
+  if(REQUEST_METHOD != http_common::REQUEST_METHOD::GET)
+  {
+    throw BadRequest("Method not supported");
   }
 
   //this is per-req since we could have several threads
