@@ -9,11 +9,13 @@ var camPod = {};
 function clickedRefreshButton(event) {
     console.log( "clickedRefreshButton" );
 
-    // let url = $("#cam0").attr("src");
-    // $("#cam0").removeAttr("src").attr("src", url);
+    camPod.xhttp_cam0_preview.open("GET", "/api/v1/cameras/cam1/live/thumb", true);
+    camPod.xhttp_cam0_preview.responseType = 'blob';
+    camPod.xhttp_cam0_preview.send()
 
-    $("#cam0").attr('src', $("#cam0").attr('src'));
-    $("#cam1").attr('src', $("#cam1").attr('src'));
+    camPod.xhttp_cam1_preview.open("GET", "/api/v1/cameras/cam1/live/thumb", true);
+    camPod.xhttp_cam1_preview.responseType = 'blob';
+    camPod.xhttp_cam1_preview.send()
 }
 function clickedAutoRefreshCb(event) {
     console.log( "clickedAutoRefreshCb" );
@@ -217,6 +219,28 @@ function handleDocumentReady(jQuery) {
 
   // Event handlers
   camPod.refreshSensorDataIval = setInterval(refreshSensorData, 2000);
+
+  camPod.xhttp_cam0_preview = new XMLHttpRequest();
+  camPod.xhttp_cam0_preview.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+          var new_thumb     = new Blob([this.response], {type: 'image/jpg'});
+          var new_thumb_url = window.URL.createObjectURL(this.response);
+          
+          window.URL.revokeObjectURL($("#cam0").attr('src'))
+          $("#cam0").attr('src', new_thumb_url);
+      }
+  };
+  
+  camPod.xhttp_cam1_preview = new XMLHttpRequest();
+  camPod.xhttp_cam1_preview.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+          var new_thumb     = new Blob([this.response], {type: 'image/jpg'});
+          var new_thumb_url = window.URL.createObjectURL(this.response);
+
+          window.URL.revokeObjectURL($("#cam0").attr('src'))
+          $("#cam1").attr('src', new_thumb_url);
+      }
+  };
 
   // Configuration
   if(isConfigValid())
