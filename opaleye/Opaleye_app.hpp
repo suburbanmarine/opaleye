@@ -33,19 +33,19 @@
 
 // Get camera info
 // /api/v1/cameras/
-// /api/v1/cameras/cam0/properties
-// /api/v1/cameras/cam0/live/full
-// /api/v1/cameras/cam0/live/preview
+// /api/v1/cameras/<camera-name>/properties
+// /api/v1/cameras/<camera-name>/live/full
+// /api/v1/cameras/<camera-name>/live/preview
 
 // Get camera RTP stream
 // /api/v1/cameras/
-// /api/v1/cameras/cam0/rtp
-// /api/v1/cameras/cam0/rtp/clients
+// /api/v1/cameras/<camera-name>/rtp
+// /api/v1/cameras/<camera-name>/rtp/clients
 
 // Get pipeline info
-// /api/v1/cameras/cam0/pipelines
-// /api/v1/cameras/cam0/pipelines/pipe0/properties
-// /api/v1/cameras/cam0/pipelines/pipe0/graph
+// /api/v1/cameras/<camera-name>/pipelines
+// /api/v1/cameras/<camera-name>/pipelines/<pipeline-name>/properties
+// /api/v1/cameras/<camera-name>/pipelines/<pipeline-name>/graph
 
 // Other RPC calls
 // /api/v1/rpc
