@@ -227,9 +227,10 @@ function handleDocumentReady(jQuery) {
   camPod.xhttp_sensor_preview = new XMLHttpRequest();
   camPod.xhttp_sensor_preview.onreadystatechange = function() {
       if (this.readyState == 4 && this.status == 200) {
-          $("#sensor_frame").contentDocument.open()
-          $("#sensor_frame").contentDocument.write(this.response)
-          $("#sensor_frame").contentDocument.close()
+          var iframe = $("#sensor_frame").get(0).contentDocument
+          iframe_contentDocument.open()
+          iframe_contentDocument.write(this.response)
+          iframe_contentDocument.close()
       }
   };
 
