@@ -8,6 +8,12 @@
 #include "http_util.hpp"
 #include "http_common.hpp"
 
+#include "http_common.hpp"
+
+#include <boost/filesystem/path.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
 
@@ -18,31 +24,35 @@
 
 void http_req_jsonrpc::handle(FCGX_Request* const request)
 {
+  //TODO move this to base class
+  if(true)
   { 
-    SPDLOG_INFO("QUERY_STRING: {:s}",      FCGX_GetParam("QUERY_STRING", request->envp));
-    SPDLOG_INFO("REQUEST_METHOD: {:s}",    FCGX_GetParam("REQUEST_METHOD", request->envp));
-    SPDLOG_INFO("CONTENT_TYPE: {:s}",      FCGX_GetParam("CONTENT_TYPE", request->envp));
-    SPDLOG_INFO("CONTENT_LENGTH: {:s}",    FCGX_GetParam("CONTENT_LENGTH", request->envp));
+    boost::property_tree::ptree temp;
 
-    SPDLOG_INFO("SCRIPT_NAME: {:s}",       FCGX_GetParam("SCRIPT_NAME", request->envp));
-    SPDLOG_INFO("REQUEST_URI: {:s}",       FCGX_GetParam("REQUEST_URI", request->envp));
-    SPDLOG_INFO("DOCUMENT_URI: {:s}",      FCGX_GetParam("DOCUMENT_URI", request->envp));
-    SPDLOG_INFO("DOCUMENT_ROOT: {:s}",     FCGX_GetParam("DOCUMENT_ROOT", request->envp));
-    SPDLOG_INFO("SERVER_PROTOCOL: {:s}",   FCGX_GetParam("SERVER_PROTOCOL", request->envp));
-    SPDLOG_INFO("REQUEST_SCHEME: {:s}",    FCGX_GetParam("REQUEST_SCHEME", request->envp));
+    temp.put<std::string>("QUERY_STRING",      FCGX_GetParam("QUERY_STRING",    request->envp));
+    temp.put<std::string>("REQUEST_METHOD",    FCGX_GetParam("REQUEST_METHOD",  request->envp));
+    temp.put<std::string>("CONTENT_TYPE",      FCGX_GetParam("CONTENT_TYPE",    request->envp));
+    temp.put<std::string>("CONTENT_LENGTH",    FCGX_GetParam("CONTENT_LENGTH",  request->envp));
+    temp.put<std::string>("SCRIPT_NAME",       FCGX_GetParam("SCRIPT_NAME",     request->envp));
+    temp.put<std::string>("REQUEST_URI",       FCGX_GetParam("REQUEST_URI",     request->envp));
+    temp.put<std::string>("DOCUMENT_URI",      FCGX_GetParam("DOCUMENT_URI",    request->envp));
+    temp.put<std::string>("DOCUMENT_ROOT",     FCGX_GetParam("DOCUMENT_ROOT",   request->envp));
+    temp.put<std::string>("SERVER_PROTOCOL",   FCGX_GetParam("SERVER_PROTOCOL", request->envp));
+    temp.put<std::string>("REQUEST_SCHEME",    FCGX_GetParam("REQUEST_SCHEME",  request->envp));
     char const * const HTTPS = FCGX_GetParam("HTTPS", request->envp);
-    SPDLOG_INFO("HTTPS: {:s}", (HTTPS) ? (HTTPS) : ("<null>"));
+    temp.put<std::string>("HTTPS", (HTTPS) ? (HTTPS) : ("<null>"));
+    temp.put<std::string>("GATEWAY_INTERFACE", FCGX_GetParam("GATEWAY_INTERFACE", request->envp));
+    temp.put<std::string>("SERVER_SOFTWARE",   FCGX_GetParam("SERVER_SOFTWARE",   request->envp));
+    temp.put<std::string>("REMOTE_ADDR",       FCGX_GetParam("REMOTE_ADDR",       request->envp));
+    temp.put<std::string>("REMOTE_PORT",       FCGX_GetParam("REMOTE_PORT",       request->envp));
+    temp.put<std::string>("SERVER_ADDR",       FCGX_GetParam("SERVER_ADDR",       request->envp));
+    temp.put<std::string>("SERVER_PORT",       FCGX_GetParam("SERVER_PORT",       request->envp));
+    temp.put<std::string>("SERVER_NAME",       FCGX_GetParam("SERVER_NAME",       request->envp));
+    temp.put<std::string>("REDIRECT_STATUS",   FCGX_GetParam("REDIRECT_STATUS",   request->envp));
 
-    SPDLOG_INFO("GATEWAY_INTERFACE: {:s}", FCGX_GetParam("GATEWAY_INTERFACE", request->envp));
-    SPDLOG_INFO("SERVER_SOFTWARE: {:s}",   FCGX_GetParam("SERVER_SOFTWARE", request->envp));
-
-    SPDLOG_INFO("REMOTE_ADDR: {:s}",       FCGX_GetParam("REMOTE_ADDR", request->envp));
-    SPDLOG_INFO("REMOTE_PORT: {:s}",       FCGX_GetParam("REMOTE_PORT", request->envp));
-    SPDLOG_INFO("SERVER_ADDR: {:s}",       FCGX_GetParam("SERVER_ADDR", request->envp));
-    SPDLOG_INFO("SERVER_PORT: {:s}",       FCGX_GetParam("SERVER_PORT", request->envp));
-    SPDLOG_INFO("SERVER_NAME: {:s}",       FCGX_GetParam("SERVER_NAME", request->envp));
-
-    SPDLOG_INFO("REDIRECT_STATUS: {:s}",   FCGX_GetParam("REDIRECT_STATUS", request->envp));
+    std::stringstream ss;
+    boost::property_tree::write_json(ss, temp);
+    SPDLOG_DEBUG("request info: {:s}", ss.str());
   }
 
   //GET, POST, ...
