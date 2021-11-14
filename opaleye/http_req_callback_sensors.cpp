@@ -35,16 +35,16 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
   { 
     boost::property_tree::ptree temp;
 
-    temp.put<std::string>("QUERY_STRING",    FCGX_GetParam("QUERY_STRING",    request->envp));
-    temp.put<std::string>("REQUEST_METHOD",  FCGX_GetParam("REQUEST_METHOD",  request->envp));
-    temp.put<std::string>("CONTENT_TYPE",    FCGX_GetParam("CONTENT_TYPE",    request->envp));
-    temp.put<std::string>("CONTENT_LENGTH",  FCGX_GetParam("CONTENT_LENGTH",  request->envp));
-    temp.put<std::string>("SCRIPT_NAME",     FCGX_GetParam("SCRIPT_NAME",     request->envp));
-    temp.put<std::string>("REQUEST_URI",     FCGX_GetParam("REQUEST_URI",     request->envp));
-    temp.put<std::string>("DOCUMENT_URI",    FCGX_GetParam("DOCUMENT_URI",    request->envp));
-    temp.put<std::string>("DOCUMENT_ROOT",   FCGX_GetParam("DOCUMENT_ROOT",   request->envp));
-    temp.put<std::string>("SERVER_PROTOCOL", FCGX_GetParam("SERVER_PROTOCOL", request->envp));
-    temp.put<std::string>("REQUEST_SCHEME",  FCGX_GetParam("REQUEST_SCHEME",  request->envp));
+    temp.put<std::string>("QUERY_STRING",      FCGX_GetParam("QUERY_STRING",    request->envp));
+    temp.put<std::string>("REQUEST_METHOD",    FCGX_GetParam("REQUEST_METHOD",  request->envp));
+    temp.put<std::string>("CONTENT_TYPE",      FCGX_GetParam("CONTENT_TYPE",    request->envp));
+    temp.put<std::string>("CONTENT_LENGTH",    FCGX_GetParam("CONTENT_LENGTH",  request->envp));
+    temp.put<std::string>("SCRIPT_NAME",       FCGX_GetParam("SCRIPT_NAME",     request->envp));
+    temp.put<std::string>("REQUEST_URI",       FCGX_GetParam("REQUEST_URI",     request->envp));
+    temp.put<std::string>("DOCUMENT_URI",      FCGX_GetParam("DOCUMENT_URI",    request->envp));
+    temp.put<std::string>("DOCUMENT_ROOT",     FCGX_GetParam("DOCUMENT_ROOT",   request->envp));
+    temp.put<std::string>("SERVER_PROTOCOL",   FCGX_GetParam("SERVER_PROTOCOL", request->envp));
+    temp.put<std::string>("REQUEST_SCHEME",    FCGX_GetParam("REQUEST_SCHEME",  request->envp));
     char const * const HTTPS = FCGX_GetParam("HTTPS", request->envp);
     temp.put<std::string>("HTTPS", (HTTPS) ? (HTTPS) : ("<null>"));
     temp.put<std::string>("GATEWAY_INTERFACE", FCGX_GetParam("GATEWAY_INTERFACE", request->envp));
@@ -61,12 +61,14 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
     SPDLOG_DEBUG("request info: {:s}", ss.str());
   }
 
-  http_common::REQUEST_METHOD REQUEST_METHOD = http_common::parse_req_method(FCGX_GetParam("REQUEST_METHOD",  request->envp));
   boost::filesystem::path DOCUMENT_URI       = FCGX_GetParam("DOCUMENT_URI",    request->envp);
 
-  if(REQUEST_METHOD != http_common::REQUEST_METHOD::GET)
   {
-    throw BadRequest("Method not supported");
+    http_common::REQUEST_METHOD REQUEST_METHOD = http_common::parse_req_method(FCGX_GetParam("REQUEST_METHOD", request->envp));
+    if(REQUEST_METHOD != http_common::REQUEST_METHOD::GET)
+    {
+      throw BadRequest("Only GET is accepted");
+    }
   }
 
   //this is per-req since we could have several threads

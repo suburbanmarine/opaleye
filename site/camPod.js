@@ -13,6 +13,7 @@ function clickedRefreshButton(event) {
     // $("#cam0").removeAttr("src").attr("src", url);
 
     $("#cam0").attr('src', $("#cam0").attr('src'));
+    $("#cam1").attr('src', $("#cam1").attr('src'));
 }
 function clickedAutoRefreshCb(event) {
     console.log( "clickedAutoRefreshCb" );
