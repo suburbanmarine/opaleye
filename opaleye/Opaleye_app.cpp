@@ -434,7 +434,7 @@ bool Opaleye_app::start_rtp_stream(const std::string& ip_addr, int port)
     throw std::domain_error("port must be in [0, 65535]");
   }
 
-  rtpsink_pipe& m_rtpsink = m_pipelines["pipe0"]->m_rtpsink;
+  rtpsink_pipe& m_rtpsink = m_pipelines["cam0"]->m_rtpsink;
 
   return m_rtpsink.add_udp_client(ip_addr, port);
 }
@@ -447,7 +447,7 @@ bool Opaleye_app::stop_rtp_stream(const std::string& ip_addr, int port)
     throw std::domain_error("port must be in [0, 65535]");
   }
 
-  rtpsink_pipe& m_rtpsink = m_pipelines["pipe0"]->m_rtpsink;
+  rtpsink_pipe& m_rtpsink = m_pipelines["cam0"]->m_rtpsink;
 
   return m_rtpsink.remove_udp_client(ip_addr, port);
 }
@@ -487,7 +487,7 @@ bool Opaleye_app::stop()
 std::string Opaleye_app::get_pipeline_status()
 {
   SPDLOG_INFO("Opaleye_app::get_pipeline_status");
-  Glib::RefPtr<Gst::Bin> bin = m_pipelines["pipe0"]->get_pipeline();
+  Glib::RefPtr<Gst::Bin> bin = m_pipelines["cam0"]->get_pipeline();
   Gst::State state;
   Gst::State pending_state;
   Gst::StateChangeReturn ret = bin->get_state(state, pending_state, 0);
@@ -563,14 +563,14 @@ std::string Opaleye_app::get_pipeline_graph()
 {
   SPDLOG_INFO("Opaleye_app::get_pipeline_graph");
   
-  m_pipelines["pipe0"]->make_debug_dot("pipeline");
+  m_pipelines["cam0"]->make_debug_dot("pipeline");
   int ret = system("dot -Tpdf -o /tmp/pipeline.dot.pdf /tmp/pipeline.dot");
   if(ret == -1)
   {
     SPDLOG_ERROR("Could not create pdf");
   }
 
-  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe = m_pipelines["pipe0"]->m_mkv_pipe;
+  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe = m_pipelines["cam0"]->m_mkv_pipe;
   if(m_mkv_pipe)
   {
     m_mkv_pipe->make_debug_dot("pipeline_mkv");
@@ -619,7 +619,7 @@ std::vector<std::string> Opaleye_app::get_camera_list() const
 
 bool Opaleye_app::set_camera_property(const std::string& camera_id, const std::string& property_id, int value)
 {
-  V4L2_webcam_pipe& m_camera = m_pipelines["pipe0"]->m_camera;
+  V4L2_webcam_pipe& m_camera = m_pipelines["cam0"]->m_camera;
 
   bool ret = false;
   if(camera_id == "cam0")
