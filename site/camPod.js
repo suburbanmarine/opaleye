@@ -153,7 +153,7 @@ function btnSetGain(event) {
 function refreshSensorData(event) {
     console.log( "refreshSensorData" );
 
-    camPod.xhttp_sensor_preview.open("GET", "/api/v1/sensors/", true);
+    camPod.xhttp_sensor_preview.open("GET", "/api/v1/sensors", true);
     camPod.xhttp_sensor_preview.responseType = 'document';
     camPod.xhttp_sensor_preview.send()
 
