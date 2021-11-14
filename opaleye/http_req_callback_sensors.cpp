@@ -54,7 +54,7 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
 
     std::stringstream ss;
     boost::property_tree::write_json(ss, temp);
-    SPDLOG_DEBUG("request info: {:s", ss.str());
+    SPDLOG_DEBUG("request info: {:s}", ss.str());
   }
 
   //this is per-req since we could have several threads
