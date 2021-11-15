@@ -203,7 +203,7 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
   // m_jpgdec = std::make_shared<jpeg_nvdec_pipe>();
   // m_jpgdec = std::make_shared<jpeg_swdec_bin>();
   m_h264   = std::make_shared<h264_nvenc_bin>();
-  m_thumb  = std::make_shared<Thumbnail_nv_pipe>();
+  m_thumb  = std::make_shared<Thumbnail_sw_pipe>();
 
   if( ! m_thumb->init("thumb_0") )
   {
