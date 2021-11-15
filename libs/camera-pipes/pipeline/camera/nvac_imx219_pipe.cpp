@@ -101,14 +101,30 @@ bool nvac_imx219_pipe::init(const char name[])
     //src caps
     // see https://forums.developer.nvidia.com/t/using-x-raw-memory-nvmm-in-gstreamer-program/42654
     // see https://forums.developer.nvidia.com/t/using-x-raw-memory-nvmm-in-gstreamer-program/42654/9
-    m_src_caps = Gst::Caps::create_from_string("video/x-raw(memory:NVMM),format=NV12,pixel-aspect-ratio(fraction)1/1,framerate=(fraction)30/1,width=(int)1920,height=(int)1080");
+    m_src_caps = Gst::Caps::create_from_string("video/x-raw(memory:NVMM),format=(string)NV12,pixel-aspect-ratio(fraction)1/1,framerate=(fraction)30/1,width=(int)1920,height=(int)1080");
+    // m_src_caps = Gst::Caps::create_simple(
+    //   "video/x-raw(memory:NVMM)",
+    //   "format","NV12",
+    //   "pixel-aspect-ratio", Gst::Fraction(1, 1),
+    //   "framerate",          Gst::Fraction(30, 1),
+    //   "width",              1920,
+    //   "height",             1080
+    //   );
 
     m_in_capsfilter = Gst::CapsFilter::create("incaps");
     m_in_capsfilter->property_caps() = m_src_caps;
     
     m_videorate    = Gst::ElementFactory::create_element("videorate");
 
-    m_out_caps = Gst::Caps::create_from_string("video/x-raw(memory:NVMM),format=NV12,pixel-aspect-ratio(fraction)1/1,framerate=(fraction)30/1,width=(int)1920,height=(int)1080");
+    m_out_caps = Gst::Caps::create_from_string("video/x-raw(memory:NVMM),format=(string)NV12,pixel-aspect-ratio(fraction)1/1,framerate=(fraction)30/1,width=(int)1920,height=(int)1080");
+    // m_out_caps = Gst::Caps::create_simple(
+    //   "video/x-raw(memory:NVMM)",
+    //   "format","NV12",
+    //   "pixel-aspect-ratio", Gst::Fraction(1, 1),
+    //   "framerate",          Gst::Fraction(30, 1),
+    //   "width",              1920,
+    //   "height",             1080
+    //   );
 
     m_out_capsfilter = Gst::CapsFilter::create("outcaps");
     m_out_capsfilter->property_caps() = m_out_caps;
