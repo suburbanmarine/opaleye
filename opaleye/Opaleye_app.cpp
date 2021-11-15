@@ -403,6 +403,7 @@ bool Opaleye_app::init()
       return false;
     }
     
+    SPDLOG_INFO("Opaleye_app::init stashing cam0");
     m_pipelines.emplace("cam0", pipeline);
   }
 
@@ -421,6 +422,7 @@ bool Opaleye_app::init()
       return false;
     }
     
+    SPDLOG_INFO("Opaleye_app::init stashing cam1");
     m_pipelines.emplace("cam1", pipeline);
   }
 
