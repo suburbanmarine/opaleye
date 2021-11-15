@@ -52,6 +52,7 @@ add_library(camera-pipes
 	pipeline/GST_interpipesink.cpp
 	pipeline/Thumbnail_sw_pipe.cpp
 	pipeline/Thumbnail_sw2_pipe.cpp
+	pipeline/nvvideoconvert_pipe.cpp
 )
 
 target_link_libraries(camera-pipes

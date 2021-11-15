@@ -17,6 +17,7 @@
 #include "pipeline/Thumbnail_nv_pipe.hpp"
 
 #include "pipeline/GST_fakesink.hpp"
+#include "pipeline/nvvideoconvert_pipe.hpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -190,6 +191,9 @@ bool Gstreamer_pipeline::make_brio_pipeline()
 bool Gstreamer_pipeline::make_imx219_pipeline()
 {
   m_camera   = std::make_shared<nvac_imx219_pipe>();
+  std::shared_ptr<GST_element_base> m_nvvidcon = std::make_shared<nvvideoconvert_pipe>();
+  
+  m_element_storage.emplace("nvvidcon", m_nvvidcon);
 
   if( ! m_camera->init("cam_0") )
   {
@@ -260,7 +264,8 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
 
   //link pipeline
   m_camera->link_back(m_h264->front());
-  m_camera->link_back(m_thumb->front());
+  m_camera->link_back(m_nvvidcon->front());
+  m_nvvidcon->link_back(m_thumb->front());
 
   m_h264->link_back(m_rtppay.front());
   m_h264->link_back(m_h264_interpipesink.front());
