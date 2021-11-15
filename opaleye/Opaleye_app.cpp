@@ -257,12 +257,10 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
 
   //add elements to top level bin
   m_camera->add_to_bin(m_pipeline);
-  // m_test_src.add_to_bin(m_pipeline);
+  m_camera->add_to_bin(m_nvvidcon);  
   m_thumb->add_to_bin(m_pipeline);
   m_h264->add_to_bin(m_pipeline);
   m_h264_interpipesink.add_to_bin(m_pipeline);
-  // m_mkv.add_to_bin(m_pipeline);
-  // m_display.add_to_bin(m_pipeline);
   m_rtppay.add_to_bin(m_pipeline);
   m_rtpsink.add_to_bin(m_pipeline);
 
