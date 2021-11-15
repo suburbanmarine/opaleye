@@ -16,6 +16,8 @@
 #include "pipeline/Thumbnail_sw2_pipe.hpp"
 #include "pipeline/Thumbnail_nv_pipe.hpp"
 
+#include "pipeline/GST_fakesink.hpp"
+
 #include <boost/lexical_cast.hpp>
 
 #include <spdlog/spdlog.h>
