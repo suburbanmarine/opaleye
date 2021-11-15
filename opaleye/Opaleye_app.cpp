@@ -199,10 +199,6 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
   }
 
   SPDLOG_INFO("NV mode");
-  // https://forums.developer.nvidia.com/t/bus-error-with-gstreamer-and-opencv/110657/5
-  // libjpeg and nvjpegdec may not be used in the same program...
-  // m_jpgdec = std::make_shared<jpeg_nvdec_pipe>();
-  // m_jpgdec = std::make_shared<jpeg_swdec_bin>();
   m_h264   = std::make_shared<h264_nvenc_bin>();
   m_thumb  = std::make_shared<Thumbnail_nv3_pipe>();
 
@@ -223,18 +219,6 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
    SPDLOG_ERROR("Could not init h264 interpipe");
    return false;
   }
-  
-  // if( ! m_mkv.init("mkv_0") )
-  // {
-  //  SPDLOG_ERROR("Could not init mkv");
-  //  return false;
-  // }
-
-  // if( ! m_display.init("display_0") )
-  // {
-  //  SPDLOG_ERROR("Could not init m_display");
-  //  return false;
-  // }
 
   if( ! m_rtppay.init("rtp_0") )
   {
