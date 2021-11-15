@@ -190,11 +190,15 @@ bool Gstreamer_pipeline::make_brio_pipeline()
 
 bool Gstreamer_pipeline::make_imx219_pipeline()
 {
-  m_camera   = std::make_shared<nvac_imx219_pipe>();
   std::shared_ptr<GST_element_base> m_nvvidcon = std::make_shared<nvvideoconvert_pipe>();
-  
   m_element_storage.emplace("nvvidcon", m_nvvidcon);
+  if( ! m_nvvidcon->init("nvvidcon_0") )
+  {
+   SPDLOG_ERROR("Could not init camera");
+   return false;
+  }
 
+  m_camera   = std::make_shared<nvac_imx219_pipe>();
   if( ! m_camera->init("cam_0") )
   {
    SPDLOG_ERROR("Could not init camera");
