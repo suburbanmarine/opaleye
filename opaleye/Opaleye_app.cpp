@@ -94,7 +94,6 @@ bool Gstreamer_pipeline::make_brio_pipeline()
     m_jpgdec = std::make_shared<jpeg_swdec_bin>();
     m_h264   = std::make_shared<h264_swenc_bin>();
     m_thumb  = std::make_shared<Thumbnail_sw_pipe>();
-    
   }
 
   // if( ! m_test_src.init("cam_1") )
@@ -191,7 +190,6 @@ bool Gstreamer_pipeline::make_brio_pipeline()
 bool Gstreamer_pipeline::make_imx219_pipeline()
 {
   m_camera   = std::make_shared<nvac_imx219_pipe>();
-  std::shared_ptr<GST_element_base> m_fakesink = std::make_shared<GST_fakesink>();
 
   if( ! m_camera->init("cam_0") )
   {
@@ -199,20 +197,77 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
    return false;
   }
 
-  if( ! m_fakesink->init("sink_0") )
+  SPDLOG_INFO("NV mode");
+  // https://forums.developer.nvidia.com/t/bus-error-with-gstreamer-and-opencv/110657/5
+  // libjpeg and nvjpegdec may not be used in the same program...
+  // m_jpgdec = std::make_shared<jpeg_nvdec_pipe>();
+  // m_jpgdec = std::make_shared<jpeg_swdec_bin>();
+  m_h264   = std::make_shared<h264_nvenc_bin>();
+  m_thumb  = std::make_shared<Thumbnail_nv_pipe>();
+
+  if( ! m_thumb->init("thumb_0") )
   {
-   SPDLOG_ERROR("Could not init camera");
+   SPDLOG_ERROR("Could not init thumb");
    return false;
   }
 
+  if( ! m_h264->init("h264_0") )
+  {
+   SPDLOG_ERROR("Could not init h264");
+   return false;
+  }
+
+  if( ! m_h264_interpipesink.init("h264_ipsink_0") )
+  {
+   SPDLOG_ERROR("Could not init h264 interpipe");
+   return false;
+  }
+  
+  // if( ! m_mkv.init("mkv_0") )
+  // {
+  //  SPDLOG_ERROR("Could not init mkv");
+  //  return false;
+  // }
+
+  // if( ! m_display.init("display_0") )
+  // {
+  //  SPDLOG_ERROR("Could not init m_display");
+  //  return false;
+  // }
+
+  if( ! m_rtppay.init("rtp_0") )
+  {
+   SPDLOG_ERROR("Could not init m_rtp");
+   return false;
+  }
+
+  if( ! m_rtpsink.init("udp_0") )
+  {
+   SPDLOG_ERROR("Could not init m_udp");
+   return false;
+  }
+
+  //add elements to top level bin
   m_camera->add_to_bin(m_pipeline);
-  m_fakesink->add_to_bin(m_pipeline);
+  // m_test_src.add_to_bin(m_pipeline);
+  m_thumb->add_to_bin(m_pipeline);
+  m_h264->add_to_bin(m_pipeline);
+  m_h264_interpipesink.add_to_bin(m_pipeline);
+  // m_mkv.add_to_bin(m_pipeline);
+  // m_display.add_to_bin(m_pipeline);
+  m_rtppay.add_to_bin(m_pipeline);
+  m_rtpsink.add_to_bin(m_pipeline);
 
-  m_camera->link_back(m_fakesink->front());
+  //link pipeline
+  m_camera->link_back(m_h264->front());
+  m_camera->link_back(m_thumb->front());
 
+  m_h264->link_back(m_rtppay.front());
+  m_h264->link_back(m_h264_interpipesink.front());
 
-  m_element_storage.emplace("camera",   m_camera);
-  m_element_storage.emplace("fakesink", m_fakesink);
+  m_rtppay.link_back(m_rtpsink.front());
+
+  // m_element_storage.emplace("camera",   m_camera);
 
   return true;
 }
