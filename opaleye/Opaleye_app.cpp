@@ -189,7 +189,7 @@ bool Gstreamer_pipeline::make_brio_pipeline()
 bool Gstreamer_pipeline::make_imx219_pipeline()
 {
   m_camera   = std::make_shared<nvac_imx219_pipe>();
-  std::shared_ptr<GST_element_base> m_fakesink = std::make_shared<nvac_imx219_pipe>();
+  std::shared_ptr<GST_element_base> m_fakesink = std::make_shared<GST_fakesink>();
 
   if( ! m_camera->init("cam_0") )
   {

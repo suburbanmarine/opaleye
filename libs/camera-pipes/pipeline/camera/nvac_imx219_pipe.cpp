@@ -99,6 +99,8 @@ bool nvac_imx219_pipe::init(const char name[])
     // m_src->add_probe(GST_PAD_PROBE_TYPE_IDLE | GST_PAD_PROBE_TYPE_EVENT_BOTH, sigc::mem_fun(&nvac_imx219_pipe::on_pad_probe, this))
 
     //src caps
+    // see https://forums.developer.nvidia.com/t/using-x-raw-memory-nvmm-in-gstreamer-program/42654
+    // see https://forums.developer.nvidia.com/t/using-x-raw-memory-nvmm-in-gstreamer-program/42654/9
     m_src_caps = Gst::Caps::create_from_string("video/x-raw(memory:NVMM), format=NV12, pixel-aspect-ratio(fraction)1/1, framerate=(fraction)30/1, width=(int)1920, height=(int)1080");
 
     m_in_capsfilter = Gst::CapsFilter::create("incaps");
