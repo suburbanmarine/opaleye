@@ -158,6 +158,7 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
+	if(app.m_config->camera_configs.count("cam0"))
 	{
 		std::shared_ptr<http_req_jpeg> jpg_cb = std::make_shared<http_req_jpeg>();
 		jpg_cb->set_get_image_cb(std::bind(&Thumbnail_pipe_base::copy_frame_buffer, app.m_pipelines["cam0"]->m_thumb.get(), std::placeholders::_1));
@@ -166,6 +167,7 @@ int main(int argc, char* argv[])
 		fcgi_svr.register_cb_for_doc_uri("/api/v1/cameras/cam0/live/thumb", jpg_cb);
 	}
 
+	if(app.m_config->camera_configs.count("cam1"))
 	{
 		std::shared_ptr<http_req_jpeg> jpg_cb = std::make_shared<http_req_jpeg>();
 		jpg_cb->set_get_image_cb(std::bind(&Thumbnail_pipe_base::copy_frame_buffer, app.m_pipelines["cam1"]->m_thumb.get(), std::placeholders::_1));
@@ -199,14 +201,24 @@ int main(int argc, char* argv[])
 	// cam.open();
 	// cam.start();
 
-	app.m_pipelines["cam0"]->make_debug_dot("vid-app");
-	app.m_pipelines["cam0"]->make_debug_dot_ts("vid-app");
-
 	// app.run();
 
 	std::this_thread::sleep_for(std::chrono::seconds(5));
-	app.m_pipelines["cam0"]->m_camera.v4l2_probe();
-	app.m_pipelines["cam0"]->m_camera.get_property_description();
+	if(app.m_config->camera_configs.count("cam0"))
+	{
+		std::shared_ptr<GST_element_base> m_camera_base = app.m_pipelines["cam0"]->m_camera;
+		std::shared_ptr<V4L2_webcam_pipe> m_camera      = std::dynamic_pointer_cast<V4L2_webcam_pipe>(m_camera_base);
+
+		if( ! m_camera )
+		{
+			SPDLOG_ERROR("only V4L2_webcam_pipe camera support now, refactor these to a camera base class");
+		}
+		else
+		{
+			m_camera->v4l2_probe();
+			m_camera->get_property_description();
+		}
+	}
 
 	if( ! sig_hndl.mask_def_signals() )
 	{

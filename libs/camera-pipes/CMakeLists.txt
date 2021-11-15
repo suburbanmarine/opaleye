@@ -20,6 +20,7 @@ add_library(camera-pipes
 	pipeline/camera/Testsrc_pipe.cpp
 	pipeline/camera/v4l2_webcam_pipe.cpp
 	pipeline/camera/v4l2_util.cpp
+	pipeline/camera/nvac_imx219_pipe.cpp
 
 	pipeline/display/autovideosink_pipe.cpp
 

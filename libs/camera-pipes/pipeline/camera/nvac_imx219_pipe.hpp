@@ -42,13 +42,9 @@ public:
     return m_out_tee;
   }
 
-  bool init(const char name[]) override;
+  void set_sensor_id(int val);
 
-//  void copy_frame(std::shared_ptr<uvc_frame_t>& out_frame) const
-//  {
-//    std::lock_guard<std::mutex> lock(m_frame_buffer_mutex);
-//    UVC_base::copy_frame(m_frame_buffer, out_frame);
-//  }
+  bool init(const char name[]) override;
 
   bool set_exposure_mode(int32_t val);
   bool get_exposure_mode(int32_t* const val);

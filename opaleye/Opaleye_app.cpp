@@ -71,6 +71,8 @@ bool Gstreamer_pipeline::make_pipeline(const std::shared_ptr<const app_config>& 
 
 bool Gstreamer_pipeline::make_brio_pipeline()
 {
+  m_camera = std::make_shared<V4L2_webcam_pipe>();
+
   #if 1
   if(m_app_config->h264_mode == "nv")
   {
@@ -99,7 +101,7 @@ bool Gstreamer_pipeline::make_brio_pipeline()
   //  return false;
   // }
 
-  if( ! m_camera.init("cam_0") )
+  if( ! m_camera->init("cam_0") )
   {
    SPDLOG_ERROR("Could not init camera");
    return false;
@@ -154,7 +156,7 @@ bool Gstreamer_pipeline::make_brio_pipeline()
   }
 
   //add elements to top level bin
-  m_camera.add_to_bin(m_pipeline);
+  m_camera->add_to_bin(m_pipeline);
   m_jpgdec->add_to_bin(m_pipeline);
   // m_test_src.add_to_bin(m_pipeline);
   m_thumb->add_to_bin(m_pipeline);
@@ -166,8 +168,8 @@ bool Gstreamer_pipeline::make_brio_pipeline()
   m_rtpsink.add_to_bin(m_pipeline);
 
   //link pipeline
-  m_camera.link_back(m_jpgdec->front());
-  m_camera.link_back(m_thumb->front());
+  m_camera->link_back(m_jpgdec->front());
+  m_camera->link_back(m_thumb->front());
 
   // m_jpgdec->link_back(m_display.front());
   m_jpgdec->link_back(m_h264->front());
@@ -186,11 +188,25 @@ bool Gstreamer_pipeline::make_brio_pipeline()
 
 bool Gstreamer_pipeline::make_imx219_pipeline()
 {
+  m_camera   = std::make_shared<nvac_imx219_pipe>();
+  std::shared_ptr<GST_element_base> m_fakesink = std::make_shared<nvac_imx219_pipe>();
+
+  m_camera->add_to_bin(m_pipeline);
+  m_fakesink->add_to_bin(m_pipeline);
+
+  m_camera->link_back(m_fakesink->front());
+
+
+  m_element_storage.emplace("camera",   m_camera);
+  m_element_storage.emplace("fakesink", m_fakesink);
+
   return true;
 }
 
 bool Gstreamer_pipeline::make_virtual_pipeline()
 {
+  m_camera = std::make_shared<Testsrc_pipe>();
+
   #if 1
   if(m_app_config->h264_mode == "nv")
   {
@@ -212,7 +228,7 @@ bool Gstreamer_pipeline::make_virtual_pipeline()
     m_thumb  = std::make_shared<Thumbnail_sw_pipe>();
   }
 
-  if( ! m_test_src.init("cam_0") )
+  if( ! m_camera->init("cam_0") )
   {
    SPDLOG_ERROR("Could not init camera");
    return false;
@@ -249,7 +265,7 @@ bool Gstreamer_pipeline::make_virtual_pipeline()
   }
 
   //add elements to top level bin
-  m_test_src.add_to_bin(m_pipeline);
+  m_camera->add_to_bin(m_pipeline);
 
   m_thumb->add_to_bin(m_pipeline);
   m_h264->add_to_bin(m_pipeline);
@@ -259,9 +275,9 @@ bool Gstreamer_pipeline::make_virtual_pipeline()
   m_rtpsink.add_to_bin(m_pipeline);
 
   //link pipeline
-  m_test_src.link_back(m_thumb->front());
+  m_camera->link_back(m_thumb->front());
 
-  m_test_src.link_back(m_h264->front());
+  m_camera->link_back(m_h264->front());
 
   m_h264->link_back(m_rtppay.front());
   m_h264->link_back(m_h264_interpipesink.front());
@@ -296,6 +312,7 @@ bool Opaleye_app::init()
     m_config->make_default();
   }
 
+  if(m_config->camera_configs.count("cam0"))
   {
     std::shared_ptr<Gstreamer_pipeline> pipeline = std::make_shared<Gstreamer_pipeline>();
     if( ! pipeline->init() )
@@ -313,6 +330,7 @@ bool Opaleye_app::init()
     m_pipelines.emplace("cam0", pipeline);
   }
 
+  if(m_config->camera_configs.count("cam1"))
   {
     std::shared_ptr<Gstreamer_pipeline> pipeline = std::make_shared<Gstreamer_pipeline>();
     if( ! pipeline->init() )
@@ -619,34 +637,42 @@ std::vector<std::string> Opaleye_app::get_camera_list() const
 
 bool Opaleye_app::set_camera_property(const std::string& camera_id, const std::string& property_id, int value)
 {
-  V4L2_webcam_pipe& m_camera = m_pipelines["cam0"]->m_camera;
+  std::shared_ptr<GST_element_base> m_camera_base = m_pipelines["cam0"]->m_camera;
+
+  std::shared_ptr<V4L2_webcam_pipe> m_camera = std::dynamic_pointer_cast<V4L2_webcam_pipe>(m_camera_base);
+
+  if( ! m_camera )
+  {
+    SPDLOG_ERROR("only V4L2_webcam_pipe camera support now, refactor these to a camera base class");
+    return false;
+  }
 
   bool ret = false;
   if(camera_id == "cam0")
   {
     if(property_id == "exposure_mode")
     {
-      ret = m_camera.set_exposure_mode(value); 
+      ret = m_camera->set_exposure_mode(value); 
     }
     else if(property_id == "exposure_absolute")
     {
-     ret = m_camera.set_exposure_value(value);
+     ret = m_camera->set_exposure_value(value);
     }
     else if(property_id == "focus_absolute")
     {
-      ret = m_camera.set_focus_absolute(value);
+      ret = m_camera->set_focus_absolute(value);
     }
     else if(property_id == "focus_auto")
     {
-      ret = m_camera.set_focus_auto(value);
+      ret = m_camera->set_focus_auto(value);
     }
     else if(property_id == "brightness")
     {
-      ret = m_camera.set_brightness(value);
+      ret = m_camera->set_brightness(value);
     }
     else if(property_id == "gain")
     {
-      ret = m_camera.set_gain(value);
+      ret = m_camera->set_gain(value);
     }
     else
     {

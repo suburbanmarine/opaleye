@@ -14,6 +14,7 @@
 #include "pipeline/camera/Testsrc_pipe.hpp"
 // #include "pipeline/camera/Logitech_brio_pipe.hpp"
 #include "pipeline/camera/v4l2_webcam_pipe.hpp"
+#include "pipeline/camera/nvac_imx219_pipe.hpp"
 #include "pipeline/display/autovideosink_pipe.hpp"
 #include "pipeline/stream/rtp_h264_pipe.hpp"
 #include "pipeline/stream/rtpsink_pipe.hpp"
@@ -69,8 +70,7 @@ public:
 
   // std::map<std::string, std::shared_ptr<GST_element_base>> m_node_storage;
 
-  Testsrc_pipe       m_test_src;
-  V4L2_webcam_pipe   m_camera;
+  std::shared_ptr<GST_element_base> m_camera;
 
   std::shared_ptr<GST_element_base> m_jpgdec;
   std::shared_ptr<GST_element_base> m_jpgenc;
@@ -85,6 +85,8 @@ public:
   autovideosink_pipe     m_display;
 
   std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe;
+
+  std::map<std::string, std::shared_ptr<GST_element_base>> m_element_storage;
 
   pipeline_config                   m_pipeline_config;
   std::shared_ptr<const app_config> m_app_config;

@@ -154,6 +154,10 @@ bool nvac_imx219_pipe::init(const char name[])
   return true;
 }
 
+void nvac_imx219_pipe::set_sensor_id(int val)
+{
+    m_src->set_property("sensor-id", val);
+}
 
 bool nvac_imx219_pipe::set_exposure_mode(int32_t val)
 {
