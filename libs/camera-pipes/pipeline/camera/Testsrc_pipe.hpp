@@ -6,8 +6,6 @@
 
 #pragma once
 
-#include "cameras/Logitech_brio.hpp"
-
 #include "pipeline/GST_element_base.hpp"
 
 #include <gstreamermm/videotestsrc.h>
