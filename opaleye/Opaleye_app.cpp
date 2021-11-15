@@ -191,6 +191,18 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
   m_camera   = std::make_shared<nvac_imx219_pipe>();
   std::shared_ptr<GST_element_base> m_fakesink = std::make_shared<nvac_imx219_pipe>();
 
+  if( ! m_camera->init("cam_0") )
+  {
+   SPDLOG_ERROR("Could not init camera");
+   return false;
+  }
+
+  if( ! m_fakesink->init("sink_0") )
+  {
+   SPDLOG_ERROR("Could not init camera");
+   return false;
+  }
+
   m_camera->add_to_bin(m_pipeline);
   m_fakesink->add_to_bin(m_pipeline);
 
