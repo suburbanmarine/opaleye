@@ -42,7 +42,7 @@ bool nvvideoconvert_pipe::init(const char name[])
     // m_in_queue->property_max_size_bytes()        = 0;
     // m_in_queue->property_max_size_time()         = 1 * GST_SECOND;
 
-    m_nvvidconv = Gst::ElementFactory::create_element("nvvideoconvert", name);
+    m_nvvidconv = Gst::ElementFactory::create_element("nvvidconv", name);
 
     //output tee
     m_out_tee = Gst::Tee::create();
