@@ -115,6 +115,7 @@ bool nvac_imx219_pipe::init(const char name[])
 
     m_out_caps = Gst::Caps::create_simple(
       "video/x-raw(memory:NVMM)",
+      "format","NV12",
       "pixel-aspect-ratio", Gst::Fraction(1, 1),
       "framerate",         Gst::Fraction(30, 1)
       );
@@ -148,9 +149,6 @@ bool nvac_imx219_pipe::init(const char name[])
   m_out_capsfilter->link(m_in_queue);
   m_in_queue->link(m_out_tee);
   
-  // m_videoconvert->link(m_capsfilter);
-  // m_capsfilter->link(m_out_queue);
-
   return true;
 }
 
