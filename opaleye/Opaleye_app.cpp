@@ -5,6 +5,7 @@
 */
 
 #include "Opaleye_app.hpp"
+#include "gst_framesink_pipeline.hpp"
 
 #include "pipeline/encode/h264_swenc_bin.hpp"
 #include "pipeline/decode/jpeg_swdec_bin.hpp"
@@ -77,7 +78,7 @@ bool Gstreamer_pipeline::make_pipeline(const std::shared_ptr<const app_config>& 
 
 std::shared_ptr<GST_element_base> Gstreamer_pipeline::get_element(const std::string& name)
 {
-  const auto& it = m_element_storage.find(name);
+  auto it = m_element_storage.find(name);
 
   if(it == m_element_storage.end())
   {
@@ -476,7 +477,10 @@ bool Opaleye_app::start_video_capture(const std::string& camera)
     return false;
   }
 
-  if(m_pipelines["cam0"]->m_mkv_pipe)
+  std::string cap_pipe_name = camera + "_file0";
+  auto it = m_pipelines.find(cap_pipe_name);
+
+  if(it != m_pipelines.end())
   {
     return false;
   }
@@ -505,7 +509,7 @@ bool Opaleye_app::start_video_capture(const std::string& camera)
     return false;
   }
 
-  m_pipelines["cam0"]->m_mkv_pipe = m_mkv_pipe;
+  m_pipelines.emplace(cap_pipe_name, m_mkv_pipe);
 
   return true;
 }
@@ -520,7 +524,20 @@ bool Opaleye_app::stop_video_capture(const std::string& camera)
     return false;
   }
 
-  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe = m_pipelines["cam0"]->m_mkv_pipe;
+  std::string cap_pipe_name = camera + "_file0";
+
+  auto it = m_pipelines.find(cap_pipe_name);
+  if( it == m_pipelines.end() )
+  {
+    return false;
+  }
+
+  if( ! it->second )
+  {
+    return false;
+  }
+
+  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe = std::dynamic_pointer_cast<gst_filesink_pipeline>(it->second);
   if( ! m_mkv_pipe )
   {
     throw jsonrpc::Fault("Could not downcast element", jsonrpc::Fault::INTERNAL_ERROR);
@@ -532,7 +549,7 @@ bool Opaleye_app::stop_video_capture(const std::string& camera)
   m_mkv_pipe->stop();
   m_mkv_pipe.reset();
 
-  m_pipelines["cam0"]->m_mkv_pipe.reset();
+  m_pipelines.erase(cap_pipe_name);
 
   return true;
 }
@@ -701,7 +718,19 @@ std::string Opaleye_app::get_pipeline_graph()
     SPDLOG_ERROR("Could not create pdf");
   }
 
-  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe = m_pipelines["cam0"]->m_mkv_pipe;
+  auto it = m_pipelines.find("cam0_file0");
+  if(it == m_pipelines.end())
+  {
+    return std::string();
+  }
+
+  if( ! it->second )
+  {
+    return std::string();
+  }
+
+  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe = std::dynamic_pointer_cast<gst_filesink_pipeline>(it->second);
+
   if(m_mkv_pipe)
   {
     m_mkv_pipe->make_debug_dot("pipeline_mkv");

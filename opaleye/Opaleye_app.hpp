@@ -74,13 +74,7 @@ public:
 
   bool has_element(const std::string& name);
 
-  std::shared_ptr<GST_element_base> get_element(const std::string& name);
-
-  template< typename T >
-  std::shared_ptr<T> get_element(const std::string& name)
-  {
-    return std::dynamic_pointer_cast<T>(get_element(name));
-  }
+  std::shared_ptr<GST_element_base> get_element(const std::string& name) override;
 
   template< typename T >
   bool add_element(const std::string& name, const std::shared_ptr<GST_element_base>& node)
@@ -99,8 +93,9 @@ public:
     return true;
   }
 
-  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe;
-  
+  //todo - this should be registered at Opaleye_app::m_pipelines, not here
+  // std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe;
+
 protected:
     
   bool make_brio_pipeline();
@@ -206,7 +201,7 @@ public:
 // protected:
 
   //pipeline name to pipeline
-  std::map<std::string, std::shared_ptr<Gstreamer_pipeline>> m_pipelines;
+  std::map<std::string, std::shared_ptr<GST_app_base>> m_pipelines;
 
   std::shared_ptr<app_config> m_config;
 
