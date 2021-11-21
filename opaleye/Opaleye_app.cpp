@@ -486,6 +486,25 @@ bool Opaleye_app::start_video_capture(const std::string& camera)
   }
 
   boost::filesystem::path out_video_dir = m_config->video_path / camera;
+  
+  if(boost::filesystem::exists(out_video_dir))
+  {
+    if( ! boost::filesystem::is_directory(out_video_dir) )
+    {
+      SPDLOG_WARN("Opaleye_app::start_video_capture({:s}), output destination {:s} exists but is not directory", camera, out_video_dir.string());
+      return false;
+    }
+  }
+  else
+  {
+    boost::system::error_code ec;
+    if( ! boost::filesystem::create_directories(out_video_dir, ec) )
+    {
+      SPDLOG_WARN("Opaleye_app::start_video_capture({:s}), failed to create output directory {:s}: {:s}", camera, out_video_dir.string(), ec.message());
+      return false;
+    }
+  }
+
 
   std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe = std::make_shared<gst_filesink_pipeline>();
   m_mkv_pipe->set_top_storage_dir(out_video_dir.string());
