@@ -87,8 +87,8 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
       }
 
       boost::property_tree::ptree temp;
-      temp.put_child("external", external_sensor_data);
-      temp.put_child("internal", internal_sensor_data);
+      temp.put_child("sensors.external", external_sensor_data);
+      temp.put_child("sensors.internal", internal_sensor_data);
 
       std::stringstream ss;
       boost::property_tree::write_xml(ss, temp);
