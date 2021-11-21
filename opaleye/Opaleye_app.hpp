@@ -72,6 +72,14 @@ public:
   bool init() override;
   bool make_pipeline(const std::shared_ptr<const app_config>& app_config, const pipeline_config& pipe_config);
 
+  std::shared_ptr<GST_element_base> get_element(const char* name);
+
+  template< typename T >
+  std::shared_ptr<T> get_element(const char* name)
+  {
+    return std::dynamic_pointer_cast<T>(get_element(name));
+  }
+
 // protected:
     
   bool make_brio_pipeline();
@@ -88,13 +96,12 @@ public:
 
   std::shared_ptr<Thumbnail_pipe_base> m_thumb;
 
-  GST_interpipesink      m_h264_interpipesink;
+  std::shared_ptr<GST_element_base>      m_h264_interpipesink;
 
-  rtp_h264_pipe          m_rtppay;
-  rtpsink_pipe           m_rtpsink;
-  autovideosink_pipe     m_display;
+  std::shared_ptr<GST_element_base> m_rtppay;
+  std::shared_ptr<GST_element_base> m_rtpsink;
 
-  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe;
+  std::shared_ptr<GST_element_base> m_mkv_pipe;
 
   std::map<std::string, std::shared_ptr<GST_element_base>> m_element_storage;
 
