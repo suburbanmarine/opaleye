@@ -23,6 +23,8 @@ public:
 
 	std::string h264_mode;
 
+	std::string sensors_launch;
+
 	std::map<std::string, camera_config> camera_configs;
 	
 	bool is_valid() const;

@@ -37,6 +37,8 @@ bool app_config::deserialize(const boost::property_tree::ptree& tree)
 	log_path   = tree.get<std::string>("config.log_path");
 	h264_mode  = tree.get<std::string>("config.h264_mode");
 
+	sensors_launch = tree.get<std::string>("config.sensors.launch");
+
 	const boost::property_tree::ptree& cameras_tree = tree.get_child("config.cameras");
 	for( const auto& camera_i : cameras_tree)
 	{
@@ -63,6 +65,8 @@ bool app_config::serialize(boost::property_tree::ptree* const tree) const
 	tree->put("config.log_path", log_path);
 	tree->put("config.h264_mode", h264_mode);
 
+	tree->put("config.sensors.launch", sensors_launch);
+
 	{
 		boost::property_tree::ptree cameras_tree;
 		for(const auto& it : camera_configs)
@@ -85,6 +89,8 @@ bool app_config::make_default()
 	image_path = "/opt/suburbanmarine/opaleye/record/image";
 	log_path   = "/opt/suburbanmarine/opaleye/log";
 	h264_mode  = "cpu";
+
+	sensors_launch  = "true";
 
 	camera_config cfg;
 	cfg.name          = "cam0";

@@ -125,12 +125,15 @@ int main(int argc, char* argv[])
 	Gst::init(argc, argv);
 
 	std::shared_ptr<sensor_thread> sensors = std::make_shared<sensor_thread>();
-	// if(!sensors->init())
-	// {
-	// 	SPDLOG_ERROR("sensor thread failed");
-	// 	return -1;
-	// }
-	// sensors->launch();
+	if(cfg_mgr.get_config()->sensors_launch == "true")
+	{
+		if(!sensors->init())
+		{
+			SPDLOG_ERROR("sensor thread failed");
+			return -1;
+		}
+		sensors->launch();
+	}
 
 	http_fcgi_svr fcgi_svr;
 
