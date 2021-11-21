@@ -75,15 +75,15 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
     {
       boost::property_tree::ptree external_sensor_data;
       external_sensor_data.put<double>("pressure",    baro_data.P1_mbar);
-      external_sensor_data.put<std::string>("pressure.<xmlattr>", "mbar");
+      external_sensor_data.put<std::string>("pressure.<xmlattr>.unit", "mbar");
       external_sensor_data.put<double>("temperature", ext_temp_data);
-      external_sensor_data.put<std::string>("pressure.<xmlattr>", "degC");
+      external_sensor_data.put<std::string>("pressure.<xmlattr>.unit", "degC");
 
       boost::property_tree::ptree internal_sensor_data;
       for(const auto t : soc_temp)
       {
         internal_sensor_data.put<double>(t.first, t.second);
-        internal_sensor_data.put<std::string>(t.first + ".<xmlattr>", "degC");
+        internal_sensor_data.put<std::string>(t.first + ".<xmlattr>.unit", "degC");
       }
 
       boost::property_tree::ptree temp;
