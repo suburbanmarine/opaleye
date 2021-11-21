@@ -1,4 +1,11 @@
-http_req_util::http_req_util(FCGX_Request* const request)
+#include "http_req_util.hpp"
+
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+
+#include <spdlog/spdlog.h>
+
+http_req_util::http_req_util()
 {
 	QUERY_STRING      = "";
 	REQUEST_METHOD    = "";
@@ -48,7 +55,9 @@ void http_req_util::load(FCGX_Request* const request)
 	SERVER_NAME       = FCGX_GetParam("SERVER_NAME",       request->envp);
 	REDIRECT_STATUS   = FCGX_GetParam("REDIRECT_STATUS",   request->envp);
 
-	doc_uri = DOCUMENT_URI;
+	doc_uri_path = DOCUMENT_URI;
+
+	request_method_enum = http_common::parse_req_method(REQUEST_METHOD);
 }
 
 void http_req_util::log_request_env()
@@ -75,7 +84,7 @@ void http_req_util::log_request_env()
     request_env.put<std::string>("REDIRECT_STATUS",   REDIRECT_STATUS);
 
     boost::property_tree::ptree temp;
-	temp.put_child("env", QUERY_STRING);
+	temp.put_child("env", request_env);
 
     std::stringstream ss;
     boost::property_tree::write_json(ss, temp);

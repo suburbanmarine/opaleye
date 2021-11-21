@@ -1,5 +1,13 @@
 #pragma once
 
+#include "http_common.hpp"
+
+#include <boost/filesystem/path.hpp>
+
+#define NO_FCGI_DEFINES 1
+#include <fcgi_config.h>
+#include <fcgiapp.h>
+
 class http_req_util
 {
 public:
@@ -9,6 +17,9 @@ public:
 	void load(FCGX_Request* const request);
 
 	void log_request_env();
+
+	boost::filesystem::path doc_uri_path;
+	http_common::REQUEST_METHOD request_method_enum;
 
 	char const * QUERY_STRING;
 	char const * REQUEST_METHOD;

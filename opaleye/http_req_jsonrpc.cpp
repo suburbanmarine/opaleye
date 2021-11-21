@@ -5,6 +5,7 @@
 */
 
 #include "http_req_jsonrpc.hpp"
+#include "http_req_util.hpp"
 #include "http_util.hpp"
 #include "http_common.hpp"
 
@@ -26,32 +27,28 @@ void http_req_jsonrpc::handle(FCGX_Request* const request)
 {
   http_req_util req_util;
   req_util.load(request);
-  if(true)
-  { 
-    req_util.log_request_env()
-  }
+  req_util.log_request_env();
 
   //GET, POST, ...
-  char const * const REQUEST_METHOD = FCGX_GetParam("REQUEST_METHOD", request->envp);
+  // req_util.REQUEST_METHOD
   //DOCUMENT_URI is just path
-  char const * const DOCUMENT_URI = FCGX_GetParam("DOCUMENT_URI", request->envp);
+  // req_util.DOCUMENT_URI
   //REQUEST_URI is path and query string
-  char const * const REQUEST_URI = FCGX_GetParam("REQUEST_URI", request->envp);
+  // req_util.REQUEST_URI
   //verify this is application/json; charset=UTF-8
-  char const * const CONTENT_TYPE = FCGX_GetParam("CONTENT_TYPE", request->envp);
+  // req_util.CONTENT_TYPE
   //verify content size is sane
-  char const * const CONTENT_LENGTH = FCGX_GetParam("CONTENT_LENGTH", request->envp);
+  // req_util.CONTENT_LENGTH
 
   {
-    http_common::REQUEST_METHOD req = http_common::parse_req_method(REQUEST_METHOD);
-    if(req != http_common::REQUEST_METHOD::POST)
+    if(req_util.request_method_enum != http_common::REQUEST_METHOD::POST)
     {
       throw BadRequest("Only POST is accepted");
     }
   }
 
   int req_len = 0;
-  int ret = sscanf(CONTENT_LENGTH, "%d", &req_len);
+  int ret = sscanf(req_util.CONTENT_LENGTH, "%d", &req_len);
   if(ret != 1)
   {
     throw BadRequest("Could not parse CONTENT_LENGTH");
@@ -65,12 +62,12 @@ void http_req_jsonrpc::handle(FCGX_Request* const request)
   //validate CONTENT_TYPE, ignoring any optional charset
   { 
     const char app_jsonrpc[] = "application/json";
-    if(strlen(CONTENT_TYPE) == 0)
+    if(strlen(req_util.CONTENT_TYPE) == 0)
     {
       throw BadRequest("CONTENT_TYPE is invalid");
     }
 
-    if(strncmp(CONTENT_TYPE, app_jsonrpc, sizeof(app_jsonrpc)-1) != 0)
+    if(strncmp(req_util.CONTENT_TYPE, app_jsonrpc, sizeof(app_jsonrpc)-1) != 0)
     {
       throw BadRequest("CONTENT_TYPE is invalid");
     }

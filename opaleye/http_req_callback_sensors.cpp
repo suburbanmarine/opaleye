@@ -5,6 +5,7 @@
 */
 
 #include "http_req_callback_sensors.hpp"
+#include "http_req_util.hpp"
 #include "http_util.hpp"
 
 #include "linux_thermal_zone.hpp"
@@ -32,19 +33,11 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
 {
   http_req_util req_util;
   req_util.load(request);
-  if(true)
-  { 
-    req_util.log_request_env()
-  }
+  req_util.log_request_env();
 
-  boost::filesystem::path DOCUMENT_URI = req_util.DOCUMENT_URI;
-
+  if(req_util.request_method_enum != http_common::REQUEST_METHOD::GET)
   {
-    http_common::REQUEST_METHOD REQUEST_METHOD = http_common::parse_req_method(FCGX_GetParam("REQUEST_METHOD", request->envp));
-    if(REQUEST_METHOD != http_common::REQUEST_METHOD::GET)
-    {
-      throw BadRequest("Only GET is accepted");
-    }
+    throw BadRequest("Only GET is accepted");
   }
 
   //this is per-req since we could have several threads
