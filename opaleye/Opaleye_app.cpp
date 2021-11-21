@@ -476,20 +476,12 @@ bool Opaleye_app::start_video_capture(const std::string& camera)
     return false;
   }
 
-  std::shared_ptr<GST_element_base>      m_mkv_pipe_base = m_pipelines["cam0"]->m_mkv_pipe;
-  if(m_mkv_pipe_base)
+  if(m_pipelines["cam0"]->m_mkv_pipe)
   {
     return false;
   }
 
-  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe      = std::dynamic_pointer_cast<gst_filesink_pipeline>(m_mkv_pipe_base);
-  if( ! m_mkv_pipe )
-  {
-    throw jsonrpc::Fault("Could not downcast element", jsonrpc::Fault::INTERNAL_ERROR);
-  }
-
-
-  m_mkv_pipe = std::make_shared<gst_filesink_pipeline>();
+  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe = std::make_shared<gst_filesink_pipeline>();
   m_mkv_pipe->set_top_storage_dir(m_config->video_path.string());
   if(m_mkv_pipe->init())
   {
@@ -513,6 +505,8 @@ bool Opaleye_app::start_video_capture(const std::string& camera)
     return false;
   }
 
+  m_pipelines["cam0"]->m_mkv_pipe = m_mkv_pipe;
+
   return true;
 }
 bool Opaleye_app::stop_video_capture(const std::string& camera)
@@ -526,13 +520,7 @@ bool Opaleye_app::stop_video_capture(const std::string& camera)
     return false;
   }
 
-  std::shared_ptr<GST_element_base> m_mkv_pipe_base = m_pipelines["cam0"]->m_mkv_pipe;
-  if(!m_mkv_pipe_base)
-  {
-    return false;
-  }
-
-  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe      = std::dynamic_pointer_cast<gst_filesink_pipeline>(m_mkv_pipe_base);
+  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe = m_pipelines["cam0"]->m_mkv_pipe;
   if( ! m_mkv_pipe )
   {
     throw jsonrpc::Fault("Could not downcast element", jsonrpc::Fault::INTERNAL_ERROR);
@@ -543,6 +531,8 @@ bool Opaleye_app::stop_video_capture(const std::string& camera)
   m_mkv_pipe->wait_pipeline_eos();
   m_mkv_pipe->stop();
   m_mkv_pipe.reset();
+
+  m_pipelines["cam0"]->m_mkv_pipe.reset();
 
   return true;
 }
@@ -711,18 +701,14 @@ std::string Opaleye_app::get_pipeline_graph()
     SPDLOG_ERROR("Could not create pdf");
   }
 
-  std::shared_ptr<GST_element_base>      m_mkv_pipe_base = m_pipelines["cam0"]->m_mkv_pipe;
-  if(m_mkv_pipe_base)
+  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe = m_pipelines["cam0"]->m_mkv_pipe;
+  if(m_mkv_pipe)
   {
-    std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe      = std::dynamic_pointer_cast<gst_filesink_pipeline>(m_mkv_pipe_base);
-    if(m_mkv_pipe)
+    m_mkv_pipe->make_debug_dot("pipeline_mkv");
+    int ret = system("dot -Tpdf -o /tmp/pipeline_mkv.dot.pdf /tmp/pipeline_mkv.dot");
+    if(ret == -1)
     {
-      m_mkv_pipe->make_debug_dot("pipeline_mkv");
-      int ret = system("dot -Tpdf -o /tmp/pipeline_mkv.dot.pdf /tmp/pipeline_mkv.dot");
-      if(ret == -1)
-      {
-        SPDLOG_ERROR("Could not create pdf");
-      }
+      SPDLOG_ERROR("Could not create pdf");
     }
   }
 

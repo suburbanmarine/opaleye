@@ -72,36 +72,41 @@ public:
   bool init() override;
   bool make_pipeline(const std::shared_ptr<const app_config>& app_config, const pipeline_config& pipe_config);
 
+  bool has_element(const std::string& name);
+
   std::shared_ptr<GST_element_base> get_element(const std::string& name);
 
   template< typename T >
-  std::shared_ptr<T> get_element(const char* name)
+  std::shared_ptr<T> get_element(const std::string& name)
   {
     return std::dynamic_pointer_cast<T>(get_element(name));
   }
 
-// protected:
+  template< typename T >
+  bool add_element(const std::string& name, const std::shared_ptr<GST_element_base>& node)
+  {
+    // if( m_element_storage.contains(name) )
+    // {
+    //   return false;
+    // }
+
+    if( m_element_storage.find(name) != m_element_storage.end())
+    {
+      return false;
+    }
+
+    m_element_storage.emplace(name, node);
+    return true;
+  }
+
+  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe;
+  
+protected:
     
   bool make_brio_pipeline();
   bool make_imx219_pipeline();
   bool make_virtual_pipeline();
 
-  // std::map<std::string, std::shared_ptr<GST_element_base>> m_node_storage;
-
-  // std::shared_ptr<GST_element_base> m_camera;
-
-  // std::shared_ptr<GST_element_base> m_jpgdec;
-  // std::shared_ptr<GST_element_base> m_jpgenc;
-  // std::shared_ptr<GST_element_base> m_h264;
-
-  // std::shared_ptr<Thumbnail_pipe_base> m_thumb;
-
-  // std::shared_ptr<GST_element_base>      m_h264_interpipesink;
-
-  // std::shared_ptr<GST_element_base> m_rtppay;
-  // std::shared_ptr<GST_element_base> m_rtpsink;
-
-  std::shared_ptr<GST_element_base> m_mkv_pipe;
 
   std::map<std::string, std::shared_ptr<GST_element_base>> m_element_storage;
 
