@@ -17,7 +17,7 @@
 
 #include <cstring>
 
-http_fcgi_work_thread::http_fcgi_work_thread() : m_keep_running(false)
+http_fcgi_work_thread::http_fcgi_work_thread()
 {
   m_svr     = nullptr;
   m_sock_fd = -1;
@@ -34,15 +34,12 @@ http_fcgi_work_thread::~http_fcgi_work_thread()
   }
 }
 
-void http_fcgi_work_thread::launch(http_fcgi_svr* svr, int sock_fd)
+bool http_fcgi_work_thread::init(http_fcgi_svr* svr, int sock_fd)
 {
-  if( ! m_thread.joinable() )
-  {
-    m_keep_running = true;
-    m_svr = svr;
-    m_sock_fd = sock_fd;
-    m_thread = std::thread(&http_fcgi_work_thread::work, this);
-  }
+  m_svr = svr;
+  m_sock_fd = sock_fd;
+
+  return true;
 }
 
 void http_fcgi_work_thread::work()
@@ -195,18 +192,4 @@ void http_fcgi_work_thread::work()
   FCGX_Free(&request, m_sock_fd);
 
   SPDLOG_INFO("thread stoppping: {}", m_thread.get_id());
-}
-
-void http_fcgi_work_thread::interrupt()
-{
-  m_keep_running = false;
-}
-
-//MT safe
-void http_fcgi_work_thread::join()
-{
-  if(m_thread.joinable())
-  {
-    m_thread.join();
-  }
 }

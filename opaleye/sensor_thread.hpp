@@ -9,55 +9,9 @@
 #include "MS5837-30BA.hpp"
 #include "TSYS01.hpp"
 
-#include <atomic>
+#include "thread_base.hpp"
+
 #include <mutex>
-#include <thread>
-#include <condition_variable>
-#include <functional>
-
-class thread_base
-{
-public:
-	thread_base();
-	virtual ~thread_base();
-
-	void launch();
-
-	virtual void work();
-
-	//MT safe
-	void interrupt();
-	void join();
-	bool joinable() const;
-
-	bool is_interrupted() const
-	{
-		return m_keep_running.load();
-	}
-
-	void wait_for_interruption()
-	{
-		std::unique_lock<std::mutex> lock(m_mutex);
-		m_keep_running_cv.wait(lock, std::bind(&thread_base::is_interrupted, this));
-	}
-
-	template <typename Rep, typename Period >
-	bool wait_for_interruption(const std::chrono::duration<Rep, Period>& dt)
-	{
-		std::unique_lock<std::mutex> lock(m_mutex);
-		return m_keep_running_cv.wait_for(lock, dt, std::bind(&thread_base::is_interrupted, this));
-	}
-
-protected:
-
-	void dispatch_work();
-
-	std::atomic<bool> m_keep_running;
-	std::condition_variable m_keep_running_cv;
-	std::mutex m_mutex;
-
-	std::thread m_thread;
-};
 
 class sensor_thread : public thread_base
 {

@@ -43,7 +43,12 @@ bool http_fcgi_svr::start()
   for(size_t i = 0; i < m_thread_pool.size(); i++)
   {
     m_thread_pool[i] = std::make_shared<http_fcgi_work_thread>();
-    m_thread_pool[i]->launch(this, m_sock_fd);
+    if( ! m_thread_pool[i]->init(this, m_sock_fd) )
+    {
+      SPDLOG_INFO("Thread init failed");
+      return false;
+    }
+    m_thread_pool[i]->launch();
   }
 
   SPDLOG_INFO("Server started");

@@ -2,6 +2,7 @@ add_library(opaleye-util
 	errno_util.cpp
 	Unit_conv.cpp
 	Stopwatch.cpp
+	thread_base.cpp
 )
 
 target_link_libraries(opaleye-util

@@ -9,61 +9,6 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/printf.h>
 
-#include <thread>
-
-thread_base::thread_base() : m_keep_running(true)
-{
-
-}
-thread_base::~thread_base()
-{
-
-}
-
-void thread_base::launch()
-{
-	m_thread = std::thread(&thread_base::dispatch_work, this);
-}
-
-void thread_base::work()
-{
-
-}
-
-//MT safe
-void thread_base::interrupt()
-{
-	m_keep_running.store(false);
-	m_keep_running_cv.notify_all();
-}
-void thread_base::join()
-{
-	m_thread.join();
-}
-bool thread_base::joinable() const
-{
-	return m_thread.joinable();
-}
-
-void thread_base::dispatch_work()
-{
-	SPDLOG_DEBUG("Thread started");
-	try
-	{
-		work();
-	}
-	catch(const std::exception& e)
-	{
-		SPDLOG_DEBUG("Thread caught exception {:s}", e.what());	
-	}
-	catch(...)
-	{
-		SPDLOG_DEBUG("Thread caught exception ...");	
-	}
-
-	SPDLOG_DEBUG("Thread exiting");
-}
-
 sensor_thread::sensor_thread()
 {
 	m_temp_degC = 0.0;

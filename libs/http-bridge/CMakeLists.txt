@@ -11,6 +11,9 @@ add_library(http-bridge
 
 target_link_libraries(http-bridge
 	PUBLIC
+
+		opaleye-util
+
 		Boost::boost
 		Boost::filesystem
 		spdlog::spdlog
