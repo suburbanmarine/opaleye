@@ -146,6 +146,7 @@ int main(int argc, char* argv[])
 	sensor_cb->init(sensors);
 	fcgi_svr.register_cb_for_doc_uri("/api/v1/sensors", sensor_cb);
 
+	SPDLOG_INFO("Starting fcgi connection");
 	fcgi_svr.start();
 
 	// test_app_mjpeg app;
