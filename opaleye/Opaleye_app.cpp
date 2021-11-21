@@ -487,26 +487,20 @@ bool Opaleye_app::start_video_capture(const std::string& camera)
 
   std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe = std::make_shared<gst_filesink_pipeline>();
   m_mkv_pipe->set_top_storage_dir(m_config->video_path.string());
-  if(m_mkv_pipe->init())
-  {
-    m_mkv_pipe->set_listen_to("h264_ipsink_0");
-    if(m_mkv_pipe->start())
-    {
-      return true;
-    }
-    else
-    {
-      SPDLOG_INFO("m_mkv_pipe start failed");
-
-      m_mkv_pipe.reset();
-      return false;   
-    }
-  }
-  else
+  if(! m_mkv_pipe->init() )
   {
     SPDLOG_INFO("m_mkv_pipe init failed");
     m_mkv_pipe.reset();
     return false;
+  }
+
+  m_mkv_pipe->set_listen_to("h264_ipsink_0");
+  if(! m_mkv_pipe->start() )
+  {
+    SPDLOG_INFO("m_mkv_pipe start failed");
+
+    m_mkv_pipe.reset();
+    return false;   
   }
 
   m_pipelines.emplace(cap_pipe_name, m_mkv_pipe);
