@@ -160,7 +160,7 @@ int main(int argc, char* argv[])
 	if(app.m_config->camera_configs.count("cam0"))
 	{
 		std::shared_ptr<http_req_jpeg> jpg_cb = std::make_shared<http_req_jpeg>();
-		jpg_cb->set_get_image_cb(std::bind(&Thumbnail_pipe_base::copy_frame_buffer, app.m_pipelines["cam0"]->m_thumb.get(), std::placeholders::_1));
+		jpg_cb->set_get_image_cb(std::bind(&Thumbnail_pipe_base::copy_frame_buffer, app.m_pipelines["cam0"]->get_element<Thumbnail_pipe_base>("thumb_0").get(), std::placeholders::_1));
 		fcgi_svr.register_cb_for_doc_uri("/cameras/cam0.jpg", jpg_cb);
 		fcgi_svr.register_cb_for_doc_uri("/api/v1/cameras/cam0/live/full", jpg_cb);
 		fcgi_svr.register_cb_for_doc_uri("/api/v1/cameras/cam0/live/thumb", jpg_cb);
@@ -169,7 +169,7 @@ int main(int argc, char* argv[])
 	if(app.m_config->camera_configs.count("cam1"))
 	{
 		std::shared_ptr<http_req_jpeg> jpg_cb = std::make_shared<http_req_jpeg>();
-		jpg_cb->set_get_image_cb(std::bind(&Thumbnail_pipe_base::copy_frame_buffer, app.m_pipelines["cam1"]->m_thumb.get(), std::placeholders::_1));
+		jpg_cb->set_get_image_cb(std::bind(&Thumbnail_pipe_base::copy_frame_buffer, app.m_pipelines["cam1"]->get_element<Thumbnail_pipe_base>("thumb_0").get(), std::placeholders::_1));
 		fcgi_svr.register_cb_for_doc_uri("/cameras/cam1.jpg", jpg_cb);
 		fcgi_svr.register_cb_for_doc_uri("/api/v1/cameras/cam1/live/full", jpg_cb);
 		fcgi_svr.register_cb_for_doc_uri("/api/v1/cameras/cam1/live/thumb", jpg_cb);
@@ -205,9 +205,7 @@ int main(int argc, char* argv[])
 	std::this_thread::sleep_for(std::chrono::seconds(5));
 	if(app.m_config->camera_configs.count("cam0"))
 	{
-		std::shared_ptr<GST_element_base> m_camera_base = app.m_pipelines["cam0"]->m_camera;
-		std::shared_ptr<V4L2_webcam_pipe> m_camera      = std::dynamic_pointer_cast<V4L2_webcam_pipe>(m_camera_base);
-
+		std::shared_ptr<V4L2_webcam_pipe> m_camera = app.m_pipelines["cam0"]->get_element<V4L2_webcam_pipe>("cam_0");
 		if( ! m_camera )
 		{
 			SPDLOG_ERROR("only V4L2_webcam_pipe camera support now, refactor these to a camera base class");

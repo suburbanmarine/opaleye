@@ -72,7 +72,7 @@ public:
   bool init() override;
   bool make_pipeline(const std::shared_ptr<const app_config>& app_config, const pipeline_config& pipe_config);
 
-  std::shared_ptr<GST_element_base> get_element(const char* name);
+  std::shared_ptr<GST_element_base> get_element(const std::string& name);
 
   template< typename T >
   std::shared_ptr<T> get_element(const char* name)
@@ -88,18 +88,18 @@ public:
 
   // std::map<std::string, std::shared_ptr<GST_element_base>> m_node_storage;
 
-  std::shared_ptr<GST_element_base> m_camera;
+  // std::shared_ptr<GST_element_base> m_camera;
 
-  std::shared_ptr<GST_element_base> m_jpgdec;
-  std::shared_ptr<GST_element_base> m_jpgenc;
-  std::shared_ptr<GST_element_base> m_h264;
+  // std::shared_ptr<GST_element_base> m_jpgdec;
+  // std::shared_ptr<GST_element_base> m_jpgenc;
+  // std::shared_ptr<GST_element_base> m_h264;
 
-  std::shared_ptr<Thumbnail_pipe_base> m_thumb;
+  // std::shared_ptr<Thumbnail_pipe_base> m_thumb;
 
-  std::shared_ptr<GST_element_base>      m_h264_interpipesink;
+  // std::shared_ptr<GST_element_base>      m_h264_interpipesink;
 
-  std::shared_ptr<GST_element_base> m_rtppay;
-  std::shared_ptr<GST_element_base> m_rtpsink;
+  // std::shared_ptr<GST_element_base> m_rtppay;
+  // std::shared_ptr<GST_element_base> m_rtpsink;
 
   std::shared_ptr<GST_element_base> m_mkv_pipe;
 
