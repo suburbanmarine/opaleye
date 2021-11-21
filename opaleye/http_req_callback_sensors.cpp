@@ -62,6 +62,13 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
     lz.get_temps(&soc_temp);
   }
 
+  time_t t_now = time(NULL);
+  http_util::HttpDateStr time_str;
+  if( ! http_util::time_to_httpdate(t_now, &time_str) )
+  {
+    throw InternalServerError("Could not get Last-Modified timestamp");
+  }
+
   if(true)
   {
     if(true)
@@ -86,6 +93,18 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
       std::stringstream ss;
       boost::property_tree::write_xml(ss, temp);
       SPDLOG_DEBUG("sensor: {:s}", ss.str());
+
+      std::string str = ss.str();
+
+      FCGX_PutS("Content-Type: text/plain\r\n", request->out);
+      // FCGX_PutS("Content-Type: text/html\r\n", request->out);
+      FCGX_FPrintF(request->out, "Content-Length: %d\r\n", str.size());
+      FCGX_PutS("Cache-Control: max-age=0, no-store\r\n", request->out);
+      FCGX_FPrintF(request->out, "Last-Modified: %s\r\n", time_str.data());
+      
+      FCGX_PutS("\r\n", request->out);
+
+      FCGX_PutStr(str.data(), str.size(), request->out);
     }
     else
     {
@@ -101,15 +120,7 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
         ss << fmt::format("\t{:s}: {:0.3f} degC\r\n", t.first, t.second);
       }
 
-
       std::string str = ss.str();
-
-      time_t t_now = time(NULL);
-      http_util::HttpDateStr time_str;
-      if( ! http_util::time_to_httpdate(t_now, &time_str) )
-      {
-        throw InternalServerError("Could not get Last-Modified timestamp");
-      }
 
       FCGX_PutS("Content-Type: text/plain\r\n", request->out);
       // FCGX_PutS("Content-Type: text/html\r\n", request->out);
