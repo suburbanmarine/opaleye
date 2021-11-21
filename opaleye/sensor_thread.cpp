@@ -66,7 +66,6 @@ bool sensor_thread::init()
 		return false;
 	}
 
-
 	ret = m_baro.read_cal_data(&m_baro_cal_data);
 	if(!ret)
 	{
