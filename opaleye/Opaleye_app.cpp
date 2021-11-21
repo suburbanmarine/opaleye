@@ -485,8 +485,10 @@ bool Opaleye_app::start_video_capture(const std::string& camera)
     return false;
   }
 
+  boost::filesystem::path out_video_dir = m_config->video_path / camera;
+
   std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe = std::make_shared<gst_filesink_pipeline>();
-  m_mkv_pipe->set_top_storage_dir(m_config->video_path.string());
+  m_mkv_pipe->set_top_storage_dir(out_video_dir.string());
   if(! m_mkv_pipe->init() )
   {
     SPDLOG_INFO("m_mkv_pipe init failed");
