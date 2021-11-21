@@ -23,7 +23,7 @@ public:
 
 	bool is_interrupted() const
 	{
-		return m_keep_running.load();
+		return ! m_keep_running.load();
 	}
 
 	void wait_for_interruption();
