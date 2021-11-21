@@ -236,8 +236,11 @@ int main(int argc, char* argv[])
 	//stop app
 	app.stop();
 
-	sensors->interrupt();
-	sensors->join();
+	if(sensors && sensors->joinable())
+	{
+		sensors->interrupt();
+		sensors->join();
+	}
 
 	//sync logs - the threadpool dies at end of main so global objects need to stop logging
 	spdlog::shutdown();

@@ -30,15 +30,19 @@ void thread_base::work()
 
 }
 
+//MT safe
 void thread_base::interrupt()
 {
-	m_keep_running = false;
+	m_keep_running.store(false);
+	m_keep_running_cv.notify_all();
 }
-
-//MT safe
 void thread_base::join()
 {
 	m_thread.join();
+}
+bool thread_base::joinable() const
+{
+	return m_thread.joinable();
 }
 
 void thread_base::dispatch_work()
@@ -133,7 +137,7 @@ void sensor_thread::work()
 	double ext_temp = 0.0;
 	MS5837_30BA::RESULT baro_result;
 
-	while(m_keep_running)
+	while( ! is_interrupted() )
 	{
 		uint32_t temp_sample;
 		bool ret = m_temp.sample(&temp_sample);
@@ -167,6 +171,6 @@ void sensor_thread::work()
 			m_baro_data = baro_result;
 		}
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(2 * 1000));
+		wait_for_interruption(std::chrono::milliseconds(2 * 1000));
 	}
 }
