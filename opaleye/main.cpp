@@ -51,11 +51,11 @@ int main(int argc, char* argv[])
 	// gst_debug_set_default_threshold(GST_LEVEL_TRACE);
 
 	//spdlog init
-	auto spdlog_glbl_thread_pool = std::make_shared<spdlog::details::thread_pool>(1024, 1);
+	auto spdlog_glbl_thread_pool = std::make_shared<spdlog::details::thread_pool>(16*1024, 1);
 	{
 		spdlog::set_level(spdlog::level::debug);
 		
-		spdlog::init_thread_pool(1024, 1);
+		// spdlog::init_thread_pool(16*1024, 1);
 		
 		std::vector<spdlog::sink_ptr> sinks;
 		sinks.push_back( std::make_shared<spdlog::sinks::stdout_color_sink_mt>()             );
@@ -127,11 +127,13 @@ int main(int argc, char* argv[])
 	std::shared_ptr<sensor_thread> sensors = std::make_shared<sensor_thread>();
 	if(cfg_mgr.get_config()->sensors_launch == "true")
 	{
+		SPDLOG_INFO("Init sensors");
 		if(!sensors->init())
 		{
 			SPDLOG_ERROR("sensor thread failed");
 			return -1;
 		}
+		SPDLOG_INFO("Starting sensor thread");
 		sensors->launch();
 	}
 
