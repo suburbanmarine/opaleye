@@ -477,7 +477,7 @@ bool Opaleye_app::start_video_capture(const std::string& camera)
     return false;
   }
 
-  std::string cap_pipe_name = camera + "_file0";
+  std::string cap_pipe_name = camera + "/file0";
   auto it = m_pipelines.find(cap_pipe_name);
 
   if(it != m_pipelines.end())
@@ -518,7 +518,7 @@ bool Opaleye_app::stop_video_capture(const std::string& camera)
     return false;
   }
 
-  std::string cap_pipe_name = camera + "_file0";
+  std::string cap_pipe_name = camera + "/file0";
 
   auto it = m_pipelines.find(cap_pipe_name);
   if( it == m_pipelines.end() )
@@ -712,7 +712,7 @@ std::string Opaleye_app::get_pipeline_graph()
     SPDLOG_ERROR("Could not create pdf");
   }
 
-  auto it = m_pipelines.find("cam0_file0");
+  auto it = m_pipelines.find("cam0/file0");
   if(it == m_pipelines.end())
   {
     return std::string();
