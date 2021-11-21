@@ -48,6 +48,16 @@
 // /api/v1/cameras/<camera-name>/pipelines/<pipeline-name>/properties
 // /api/v1/cameras/<camera-name>/pipelines/<pipeline-name>/graph
 
+// Get config file
+// /api/v1/config
+
+// /api/v1/system/
+// /api/v1/system/nvpmodel/
+// /api/v1/system/fan/
+
+// /api/v1/util/
+// /api/v1/util/time
+
 // Other RPC calls
 // /api/v1/rpc
 
