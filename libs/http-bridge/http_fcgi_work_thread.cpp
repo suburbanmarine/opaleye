@@ -51,14 +51,24 @@ void http_fcgi_work_thread::work()
 
   FCGX_InitRequest(&request, m_sock_fd, FCGI_FAIL_ACCEPT_ON_INTR);
 
-  while(m_keep_running)
+  while( ! is_interrupted() )
   {
     if(FCGX_Accept_r(&request) == 0)
     {
       //check if running
-      if( ! m_keep_running )
+      if( is_interrupted() )
       {
         SPDLOG_INFO("interruption requested: {}", m_thread.get_id());
+
+        const char msg[]     = "Internal Error";
+        const char msg_len = sizeof(msg) - 1;
+        FCGX_PutS("Content-Type: text/html\r\n", request.out);
+        FCGX_FPrintF(request.out, "Content-Length: %d\r\n", msg_len);
+        FCGX_PutS("Status: 500 Internal Error\r\n", request.out);
+        FCGX_PutS("\r\n", request.out);
+        FCGX_FPrintF(request.out, "%s", msg);
+        FCGX_Finish_r(&request);
+
         break;
       }
 
