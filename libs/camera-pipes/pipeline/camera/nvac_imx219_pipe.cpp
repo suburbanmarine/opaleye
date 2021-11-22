@@ -101,7 +101,6 @@ bool nvac_imx219_pipe::init(const char name[])
     //src caps
     // see https://forums.developer.nvidia.com/t/using-x-raw-memory-nvmm-in-gstreamer-program/42654
     // see https://forums.developer.nvidia.com/t/using-x-raw-memory-nvmm-in-gstreamer-program/42654/9
-    // m_src_caps = Gst::Caps::create_from_string((Glib::ustring)"video/x-raw(memory:NVMM),format=(string)NV12,pixel-aspect-ratio(fraction)1/1,framerate=(fraction)30/1,width=(int)1920,height=(int)1080");
     m_src_caps = Gst::Caps::create_from_string("video/x-raw(memory:NVMM), width=(int)1920, height=(int)1080, format=(string)NV12, framerate=(fraction)30/1, pixel-aspect-ratio=(fraction)1/1");
     // m_src_caps = Gst::Caps::create_simple(
     //   "video/x-raw(memory:NVMM)",
@@ -114,8 +113,6 @@ bool nvac_imx219_pipe::init(const char name[])
 
     m_in_capsfilter = Gst::CapsFilter::create("incaps");
     m_in_capsfilter->property_caps() = m_src_caps;
-    // m_in_capsfilter->set_property("caps", m_src_caps);
-
 
     m_in_queue     = Gst::Queue::create();
     // m_in_queue->set_property("leaky", Gst::QUEUE_LEAK_DOWNSTREAM);
