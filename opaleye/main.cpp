@@ -22,14 +22,28 @@
 #include <gstreamermm.h>
 
 #include <iostream>
+#include <exception>
+#include <cstdlib>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 #include "spdlog/async.h"
 
+void terminate_handler()
+{
+	//flush logs
+	spdlog::shutdown();
+
+	//continue dieing
+	std::abort();
+}
+
 int main(int argc, char* argv[])
 {
+	//flush logs and clean a little before dieing
+	std::set_terminate(&terminate_handler);
+
 	{
 		int ret = setenv("GST_DEBUG_DUMP_DOT_DIR", "/tmp", 1);
 		if(ret != 0)
