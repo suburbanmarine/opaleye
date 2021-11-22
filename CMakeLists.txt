@@ -62,7 +62,7 @@ pkg_check_modules(GSTRTSP
 		gstreamer-rtsp-1.0
 )
 
-find_package( OpenCV REQUIRED )
+# find_package( OpenCV REQUIRED )
 
 add_subdirectory(external/spdlog)
 add_subdirectory(external/googletest)
