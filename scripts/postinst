@@ -65,7 +65,7 @@ chmod g+w             /opt/suburbanmarine/opaleye/record/image
 chown opaleye:opaleye /opt/suburbanmarine/opaleye/log
 chmod g+w             /opt/suburbanmarine/opaleye/log
 
-if [[ -d /mnt/video/opaleye  ]]; then
+if [[ -d /mnt/video  ]]; then
 	mkdir -p /mnt/video/opaleye/video
 	mkdir -p /mnt/video/opaleye/image
 	mkdir -p /mnt/video/opaleye/log
