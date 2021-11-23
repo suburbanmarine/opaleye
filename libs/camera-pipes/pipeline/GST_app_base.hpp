@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "pipeline/GST_element_base.hpp"
+
 #include <glibmm/main.h>
 
 #include <gstreamermm/element.h>
@@ -19,6 +21,7 @@
 #include <mutex>
 #include <condition_variable>
 
+//todo refactor this so the node storage by name is in base GST_app_base
 class GST_app_base
 {
 public:
@@ -39,6 +42,19 @@ public:
   void make_debug_dot_ts(const std::string& fname);
 
   void run_glib_main();
+
+  Glib::RefPtr<Gst::Pipeline> get_pipeline()
+  {
+    return m_pipeline;
+  }
+
+  virtual std::shared_ptr<GST_element_base> get_element(const std::string& name) = 0;
+
+  template< typename T >
+  std::shared_ptr<T> get_element(const std::string& name)
+  {
+    return std::dynamic_pointer_cast<T>(get_element(name));
+  }
 
 protected:
   Glib::RefPtr<Glib::MainContext>  m_mainloop_context;

@@ -67,7 +67,7 @@ public:
     INSUFFICIENT_STORAGE       = 507, //  (WEBDAV; RFC 4918)
     LOOP_DETECTED              = 508, //  (WEBDAV; RFC 5842)
     NOT_EXTENDED               = 510, //  (RFC 2774)
-    NETWORK_AUTH_REQ           = 511 //  (RFC 6585)
+    NETWORK_AUTH_REQ           = 511  //  (RFC 6585)
   };
   static char const * get_status_code_str(const STATUS_CODES& status_code);
 

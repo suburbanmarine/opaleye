@@ -6,7 +6,7 @@
 
 #include "gst_filesink_pipeline.hpp"
 
-#include "app_config.hpp"
+#include "config/Opaleye_config_mgr.hpp"
 
 #include "pipeline/GST_app_base.hpp"
 #include "pipeline/GST_interpipesink.hpp"
@@ -14,6 +14,7 @@
 #include "pipeline/camera/Testsrc_pipe.hpp"
 // #include "pipeline/camera/Logitech_brio_pipe.hpp"
 #include "pipeline/camera/v4l2_webcam_pipe.hpp"
+#include "pipeline/camera/nvac_imx219_pipe.hpp"
 #include "pipeline/display/autovideosink_pipe.hpp"
 #include "pipeline/stream/rtp_h264_pipe.hpp"
 #include "pipeline/stream/rtpsink_pipe.hpp"
@@ -21,20 +22,107 @@
 
 #include <memory>
 
-class test_app : public GST_app_base
+// REST URL endpoints
+
+// Get sensor data
+// /api/v1/sensors/
+// /api/v1/sensors/pressure
+// /api/v1/sensors/pressure/0
+// /api/v1/sensors/temperature
+// /api/v1/sensors/temperature/0
+// /api/v1/sensors/temperature/1
+
+// Get camera info
+// /api/v1/cameras/
+// /api/v1/cameras/<camera-name>/properties
+// /api/v1/cameras/<camera-name>/live/full
+// /api/v1/cameras/<camera-name>/live/preview
+
+// Get camera RTP stream
+// /api/v1/cameras/
+// /api/v1/cameras/<camera-name>/rtp
+// /api/v1/cameras/<camera-name>/rtp/clients
+
+// Get pipeline info
+// /api/v1/cameras/<camera-name>/pipelines
+// /api/v1/cameras/<camera-name>/pipelines/<pipeline-name>/properties
+// /api/v1/cameras/<camera-name>/pipelines/<pipeline-name>/graph
+
+// Get config file
+// /api/v1/config
+
+// /api/v1/system/
+// /api/v1/system/nvpmodel/
+// /api/v1/system/fan/
+
+// /api/v1/util/
+// /api/v1/util/time
+
+// Other RPC calls
+// /api/v1/rpc
+
+class Gstreamer_pipeline : public GST_app_base
 {
 public:
 
-  test_app();
+  Gstreamer_pipeline();
 
-  ~test_app() override;
+  ~Gstreamer_pipeline() override;
 
   bool init() override;
+  bool make_pipeline(const std::shared_ptr<const app_config>& app_config, const pipeline_config& pipe_config);
+
+  bool has_element(const std::string& name);
+
+  std::shared_ptr<GST_element_base> get_element(const std::string& name) override;
+
+  template< typename T >
+  bool add_element(const std::string& name, const std::shared_ptr<GST_element_base>& node)
+  {
+    // if( m_element_storage.contains(name) )
+    // {
+    //   return false;
+    // }
+
+    if( m_element_storage.find(name) != m_element_storage.end())
+    {
+      return false;
+    }
+
+    m_element_storage.emplace(name, node);
+    return true;
+  }
+
+  //todo - this should be registered at Opaleye_app::m_pipelines, not here
+  // std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe;
+
+protected:
+    
+  bool make_brio_pipeline();
+  bool make_imx219_pipeline();
+  bool make_virtual_pipeline();
+
+
+  std::map<std::string, std::shared_ptr<GST_element_base>> m_element_storage;
+
+  pipeline_config                   m_pipeline_config;
+  std::shared_ptr<const app_config> m_app_config;
+};
+
+class Opaleye_app
+{
+public:
+
+  Opaleye_app();
+
+  ~Opaleye_app();
+
+  bool init();
 
   //The API Handlers
   //May be called by local code or the jsonrpc interface or the FCGI interface
   //Must be MT safe - multiple calls may be concurrent on different threads
-  //May block
+  //May block - this will gate new client connection processing, this is configurable between NGINX and our FCGI settings
   std::vector<std::string> get_camera_list() const;
   bool start_camera(const std::string& camera);
   bool stop_camera(const std::string& camera);
@@ -51,9 +139,14 @@ public:
   std::string get_sdp_file() const;
 
   ///
-  /// Stop most activity.
+  /// Start all pipelines.
   ///
-  // bool stop();
+  bool start();
+
+  ///
+  /// Stop all pipelines.
+  ///
+  bool stop();
 
   ///
   /// Null, running, paused, ...
@@ -106,23 +199,10 @@ public:
   bool set_camera_property(const std::string& camera_id, const std::string& property_id, int value);
 
 // protected:
-  Testsrc_pipe       m_test_src;
-  V4L2_webcam_pipe   m_camera;
 
-  std::shared_ptr<GST_element_base> m_jpgdec;
-  std::shared_ptr<GST_element_base> m_h264;
-
-  std::shared_ptr<Thumbnail_pipe_base> m_thumb;
-
-  GST_interpipesink      m_h264_interpipesink;
-
-  rtp_h264_pipe          m_rtppay;
-  rtpsink_pipe           m_rtpsink;
-  autovideosink_pipe     m_display;
-
-  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe;
+  //pipeline name to pipeline
+  std::map<std::string, std::shared_ptr<GST_app_base>> m_pipelines;
 
   std::shared_ptr<app_config> m_config;
 
 };
-

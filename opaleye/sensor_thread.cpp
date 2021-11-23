@@ -9,57 +9,6 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/printf.h>
 
-#include <thread>
-
-thread_base::thread_base() : m_keep_running(true)
-{
-
-}
-thread_base::~thread_base()
-{
-
-}
-
-void thread_base::launch()
-{
-	m_thread = std::thread(&thread_base::dispatch_work, this);
-}
-
-void thread_base::work()
-{
-
-}
-
-void thread_base::interrupt()
-{
-	m_keep_running = false;
-}
-
-//MT safe
-void thread_base::join()
-{
-	m_thread.join();
-}
-
-void thread_base::dispatch_work()
-{
-	SPDLOG_DEBUG("Thread started");
-	try
-	{
-		work();
-	}
-	catch(const std::exception& e)
-	{
-		SPDLOG_DEBUG("Thread caught exception {:s}", e.what());	
-	}
-	catch(...)
-	{
-		SPDLOG_DEBUG("Thread caught exception ...");	
-	}
-
-	SPDLOG_DEBUG("Thread exiting");
-}
-
 sensor_thread::sensor_thread()
 {
 	m_temp_degC = 0.0;
@@ -117,7 +66,6 @@ bool sensor_thread::init()
 		return false;
 	}
 
-
 	ret = m_baro.read_cal_data(&m_baro_cal_data);
 	if(!ret)
 	{
@@ -133,7 +81,7 @@ void sensor_thread::work()
 	double ext_temp = 0.0;
 	MS5837_30BA::RESULT baro_result;
 
-	while(m_keep_running)
+	while( ! is_interrupted() )
 	{
 		uint32_t temp_sample;
 		bool ret = m_temp.sample(&temp_sample);
@@ -167,6 +115,6 @@ void sensor_thread::work()
 			m_baro_data = baro_result;
 		}
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(2 * 1000));
+		wait_for_interruption(std::chrono::milliseconds(2 * 1000));
 	}
 }

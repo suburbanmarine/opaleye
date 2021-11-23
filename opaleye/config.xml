@@ -4,4 +4,39 @@
 	<image_path>/mnt/video/opaleye/image</image_path>
 	<log_path>/mnt/video/opaleye/log</log_path>
 	<h264_mode>nv</h264_mode>
+
+	<sensors>
+		<launch>false</launch>
+	</sensors>
+
+	<cameras>
+
+		<camera>
+			<name>cam0</name>
+			<type>brio</type>
+			<properties>
+			</properties>
+			<pipeline>
+				<name>pipe0</name>
+				<type>brio</type>
+			</pipeline>
+		</camera>
+
+		<camera>
+			<name>cam1</name>
+			<type>virtual</type>
+
+			<properties>
+				<width>1920</width>
+				<height>1280</height>
+				<fps>30.0</fps>
+			</properties>
+
+			<pipeline>
+				<name>pipe1</name>
+				<type>virtual</type>
+			</pipeline>
+		</camera>
+
+	</cameras>
 </config>

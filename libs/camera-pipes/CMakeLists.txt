@@ -3,6 +3,7 @@ add_library(camera-pipes-nv
 	pipeline/decode/jpeg_nvdec_bin.cpp
 	pipeline/Thumbnail_nv_pipe.cpp
 	# pipeline/Thumbnail_nv2_pipe.cpp
+	pipeline/Thumbnail_nv3_pipe.cpp
 )
 
 target_link_libraries(camera-pipes-nv
@@ -20,6 +21,7 @@ add_library(camera-pipes
 	pipeline/camera/Testsrc_pipe.cpp
 	pipeline/camera/v4l2_webcam_pipe.cpp
 	pipeline/camera/v4l2_util.cpp
+	pipeline/camera/nvac_imx219_pipe.cpp
 
 	pipeline/display/autovideosink_pipe.cpp
 
@@ -51,6 +53,7 @@ add_library(camera-pipes
 	pipeline/GST_interpipesink.cpp
 	pipeline/Thumbnail_sw_pipe.cpp
 	pipeline/Thumbnail_sw2_pipe.cpp
+	pipeline/nvvideoconvert_pipe.cpp
 )
 
 target_link_libraries(camera-pipes

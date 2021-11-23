@@ -2,13 +2,16 @@ add_subdirectory(
 	service
 )
 
-add_executable(opaleye
-	main.cpp
-	gst_app.cpp
+add_library(opaleye_app
+	Opaleye_app.cpp
 	gst_app_mjpeg.cpp
 	gst_filesink_pipeline.cpp
 	gst_framesink_pipeline.cpp
-	app_config.cpp
+	
+	config/Opaleye_config.cpp
+	config/Opaleye_config_camera.cpp
+	config/Opaleye_config_pipeline.cpp
+	config/Opaleye_config_mgr.cpp
 
 	http_req_jpeg.cpp
 	http_req_jsonrpc.cpp
@@ -19,7 +22,12 @@ add_executable(opaleye
 	signal_handler.cpp
 )
 
-target_link_libraries(opaleye
+target_include_directories(opaleye_app
+	PUBLIC
+		${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_link_libraries(opaleye_app
 	PUBLIC
 		camera-pipes
 		camera-pipes-nv
@@ -41,6 +49,15 @@ target_link_libraries(opaleye
 		fcgi
 )
 
+add_executable(opaleye
+	main.cpp
+)
+
+target_link_libraries(opaleye
+	PUBLIC
+		opaleye_app
+)
+
 target_include_directories(opaleye
 	PUBLIC
 		${CMAKE_CURRENT_SOURCE_DIR}
@@ -51,6 +68,13 @@ INSTALL(
 		opaleye
 	DESTINATION
 		bin
+)
+
+INSTALL(
+	TARGETS
+		opaleye_app
+	DESTINATION
+		lib
 )
 
 INSTALL(

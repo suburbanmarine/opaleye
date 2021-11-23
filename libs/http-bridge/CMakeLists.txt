@@ -4,6 +4,7 @@ add_library(http-bridge
 	http_fcgi_work_thread.cpp
 	http_req_callback_base.cpp
 	http_req_callback_file.cpp
+	http_req_util.cpp
 	http_util.cpp
 	http_common.cpp
 	http_req_error_handler.cpp
@@ -11,6 +12,9 @@ add_library(http-bridge
 
 target_link_libraries(http-bridge
 	PUBLIC
+
+		opaleye-util
+
 		Boost::boost
 		Boost::filesystem
 		spdlog::spdlog
