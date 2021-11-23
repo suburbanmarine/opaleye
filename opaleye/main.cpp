@@ -15,6 +15,7 @@
 #include "config/Opaleye_config.hpp"
 
 #include "sensor_thread.hpp"
+#include "gpio_thread.hpp"
 
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
@@ -151,6 +152,19 @@ int main(int argc, char* argv[])
 		sensors->launch();
 	}
 
+	std::shared_ptr<gpio_thread> gpio = std::make_shared<gpio_thread>();
+	if(true)
+	{
+		SPDLOG_INFO("Init gpio");
+		if(!gpio->init())
+		{
+			SPDLOG_ERROR("gpio thread failed");
+			return -1;
+		}
+		SPDLOG_INFO("Starting gpio thread");
+		gpio->launch();
+	}
+
 	http_fcgi_svr fcgi_svr;
 
 	std::shared_ptr<http_req_callback_file> req_cb = std::make_shared<http_req_callback_file>();
@@ -260,6 +274,12 @@ int main(int argc, char* argv[])
 	{
 		sensors->interrupt();
 		sensors->join();
+	}
+
+	if(gpio && gpio->joinable())
+	{
+		gpio->interrupt();
+		gpio->join();
 	}
 
 	//sync logs - the threadpool dies at end of main so global objects need to stop logging
