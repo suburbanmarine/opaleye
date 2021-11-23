@@ -48,7 +48,7 @@ void gpio_thread::work()
 	itimerspec alarm_interval;
 	alarm_interval.it_interval.tv_sec  = 1; /* Interval for periodic timer */
 	alarm_interval.it_interval.tv_nsec = 0;
-	alarm_interval.it_value.tv_sec     = t_now.tv_sec; /* Initial expiration */
+	alarm_interval.it_value.tv_sec     = t_now.tv_sec + 1; /* Initial expiration */
 	alarm_interval.it_value.tv_nsec    = 0;
 	ret = timerfd_settime(m_timer_fd, TFD_TIMER_ABSTIME, &alarm_interval, nullptr);
 	while( ! is_interrupted() )
