@@ -48,6 +48,8 @@ target_link_libraries(opaleye_app
 
 		#uvc
 		fcgi
+
+		rt
 )
 
 add_executable(opaleye
