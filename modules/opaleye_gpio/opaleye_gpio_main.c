@@ -15,7 +15,7 @@
 #include <linux/gpio.h>
 
 //xavier
-#include <linux/dt-bindings/gpio/tegra194-gpio.h>
+#include <dt-bindings/gpio/tegra194-gpio.h>
 #define TEGRA194_BASE 288
 
 //tx2

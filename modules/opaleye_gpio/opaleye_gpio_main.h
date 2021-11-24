@@ -7,3 +7,5 @@ int opaleye_gpio_init(void);
 void opaleye_gpio_exit(void);
 
 int opaleye_gpio_main(void* data);
+
+unsigned get_tegra194_gpio(int base, int port, int offset);
