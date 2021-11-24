@@ -42,6 +42,7 @@ int __init opaleye_gpio_init(void)
 		printk(KERN_ERR "opaleye_gpio failed to start thread");
 
 		kfree(g_gpio_state);
+		g_gpio_state = NULL;
 		return -1;
 	}
 
@@ -61,6 +62,7 @@ void __exit opaleye_gpio_exit(void)
 
 		//release mem
 		kfree(g_gpio_state);
+		g_gpio_state = NULL;
 	}
 
 	printk(KERN_INFO "opaleye_gpio done");
