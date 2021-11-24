@@ -142,9 +142,20 @@ void __exit opaleye_gpio_exit(void)
 
 enum hrtimer_restart opaleye_gpio_timer_cb(struct hrtimer* t)
 {
+	if( ! t )
+	{
+		printk(KERN_ERR "opaleye_gpio_timer_cb t is null");
+	}
+
 	opaleye_gpio_state_t* state = container_of(t, opaleye_gpio_state_t, gpio_timer);
+	if( ! state )
+	{
+		printk(KERN_ERR "opaleye_gpio_timer_cb state is null");
+	}
+
 	// hrtimer_forward_now(&state->gpio_timer, ktime_set(1, 0)); // 1s
 	hrtimer_forward_now(&state->gpio_timer, ktime_set(0, 500 * 1000 * 1000)); // 500ms
+	//or hrtimer_set_expires
 
 	//do something, toggle a pin
 	gpio_set_value(state->GPIO13_N01, state->GPIO13_N01_val);
@@ -173,7 +184,6 @@ int opaleye_gpio_main(void* data)
 	//startup
 	hrtimer_init(&g_gpio_state->gpio_timer, CLOCK_REALTIME, HRTIMER_MODE_ABS); // HRTIMER_MODE_ABS_HARD
 	g_gpio_state->gpio_timer.function = opaleye_gpio_timer_cb;
-	g_gpio_state->gpio_timer.data     = &g_gpio_state->gpio_timer;
 
 	// ktime_t kt_now = ktime_get_real();
 	struct timespec64 t_now;
