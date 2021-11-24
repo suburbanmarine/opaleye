@@ -6,8 +6,11 @@
 
 #include "gpio_thread.hpp"
 
+
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/printf.h>
+
+#include <gpiod.h>
 
 #include <sys/timerfd.h>
 #include <unistd.h>
@@ -15,6 +18,7 @@
 gpio_thread::gpio_thread()
 {
 	m_timer_fd = -1;
+	m_gpio_chip0 = nullptr;
 }
 gpio_thread::~gpio_thread()
 {
@@ -25,6 +29,12 @@ gpio_thread::~gpio_thread()
 		{
 			//log
 		}
+	}
+
+	if( ! m_gpio_chip0 )
+	{
+		gpiod_line_release();
+		gpiod_chip_close();
 	}
 }
 
@@ -37,6 +47,10 @@ bool gpio_thread::init()
 		return false;
 	}
 
+	m_gpio_chip0 = gpiod_chip_open("/dev/gpiochip0");
+
+	gpiod_line_request_output();
+	gpiod_line_set_value();
 	return true;
 }
 

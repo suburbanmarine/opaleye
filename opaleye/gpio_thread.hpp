@@ -23,4 +23,6 @@ public:
 
 protected:
 	int m_timer_fd;
+
+	gpiod_chip* m_gpio_chip0;
 };
