@@ -173,6 +173,7 @@ int opaleye_gpio_main(void* data)
 	//startup
 	hrtimer_init(&g_gpio_state->gpio_timer, CLOCK_REALTIME, HRTIMER_MODE_ABS); // HRTIMER_MODE_ABS_HARD
 	g_gpio_state->gpio_timer.function = opaleye_gpio_timer_cb;
+	g_gpio_state->gpio_timer.data     = &g_gpio_state->gpio_timer;
 
 	// ktime_t kt_now = ktime_get_real();
 	struct timespec64 t_now;
