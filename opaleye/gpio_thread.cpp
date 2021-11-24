@@ -56,6 +56,9 @@ bool gpio_thread::init()
 
 void gpio_thread::work()
 {	
+	// or maybe sleep with
+	// clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, ...)
+
 	timespec t_now;
 	int ret = clock_gettime(CLOCK_REALTIME, &t_now);
 
