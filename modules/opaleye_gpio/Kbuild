@@ -1,0 +1,3 @@
+obj-m := opaleye_gpio.o
+opaleye_gpio-y := opaleye_gpio_main.o
+ccflags-y := -std=gnu99
