@@ -13,6 +13,11 @@
 #include <linux/slab.h>
 #include <linux/timekeeping.h>
 
+// for sched_setscheduler
+// #include <linux/sched.h>
+// #include <linux/sched/types.h>
+// #include <uapi/linux/sched/types.h>
+
 MODULE_AUTHOR("Suburban Marine, Inc.");
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_DESCRIPTION("opaleye_gpio");
@@ -37,6 +42,10 @@ int __init opaleye_gpio_init(void)
 		return -1;
 	}
 
+	// or to pin to a cpu
+	// kthread_create
+	// kthread_bind
+	// wake_up_process
 	state->main_task_ptr = kthread_run(&opaleye_gpio_main, NULL, "opaleye_gpio_main");
 	if( ! state->main_task_ptr )
 	{
@@ -80,6 +89,12 @@ enum hrtimer_restart opaleye_gpio_timer_cb(struct hrtimer* t)
 int opaleye_gpio_main(void* data)
 {
 	printk(KERN_INFO "opaleye_gpio_main starting");
+
+	// set prio
+	// 	struct sched_param param = {
+	// 		.sched_priority = 50
+	// 	};
+	// sched_setscheduler(g_gpio_state->main_task_ptr, SCHED_RR, &param); // or SCHED_FIFO
 
 	//startup
 	hrtimer_init(&g_gpio_state->gpio_timer, CLOCK_REALTIME, HRTIMER_MODE_ABS); // HRTIMER_MODE_ABS_HARD
