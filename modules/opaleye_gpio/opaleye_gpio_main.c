@@ -219,10 +219,10 @@ int opaleye_gpio_main(void* data)
 	ktime_get_real_ts64(&t_now);
 
 	ktime_t kt_0_on = ktime_set(t_now.tv_sec + 1, 0);
-	hrtimer_start(&g_gpio_state->gpio_on_timer, kt_0, HRTIMER_MODE_ABS); // HRTIMER_MODE_ABS_HARD
+	hrtimer_start(&g_gpio_state->gpio_on_timer, kt_0_on, HRTIMER_MODE_ABS); // HRTIMER_MODE_ABS_HARD
 
 	ktime_t kt_0_off = ktime_set(t_now.tv_sec + 1, 1 * 1000 * 1000);
-	hrtimer_start(&g_gpio_state->gpio_off_timer, kt_0, HRTIMER_MODE_ABS); // HRTIMER_MODE_ABS_HARD
+	hrtimer_start(&g_gpio_state->gpio_off_timer, kt_0_off, HRTIMER_MODE_ABS); // HRTIMER_MODE_ABS_HARD
 
 	while( ! kthread_should_stop() )
 	{
