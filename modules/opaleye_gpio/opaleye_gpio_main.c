@@ -37,7 +37,8 @@ MODULE_SUPPORTED_DEVICE("opaleye_gpio");
 typedef struct opaleye_gpio_state_t
 {
 	struct task_struct* main_task_ptr;
-	struct hrtimer gpio_timer;
+	struct hrtimer gpio_on_timer;
+	struct hrtimer gpio_off_timer;
 
 	unsigned GPIO13_N01;
 	int GPIO13_N01_val;
@@ -140,26 +141,51 @@ void __exit opaleye_gpio_exit(void)
 	printk(KERN_INFO "opaleye_gpio done");
 }
 
-enum hrtimer_restart opaleye_gpio_timer_cb(struct hrtimer* t)
+enum hrtimer_restart opaleye_gpio_on_timer_cb(struct hrtimer* t)
 {
 	if( ! t )
 	{
-		printk(KERN_ERR "opaleye_gpio_timer_cb t is null");
+		printk(KERN_ERR "opaleye_gpio_on_timer_cb t is null");
 	}
 
 	opaleye_gpio_state_t* state = container_of(t, opaleye_gpio_state_t, gpio_timer);
 	if( ! state )
 	{
-		printk(KERN_ERR "opaleye_gpio_timer_cb state is null");
+		printk(KERN_ERR "opaleye_gpio_on_timer_cb state is null");
 	}
 
-	// hrtimer_forward_now(&state->gpio_timer, ktime_set(1, 0)); // 1s
-	hrtimer_forward_now(&state->gpio_timer, ktime_set(0, 500 * 1000 * 1000)); // 500ms
+	hrtimer_forward_now(&state->gpio_timer, ktime_set(1, 0)); // 1s
+	// hrtimer_forward_now(&state->gpio_on_timer, ktime_set(0, 500 * 1000 * 1000)); // 500ms
 	//or hrtimer_set_expires
 
 	//do something, toggle a pin
-	gpio_set_value(state->GPIO13_N01, state->GPIO13_N01_val);
-	state->GPIO13_N01_val = ! state->GPIO13_N01_val;
+	gpio_set_value(state->GPIO13_N01, 1);
+	state->GPIO13_N01_val = 1;
+
+	// return HRTIMER_NORESTART;
+	return HRTIMER_RESTART;
+}
+
+enum hrtimer_restart opaleye_gpio_off_timer_cb(struct hrtimer* t)
+{
+	if( ! t )
+	{
+		printk(KERN_ERR "opaleye_gpio_off_timer_cb t is null");
+	}
+
+	opaleye_gpio_state_t* state = container_of(t, opaleye_gpio_state_t, gpio_timer);
+	if( ! state )
+	{
+		printk(KERN_ERR "opaleye_gpio_off_timer_cb state is null");
+	}
+
+	hrtimer_forward_now(&state->gpio_timer, ktime_set(1, 0)); // 1s
+	// hrtimer_forward_now(&state->gpio_off_timer, ktime_set(0, 500 * 1000 * 1000)); // 500ms
+	//or hrtimer_set_expires
+
+	//do something, toggle a pin
+	gpio_set_value(state->GPIO13_N01, 0);
+	state->GPIO13_N01_val = 0;
 
 	// return HRTIMER_NORESTART;
 	return HRTIMER_RESTART;
@@ -182,16 +208,21 @@ int opaleye_gpio_main(void* data)
 	// sched_setscheduler(g_gpio_state->main_task_ptr, SCHED_RR, &param); // or SCHED_FIFO
 
 	//startup
-	hrtimer_init(&g_gpio_state->gpio_timer, CLOCK_REALTIME, HRTIMER_MODE_ABS); // HRTIMER_MODE_ABS_HARD
-	g_gpio_state->gpio_timer.function = opaleye_gpio_timer_cb;
+	hrtimer_init(&g_gpio_state->gpio_on_timer, CLOCK_REALTIME, HRTIMER_MODE_ABS); // HRTIMER_MODE_ABS_HARD
+	g_gpio_state->gpio_on_timer.function = opaleye_gpio_on_timer_cb;
+
+	hrtimer_init(&g_gpio_state->gpio_off_timer, CLOCK_REALTIME, HRTIMER_MODE_ABS); // HRTIMER_MODE_ABS_HARD
+	g_gpio_state->gpio_off_timer.function = opaleye_gpio_off_timer_cb;
 
 	// ktime_t kt_now = ktime_get_real();
 	struct timespec64 t_now;
 	ktime_get_real_ts64(&t_now);
 
-	ktime_t kt_0 = ktime_set(t_now.tv_sec + 1, 0);
+	ktime_t kt_0_on = ktime_set(t_now.tv_sec + 1, 0);
+	hrtimer_start(&g_gpio_state->gpio_on_timer, kt_0, HRTIMER_MODE_ABS); // HRTIMER_MODE_ABS_HARD
 
-	hrtimer_start(&g_gpio_state->gpio_timer, kt_0, HRTIMER_MODE_ABS); // HRTIMER_MODE_ABS_HARD
+	ktime_t kt_0_off = ktime_set(t_now.tv_sec + 1, 1 * 1000 * 1000);
+	hrtimer_start(&g_gpio_state->gpio_off_timer, kt_0, HRTIMER_MODE_ABS); // HRTIMER_MODE_ABS_HARD
 
 	while( ! kthread_should_stop() )
 	{
@@ -201,7 +232,8 @@ int opaleye_gpio_main(void* data)
 	//tear down
 	{
 		//stop event cb
-		hrtimer_cancel(&g_gpio_state->gpio_timer);
+		hrtimer_cancel(&g_gpio_state->gpio_on_timer);
+		hrtimer_cancel(&g_gpio_state->gpio_off_timer);
 	}
 
 	printk(KERN_INFO "opaleye_gpio_main done");
