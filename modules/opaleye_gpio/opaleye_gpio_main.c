@@ -148,13 +148,13 @@ enum hrtimer_restart opaleye_gpio_on_timer_cb(struct hrtimer* t)
 		printk(KERN_ERR "opaleye_gpio_on_timer_cb t is null");
 	}
 
-	opaleye_gpio_state_t* state = container_of(t, opaleye_gpio_state_t, gpio_timer);
+	opaleye_gpio_state_t* state = container_of(t, opaleye_gpio_state_t, gpio_on_timer);
 	if( ! state )
 	{
 		printk(KERN_ERR "opaleye_gpio_on_timer_cb state is null");
 	}
 
-	hrtimer_forward_now(&state->gpio_timer, ktime_set(1, 0)); // 1s
+	hrtimer_forward_now(&state->gpio_on_timer, ktime_set(1, 0)); // 1s
 	// hrtimer_forward_now(&state->gpio_on_timer, ktime_set(0, 500 * 1000 * 1000)); // 500ms
 	//or hrtimer_set_expires
 
@@ -173,13 +173,13 @@ enum hrtimer_restart opaleye_gpio_off_timer_cb(struct hrtimer* t)
 		printk(KERN_ERR "opaleye_gpio_off_timer_cb t is null");
 	}
 
-	opaleye_gpio_state_t* state = container_of(t, opaleye_gpio_state_t, gpio_timer);
+	opaleye_gpio_state_t* state = container_of(t, opaleye_gpio_state_t, gpio_off_timer);
 	if( ! state )
 	{
 		printk(KERN_ERR "opaleye_gpio_off_timer_cb state is null");
 	}
 
-	hrtimer_forward_now(&state->gpio_timer, ktime_set(1, 0)); // 1s
+	hrtimer_forward_now(&state->gpio_off_timer, ktime_set(1, 0)); // 1s
 	// hrtimer_forward_now(&state->gpio_off_timer, ktime_set(0, 500 * 1000 * 1000)); // 500ms
 	//or hrtimer_set_expires
 
