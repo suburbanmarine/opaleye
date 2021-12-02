@@ -8,6 +8,8 @@
 
 #include "thread_base.hpp"
 
+#include <gpiod.h>
+
 #include <mutex>
 
 class gpio_thread : public thread_base

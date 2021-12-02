@@ -10,8 +10,6 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/printf.h>
 
-#include <gpiod.h>
-
 #include <sys/timerfd.h>
 #include <unistd.h>
 
