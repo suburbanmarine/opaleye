@@ -152,6 +152,7 @@ int main(int argc, char* argv[])
 		sensors->launch();
 	}
 
+#if 0
 	std::shared_ptr<gpio_thread> gpio = std::make_shared<gpio_thread>();
 	if(true)
 	{
@@ -164,6 +165,7 @@ int main(int argc, char* argv[])
 		SPDLOG_INFO("Starting gpio thread");
 		gpio->launch();
 	}
+#endif
 
 	http_fcgi_svr fcgi_svr;
 
