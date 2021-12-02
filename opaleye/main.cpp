@@ -278,11 +278,13 @@ int main(int argc, char* argv[])
 		sensors->join();
 	}
 
+#if 0
 	if(gpio && gpio->joinable())
 	{
 		gpio->interrupt();
 		gpio->join();
 	}
+#endif
 
 	//sync logs - the threadpool dies at end of main so global objects need to stop logging
 	spdlog::shutdown();
