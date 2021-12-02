@@ -18,7 +18,7 @@ add_library(opaleye_app
 	http_req_callback_sensors.cpp
 
 	sensor_thread.cpp
-	gpio_thread.cpp
+	# gpio_thread.cpp
 
 	signal_handler.cpp
 )
