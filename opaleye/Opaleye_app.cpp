@@ -229,7 +229,7 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
    return false;
   }
   
-  m_camera->set_sensor_id(m_camera_config.get("sensor-id", 0));
+  m_camera->set_sensor_id(m_camera_config.get("properties.sensor-id", 0));
   // if( ! m_camera->set_sensor_id(m_camera_config.get("sensor-id", 0)))
   // {
   //     SPDLOG_ERROR("Could not set camera sensor-id");
