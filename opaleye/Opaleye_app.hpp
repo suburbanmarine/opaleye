@@ -70,7 +70,7 @@ public:
   ~Gstreamer_pipeline() override;
 
   bool init() override;
-  bool make_pipeline(const std::shared_ptr<const app_config>& app_config, const pipeline_config& pipe_config);
+  bool make_pipeline(const std::shared_ptr<const app_config>& app_config, const camera_config& camera_config, const pipeline_config& pipe_config);
 
   bool has_element(const std::string& name);
 
@@ -105,6 +105,7 @@ protected:
 
   std::map<std::string, std::shared_ptr<GST_element_base>> m_element_storage;
 
+  camera_config                     m_camera_config;
   pipeline_config                   m_pipeline_config;
   std::shared_ptr<const app_config> m_app_config;
 };

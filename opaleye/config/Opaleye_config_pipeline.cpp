@@ -17,6 +17,8 @@ bool pipeline_config::is_valid() const
 
 bool pipeline_config::deserialize(const boost::property_tree::ptree& tree)
 {
+	m_tree = tree;
+	
 	name = tree.get<std::string>("name");
 	type = tree.get<std::string>("type");
 

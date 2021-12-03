@@ -32,6 +32,8 @@ bool app_config::is_valid() const
 
 bool app_config::deserialize(const boost::property_tree::ptree& tree)
 {
+	m_tree = tree;
+
 	video_path = tree.get<std::string>("config.video_path");
 	image_path = tree.get<std::string>("config.image_path");
 	log_path   = tree.get<std::string>("config.log_path");

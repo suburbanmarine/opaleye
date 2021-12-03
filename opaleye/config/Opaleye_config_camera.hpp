@@ -8,7 +8,7 @@
 
 #include "config/Opaleye_config_pipeline.hpp"
 
-#include <boost/property_tree/ptree_fwd.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 #include <string>
 
@@ -23,4 +23,20 @@ public:
 
 	bool deserialize(const boost::property_tree::ptree& tree);
 	bool serialize(boost::property_tree::ptree* const tree) const;
+
+	template<typename T>
+	T get(const boost::property_tree::ptree::path_type& path) const
+	{
+		return m_tree.get<T>(path);
+	}
+
+	template<typename T>
+	T get(const boost::property_tree::ptree::path_type& path, const T& default_value) const
+	{
+		return m_tree.get<T>(path, default_value);
+	}
+
+protected:
+  // updated by deserialize
+  boost::property_tree::ptree m_tree;
 };
