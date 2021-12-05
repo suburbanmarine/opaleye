@@ -122,6 +122,7 @@ Opaleye depends on a number of external components.
  - i2c-tools
  - libboost-all-dev
  - libfcgi-dev
+ - libgpiod-dev
  - libgrpc++-dev
  - libgrpc-dev
  - libgstreamer1.0-dev
