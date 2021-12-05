@@ -162,6 +162,30 @@ Opaleye depends on a number of external components.
  - screen
  - vlc
 
+### GST Interpipe
+
+For x86
+```console
+foo@bar:~$ ./autogen.sh --libdir /usr/lib/x86_64-linux-gnu/
+```
+
+For aarch64
+```console
+foo@bar:~$ ./autogen.sh --libdir /usr/lib/aarch64-linux-gnu/
+```
+
+Then
+```console
+foo@bar:~$ make
+foo@bar:~$ make check
+foo@bar:~$ sudo make install
+```
+
+If in non-default location
+```console
+foo@bar:~$ export GST_PLUGIN_PATH=$HOME/gst-interpipe-1.0/gst/interpipe/.libs
+```
+
 ## API
 
 Opaleye is intended to be controlled by both humans and by other software. An RPC API is provided for software integration.

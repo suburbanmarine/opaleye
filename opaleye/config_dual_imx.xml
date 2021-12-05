@@ -13,7 +13,7 @@
 
 		<camera>
 			<name>cam0</name>
-			<type>imx</type>
+			<type>imx219</type>
 			
 			<properties>
 				<sensor-id>0</sensor-id>
@@ -21,13 +21,13 @@
 
 			<pipeline>
 				<name>pipe0</name>
-				<type>imx</type>
+				<type>imx219</type>
 			</pipeline>
 		</camera>
 
 		<camera>
 			<name>cam1</name>
-			<type>imx</type>
+			<type>imx219</type>
 
 			<properties>
 				<sensor-id>1</sensor-id>
@@ -35,7 +35,7 @@
 
 			<pipeline>
 				<name>pipe1</name>
-				<type>imx</type>
+				<type>imx219</type>
 			</pipeline>
 		</camera>
 
