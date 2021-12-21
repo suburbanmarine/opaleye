@@ -5,6 +5,7 @@
 */
 
 #include "http_req_callback_sensors.hpp"
+#include "http_req_util.hpp"
 #include "http_util.hpp"
 
 #include "linux_thermal_zone.hpp"
@@ -17,6 +18,7 @@
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/xml_parser.hpp>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/printf.h>
@@ -32,19 +34,18 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
 {
   http_req_util req_util;
   req_util.load(request);
-  if(true)
-  { 
-    req_util.log_request_env()
+  req_util.log_request_env();
+
+  if(req_util.request_method_enum != http_common::REQUEST_METHOD::GET)
+  {
+    throw BadRequest("Only GET is accepted");
   }
 
-  boost::filesystem::path DOCUMENT_URI = req_util.DOCUMENT_URI;
+  boost::filesystem::path api = "/api/v1/sensors";
 
+  if(req_util.doc_uri_path.size() < api.size())
   {
-    http_common::REQUEST_METHOD REQUEST_METHOD = http_common::parse_req_method(FCGX_GetParam("REQUEST_METHOD", request->envp));
-    if(REQUEST_METHOD != http_common::REQUEST_METHOD::GET)
-    {
-      throw BadRequest("Only GET is accepted");
-    }
+
   }
 
   //this is per-req since we could have several threads
@@ -61,40 +62,76 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
     lz.get_temps(&soc_temp);
   }
 
-  
-  if( true ) // if have data
+  time_t t_now = time(NULL);
+  http_util::HttpDateStr time_str;
+  if( ! http_util::time_to_httpdate(t_now, &time_str) )
   {
-    std::stringstream ss;
+    throw InternalServerError("Could not get Last-Modified timestamp");
+  }
 
-    ss << fmt::format("External\r\n");
-    ss << fmt::format("\tTemp: {:0.1f} degC / {:0.1f} degF\r\n", ext_temp_data, Unit_conv::degC_to_degF(ext_temp_data));
-    ss << fmt::format("\tPres: {:d} mbar\r\n", baro_data.P1_mbar);
-    ss << fmt::format("\r\n");
-    ss << fmt::format("Internal\r\n");
-    for(const auto t : soc_temp)
+  if(true)
+  {
+    if(true)
     {
-      ss << fmt::format("\t{:s}: {:0.3f} degC\r\n", t.first, t.second);
+      boost::property_tree::ptree external_sensor_data;
+      external_sensor_data.put<double>("pressure",    baro_data.P1_mbar);
+      external_sensor_data.put<std::string>("pressure.<xmlattr>.unit", "mbar");
+      external_sensor_data.put<double>("temperature", ext_temp_data);
+      external_sensor_data.put<std::string>("pressure.<xmlattr>.unit", "degC");
+
+      boost::property_tree::ptree internal_sensor_data;
+      for(const auto t : soc_temp)
+      {
+        internal_sensor_data.put<double>(t.first, t.second);
+        internal_sensor_data.put<std::string>(t.first + ".<xmlattr>.unit", "degC");
+      }
+
+      boost::property_tree::ptree temp;
+      temp.put_child("sensors.external", external_sensor_data);
+      temp.put_child("sensors.internal", internal_sensor_data);
+
+      std::stringstream ss;
+      boost::property_tree::write_xml(ss, temp);
+      SPDLOG_DEBUG("sensor: {:s}", ss.str());
+
+      std::string str = ss.str();
+
+      FCGX_PutS("Content-Type: text/xml\r\n", request->out);
+      // FCGX_PutS("Content-Type: text/html\r\n", request->out);
+      FCGX_FPrintF(request->out, "Content-Length: %d\r\n", str.size());
+      FCGX_PutS("Cache-Control: max-age=0, no-store\r\n", request->out);
+      FCGX_FPrintF(request->out, "Last-Modified: %s\r\n", time_str.data());
+      
+      FCGX_PutS("\r\n", request->out);
+
+      FCGX_PutStr(str.data(), str.size(), request->out);
     }
-
-
-    std::string str = ss.str();
-
-    time_t t_now = time(NULL);
-    http_util::HttpDateStr time_str;
-    if( ! http_util::time_to_httpdate(t_now, &time_str) )
+    else
     {
-      throw InternalServerError("Could not get Last-Modified timestamp");
+      std::stringstream ss;
+
+      ss << fmt::format("External\r\n");
+      ss << fmt::format("\tTemp: {:0.1f} degC / {:0.1f} degF\r\n", ext_temp_data, Unit_conv::degC_to_degF(ext_temp_data));
+      ss << fmt::format("\tPres: {:d} mbar\r\n", baro_data.P1_mbar);
+      ss << fmt::format("\r\n");
+      ss << fmt::format("Internal\r\n");
+      for(const auto t : soc_temp)
+      {
+        ss << fmt::format("\t{:s}: {:0.3f} degC\r\n", t.first, t.second);
+      }
+
+      std::string str = ss.str();
+
+      FCGX_PutS("Content-Type: text/plain\r\n", request->out);
+      // FCGX_PutS("Content-Type: text/html\r\n", request->out);
+      FCGX_FPrintF(request->out, "Content-Length: %d\r\n", str.size());
+      FCGX_PutS("Cache-Control: max-age=0, no-store\r\n", request->out);
+      FCGX_FPrintF(request->out, "Last-Modified: %s\r\n", time_str.data());
+      
+      FCGX_PutS("\r\n", request->out);
+
+      FCGX_PutStr(str.data(), str.size(), request->out);
     }
-
-    FCGX_PutS("Content-Type: text/plain\r\n", request->out);
-    // FCGX_PutS("Content-Type: text/html\r\n", request->out);
-    FCGX_FPrintF(request->out, "Content-Length: %d\r\n", str.size());
-    FCGX_PutS("Cache-Control: max-age=0, no-store\r\n", request->out);
-    FCGX_FPrintF(request->out, "Last-Modified: %s\r\n", time_str.data());
-    
-    FCGX_PutS("\r\n", request->out);
-
-    FCGX_PutStr(str.data(), str.size(), request->out);
   }
   else
   {

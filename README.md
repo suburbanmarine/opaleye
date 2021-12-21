@@ -105,6 +105,7 @@ Opaleye depends on a number of external components.
 ### Tools
  - build-essential
  - cmake
+ - device-tree-compiler
  - git
  - grunt
  - gtk-doc-tools
@@ -114,9 +115,10 @@ Opaleye depends on a number of external components.
  - npm
  - openssh-client
  - openssh-server
- - device-tree-compiler
+ - gtk-doc-tools
 
 ### Libraries
+ - googletest
  - i2c-tools
  - libboost-all-dev
  - libfcgi-dev
@@ -125,19 +127,25 @@ Opaleye depends on a number of external components.
  - libgstreamer1.0-dev
  - libgstreamermm-1.0-dev
  - libgstrtspserver-1.0-dev
+ - libi2c-dev
  - liblockfile-dev
+ - libopencv-contrib-dev
+ - libopencv-core-dev
+ - libopencv-imgcodecs-dev
+ - libopencv-imgproc-dev
+ - libopencv-video-dev
  - libprotobuf-c-dev
  - libprotobuf-dev
  - libprotoc-dev
  - libuvc-dev
- - protobuf-c-compiler
- - protobuf-compiler
- - protobuf-compiler-grpc
- - rapidjson-dev
  - nvidia-jetpack
  - nvidia-l4t-jetson-multimedia-api
  - nvidia-l4t-multimedia
  - nvidia-l4t-multimedia-utils
+ - protobuf-c-compiler
+ - protobuf-compiler
+ - protobuf-compiler-grpc
+ - rapidjson-dev
 
 ### Runtime Dependencies
  - chrony

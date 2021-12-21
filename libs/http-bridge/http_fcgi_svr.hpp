@@ -40,6 +40,15 @@ protected:
 
   std::vector<std::shared_ptr<http_fcgi_work_thread>> m_thread_pool;
 
+  // exact match
   // map doc uri to callback handler
   std::map<std::string, std::shared_ptr<http_req_callback_base>> m_cb_table;
+
+  // parent dir match
+  // TODO: map dir prefix to cb
+  // std::map<std::string, std::shared_ptr<http_req_callback_base>> m_cb_parent_table;
+
+  // regex match
+  // TODO: map regex to cb 
+  // std::list<std::shared_ptr<boost::regex>, std::shared_ptr<http_req_callback_base>> m_cb_regex_table;
 };

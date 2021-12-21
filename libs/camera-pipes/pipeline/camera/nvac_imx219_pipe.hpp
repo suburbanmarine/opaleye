@@ -76,9 +76,6 @@ protected:
   Glib::RefPtr<Gst::Element>    m_src;
   Glib::RefPtr<Gst::Caps>       m_src_caps;
   Glib::RefPtr<Gst::CapsFilter> m_in_capsfilter;
-  Glib::RefPtr<Gst::Element>    m_videorate;
-  Glib::RefPtr<Gst::Caps>       m_out_caps;
-  Glib::RefPtr<Gst::CapsFilter> m_out_capsfilter;
   Glib::RefPtr<Gst::Queue>      m_in_queue;
   Glib::RefPtr<Gst::Tee>        m_out_tee;
 };
