@@ -106,7 +106,7 @@ protected:
 	// std::weak_ptr<Directory_tree_node> m_sibling;
 
 	//children, if any
-	std::map<std::string, std::shared_ptr<Directory_tree_node>> m_children;
+	std::map<std::string, Directory_tree_node::ptr> m_children;
 
 	//the payload
 	std::function<void ()> m_cb;
