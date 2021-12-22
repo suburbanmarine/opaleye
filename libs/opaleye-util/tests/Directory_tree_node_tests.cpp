@@ -2,6 +2,22 @@
 
 #include "gtest/gtest.h"
 
+TEST(Directory_tree_node, boost_filesystem_is_absolute)
+{
+	EXPECT_FALSE(boost::filesystem::path("").is_absolute());
+	EXPECT_FALSE(boost::filesystem::path("foo").is_absolute());
+	EXPECT_FALSE(boost::filesystem::path("foo/bar").is_absolute());
+
+	EXPECT_TRUE(boost::filesystem::path("/").is_absolute());
+	EXPECT_TRUE(boost::filesystem::path("/foo").is_absolute());
+	EXPECT_TRUE(boost::filesystem::path("/foo/bar").is_absolute());
+}
+
+TEST(Directory_tree_node, s)
+{
+
+}
+
 TEST(Directory_tree_node, construct_empty)
 {
 	Directory_tree_node::ptr node_root = Directory_tree_node::create(Directory_tree_node::ptr(), "/");
