@@ -11,6 +11,11 @@
 #include <string>
 #include <iosfwd>
 
+class Directory_tree_node_data
+{
+
+};
+
 class Directory_tree_node : public std::enable_shared_from_this<Directory_tree_node>
 {
 	friend Directory_tree;
@@ -109,6 +114,7 @@ protected:
 	std::map<std::string, Directory_tree_node::ptr> m_children;
 
 	//the payload
+	// std::shared_ptr<Directory_tree_node_data> m_payload;
 	std::function<void ()> m_cb;
 };
 

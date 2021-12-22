@@ -6,6 +6,7 @@
 #include <boost/filesystem/path.hpp>
 
 #include <iosfwd>
+#include <iostream>
 #include <string>
 
 class Directory_tree
@@ -62,7 +63,7 @@ public:
 		return curr_node;
 	}
 
-	Directory_tree_node::ptr find_match(const boost::filesystem::path& query_path)
+	Directory_tree_node::ptr find_match(const boost::filesystem::path& query_path, const MATCH_TYPE mode = MATCH_TYPE::EXACT)
 	{
 		if( ! query_path.is_absolute() )
 		{
@@ -77,9 +78,14 @@ public:
 		Directory_tree_node::ptr curr_node = m_root;
 		for(auto q_it = std::next(query_path.begin()); q_it != query_path.end(); ++q_it)
 		{
+			std::cout << " q_it: " << q_it->string() << "\n";
 			Directory_tree_node::ptr next_node = curr_node->get_child_by_name(q_it->string());
 			if( ! next_node )
 			{
+				if(mode == MATCH_TYPE::PARENT_PATH)
+				{
+					curr_node = curr_node->get_child_by_name(".");
+				}
 				break;
 			}
 			curr_node = next_node;
@@ -87,16 +93,36 @@ public:
 
 		if(curr_node)
 		{
-			//check exact match
-			if(curr_node->is_path(query_path))
+			switch(mode)
 			{
-				return curr_node;
-			}
-
-			//check curr_node is dir
-			if(Path_util::trailing_element_is_dir(curr_node->m_full_path))
-			{
-				return curr_node;
+				case MATCH_TYPE::PARENT_PATH:
+				{
+					//exact match ok
+					if(curr_node->is_path(query_path))
+					{
+						return curr_node;
+					}
+					//check curr_node is dir
+					if(Path_util::trailing_element_is_dir(curr_node->m_full_path))
+					{
+						return curr_node;
+					}
+					break;
+				}
+				case MATCH_TYPE::EXACT:
+				{
+					//check exact match
+					if(curr_node->is_path(query_path))
+					{
+						return curr_node;
+					}
+					break;
+				}
+				default:
+				{
+					throw std::domain_error("mode is oob");
+					break;
+				}
 			}
 		}
 
