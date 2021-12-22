@@ -1,4 +1,4 @@
-#include "Directory_tree.hpp"
+#include "path/Path_util.hpp"
 
 #include "gtest/gtest.h"
 
@@ -36,18 +36,4 @@ TEST(Path_util, is_parent_path)
 
 	EXPECT_TRUE(Path_util::is_parent_path("/foo/", "/foo/"));
 	EXPECT_TRUE(Path_util::is_parent_path("/foo/", "/foo/bar/"));
-}
-
-TEST(Directory_tree, construct)
-{
-	Directory_tree tree;
-}
-
-TEST(Directory_tree, set_node)
-{
-	Directory_tree tree;
-
-	tree.set_node("/a");
-
-	tree.set_node("/c/d/e");
 }

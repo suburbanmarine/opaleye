@@ -4,7 +4,9 @@ add_library(opaleye-util
 	Stopwatch.cpp
 	thread_base.cpp
 
-	Directory_tree.cpp
+	path/Directory_tree.cpp
+	path/Directory_tree_node.cpp
+	path/Path_util.cpp
 )
 
 target_link_libraries(opaleye-util
@@ -20,9 +22,9 @@ target_include_directories(opaleye-util
 )
 
 add_executable(opaleye-util-tests
-	tests/Directory_tree_tests.cpp
-	tests/Directory_tree_node_tests.cpp
-
+	tests/path/Directory_tree_tests.cpp
+	tests/path/Directory_tree_node_tests.cpp
+	tests/path/Path_util_tests.cpp
 )
 
 target_link_libraries(opaleye-util-tests
