@@ -5,8 +5,8 @@
 
 #include <boost/filesystem/path.hpp>
 
-#include <string>
 #include <iosfwd>
+#include <string>
 
 class Directory_tree
 {
@@ -38,33 +38,25 @@ public:
 			throw std::domain_error("full_path must be absolute path");
 		}
 
-		Directory_tree_node::ptr curr_node = m_root;
+		if( ! m_root->is_node_name(full_path.begin()->string()) )
+		{
+			return Directory_tree_node::ptr();
+		}
 
+		Directory_tree_node::ptr curr_node = m_root;
 		boost::filesystem::path curr_path = "/";
 
-		for(auto q_it = full_path.begin(); q_it != full_path.end(); ++q_it)
+		for(auto q_it = std::next(full_path.begin()); q_it != full_path.end(); ++q_it)
 		{
-			if(curr_node->is_node_name(q_it->string()))
-			{
-				curr_path = curr_path / *std::next(q_it);
+			curr_path = curr_path / *q_it;
 				
-				Directory_tree_node::ptr child = curr_node->get_child_by_name(std::next(q_it)->string());
-				if(child)
-				{
-					curr_node = child;
-					continue;
-				}
-				else
-				{
-					child = curr_node->create_child(curr_path);
-				}
-
-				curr_node = child;
-			}
-			else
+			Directory_tree_node::ptr child = curr_node->get_child_by_name(q_it->string());
+			if( ! child )
 			{
-				throw std::runtime_error("tree is corrupt");
+				child = curr_node->create_child(curr_path);
 			}
+
+			curr_node = child;
 		}
 
 		return curr_node;
@@ -77,19 +69,39 @@ public:
 			throw std::domain_error("query_path must be absolute path");
 		}
 
-		Directory_tree_node::ptr curr_node = m_root;
+		if( ! m_root->is_node_name(query_path.begin()->string()) )
+		{
+			return Directory_tree_node::ptr();
+		}
 
-		for(auto q_it = query_path.begin(); q_it != query_path.end(); ++q_it)
+		Directory_tree_node::ptr curr_node = m_root;
+		for(auto q_it = std::next(query_path.begin()); q_it != query_path.end(); ++q_it)
 		{
 			Directory_tree_node::ptr next_node = curr_node->get_child_by_name(q_it->string());
-			if(! next_node )
+			if( ! next_node )
 			{
 				break;
 			}
 			curr_node = next_node;
 		}
 
-		return curr_node;
+		if(curr_node)
+		{
+			//check exact match
+			if(curr_node->is_path(query_path))
+			{
+				return curr_node;
+			}
+
+			//check curr_node is dir
+			if(Path_util::trailing_element_is_dir(curr_node->m_full_path))
+			{
+				return curr_node;
+			}
+		}
+
+		//no match
+		return Directory_tree_node::ptr();
 	}
 
 	bool has_children() const
@@ -105,5 +117,4 @@ protected:
 	Directory_tree_node::ptr m_root;
 };
 
-std::ostream& operator<<(std::ostream& os, const Directory_tree_node& rhs);
 std::ostream& operator<<(std::ostream& os, const Directory_tree& rhs);

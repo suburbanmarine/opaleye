@@ -1,12 +1,15 @@
 #pragma once
 
 #include "Directory_tree_fwd.hpp"
+#include "Path_util.hpp"
 
 #include <boost/filesystem/path.hpp>
 
-#include <memory>
-#include <map>
 #include <functional>
+#include <map>
+#include <memory>
+#include <string>
+#include <iosfwd>
 
 class Directory_tree_node : public std::enable_shared_from_this<Directory_tree_node>
 {
@@ -25,6 +28,11 @@ public:
 	bool has_children() const
 	{
 		return ! m_children.empty();
+	}
+
+	bool is_path(const boost::filesystem::path& full_path) const
+	{
+		return m_full_path == full_path;
 	}
 
 	bool is_node_name(const std::string& name) const
@@ -103,3 +111,5 @@ protected:
 	//the payload
 	std::function<void ()> m_cb;
 };
+
+std::ostream& operator<<(std::ostream& os, const Directory_tree_node& rhs);

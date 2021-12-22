@@ -1,7 +1,7 @@
 #include "Directory_tree.hpp"
 
 #include <sstream>
-#include <iostream>
+#include <ostream>
 
 void Directory_tree::to_stream(std::ostream& os) const
 {
