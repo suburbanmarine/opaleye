@@ -14,6 +14,8 @@
 
 #include "http_common.hpp"
 
+#include "path/Path_util.hpp"
+
 #include <boost/filesystem/path.hpp>
 
 #include <boost/property_tree/ptree.hpp>
@@ -41,9 +43,35 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
     throw BadRequest("Only GET is accepted");
   }
 
-  boost::filesystem::path api = "/api/v1/sensors";
+  boost::filesystem::path base_uri        = "/api/v1/sensors";
+  boost::filesystem::path temperature_uri = "/api/v1/sensors/temperature";
+  boost::filesystem::path pressure_uri    = "/api/v1/sensors/pressure";
 
-  if(req_util.doc_uri_path.size() < api.size())
+
+  boost::filesystem::path norm_doc_uri_path;
+  if(Path_util::trailing_element_is_dir(req_util.doc_uri_path))
+  {
+    norm_doc_uri_path = req_util.doc_uri_path.parent_path();
+    SPDLOG_WARN("Converting {} to {}", req_util.doc_uri_path, norm_doc_uri_path);
+  }
+  else
+  {
+    norm_doc_uri_path = req_util.doc_uri_path;
+  }
+
+  if(Path_util::is_parent_path(temperature_uri, req_util.doc_uri_path))
+  {
+
+  }
+  else if(Path_util::is_parent_path(pressure_uri, req_util.doc_uri_path))
+  {
+
+  }
+  else if(Path_util::is_parent_path(base_uri, req_util.doc_uri_path))
+  {
+    // handle_index();
+  }
+  else
   {
 
   }
