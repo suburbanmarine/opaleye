@@ -11,23 +11,61 @@
 #include <string>
 #include <iosfwd>
 
-class Directory_tree_node_data
-{
-
-};
-
 class Directory_tree_node : public std::enable_shared_from_this<Directory_tree_node>
 {
 	friend Directory_tree;
 
 public:
 
+	class Data
+	{
+		public:
+
+		typedef std::shared_ptr<Data> ptr;
+		typedef std::shared_ptr<const Data> const_ptr;
+
+		Data()
+		{
+
+		}
+
+		virtual ~Data()
+		{
+
+		}
+	};
+
 	typedef std::shared_ptr<Directory_tree_node> ptr;
 	typedef std::shared_ptr<const Directory_tree_node> const_ptr;
+
+	virtual ~Directory_tree_node()
+	{
+
+	}
 
 	static Directory_tree_node::ptr create(const Directory_tree_node::ptr& parent, const boost::filesystem::path& full_path)
 	{
 		return Directory_tree_node::ptr(new Directory_tree_node(parent, full_path));
+	}
+
+	static Directory_tree_node::ptr create(const Directory_tree_node::ptr& parent, const boost::filesystem::path& full_path, const Data::ptr& data)
+	{
+		return Directory_tree_node::ptr(new Directory_tree_node(parent, full_path, data));
+	}
+
+	void set_data(const Data::ptr& data)
+	{
+		m_data = data;
+	}
+
+	const std::string& node_name() const
+	{
+		return m_name;
+	}
+
+	const boost::filesystem::path& path() const
+	{
+		return m_full_path;
 	}
 
 	bool has_children() const
@@ -87,6 +125,18 @@ public:
 
 	void to_stream(std::ostream& os) const;
 	std::string to_string() const;
+ 
+	template <typename T> 
+	std::shared_ptr<T> get_data()
+	{
+		return std::dynamic_pointer_cast<T>(m_data);
+	}
+
+	template <typename T> 
+	std::shared_ptr<const T> get_data() const
+	{
+		return std::dynamic_pointer_cast<const T>(m_data);
+	}
 
 protected:
 
@@ -95,6 +145,14 @@ protected:
 		m_parent    = parent;
 		m_full_path = full_path;
 		m_name      = full_path.filename().string();
+	}
+
+	Directory_tree_node(const Directory_tree_node::ptr& parent, const boost::filesystem::path& full_path, const Data::ptr& data)
+	{
+		m_parent    = parent;
+		m_full_path = full_path;
+		m_name      = full_path.filename().string();
+		m_data      = data;
 	}
 
 	//For debugging, this is the full path the node was registered with
@@ -114,8 +172,7 @@ protected:
 	std::map<std::string, Directory_tree_node::ptr> m_children;
 
 	//the payload
-	// std::shared_ptr<Directory_tree_node_data> m_payload;
-	std::function<void ()> m_cb;
+	Data::ptr m_data;
 };
 
 std::ostream& operator<<(std::ostream& os, const Directory_tree_node& rhs);

@@ -18,7 +18,7 @@ public:
 		m_root = Directory_tree_node::create(Directory_tree_node::ptr(), "/");
 	}
 
-	~Directory_tree()
+	virtual ~Directory_tree()
 	{
 
 	}
@@ -30,9 +30,14 @@ public:
 		NONE
 	};
 
+	Directory_tree_node::ptr set_node(const boost::filesystem::path& full_path)
+	{
+		return set_node(full_path, Directory_tree_node::Data::ptr());
+	}
+
 	/// if node matches path, set node to this handler
 	/// if node does not exist, create a new node
-	Directory_tree_node::ptr set_node(const boost::filesystem::path& full_path)
+	Directory_tree_node::ptr set_node(const boost::filesystem::path& full_path, const Directory_tree_node::Data::ptr& data)
 	{
 		if( ! full_path.is_absolute() )
 		{
@@ -45,7 +50,7 @@ public:
 		}
 
 		Directory_tree_node::ptr curr_node = m_root;
-		boost::filesystem::path curr_path = "/";
+		boost::filesystem::path curr_path  = m_root->path();
 
 		for(auto q_it = std::next(full_path.begin()); q_it != full_path.end(); ++q_it)
 		{
@@ -58,6 +63,11 @@ public:
 			}
 
 			curr_node = child;
+		}
+
+		if(curr_node)
+		{
+			curr_node->set_data(data);
 		}
 
 		return curr_node;
