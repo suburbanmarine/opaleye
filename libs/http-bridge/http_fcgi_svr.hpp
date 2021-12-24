@@ -9,6 +9,8 @@
 #include "http_req_callback_base.hpp"
 #include "http_fcgi_work_thread.hpp"
 
+#include "path/Directory_tree.hpp"
+
 #define NO_FCGI_DEFINES 1
 #include <fcgi_config.h>
 #include <fcgiapp.h>
@@ -19,6 +21,18 @@
 #include <map>
 #include <memory>
 #include <vector>
+
+class http_fcgi_svr_cb : public Directory_tree_node::Data
+{
+public:
+  
+  http_fcgi_svr_cb(const std::shared_ptr<http_req_callback_base>& cb) : m_cb(cb)
+  {
+
+  }
+
+  std::shared_ptr<http_req_callback_base> m_cb;
+};
 
 class http_fcgi_svr
 {
@@ -42,7 +56,8 @@ protected:
 
   // exact match
   // map doc uri to callback handler
-  std::map<std::string, std::shared_ptr<http_req_callback_base>> m_cb_table;
+  // std::map<std::string, std::shared_ptr<http_req_callback_base>> m_cb_table;
+  Directory_tree m_cb_table;
 
   // parent dir match
   // TODO: map dir prefix to cb
