@@ -10,6 +10,8 @@
 
 #include "linux_thermal_zone.hpp"
 
+#include "Ptree_util.hpp"
+
 #include <Unit_conv.hpp>
 
 #include "http_common.hpp"
@@ -76,6 +78,8 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
     }
   }
 
+  std::string response_str;
+
   if(hastype && hassensors && hassensorid)
   {
     //specific sensor by type & id
@@ -110,6 +114,8 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
         // sensor_data.put_child("max", sensor_max);
         // sensor_data.put_child("precision", sensor_precision);
         // sensor_data.put_child("accuracy", sensor_accuracy);
+
+        response_str = Ptree_util::ptree_to_json_str(sensor_data);
       }
     }
     else if(sensortype.get() == "temperature")
@@ -133,6 +139,17 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
         // sensor_data.put_child("max", sensor_max);
         // sensor_data.put_child("precision", sensor_precision);
         // sensor_data.put_child("accuracy", sensor_accuracy);
+
+        response_str = Ptree_util::ptree_to_json_str(sensor_data);
+      }
+      else
+      {
+        std::map<std::string, double> soc_temp;
+        linux_thermal_zone lz;
+        if(lz.sample())
+        {
+          lz.get_temps(&soc_temp);
+        }
       }
     }
     else
@@ -164,13 +181,8 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
 
     boost::property_tree::ptree response;
     response.add_child("sensor_types", sensor_types);
-  }
 
-  std::map<std::string, double> soc_temp;
-  linux_thermal_zone lz;
-  if(lz.sample())
-  {
-    lz.get_temps(&soc_temp);
+    response_str = Ptree_util::ptree_to_json_str(response);
   }
 
   time_t t_now = time(NULL);
@@ -179,6 +191,15 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
   {
     throw InternalServerError("Could not get Last-Modified timestamp");
   }
+
+  FCGX_PutS("Content-Type: text/xml\r\n", request->out);
+  FCGX_FPrintF(request->out, "Content-Length: %d\r\n", response_str.size());
+  FCGX_PutS("Cache-Control: max-age=0, no-store\r\n", request->out);
+  FCGX_FPrintF(request->out, "Last-Modified: %s\r\n", time_str.data());
+  
+  FCGX_PutS("\r\n", request->out);
+
+  FCGX_PutStr(response_str.data(), response_str.size(), request->out);
 
   #if 0
   if(true)
