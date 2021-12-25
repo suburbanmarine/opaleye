@@ -40,6 +40,7 @@ target_link_libraries(opaleye_app
 		Boost::date_time
 		Boost::filesystem
 		Boost::program_options
+		Boost::regex
 
 		Threads::Threads
 
