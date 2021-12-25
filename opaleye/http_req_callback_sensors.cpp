@@ -225,6 +225,11 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
     throw InternalServerError("Could not get Last-Modified timestamp");
   }
 
+  if(response_str.empty())
+  {
+    throw ServiceUnavailable();
+  }
+
   FCGX_PutS("Content-Type: application/json\r\n", request->out);
   FCGX_FPrintF(request->out, "Content-Length: %d\r\n", response_str.size());
   FCGX_PutS("Cache-Control: max-age=0, no-store\r\n", request->out);

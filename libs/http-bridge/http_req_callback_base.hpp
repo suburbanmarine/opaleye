@@ -82,6 +82,19 @@ class InternalServerError : public HTTPException
   }
 };
 
+class ServiceUnavailable : public HTTPException
+{
+  public:
+  ServiceUnavailable() : HTTPException(http_common::STATUS_CODES::SERVICE_UNAVAILABLE, "Service Unavailable")
+  {
+
+  }
+  ServiceUnavailable(const char msg[]) : HTTPException(http_common::STATUS_CODES::SERVICE_UNAVAILABLE, msg)
+  {
+
+  }
+};
+
 class http_req_callback_base
 {
 public:
