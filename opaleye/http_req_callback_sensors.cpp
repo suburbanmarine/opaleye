@@ -160,6 +160,39 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
   else if(hastype && hassensors)
   {
     //list of sensors by type
+    if(sensortype.get() == "pressure")
+    {
+      boost::property_tree::ptree sensor;
+      sensor.put("name", "pressure-0");
+      sensor.put("id", "0");
+
+      boost::property_tree::ptree sensor_list;
+      sensor_list.push_back(std::make_pair("", sensor));
+
+      boost::property_tree::ptree response;
+      response.add_child("sensors", sensor_list);
+
+      response_str = Ptree_util::ptree_to_json_str(response);
+    }
+    else if(sensortype.get() == "temperature")
+    {
+      //list of sensors
+      boost::property_tree::ptree sensor;
+      sensor.put("name", "temperature-0");
+      sensor.put("id", "0");
+
+      boost::property_tree::ptree sensor_list;
+      sensor_list.push_back(std::make_pair("", sensor));
+
+      boost::property_tree::ptree response;
+      response.add_child("sensors", sensor_list);
+
+      response_str = Ptree_util::ptree_to_json_str(response);
+    }
+    else
+    {
+      throw NotFound();
+    }
   }
   else if(hastype)
   {
