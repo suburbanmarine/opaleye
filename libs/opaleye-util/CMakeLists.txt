@@ -3,6 +3,7 @@ add_library(opaleye-util
 	Unit_conv.cpp
 	Stopwatch.cpp
 	thread_base.cpp
+	Ptree_util.cpp
 
 	path/Directory_tree.cpp
 	path/Directory_tree_node.cpp

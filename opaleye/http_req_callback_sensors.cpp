@@ -44,7 +44,7 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
 
   if(req_util.request_method_enum != http_common::REQUEST_METHOD::GET)
   {
-    throw BadRequest("Only GET is accepted");
+    throw MethodNotAllowed("Only GET is accepted");
   }
 
   boost::regex sensor_uri_regex("^/api/v1/sensor_types(?<hastype>/(?<sensortype>\\w+)(?<hassensors>/sensors(?<hasid>/(?<sensorid>\\d+))?)?)?$");
@@ -79,6 +79,66 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
   if(hastype && hassensors && hassensorid)
   {
     //specific sensor by type & id
+    if( ! sensortype )
+    {
+      throw BadRequest("sensortype not understood");
+    }
+
+    if( ! sensorid )
+    {
+      throw BadRequest("sensortype not understood");
+    }
+
+    if(sensortype.get() == "pressure")
+    {
+      if(sensorid.get() == "0")
+      {
+        MS5837_30BA::RESULT baro_data = {};
+        m_sensors->get_baro_data(&baro_data);
+
+        boost::property_tree::ptree sample;
+        sample.put("value", baro_data.P1_mbar);
+        sample.put("unit", "mbar");
+        sample.put("timestamp", "0");
+
+        boost::property_tree::ptree sensor_data;
+        sensor_data.put_child("sample", sample);
+
+        sensor_data.put("name",     "pressure-0");
+        sensor_data.put("location", "external");
+        // sensor_data.put_child("min", sensor_min);
+        // sensor_data.put_child("max", sensor_max);
+        // sensor_data.put_child("precision", sensor_precision);
+        // sensor_data.put_child("accuracy", sensor_accuracy);
+      }
+    }
+    else if(sensortype.get() == "temperature")
+    {
+      if(sensorid.get() == "0")
+      {
+        double ext_temp_data = 0.0;
+        m_sensors->get_temp_data(&ext_temp_data);
+
+        boost::property_tree::ptree sample;
+        sample.put("value", ext_temp_data);
+        sample.put("unit", "degC");
+        sample.put("timestamp", "0");
+
+        boost::property_tree::ptree sensor_data;
+        sensor_data.put_child("sample", sample);
+
+        sensor_data.put("name",     "temperature-0");
+        sensor_data.put("location", "external");
+        // sensor_data.put_child("min", sensor_min);
+        // sensor_data.put_child("max", sensor_max);
+        // sensor_data.put_child("precision", sensor_precision);
+        // sensor_data.put_child("accuracy", sensor_accuracy);
+      }
+    }
+    else
+    {
+       throw NotFound("sensortype does not exist");
+    }
   }
   else if(hastype && hassensors)
   {
@@ -87,18 +147,24 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
   else if(hastype)
   {
     //throw 405 method not allowed
+    throw MethodNotAllowed();
   }
   else
   {
     //list of types
+    boost::property_tree::ptree pressure_type;
+    pressure_type.put("type", "pressure");
+
+    boost::property_tree::ptree temperature_type;
+    temperature_type.put("type", "temperature");
+
+    boost::property_tree::ptree sensor_types;
+    sensor_types.push_back(std::make_pair("", pressure_type));
+    sensor_types.push_back(std::make_pair("", temperature_type));
+
+    boost::property_tree::ptree response;
+    response.add_child("sensor_types", sensor_types);
   }
-
-  //this is per-req since we could have several threads
-  double ext_temp_data = 0.0;
-  m_sensors->get_temp_data(&ext_temp_data);
-
-  MS5837_30BA::RESULT baro_data = {};
-  m_sensors->get_baro_data(&baro_data);
 
   std::map<std::string, double> soc_temp;
   linux_thermal_zone lz;
@@ -114,6 +180,7 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
     throw InternalServerError("Could not get Last-Modified timestamp");
   }
 
+  #if 0
   if(true)
   {
     if(true)
@@ -182,6 +249,7 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
   {
     FCGX_PutS("Status: 500 Internal Error\r\n", request->out);
   }
+  #endif
 
   FCGX_Finish_r(request);
 }
