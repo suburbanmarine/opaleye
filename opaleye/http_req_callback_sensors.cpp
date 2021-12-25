@@ -117,6 +117,10 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
 
         response_str = Ptree_util::ptree_to_json_str(sensor_data);
       }
+      else
+      {
+        throw NotFound("sensorid does not exist");
+      }
     }
     else if(sensortype.get() == "temperature")
     {
@@ -142,7 +146,7 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
 
         response_str = Ptree_util::ptree_to_json_str(sensor_data);
       }
-      else
+      else if(sensorid.get() == "1")
       {
         std::map<std::string, double> soc_temp;
         linux_thermal_zone lz;
@@ -150,6 +154,10 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
         {
           lz.get_temps(&soc_temp);
         }
+      }
+      else
+      {
+        throw NotFound("sensorid does not exist");
       }
     }
     else
