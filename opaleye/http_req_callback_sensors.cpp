@@ -18,6 +18,10 @@
 
 #include <boost/filesystem/path.hpp>
 
+#include <boost/regex.hpp>
+
+#include <boost/optional.hpp>
+
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -43,37 +47,50 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
     throw BadRequest("Only GET is accepted");
   }
 
-  boost::filesystem::path base_uri        = "/api/v1/sensors";
-  boost::filesystem::path temperature_uri = "/api/v1/sensors/temperature";
-  boost::filesystem::path pressure_uri    = "/api/v1/sensors/pressure";
+  boost::regex sensor_uri_regex("^/api/v1/sensor_types(?<hastype>/(?<sensortype>\\w+)(?<hassensors>/sensors(?<hasid>/(?<sensorid>\\d+))?)?)?$");
+  
+  boost::smatch m;
+  bool ret = boost::regex_match(req_util.doc_uri_path.string(), m, sensor_uri_regex);
 
-
-  boost::filesystem::path norm_doc_uri_path;
-  if(Path_util::trailing_element_is_dir(req_util.doc_uri_path))
+  if(!ret)
   {
-    norm_doc_uri_path = req_util.doc_uri_path.parent_path();
-    SPDLOG_WARN("Converting {} to {}", req_util.doc_uri_path, norm_doc_uri_path);
+    throw NotFound();
+  }
+
+  bool hastype     = m["hastype"].matched;
+  bool hassensors  = m["hassensors"].matched;
+  bool hassensorid = m["hasid"].matched;
+
+  boost::optional<std::string> sensortype;
+  boost::optional<std::string> sensorid;
+
+  if(m["hastype"].matched && m["sensortype"].matched)
+  {
+    sensortype = std::string(m["sensortype"].first, m["sensortype"].second);
+  }
+  if(m["hassensors"].matched)
+  {
+    if(m["hasid"].matched && m["sensorid"].matched)
+    {
+      sensorid = std::string(m["sensorid"].first, m["sensorid"].second);
+    }
+  }
+
+  if(hastype && hassensors && hassensorid)
+  {
+    //specific sensor by type & id
+  }
+  else if(hastype && hassensors)
+  {
+    //list of sensors by type
+  }
+  else if(hastype)
+  {
+    //throw 405 method not allowed
   }
   else
   {
-    norm_doc_uri_path = req_util.doc_uri_path;
-  }
-
-  if(Path_util::is_parent_path(temperature_uri, req_util.doc_uri_path))
-  {
-
-  }
-  else if(Path_util::is_parent_path(pressure_uri, req_util.doc_uri_path))
-  {
-
-  }
-  else if(Path_util::is_parent_path(base_uri, req_util.doc_uri_path))
-  {
-    // handle_index();
-  }
-  else
-  {
-
+    //list of types
   }
 
   //this is per-req since we could have several threads
