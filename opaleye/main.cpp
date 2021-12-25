@@ -158,8 +158,8 @@ int main(int argc, char* argv[])
 
 	std::shared_ptr<http_req_callback_sensors> sensor_cb = std::make_shared<http_req_callback_sensors>();
 	sensor_cb->init(sensors);
-	fcgi_svr.register_cb_for_doc_uri("/api/v1/sensor-types", sensor_cb);
-	fcgi_svr.register_cb_for_doc_uri("/api/v1/sensor-types/", sensor_cb);
+	fcgi_svr.register_cb_for_doc_uri("/api/v1/sensor_types", sensor_cb);
+	fcgi_svr.register_cb_for_doc_uri("/api/v1/sensor_types/", sensor_cb);
 
 	SPDLOG_INFO("Starting fcgi connection");
 	fcgi_svr.start();
