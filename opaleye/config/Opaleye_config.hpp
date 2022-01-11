@@ -9,7 +9,7 @@
 #include "config/Opaleye_config_camera.hpp"
 
 #include <boost/filesystem.hpp>
-#include <boost/property_tree/ptree_fwd.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 #include <map>
 #include <string>
@@ -37,6 +37,21 @@ public:
 	std::string to_xml_string() const;
 	std::string to_json_string() const;
 
+	template<typename T>
+	T get(const boost::property_tree::ptree::path_type& path) const
+	{
+		return m_tree.get<T>(path);
+	}
+
+	template<typename T>
+	T get(const boost::property_tree::ptree::path_type& path, const T& default_value) const
+	{
+		return m_tree.get<T>(path, default_value);
+	}
+
 protected:
+
+  // updated by deserialize
+  boost::property_tree::ptree m_tree;
 
 };

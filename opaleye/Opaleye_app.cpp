@@ -49,9 +49,10 @@ bool Gstreamer_pipeline::init()
   return true;
 }
 
-bool Gstreamer_pipeline::make_pipeline(const std::shared_ptr<const app_config>& app_config, const pipeline_config& pipe_config)
+bool Gstreamer_pipeline::make_pipeline(const std::shared_ptr<const app_config>& app_config, const camera_config& camera_config, const pipeline_config& pipe_config)
 {
-  m_app_config = app_config;
+  m_app_config      = app_config;
+  m_camera_config   = camera_config;
   m_pipeline_config = pipe_config;
 
   bool ret = false;
@@ -221,12 +222,19 @@ bool Gstreamer_pipeline::make_brio_pipeline()
 
 bool Gstreamer_pipeline::make_imx219_pipeline()
 {
-  std::shared_ptr<GST_element_base> m_camera   = std::make_shared<nvac_imx219_pipe>();
+  std::shared_ptr<nvac_imx219_pipe> m_camera   = std::make_shared<nvac_imx219_pipe>();
   if( ! m_camera->init("cam_0") )
   {
    SPDLOG_ERROR("Could not init camera");
    return false;
   }
+  
+  m_camera->set_sensor_id(m_camera_config.get("properties.sensor-id", 0));
+  // if( ! m_camera->set_sensor_id(m_camera_config.get("sensor-id", 0)))
+  // {
+  //     SPDLOG_ERROR("Could not set camera sensor-id");
+  //     return false; 
+  // }
 
   SPDLOG_INFO("NV mode");
   std::shared_ptr<GST_element_base> m_h264   = std::make_shared<h264_nvenc_bin>();
@@ -424,7 +432,7 @@ bool Opaleye_app::init()
       return false;
     }
 
-    if( ! pipeline->make_pipeline(m_config, m_config->camera_configs["cam0"].pipeline) )
+    if( ! pipeline->make_pipeline(m_config, m_config->camera_configs["cam0"], m_config->camera_configs["cam0"].pipeline) )
     {
       SPDLOG_ERROR("Opaleye_app::init make pipe0 failed");
       return false;
@@ -443,7 +451,7 @@ bool Opaleye_app::init()
       return false;
     }
 
-    if( ! pipeline->make_pipeline(m_config, m_config->camera_configs["cam1"].pipeline) )
+    if( ! pipeline->make_pipeline(m_config, m_config->camera_configs["cam1"], m_config->camera_configs["cam1"].pipeline) )
     {
       SPDLOG_ERROR("Opaleye_app::init make pipe1 failed");
       return false;
