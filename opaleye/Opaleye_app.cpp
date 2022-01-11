@@ -21,6 +21,9 @@
 #include "pipeline/GST_fakesink.hpp"
 #include "pipeline/nvvideoconvert_pipe.hpp"
 
+#include "pipeline/timecodestamper.hpp"
+#include "pipeline/timeoverlay.hpp"
+
 #include <boost/lexical_cast.hpp>
 
 #include <jsonrpc-lean/fault.h>
@@ -335,6 +338,21 @@ bool Gstreamer_pipeline::make_virtual_pipeline()
    return false;
   }
 
+
+  std::shared_ptr<timecodestamper> m_timecodestamper = std::make_shared<timecodestamper>();
+  if( ! m_timecodestamper->init("timecodestamper_0") )
+  {
+    SPDLOG_ERROR("Could not init timecodestamper_0");
+    return false;
+  }
+
+  std::shared_ptr<timeoverlay> m_timeoverlay = std::make_shared<timeoverlay>();
+  if( ! m_timeoverlay->init("timeoverlay_0") )
+  {
+    SPDLOG_ERROR("Could not init timeoverlay_0");
+    return false;
+  }
+
   if( ! m_thumb->init("thumb_0") )
   {
    SPDLOG_ERROR("Could not init thumb");
@@ -371,6 +389,9 @@ bool Gstreamer_pipeline::make_virtual_pipeline()
   //add elements to top level bin
   m_camera->add_to_bin(m_pipeline);
 
+  m_timecodestamper->add_to_bin(m_pipeline);
+  m_timeoverlay->add_to_bin(m_pipeline);
+
   m_thumb->add_to_bin(m_pipeline);
   m_h264->add_to_bin(m_pipeline);
   m_h264_interpipesink->add_to_bin(m_pipeline);
@@ -381,7 +402,9 @@ bool Gstreamer_pipeline::make_virtual_pipeline()
   //link pipeline
   m_camera->link_back(m_thumb->front());
 
-  m_camera->link_back(m_h264->front());
+  m_camera->link_back(m_timecodestamper->front());
+  m_timecodestamper->link_back(m_timeoverlay->front());
+  m_timeoverlay->link_back(m_h264->front());
 
   m_h264->link_back(m_rtppay->front());
   m_h264->link_back(m_h264_interpipesink->front());
@@ -395,6 +418,8 @@ bool Gstreamer_pipeline::make_virtual_pipeline()
   m_element_storage.emplace("h264_ipsink_0", m_h264_interpipesink);
   m_element_storage.emplace("rtp_0", m_rtppay);
   m_element_storage.emplace("udp_0", m_rtpsink);
+  m_element_storage.emplace("timecodestamper_0", m_timecodestamper);
+  m_element_storage.emplace("timeoverlay_0", m_timeoverlay);
 
   return true;
 }
