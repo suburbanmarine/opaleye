@@ -54,6 +54,9 @@ add_library(camera-pipes
 	pipeline/Thumbnail_sw_pipe.cpp
 	pipeline/Thumbnail_sw2_pipe.cpp
 	pipeline/nvvideoconvert_pipe.cpp
+
+	pipeline/timecodestamper.cpp
+	pipeline/timeoverlay.cpp
 )
 
 target_link_libraries(camera-pipes
