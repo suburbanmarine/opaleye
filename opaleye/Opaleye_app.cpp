@@ -292,6 +292,10 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
 
   //add elements to top level bin
   m_camera->add_to_bin(m_pipeline);
+  
+  m_timecodestamper->add_to_bin(m_pipeline);
+  m_timeoverlay->add_to_bin(m_pipeline);
+
   m_thumb->add_to_bin(m_pipeline);
   m_h264->add_to_bin(m_pipeline);
   m_h264_interpipesink->add_to_bin(m_pipeline);
@@ -305,7 +309,7 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
   m_camera->link_back(m_timecodestamper->front());
   m_timecodestamper->link_back(m_timeoverlay->front());
   m_timeoverlay->link_back(m_h264->front());
-  
+
   m_h264->link_back(m_rtppay->front());
   m_h264->link_back(m_h264_interpipesink->front());
 
