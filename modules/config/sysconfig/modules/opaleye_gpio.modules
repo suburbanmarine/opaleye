@@ -1,0 +1,5 @@
+#!/bin/sh
+
+if [ ! -c /proc/opaleye_gpio ] ; then
+	exec /sbin/modprobe opaleye_gpio >/dev/null 2>&1
+fi
