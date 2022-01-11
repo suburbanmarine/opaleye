@@ -39,6 +39,7 @@ find_package(Boost
 		filesystem
 		program_options
 		date_time
+		regex
 )
 
 find_package(PkgConfig)

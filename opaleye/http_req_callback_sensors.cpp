@@ -10,11 +10,19 @@
 
 #include "linux_thermal_zone.hpp"
 
+#include "Ptree_util.hpp"
+
 #include <Unit_conv.hpp>
 
 #include "http_common.hpp"
 
+#include "path/Path_util.hpp"
+
 #include <boost/filesystem/path.hpp>
+
+#include <boost/regex.hpp>
+
+#include <boost/optional.hpp>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
@@ -38,28 +46,184 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
 
   if(req_util.request_method_enum != http_common::REQUEST_METHOD::GET)
   {
-    throw BadRequest("Only GET is accepted");
+    throw MethodNotAllowed("Only GET is accepted");
   }
 
-  boost::filesystem::path api = "/api/v1/sensors";
+  boost::regex sensor_uri_regex("^/api/v1/sensor_types(?<hastype>/(?<sensortype>\\w+)(?<hassensors>/sensors(?<hasid>/(?<sensorid>\\d+))?)?)?$");
+  
+  boost::smatch m;
+  bool ret = boost::regex_match(req_util.doc_uri_path.string(), m, sensor_uri_regex);
 
-  if(req_util.doc_uri_path.size() < api.size())
+  if(!ret)
   {
-
+    throw NotFound();
   }
 
-  //this is per-req since we could have several threads
-  double ext_temp_data = 0.0;
-  m_sensors->get_temp_data(&ext_temp_data);
+  bool hastype     = m["hastype"].matched;
+  bool hassensors  = m["hassensors"].matched;
+  bool hassensorid = m["hasid"].matched;
 
-  MS5837_30BA::RESULT baro_data = {};
-  m_sensors->get_baro_data(&baro_data);
+  boost::optional<std::string> sensortype;
+  boost::optional<std::string> sensorid;
 
-  std::map<std::string, double> soc_temp;
-  linux_thermal_zone lz;
-  if(lz.sample())
+  if(m["hastype"].matched && m["sensortype"].matched)
   {
-    lz.get_temps(&soc_temp);
+    sensortype = std::string(m["sensortype"].first, m["sensortype"].second);
+  }
+  if(m["hassensors"].matched)
+  {
+    if(m["hasid"].matched && m["sensorid"].matched)
+    {
+      sensorid = std::string(m["sensorid"].first, m["sensorid"].second);
+    }
+  }
+
+  std::string response_str;
+
+  if(hastype && hassensors && hassensorid)
+  {
+    //specific sensor by type & id
+    if( ! sensortype )
+    {
+      throw BadRequest("sensortype not understood");
+    }
+
+    if( ! sensorid )
+    {
+      throw BadRequest("sensortype not understood");
+    }
+
+    if(sensortype.get() == "pressure")
+    {
+      if(sensorid.get() == "0")
+      {
+        MS5837_30BA::RESULT baro_data = {};
+        m_sensors->get_baro_data(&baro_data);
+
+        boost::property_tree::ptree sample;
+        sample.put("value", baro_data.P1_mbar);
+        sample.put("unit", "mbar");
+        sample.put("timestamp", "0");
+
+        boost::property_tree::ptree sensor_data;
+        sensor_data.put_child("sample", sample);
+
+        sensor_data.put("name",     "pressure-0");
+        sensor_data.put("location", "external");
+        // sensor_data.put_child("min", sensor_min);
+        // sensor_data.put_child("max", sensor_max);
+        // sensor_data.put_child("precision", sensor_precision);
+        // sensor_data.put_child("accuracy", sensor_accuracy);
+
+        response_str = Ptree_util::ptree_to_json_str(sensor_data);
+      }
+      else
+      {
+        throw NotFound("sensorid does not exist");
+      }
+    }
+    else if(sensortype.get() == "temperature")
+    {
+      if(sensorid.get() == "0")
+      {
+        double ext_temp_data = 0.0;
+        m_sensors->get_temp_data(&ext_temp_data);
+
+        boost::property_tree::ptree sample;
+        sample.put("value", ext_temp_data);
+        sample.put("unit", "degC");
+        sample.put("timestamp", "0");
+
+        boost::property_tree::ptree sensor_data;
+        sensor_data.put_child("sample", sample);
+
+        sensor_data.put("name",     "temperature-0");
+        sensor_data.put("location", "external");
+        // sensor_data.put_child("min", sensor_min);
+        // sensor_data.put_child("max", sensor_max);
+        // sensor_data.put_child("precision", sensor_precision);
+        // sensor_data.put_child("accuracy", sensor_accuracy);
+
+        response_str = Ptree_util::ptree_to_json_str(sensor_data);
+      }
+      else if(sensorid.get() == "1")
+      {
+        std::map<std::string, double> soc_temp;
+        linux_thermal_zone lz;
+        if(lz.sample())
+        {
+          lz.get_temps(&soc_temp);
+        }
+      }
+      else
+      {
+        throw NotFound("sensorid does not exist");
+      }
+    }
+    else
+    {
+       throw NotFound("sensortype does not exist");
+    }
+  }
+  else if(hastype && hassensors)
+  {
+    //list of sensors by type
+    if(sensortype.get() == "pressure")
+    {
+      boost::property_tree::ptree sensor;
+      sensor.put("name", "pressure-0");
+      sensor.put("id", "0");
+
+      boost::property_tree::ptree sensor_list;
+      sensor_list.push_back(std::make_pair("", sensor));
+
+      boost::property_tree::ptree response;
+      response.add_child("sensors", sensor_list);
+
+      response_str = Ptree_util::ptree_to_json_str(response);
+    }
+    else if(sensortype.get() == "temperature")
+    {
+      //list of sensors
+      boost::property_tree::ptree sensor;
+      sensor.put("name", "temperature-0");
+      sensor.put("id", "0");
+
+      boost::property_tree::ptree sensor_list;
+      sensor_list.push_back(std::make_pair("", sensor));
+
+      boost::property_tree::ptree response;
+      response.add_child("sensors", sensor_list);
+
+      response_str = Ptree_util::ptree_to_json_str(response);
+    }
+    else
+    {
+      throw NotFound();
+    }
+  }
+  else if(hastype)
+  {
+    //throw 405 method not allowed
+    throw MethodNotAllowed();
+  }
+  else
+  {
+    //list of types
+    boost::property_tree::ptree pressure_type;
+    pressure_type.put("type", "pressure");
+
+    boost::property_tree::ptree temperature_type;
+    temperature_type.put("type", "temperature");
+
+    boost::property_tree::ptree sensor_types;
+    sensor_types.push_back(std::make_pair("", pressure_type));
+    sensor_types.push_back(std::make_pair("", temperature_type));
+
+    boost::property_tree::ptree response;
+    response.add_child("sensor_types", sensor_types);
+
+    response_str = Ptree_util::ptree_to_json_str(response);
   }
 
   time_t t_now = time(NULL);
@@ -69,6 +233,21 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
     throw InternalServerError("Could not get Last-Modified timestamp");
   }
 
+  if(response_str.empty())
+  {
+    throw ServiceUnavailable();
+  }
+
+  FCGX_PutS("Content-Type: application/json\r\n", request->out);
+  FCGX_FPrintF(request->out, "Content-Length: %d\r\n", response_str.size());
+  FCGX_PutS("Cache-Control: max-age=0, no-store\r\n", request->out);
+  FCGX_FPrintF(request->out, "Last-Modified: %s\r\n", time_str.data());
+  
+  FCGX_PutS("\r\n", request->out);
+
+  FCGX_PutStr(response_str.data(), response_str.size(), request->out);
+
+  #if 0
   if(true)
   {
     if(true)
@@ -137,6 +316,7 @@ void http_req_callback_sensors::handle(FCGX_Request* const request)
   {
     FCGX_PutS("Status: 500 Internal Error\r\n", request->out);
   }
+  #endif
 
   FCGX_Finish_r(request);
 }

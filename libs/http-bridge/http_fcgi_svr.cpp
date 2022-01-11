@@ -103,15 +103,25 @@ bool http_fcgi_svr::stop()
 
 void http_fcgi_svr::register_cb_for_doc_uri(const char* doc_uri, const std::shared_ptr<http_req_callback_base>& cb)
 {
-  m_cb_table.insert(std::make_pair(doc_uri, cb));
+  m_cb_table.set_node(doc_uri, std::make_shared<http_fcgi_svr_cb>(cb));
 }
 std::shared_ptr<http_req_callback_base> http_fcgi_svr::get_cb_for_doc_uri(const char* doc_uri)
 {
-  auto it = m_cb_table.find(doc_uri);
-  if( it == m_cb_table.end())
+  Directory_tree_node::ptr node = m_cb_table.find_match(doc_uri, Directory_tree::MATCH_TYPE::EXACT);
+  if( ! node )
   {
-    return std::shared_ptr<http_req_callback_base>();
+    node = m_cb_table.find_match(doc_uri, Directory_tree::MATCH_TYPE::PARENT_PATH);
   }
 
-  return it->second;
+  std::shared_ptr<http_req_callback_base> cb;
+  if(node)
+  {
+    auto cb_ptr = node->get_data<http_fcgi_svr_cb>();
+    if(cb_ptr)
+    {
+      cb = cb_ptr->m_cb;
+    }
+  }
+
+  return cb;
 }

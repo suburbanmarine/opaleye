@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <http_common.hpp>
+
 #define NO_FCGI_DEFINES 1
 #include <fcgi_config.h>
 #include <fcgiapp.h>
@@ -31,11 +33,37 @@ public:
 class BadRequest : public HTTPException
 {
   public:
-  BadRequest() : HTTPException(400, "Bad Request")
+  BadRequest() : HTTPException(http_common::STATUS_CODES::BAD_REQUEST, "Bad Request")
   {
 
   }
-  BadRequest(const char msg[]) : HTTPException(400, msg)
+  BadRequest(const char msg[]) : HTTPException(http_common::STATUS_CODES::BAD_REQUEST, msg)
+  {
+
+  }
+};
+
+class NotFound : public HTTPException
+{
+  public:
+  NotFound() : HTTPException(http_common::STATUS_CODES::NOT_FOUND, "Not Found")
+  {
+
+  }
+  NotFound(const char msg[]) : HTTPException(http_common::STATUS_CODES::NOT_FOUND, msg)
+  {
+
+  }
+};
+
+class MethodNotAllowed : public HTTPException
+{
+  public:
+  MethodNotAllowed() : HTTPException(http_common::STATUS_CODES::METHOD_NOT_ALLOWED, "Method Not Allowed")
+  {
+
+  }
+  MethodNotAllowed(const char msg[]) : HTTPException(http_common::STATUS_CODES::METHOD_NOT_ALLOWED, msg)
   {
 
   }
@@ -44,11 +72,24 @@ class BadRequest : public HTTPException
 class InternalServerError : public HTTPException
 {
   public:
-  InternalServerError() : HTTPException(500, "Internal Error")
+  InternalServerError() : HTTPException(http_common::STATUS_CODES::INTERNAL_SERVER_ERROR, "Internal Error")
   {
 
   }
-  InternalServerError(const char msg[]) : HTTPException(500, msg)
+  InternalServerError(const char msg[]) : HTTPException(http_common::STATUS_CODES::INTERNAL_SERVER_ERROR, msg)
+  {
+
+  }
+};
+
+class ServiceUnavailable : public HTTPException
+{
+  public:
+  ServiceUnavailable() : HTTPException(http_common::STATUS_CODES::SERVICE_UNAVAILABLE, "Service Unavailable")
+  {
+
+  }
+  ServiceUnavailable(const char msg[]) : HTTPException(http_common::STATUS_CODES::SERVICE_UNAVAILABLE, msg)
   {
 
   }

@@ -32,7 +32,13 @@ public:
 		m_sensors = sensors;
 	}
 
+	//top level handler
 	void handle(FCGX_Request* const request) override;
+
+	void handle_index(FCGX_Request* const request);
+
+	void handle_temperature(FCGX_Request* const request);
+	void handle_pressure(FCGX_Request* const request);
 protected:
 
 	std::shared_ptr<sensor_thread> m_sensors;
