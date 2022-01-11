@@ -23,7 +23,7 @@ public:
 
   Glib::RefPtr<Gst::Element> front() override
   {
-    return m_nvvidconv;
+    return m_timeoverlay;
   }
   Glib::RefPtr<Gst::Element> back() override
   {
@@ -39,5 +39,5 @@ protected:
 
   Glib::RefPtr<Gst::Element> m_timeoverlay;
 
-  Glib::RefPtr<Gst::Tee>           m_out_tee;
+  Glib::RefPtr<Gst::Tee>     m_out_tee;
 };
