@@ -31,7 +31,7 @@ bool timeoverlay::link_back(const Glib::RefPtr<Gst::Element>& node)
   return true;
 }
 
-bool timecodestamper::init(const char name[], const Glib::RefPtr<Gst::Bin>& bin)
+bool timeoverlay::init(const char name[], const Glib::RefPtr<Gst::Bin>& bin)
 {
   if(! bin )
   {
