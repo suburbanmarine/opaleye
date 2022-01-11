@@ -239,6 +239,20 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
   //     return false; 
   // }
 
+  std::shared_ptr<timecodestamper> m_timecodestamper = std::make_shared<timecodestamper>();
+  if( ! m_timecodestamper->init("timecodestamper_0") )
+  {
+    SPDLOG_ERROR("Could not init timecodestamper_0");
+    return false;
+  }
+
+  std::shared_ptr<timeoverlay> m_timeoverlay = std::make_shared<timeoverlay>();
+  if( ! m_timeoverlay->init("timeoverlay_0") )
+  {
+    SPDLOG_ERROR("Could not init timeoverlay_0");
+    return false;
+  }
+
   SPDLOG_INFO("NV mode");
   std::shared_ptr<GST_element_base> m_h264   = std::make_shared<h264_nvenc_bin>();
   std::shared_ptr<GST_element_base> m_thumb  = std::make_shared<Thumbnail_nv3_pipe>();
@@ -285,15 +299,21 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
   m_rtpsink->add_to_bin(m_pipeline);
 
   //link pipeline
-  m_camera->link_back(m_h264->front());
   m_camera->link_back(m_thumb->front());
 
+  // m_camera->link_back(m_h264->front());
+  m_camera->link_back(m_timecodestamper->front());
+  m_timecodestamper->link_back(m_timeoverlay->front());
+  m_timeoverlay->link_back(m_h264->front());
+  
   m_h264->link_back(m_rtppay->front());
   m_h264->link_back(m_h264_interpipesink->front());
 
   m_rtppay->link_back(m_rtpsink->front());
 
   m_element_storage.emplace("cam_0", m_camera);
+  m_element_storage.emplace("timecodestamper_0", m_timecodestamper);
+  m_element_storage.emplace("timeoverlay_0", m_timeoverlay);
   m_element_storage.emplace("thumb_0", m_thumb);
   m_element_storage.emplace("h264_0", m_h264);
   m_element_storage.emplace("h264_ipsink_0", m_h264_interpipesink);
