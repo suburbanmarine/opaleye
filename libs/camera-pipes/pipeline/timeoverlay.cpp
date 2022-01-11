@@ -22,13 +22,25 @@ void timeoverlay::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
 }
 bool timeoverlay::link_front(const Glib::RefPtr<Gst::Element>& node)
 {
-  node->link(m_nvvidconv);
+  node->link(m_timeoverlay);
   return true;
 }
 bool timeoverlay::link_back(const Glib::RefPtr<Gst::Element>& node)
 {
   m_out_tee->link(node);
   return true;
+}
+
+bool timecodestamper::init(const char name[], const Glib::RefPtr<Gst::Bin>& bin)
+{
+  if(! bin )
+  {
+    return false;
+  }
+
+  m_bin = bin;
+
+  return init(name);
 }
 
 bool timeoverlay::init(const char name[])

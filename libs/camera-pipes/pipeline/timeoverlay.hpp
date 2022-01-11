@@ -30,6 +30,7 @@ public:
     return m_out_tee;
   }
 
+  bool init(const char name[], const Glib::RefPtr<Gst::Bin>& bin) override;
   bool init(const char name[]) override;
 
 protected:
@@ -37,4 +38,6 @@ protected:
   Glib::RefPtr<Gst::Bin>     m_bin;
 
   Glib::RefPtr<Gst::Element> m_timeoverlay;
+
+  Glib::RefPtr<Gst::Tee>           m_out_tee;
 };

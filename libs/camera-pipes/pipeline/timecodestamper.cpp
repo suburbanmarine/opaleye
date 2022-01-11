@@ -22,7 +22,7 @@ void timecodestamper::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
 }
 bool timecodestamper::link_front(const Glib::RefPtr<Gst::Element>& node)
 {
-  node->link(m_nvvidconv);
+  node->link(m_timecodestamper);
   return true;
 }
 bool timecodestamper::link_back(const Glib::RefPtr<Gst::Element>& node)
@@ -31,11 +31,26 @@ bool timecodestamper::link_back(const Glib::RefPtr<Gst::Element>& node)
   return true;
 }
 
+bool timecodestamper::init(const char name[], const Glib::RefPtr<Gst::Bin>& bin)
+{
+  if(! bin )
+  {
+    return false;
+  }
+
+  m_bin = bin;
+
+  return init(name);
+}
+
 bool timecodestamper::init(const char name[])
 {
   //init our internal bin and elements
   {
-    m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
+    if(! m_bin )
+    {
+      m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
+    }
 
     m_timecodestamper = Gst::ElementFactory::create_element("timecodestamper", name);
     

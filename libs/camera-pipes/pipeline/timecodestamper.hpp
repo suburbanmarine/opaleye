@@ -23,18 +23,21 @@ public:
 
   Glib::RefPtr<Gst::Element> front() override
   {
-    return m_nvvidconv;
+    return m_timecodestamper;
   }
   Glib::RefPtr<Gst::Element> back() override
   {
     return m_out_tee;
   }
 
+  bool init(const char name[], const Glib::RefPtr<Gst::Bin>& bin) override;
   bool init(const char name[]) override;
-
+  
 protected:
 
   Glib::RefPtr<Gst::Bin>     m_bin;
 
   Glib::RefPtr<Gst::Element> m_timecodestamper;
+
+  Glib::RefPtr<Gst::Tee>           m_out_tee;
 };
