@@ -78,7 +78,7 @@ function btnRTPStreamStartClick(event) {
 
     saveConfigToCookie();
 
-    camPod.jrpc.call('start_rtp_stream', [client_ip, 5000]);
+    camPod.jrpc.call('start_rtp_stream', ["cam0", client_ip, 5000]);
 }
 function btnRTPStreamStopClick(event) {
     console.log( "btnRTPStreamStopClick" );

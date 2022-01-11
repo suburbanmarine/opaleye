@@ -655,7 +655,7 @@ bool Opaleye_app::stop_still_capture(const std::string& camera)
   return true;
 }
 
-bool Opaleye_app::start_rtp_stream(const std::string& ip_addr, int port)
+bool Opaleye_app::start_rtp_stream(const std::string& cam, const std::string& ip_addr, int port)
 {
   SPDLOG_INFO("Opaleye_app::start_rtp_stream {:s}:{:d}", ip_addr, port);
 
@@ -664,7 +664,13 @@ bool Opaleye_app::start_rtp_stream(const std::string& ip_addr, int port)
     throw std::domain_error("port must be in [0, 65535]");
   }
 
-  std::shared_ptr<rtpsink_pipe> m_rtpsink = m_pipelines["cam0"]->get_element<rtpsink_pipe>("udp_0");
+  auto cam_pipe = m_pipelines.find(cam);
+  if(cam_pipe == m_pipelines.end())
+  {
+    throw std::domain_error("Could not find cam"); 
+  }
+
+  std::shared_ptr<rtpsink_pipe> m_rtpsink = cam_pipe->second->get_element<rtpsink_pipe>("udp_0");
   if( ! m_rtpsink )
   {
     throw jsonrpc::Fault("Could not downcast element", jsonrpc::Fault::INTERNAL_ERROR);
@@ -672,7 +678,7 @@ bool Opaleye_app::start_rtp_stream(const std::string& ip_addr, int port)
 
   return m_rtpsink->add_udp_client(ip_addr, port);
 }
-bool Opaleye_app::stop_rtp_stream(const std::string& ip_addr, int port)
+bool Opaleye_app::stop_rtp_stream(const std::string& cam, const std::string& ip_addr, int port)
 {
   SPDLOG_INFO("Opaleye_app::stop_rtp_stream {:s}:{:d}", ip_addr, port);
 
@@ -681,7 +687,13 @@ bool Opaleye_app::stop_rtp_stream(const std::string& ip_addr, int port)
     throw std::domain_error("port must be in [0, 65535]");
   }
 
-  std::shared_ptr<rtpsink_pipe> m_rtpsink = m_pipelines["cam0"]->get_element<rtpsink_pipe>("udp_0");
+  auto cam_pipe = m_pipelines.find(cam);
+  if(cam_pipe == m_pipelines.end())
+  {
+    throw std::domain_error("Could not find cam"); 
+  }
+
+  std::shared_ptr<rtpsink_pipe> m_rtpsink = cam_pipe->second->get_element<rtpsink_pipe>("udp_0");
   if( ! m_rtpsink )
   {
     throw jsonrpc::Fault("Could not downcast element", jsonrpc::Fault::INTERNAL_ERROR);
