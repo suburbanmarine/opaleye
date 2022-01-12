@@ -490,13 +490,13 @@ bool Opaleye_app::init()
     m_config->make_default();
   }
 
-  m_master_clock = std::make_shared<ptp_clock>();
+  m_master_clock = std::make_shared<sys_clock>();
   if( ! m_master_clock->init() )
   {
-    SPDLOG_ERROR("Opaleye_app::init ptp clock init failed");
+    SPDLOG_ERROR("Opaleye_app::init master clock init failed");
     return false;
   }
-
+#if 0
   bool ptp_sync_ok = false;
   for(int i = 0; i < 60; i++)
   {
@@ -517,6 +517,9 @@ bool Opaleye_app::init()
     SPDLOG_ERROR("Opaleye_app::init ptp clock sync timed out");
     return false;
   }
+  #endif
+
+  Gst::ClockTime base_time = m_master_clock->get_time();
 
   if(m_config->camera_configs.count("cam0"))
   {
@@ -527,9 +530,13 @@ bool Opaleye_app::init()
       return false;
     }
 
-    pipeline->use_clock(m_master_clock->get_clock());
-    // gst_element_set_start_time(pipeline->get_bin()->gobj(), GST_CLOCK_TIME_NONE);
-    pipeline->get_pipeline()->set_latency(500 * GST_MSECOND);
+    {
+      pipeline->use_clock(m_master_clock->get_clock());
+      Glib::RefPtr<Gst::Element> pipe_elem = pipeline->get_pipeline();
+      pipeline->get_pipeline()->set_start_time(GST_CLOCK_TIME_NONE);
+      pipeline->get_pipeline()->set_latency(500 * GST_MSECOND);
+      pipeline->get_pipeline()->set_base_time(base_time);
+    }
 
     if( ! pipeline->make_pipeline(m_config, m_config->camera_configs["cam0"], m_config->camera_configs["cam0"].pipeline) )
     {
@@ -550,9 +557,13 @@ bool Opaleye_app::init()
       return false;
     }
 
-    pipeline->use_clock(m_master_clock->get_clock());
-    // gst_element_set_start_time(pipeline->get_bin()->gobj(), GST_CLOCK_TIME_NONE);
-    pipeline->get_pipeline()->set_latency(500 * GST_MSECOND);
+    {
+      pipeline->use_clock(m_master_clock->get_clock());
+      Glib::RefPtr<Gst::Element> pipe_elem = pipeline->get_pipeline();
+      pipeline->get_pipeline()->set_start_time(GST_CLOCK_TIME_NONE);
+      pipeline->get_pipeline()->set_latency(500 * GST_MSECOND);
+      pipeline->get_pipeline()->set_base_time(base_time);
+    }
 
     if( ! pipeline->make_pipeline(m_config, m_config->camera_configs["cam1"], m_config->camera_configs["cam1"].pipeline) )
     {

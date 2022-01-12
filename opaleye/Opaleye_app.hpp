@@ -21,6 +21,7 @@
 #include "pipeline/Thumbnail_sw_pipe.hpp"
 
 #include "elements/ptp_clock.hpp"
+#include "elements/sys_clock.hpp"
 
 #include <memory>
 
@@ -208,6 +209,6 @@ public:
 
   std::shared_ptr<app_config> m_config;
 
-  std::shared_ptr<ptp_clock> m_master_clock;
+  std::shared_ptr<sys_clock> m_master_clock;
 
 };

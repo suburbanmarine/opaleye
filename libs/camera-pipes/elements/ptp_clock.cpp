@@ -61,7 +61,7 @@ bool ptp_clock::init()
 
 bool ptp_clock::wait_for_sync()
 {
-	gboolean ret = gst_clock_wait_for_sync(m_clock->gobj(), 1 * GST_SECOND);
+	bool ret = m_clock->wait_for_sync(1 * GST_SECOND);
 
 	return ret;
 }
