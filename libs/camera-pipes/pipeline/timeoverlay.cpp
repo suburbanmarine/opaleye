@@ -56,7 +56,7 @@ bool timeoverlay::init(const char name[])
     // running-time (2) – running-time
     // time-code (3) – time-code
     // elapsed-running-time (4) – elapsed-running-time
-    m_timeoverlay->set_property("time-mode ", 5);
+    m_timeoverlay->set_property("time-mode ", 3);
 
     m_timeoverlay->set_property("show-times-as-dates ", false);
 
