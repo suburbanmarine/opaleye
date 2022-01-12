@@ -2,6 +2,8 @@
 
 #include <gstreamermm/clock.h>
 
+#include <string>
+
 gboolean dispatch_GstPtpStatisticsCallback(guint8 domain, const GstStructure * stats,gpointer user_data);
 
 class ptp_clock
@@ -27,6 +29,7 @@ class ptp_clock
 
 	gulong m_cb_ptr;
 
+	std::string m_ptp_iface0;
 	char* m_ptp_iface[2];
 	Glib::RefPtr<Gst::Clock> m_clock;
 };
