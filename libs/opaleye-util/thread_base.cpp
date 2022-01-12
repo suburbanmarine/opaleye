@@ -1,6 +1,7 @@
 #include "thread_base.hpp"
 
 #include <spdlog/spdlog.h>
+#include <spdlog/fmt/ostr.h>
 
 thread_base::thread_base() : m_keep_running(false)
 {

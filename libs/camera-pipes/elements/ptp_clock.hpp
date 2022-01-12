@@ -29,7 +29,7 @@ class ptp_clock
 
 	gulong m_cb_ptr;
 
-	std::string m_ptp_iface0;
+	std::array<char, 128> m_ptp_iface0;
 	char* m_ptp_iface[2];
 	Glib::RefPtr<Gst::Clock> m_clock;
 };
