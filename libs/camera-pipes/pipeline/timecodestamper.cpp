@@ -53,7 +53,7 @@ bool timecodestamper::init(const char name[])
     }
 
     m_timecodestamper = Gst::ElementFactory::create_element("timecodestamper", name);
-    
+#if 0
     // internal (0) – Use internal timecode counter, starting at zero or value set by property
     // zero (1) – Always use zero
     // last-known (2) – Count up from the last known upstream timecode or internal if unknown
@@ -68,7 +68,10 @@ bool timecodestamper::init(const char name[])
     m_timecodestamper->set_property("set ", 2);
 
     m_timecodestamper->set_property("rtc-auto-resync", true);
-
+#endif
+    
+    m_timecodestamper->set_property("first-timecode-to-now", true);
+    
     m_timecodestamper->set_property("post-messages", true);
 
     //output tee
