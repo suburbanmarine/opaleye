@@ -423,6 +423,30 @@ bool Opaleye_app::init()
     m_config->make_default();
   }
 
+  if(m_config->count("nvpmodel"))
+  {
+    std::array<char, 512> cmd;
+    int ret = snprintf(cmd.data(), cmd.size(), "nvpmodel -m %d", m_config[""])
+    if( (ret < 0) || (ret >= cmd.size()) )
+    {
+      SPDLOG_ERROR("Opaleye_app::init could not format nvmpmodel command");
+      return false;
+    }
+    ret = system(cmd.data());
+    if(ret == -1)
+    {
+      SPDLOG_ERROR("Opaleye_app::init nvpmodel failed");
+    }
+    else
+    {
+      if(WIFSIGNALED(ret))
+      {
+        SPDLOG_ERROR("Opaleye_app::init nvpmodel signaled");
+        return false; 
+      }
+    }
+  }
+
   if(m_config->camera_configs.count("cam0"))
   {
     std::shared_ptr<Gstreamer_pipeline> pipeline = std::make_shared<Gstreamer_pipeline>();

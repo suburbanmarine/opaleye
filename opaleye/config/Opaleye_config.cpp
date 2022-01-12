@@ -39,6 +39,9 @@ bool app_config::deserialize(const boost::property_tree::ptree& tree)
 	log_path   = tree.get<std::string>("config.log_path");
 	h264_mode  = tree.get<std::string>("config.h264_mode");
 
+	//default to 15W, 4 CPU
+	nvpmodel_mode  = tree.get<int>("config.nvpmodel.mode", 4);
+
 	sensors_launch = tree.get<std::string>("config.sensors.launch");
 
 	const boost::property_tree::ptree& cameras_tree = tree.get_child("config.cameras");
