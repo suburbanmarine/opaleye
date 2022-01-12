@@ -528,6 +528,7 @@ bool Opaleye_app::init()
     }
 
     pipeline->use_clock(m_master_clock->get_clock());
+    gst_element_set_start_time(GST_CLOCK_TIME_NONE);
 
     if( ! pipeline->make_pipeline(m_config, m_config->camera_configs["cam0"], m_config->camera_configs["cam0"].pipeline) )
     {
@@ -549,6 +550,7 @@ bool Opaleye_app::init()
     }
 
     pipeline->use_clock(m_master_clock->get_clock());
+    gst_element_set_start_time(GST_CLOCK_TIME_NONE);
 
     if( ! pipeline->make_pipeline(m_config, m_config->camera_configs["cam1"], m_config->camera_configs["cam1"].pipeline) )
     {
