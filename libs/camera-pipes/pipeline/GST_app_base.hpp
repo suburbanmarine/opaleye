@@ -48,6 +48,11 @@ public:
     return m_pipeline;
   }
 
+  Glib::RefPtr<Gst::Bin> get_bin()
+  {
+    return m_pipeline;
+  }
+
   virtual std::shared_ptr<GST_element_base> get_element(const std::string& name) = 0;
 
   template< typename T >
