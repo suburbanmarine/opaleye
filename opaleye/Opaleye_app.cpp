@@ -490,7 +490,7 @@ bool Opaleye_app::init()
     m_config->make_default();
   }
 
-  m_master_clock = std::shared_ptr<ptp_clock>();
+  m_master_clock = std::make_shared<ptp_clock>();
   if( ! m_master_clock->init() )
   {
     SPDLOG_ERROR("Opaleye_app::init ptp clock init failed");

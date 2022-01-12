@@ -36,11 +36,11 @@ bool ptp_clock::init()
 
 	if( ! gst_ptp_is_initialized() )
 	{
-		// snprintf(m_ptp_iface0.data(), m_ptp_iface0.size(), "%s", "eth0");
-		// m_ptp_iface[0] = m_ptp_iface0.data();
-		// m_ptp_iface[1] = NULL;
-		// gboolean ret = gst_ptp_init(GST_PTP_CLOCK_ID_NONE, m_ptp_iface);
-		gboolean ret = gst_ptp_init(GST_PTP_CLOCK_ID_NONE, NULL);
+		snprintf(m_ptp_iface0.data(), m_ptp_iface0.size(), "%s", "eth0");
+		m_ptp_iface[0] = m_ptp_iface0.data();
+		m_ptp_iface[1] = NULL;
+		gboolean ret = gst_ptp_init(GST_PTP_CLOCK_ID_NONE, m_ptp_iface);
+		// gboolean ret = gst_ptp_init(GST_PTP_CLOCK_ID_NONE, NULL);
 	}
 
 	GstClock* clk = gst_ptp_clock_new("ptpclk0", 0);
