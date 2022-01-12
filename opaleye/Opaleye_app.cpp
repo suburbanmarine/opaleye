@@ -490,6 +490,34 @@ bool Opaleye_app::init()
     m_config->make_default();
   }
 
+  m_master_clock = std::shared_ptr<ptp_clock>();
+  if( ! m_master_clock->init() )
+  {
+    SPDLOG_ERROR("Opaleye_app::init ptp clock init failed");
+    return false;
+  }
+
+  bool ptp_sync_ok = false;
+  for(int i = 0; i < 60; i++)
+  {
+    bool sync = m_master_clock->wait_for_sync();
+    if( ! sync )
+    {
+      SPDLOG_WARN("Opaleye_app::init ptp clock sync failed");
+    }
+    else
+    {
+      ptp_sync_ok = true;
+      SPDLOG_INFO("Opaleye_app::init ptp clock sync ready");
+    }
+  }
+
+  if( ! ptp_sync_ok )
+  {
+    SPDLOG_ERROR("Opaleye_app::init ptp clock sync timed out");
+    return false;
+  }
+
   if(m_config->camera_configs.count("cam0"))
   {
     std::shared_ptr<Gstreamer_pipeline> pipeline = std::make_shared<Gstreamer_pipeline>();
@@ -498,6 +526,8 @@ bool Opaleye_app::init()
       SPDLOG_ERROR("Opaleye_app::init init pipe0 failed");
       return false;
     }
+
+    pipeline->use_clock(m_master_clock->get_clock());
 
     if( ! pipeline->make_pipeline(m_config, m_config->camera_configs["cam0"], m_config->camera_configs["cam0"].pipeline) )
     {
@@ -517,6 +547,8 @@ bool Opaleye_app::init()
       SPDLOG_ERROR("Opaleye_app::init init pipe1 failed");
       return false;
     }
+
+    pipeline->use_clock(m_master_clock->get_clock());
 
     if( ! pipeline->make_pipeline(m_config, m_config->camera_configs["cam1"], m_config->camera_configs["cam1"].pipeline) )
     {

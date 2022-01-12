@@ -16,6 +16,8 @@ add_library(camera-pipes
 	#cameras/Logitech_brio.cpp
 	#cameras/UVC_base.cpp
 
+	elements/ptp_clock.cpp
+
 	#pipeline/camera/Logitech_brio_pipe.cpp
 	#pipeline/camera/Logitech_C525_gst.cpp
 	pipeline/camera/Testsrc_pipe.cpp

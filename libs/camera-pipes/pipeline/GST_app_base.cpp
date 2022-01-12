@@ -136,3 +136,9 @@ void GST_app_base::run_glib_main()
     // m_mainloop_context->pop_thread_default();
   // }
 }
+
+void GST_app_base::use_clock(const Glib::RefPtr<Gst::Clock>& clock)
+{
+  m_clock = clock;
+  m_pipeline->use_clock(m_clock);
+}
