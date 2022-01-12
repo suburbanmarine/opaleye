@@ -30,6 +30,7 @@ bool ptp_clock::init()
 {
 	if( ! gst_ptp_is_supported() )
 	{
+		SPDLOG_ERROR("gst ptp is not supported");
 		return false;
 	}
 
@@ -41,6 +42,7 @@ bool ptp_clock::init()
 	GstClock* clk = gst_ptp_clock_new("ptpclk0", 0);
 	if(!clk)
 	{
+		SPDLOG_ERROR("Could not create gst ptp clock");
 		return false;
 	}
 
