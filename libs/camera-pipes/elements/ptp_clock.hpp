@@ -2,6 +2,7 @@
 
 #include <gstreamermm/clock.h>
 
+#include <array>
 #include <string>
 
 gboolean dispatch_GstPtpStatisticsCallback(guint8 domain, const GstStructure * stats,gpointer user_data);
