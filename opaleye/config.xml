@@ -9,6 +9,11 @@
 		<launch>false</launch>
 	</sensors>
 
+	<zeromq>
+		<launch>false</launch>
+		<endpoint>tcp://*:5555</endpoint>
+	</zeromq>
+
 	<cameras>
 
 		<camera>

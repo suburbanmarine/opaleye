@@ -21,6 +21,8 @@ add_library(opaleye_app
 	# gpio_thread.cpp
 
 	signal_handler.cpp
+
+	zeromq_api.cpp
 )
 
 target_include_directories(opaleye_app
@@ -49,6 +51,8 @@ target_link_libraries(opaleye_app
 
 		#uvc
 		fcgi
+
+		zmqpp
 
 		rt
 )
