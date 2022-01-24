@@ -184,7 +184,9 @@ int main(int argc, char* argv[])
 
 	SPDLOG_INFO("Starting 0mq svr");
 	zeromq_api_svr zmq_svr;
-	zmq_svr.init();
+	std::list<std::string> zmq_ep;
+	zmq_ep.push_back("tcp://127.0.0.1:50000");
+	zmq_svr.init(zmq_ep);
 
 	// test_app_mjpeg app;
 	Opaleye_app app;

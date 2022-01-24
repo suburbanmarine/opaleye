@@ -9,7 +9,11 @@ int main()
 {
 
 	zeromq_api_svr api;
-	api.init();
+
+	std::list<std::string> zmq_ep;
+	zmq_ep.push_back("tcp://127.0.0.1:50000");
+
+	api.init(zmq_ep);
 
 	for(;;)
 	{

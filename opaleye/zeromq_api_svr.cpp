@@ -16,7 +16,7 @@ zeromq_api_svr::~zeromq_api_svr()
 	stop();
 }
 
-bool zeromq_api_svr::init()
+bool zeromq_api_svr::init(const std::list<std::string>& ep)
 {
 	if(m_context || m_pub_socket)
 	{
@@ -38,7 +38,7 @@ bool zeromq_api_svr::init()
 	m_pub_socket->set(zmq::sockopt::sndtimeo, 10*1000);
 	// m_socket->set(zmq::sockopt::tos, 0);
 
-	m_ep.push_back("tcp://127.0.0.1:50000");
+	m_ep = ep;
 	for(const std::string& str : m_ep)
 	{
 		m_pub_socket->bind(str.c_str());

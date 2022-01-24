@@ -34,7 +34,7 @@ public:
 	zeromq_api_svr();
 	~zeromq_api_svr();
 
-	bool init();
+	bool init(const std::list<std::string>& ep);
 
 	bool stop();
 
