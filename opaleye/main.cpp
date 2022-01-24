@@ -236,7 +236,11 @@ int main(int argc, char* argv[])
 	{
 		SPDLOG_INFO("Starting 0mq svr");
 		zmq_svr = std::make_shared<zeromq_api_svr>();
-		zmq_svr->init(app.m_config->zeromq_ep);
+		if( ! zmq_svr->init(app.m_config->zeromq_ep))
+		{
+			SPDLOG_ERROR("zmq_svr init failed");
+			return -1;			
+		}
 		//register 0mq services
 		//the camera callbacks are called within the context of a gstreamer thread and should return promptly
 		if(app.m_config->camera_configs.count("cam0"))
