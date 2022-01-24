@@ -111,7 +111,7 @@ bool nvac_imx219_pipe::init(const char name[])
     //   "height",             1080
     //   );
 
-    m_in_capsfilter = Gst::CapsFilter::create("incaps");
+    m_in_capsfilter = Gst::CapsFilter::create("");
     m_in_capsfilter->property_caps() = m_src_caps;
 
     m_in_queue     = Gst::Queue::create();
