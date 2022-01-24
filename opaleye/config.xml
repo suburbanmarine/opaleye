@@ -11,7 +11,7 @@
 
 	<zeromq>
 		<launch>false</launch>
-		<endpoint>tcp://*:5555</endpoint>
+		<endpoint>tcp://*:50000</endpoint>
 	</zeromq>
 
 	<cameras>

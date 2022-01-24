@@ -51,6 +51,7 @@ bool zeromq_api_svr::init(const std::list<std::string>& ep)
 	m_ep = ep;
 	for(const std::string& str : m_ep)
 	{
+		SPDLOG_INFO("Binding to {:s}", str); 
 		m_pub_socket->bind(str.c_str());
 	}
 
