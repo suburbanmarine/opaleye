@@ -134,7 +134,7 @@ bool nvac_imx219_pipe::init(const char name[])
 
     m_videoconvert = Gst::ElementFactory::create_element("nvvidconv");
 
-    m_appsink_caps = Gst::Caps::create_from_string("video/x-raw, width=(int)1920, height=(int)1080, format=(string)NV12, framerate=(fraction)30/1, pixel-aspect-ratio=(fraction)1/1");
+    m_appsink_caps = Gst::Caps::create_from_string("video/x-raw, width=(int)1920, height=(int)1080, format=(string)RGB, framerate=(fraction)30/1, pixel-aspect-ratio=(fraction)1/1");
 
     m_appsink_capsfilter = Gst::CapsFilter::create();
     m_appsink_capsfilter->property_caps() = m_appsink_caps;
