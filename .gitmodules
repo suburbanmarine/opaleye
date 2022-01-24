@@ -19,3 +19,6 @@
 [submodule "external/roboto-fonts"]
 	path = external/roboto-fonts
 	url = git@github.com:suburbanmarine/roboto-fonts.git
+[submodule "external/cppzmq"]
+	path = external/cppzmq
+	url = git@github.com:suburbanmarine/cppzmq.git

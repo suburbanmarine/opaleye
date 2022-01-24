@@ -26,6 +26,7 @@ add_custom_target(protoc-gen-grpc-web-target
 add_definitions(
 	-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE
 	-DBOOST_ALL_DYN_LINK
+	-DZMQ_BUILD_DRAFT_API
 	# -DMALLOC_CHECK_=2 # debug heap
 	# -D_GLIBCXX_DEBUG # changes layout of stl types
 )
@@ -68,6 +69,17 @@ find_package( OpenCV REQUIRED )
 add_subdirectory(external/spdlog)
 add_subdirectory(external/googletest)
 # add_subdirectory(external/nvidia-jetpack)
+
+
+add_library(cppzmq INTERFACE)
+target_include_directories(cppzmq
+	INTERFACE
+		external/cppzmq
+)
+target_link_libraries(cppzmq
+	INTERFACE
+		zmq
+)
 
 add_library(jsonrpc-lean INTERFACE)
 target_include_directories(jsonrpc-lean
