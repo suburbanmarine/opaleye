@@ -147,6 +147,7 @@ Opaleye depends on a number of external components.
  - protobuf-compiler
  - protobuf-compiler-grpc
  - rapidjson-dev
+ - libzmq3-dev
 
 ### Runtime Dependencies
  - chrony
