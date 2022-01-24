@@ -58,7 +58,7 @@ bool zeromq_api_svr::init(const std::list<std::string>& ep)
 		}
 		catch(const zmq::error_t& e)
 		{
-			std::cout << "ZMQ bind failed: " << e.num() << ": " << e.what() << std::endl;
+			SPDLOG_ERROR("ZMQ bind failed: {:d}: {:s}", e.num(), e.what();
 			stop();
 			return false;
 		}
