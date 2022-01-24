@@ -25,6 +25,9 @@ public:
 
 	std::string sensors_launch;
 
+	std::string zeromq_launch;
+	std::list<std::string> zeromq_ep;
+
 	std::map<std::string, camera_config> camera_configs;
 	
 	bool is_valid() const;
