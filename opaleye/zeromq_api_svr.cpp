@@ -26,14 +26,16 @@ bool zeromq_api_svr::init(const std::list<std::string>& ep)
 	m_context = std::make_shared<zmq::context_t>();
 	if( ! m_context )
 	{
+		SPDLOG_ERROR("Could not allocate context"); 
 		return false;
 	}
 	m_pub_socket  = std::make_shared<zmq::socket_t>(*m_context, zmq::socket_type::pub);
 	if( ! m_pub_socket )
 	{
+		SPDLOG_ERROR("Could not allocate socket"); 
 		return false;
 	}
-	
+
 	m_pub_socket->set(zmq::sockopt::metadata, zmq::str_buffer("X-Opaleye-api:1.0"));
 	// m_pub_socket->set(zmq::sockopt::bindtodevice, zmq::str_buffer("X-Opaleye-api:1.0"));
     m_pub_socket->set(zmq::sockopt::connect_timeout, 5*1000);
