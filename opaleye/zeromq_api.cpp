@@ -1,27 +1,48 @@
 #include "zeromq_api.hpp"
 
-zeromq_api::zeromq_api()
+#include <zmq_addon.hpp>
+
+#include <vector>
+
+zeromq_api_svr::zeromq_api_svr()
 {
 
 }
-zeromq_api::~zeromq_api()
+zeromq_api_svr::~zeromq_api_svr()
 {
 
 }
 
-bool zeromq_api::init()
+bool zeromq_api_svr::init()
 {
-	m_context = std::make_shared<zmqpp::context>();
-	m_context->set(zmqpp::context_option::io_threads,  4);
-	m_context->set(zmqpp::context_option::max_sockets, 4);
-	m_context->set(zmqpp::context_option::ipv6,        1);
-
-	m_socket  = std::make_shared<zmqpp::socket>(*m_context, zmqpp::socket_type::reply);
+	m_context = std::make_shared<zmq::context_t>();
+	m_pub_socket  = std::make_shared<zmq::socket_t>(*m_context, zmq::socket_type::pub);
 
 	for(const std::string& str : m_ep)
 	{
-		m_socket->bind(str.c_str());
+		m_pub_socket->bind(str.c_str());
 	}
 
+	m_api_pub_thread = std::make_shared<zeromq_api_svr_pub_thread>(m_pub_socket);
+	m_api_pub_thread->launch();
+
 	return true;
+}
+
+zeromq_api_svr_pub_thread::zeromq_api_svr_pub_thread(const std::shared_ptr<zmq::socket_t>& sock)
+{
+	m_socket = sock;
+}
+
+void zeromq_api_svr_pub_thread::work()
+{
+	while(!is_interrupted())
+	{
+		std::vector<zmq::const_buffer> msgs;
+		msgs.push_back( zmq::str_buffer("/topic/foo") );
+		msgs.push_back( zmq::str_buffer("payload") );
+		zmq::send_multipart(*m_socket, msgs);
+
+		wait_for_interruption(std::chrono::seconds(1));
+	}
 }

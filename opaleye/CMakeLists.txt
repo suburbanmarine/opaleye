@@ -52,7 +52,7 @@ target_link_libraries(opaleye_app
 		#uvc
 		fcgi
 
-		zmqpp
+		zmq
 
 		rt
 )
