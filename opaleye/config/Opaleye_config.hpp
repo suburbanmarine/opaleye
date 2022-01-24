@@ -36,6 +36,8 @@ public:
 	bool deserialize(const boost::property_tree::ptree& tree);
 	bool serialize(boost::property_tree::ptree* const tree) const;
 
+	size_t count(const char* str) const;
+
 	std::string to_xml_string() const;
 	std::string to_json_string() const;
 

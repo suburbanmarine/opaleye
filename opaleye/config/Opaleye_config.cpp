@@ -108,6 +108,11 @@ bool app_config::make_default()
 	return true;
 }
 
+size_t app_config::count(const char* str) const
+{
+	return m_tree.count(str);
+}
+
 std::string app_config::to_xml_string() const
 {
 	boost::property_tree::ptree temp;
