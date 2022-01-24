@@ -249,7 +249,7 @@ int main(int argc, char* argv[])
 			}
 
 			cam0->set_framebuffer_callback(
-				[&zmq_svr](const std::shared_ptr<const std::vector<uint8_t>>& frame_ptr)
+				[zmq_svr](const std::shared_ptr<const std::vector<uint8_t>>& frame_ptr)
 				{
 					if(frame_ptr)
 					{
@@ -273,7 +273,7 @@ int main(int argc, char* argv[])
 			}
 
 			cam1->set_framebuffer_callback(
-				[&zmq_svr](const std::shared_ptr<const std::vector<uint8_t>>& frame_ptr)
+				[zmq_svr](const std::shared_ptr<const std::vector<uint8_t>>& frame_ptr)
 				{
 					if(frame_ptr)
 					{
