@@ -70,7 +70,15 @@ add_subdirectory(external/googletest)
 # add_subdirectory(external/nvidia-jetpack)
 
 
-add_subdirectory(external/cppzmq)
+add_library(cppzmq INTERFACE)
+target_include_directories(cppzmq
+	INTERFACE
+		external/cppzmq
+)
+target_link_libraries(cppzmq
+	INTERFACE
+		zmq
+)
 
 add_library(jsonrpc-lean INTERFACE)
 target_include_directories(jsonrpc-lean

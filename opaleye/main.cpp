@@ -11,6 +11,8 @@
 #include "http_req_jsonrpc.hpp"
 #include "signal_handler.hpp"
 
+#include "zeromq_api_svr.hpp"
+
 #include "Opaleye_app.hpp"
 #include "config/Opaleye_config.hpp"
 
@@ -179,6 +181,10 @@ int main(int argc, char* argv[])
 
 	SPDLOG_INFO("Starting fcgi connection");
 	fcgi_svr.start();
+
+	SPDLOG_INFO("Starting 0mq svr");
+	zeromq_api_svr zmq_svr;
+	zmq_svr.init();
 
 	// test_app_mjpeg app;
 	Opaleye_app app;
