@@ -26,6 +26,7 @@ add_custom_target(protoc-gen-grpc-web-target
 add_definitions(
 	-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE
 	-DBOOST_ALL_DYN_LINK
+	-DZMQ_BUILD_DRAFT_API
 	# -DMALLOC_CHECK_=2 # debug heap
 	# -D_GLIBCXX_DEBUG # changes layout of stl types
 )

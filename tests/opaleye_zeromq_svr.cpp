@@ -1,5 +1,3 @@
-#pragma once
-
 #include "zeromq_api_svr.hpp"
 
 #include "zmq.hpp"
