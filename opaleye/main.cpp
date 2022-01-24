@@ -231,11 +231,12 @@ int main(int argc, char* argv[])
 		fcgi_svr.register_cb_for_doc_uri("/api/v1/cameras/cam1/live/thumb", jpg_cb);
 	}
 
+	std::shared_ptr<zeromq_api_svr> zmq_svr;
 	if(app.m_config->zeromq_launch == "true")
 	{
 		SPDLOG_INFO("Starting 0mq svr");
-		zeromq_api_svr zmq_svr;	
-		zmq_svr.init(app.m_config->zeromq_ep);
+		zmq_svr = std::make_shared<zeromq_api_svr>();
+		zmq_svr->init(app.m_config->zeromq_ep);
 		//register 0mq services
 		//the camera callbacks are called within the context of a gstreamer thread and should return promptly
 		if(app.m_config->camera_configs.count("cam0"))
@@ -252,7 +253,7 @@ int main(int argc, char* argv[])
 				{
 					if(frame_ptr)
 					{
-						zmq_svr.send("/api/v1/cameras/cam0/live/full", "", std::string_view(reinterpret_cast<const char*>(frame_ptr->data()), frame_ptr->size()));
+						zmq_svr->send("/api/v1/cameras/cam0/live/full", "", std::string_view(reinterpret_cast<const char*>(frame_ptr->data()), frame_ptr->size()));
 					}
 					else
 					{
@@ -276,7 +277,7 @@ int main(int argc, char* argv[])
 				{
 					if(frame_ptr)
 					{
-						zmq_svr.send("/api/v1/cameras/cam1/live/full", "", std::string_view(reinterpret_cast<const char*>(frame_ptr->data()), frame_ptr->size()));
+						zmq_svr->send("/api/v1/cameras/cam1/live/full", "", std::string_view(reinterpret_cast<const char*>(frame_ptr->data()), frame_ptr->size()));
 					}
 					else
 					{
