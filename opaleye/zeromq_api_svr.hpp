@@ -15,6 +15,8 @@
 			// maybe just a mime type, text/plain
 // part 3 - data blob
 
+// /api/v1/cameras/<camera-name>/live/full
+
 class zeromq_api_svr_pub_thread : public thread_base
 {
 public:
@@ -35,6 +37,8 @@ public:
 	bool init();
 
 	bool stop();
+
+	bool send(const std::string_view& topic, const std::string_view& header, const std::string_view& payload);
 
 protected:
 

@@ -251,37 +251,43 @@ void nvac_imx219_pipe::handle_new_sample()
     Glib::RefPtr<Gst::Sample> sample = m_appsink->try_pull_sample(0);
     if(sample)
     {
-      Glib::RefPtr<Gst::Buffer> buffer = sample->get_buffer();
+        Glib::RefPtr<Gst::Buffer> buffer = sample->get_buffer();
 
-      SPDLOG_INFO("nvac_imx219_pipe::handle_new_sample has {}", buffer->get_size());
-      {
-        std::unique_lock<std::mutex> lock(m_frame_buffer_mutex);
-
-        m_frame_buffer->resize(buffer->get_size());
-        uint8_t* out_ptr = m_frame_buffer->data();
-
-        guint num = buffer->n_memory();
-        for(guint i = 0; i < num; i++)
+        SPDLOG_INFO("nvac_imx219_pipe::handle_new_sample has {}", buffer->get_size());
         {
-          Glib::RefPtr<Gst::Memory> mem_i = buffer->peek_memory(i);
+            std::unique_lock<std::mutex> lock(m_frame_buffer_mutex);
 
-          Gst::MapInfo map_info;
-          mem_i->map(map_info, Gst::MAP_READ);
+            m_frame_buffer->resize(buffer->get_size());
+            uint8_t* out_ptr = m_frame_buffer->data();
 
-          SPDLOG_INFO("nvac_imx219_pipe::handle_new_sample block {} is {}", i, map_info.get_size());
+            guint num = buffer->n_memory();
+            for(guint i = 0; i < num; i++)
+            {
+                Glib::RefPtr<Gst::Memory> mem_i = buffer->peek_memory(i);
 
-          guint8* blk_ptr = map_info.get_data();
-          gsize   blk_len = map_info.get_size();
+                Gst::MapInfo map_info;
+                mem_i->map(map_info, Gst::MAP_READ);
 
-          std::copy_n(blk_ptr, blk_len, out_ptr);
-          out_ptr += blk_len;
+                SPDLOG_INFO("nvac_imx219_pipe::handle_new_sample block {} is {}", i, map_info.get_size());
 
-          mem_i->unmap(map_info);
+                guint8* blk_ptr = map_info.get_data();
+                gsize   blk_len = map_info.get_size();
+
+                std::copy_n(blk_ptr, blk_len, out_ptr);
+                out_ptr += blk_len;
+
+                mem_i->unmap(map_info);
+            }
+
+            if(m_buffer_dispatch_cb)
+            {
+                m_buffer_dispatch_cb(m_frame_buffer);
+            }
         }
-      }
+
     }
     else
     {
-      SPDLOG_WARN("nvac_imx219_pipe::handle_new_sample has null sample"); 
+        SPDLOG_WARN("nvac_imx219_pipe::handle_new_sample has null sample"); 
     }
 }

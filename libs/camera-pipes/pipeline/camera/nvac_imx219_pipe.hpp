@@ -34,6 +34,13 @@ class nvac_imx219_pipe : public GST_element_base
 public:
   nvac_imx219_pipe();
 
+  typedef std::function<void(const std::shared_ptr<const std::vector<uint8_t>>&)> FramebufferCallback;
+  void set_framebuffer_callback(const FramebufferCallback& cb)
+  {
+    std::unique_lock<std::mutex> lock(m_frame_buffer_mutex);
+    m_buffer_dispatch_cb = cb;
+  }
+
   void add_to_bin(const Glib::RefPtr<Gst::Bin>& bin) override;
   bool link_front(const Glib::RefPtr<Gst::Element>& node) override;
   bool link_back(const Glib::RefPtr<Gst::Element>& node) override;
@@ -91,4 +98,6 @@ protected:
   
   mutable std::mutex m_frame_buffer_mutex;
   std::shared_ptr<std::vector<uint8_t>> m_frame_buffer;
+
+  FramebufferCallback m_buffer_dispatch_cb;
 };
