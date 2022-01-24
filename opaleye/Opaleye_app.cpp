@@ -21,6 +21,8 @@
 #include "pipeline/GST_fakesink.hpp"
 #include "pipeline/nvvideoconvert_pipe.hpp"
 
+#include "errno_util.hpp"
+
 #include <boost/lexical_cast.hpp>
 
 #include <jsonrpc-lean/fault.h>
@@ -433,10 +435,12 @@ bool Opaleye_app::init()
       return false;
     }
 
+    errno_util err;
+
     ret = system(cmd.data());
     if(ret == -1)
     {
-      SPDLOG_ERROR("Opaleye_app::init nvpmodel failed, {:s}", errno_to_str());
+      SPDLOG_ERROR("Opaleye_app::init nvpmodel failed, errno: {:s}", err.to_str());
     }
     else
     {
