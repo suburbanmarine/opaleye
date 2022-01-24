@@ -182,12 +182,6 @@ int main(int argc, char* argv[])
 	SPDLOG_INFO("Starting fcgi connection");
 	fcgi_svr.start();
 
-	SPDLOG_INFO("Starting 0mq svr");
-	zeromq_api_svr zmq_svr;
-	std::list<std::string> zmq_ep;
-	zmq_ep.push_back("tcp://127.0.0.1:50000");
-	zmq_svr.init(zmq_ep);
-
 	// test_app_mjpeg app;
 	Opaleye_app app;
 	app.m_config = cfg_mgr.get_config();
@@ -221,42 +215,48 @@ int main(int argc, char* argv[])
 		fcgi_svr.register_cb_for_doc_uri("/api/v1/cameras/cam1/live/thumb", jpg_cb);
 	}
 
-	//register 0mq services
-	//the camera callbacks are called within the context of a gstreamer thread and should return promptly
-	if(app.m_config->camera_configs.count("cam0"))
+	if(app.m_config->zeromq_launch == "true")
 	{
-		std::shared_ptr<nvac_imx219_pipe> cam0 = app.m_pipelines["cam0"]->get_element<nvac_imx219_pipe>("cam_0");
-		cam0->set_framebuffer_callback(
-			[&zmq_svr](const std::shared_ptr<const std::vector<uint8_t>>& frame_ptr)
-			{
-				if(frame_ptr)
+		SPDLOG_INFO("Starting 0mq svr");
+		zeromq_api_svr zmq_svr;	
+		zmq_svr.init(app.m_config->zeromq_ep);
+		//register 0mq services
+		//the camera callbacks are called within the context of a gstreamer thread and should return promptly
+		if(app.m_config->camera_configs.count("cam0"))
+		{
+			std::shared_ptr<nvac_imx219_pipe> cam0 = app.m_pipelines["cam0"]->get_element<nvac_imx219_pipe>("cam_0");
+			cam0->set_framebuffer_callback(
+				[&zmq_svr](const std::shared_ptr<const std::vector<uint8_t>>& frame_ptr)
 				{
-					zmq_svr.send("/api/v1/cameras/cam0/live/full", "", std::string_view(reinterpret_cast<const char*>(frame_ptr->data()), frame_ptr->size()));
+					if(frame_ptr)
+					{
+						zmq_svr.send("/api/v1/cameras/cam0/live/full", "", std::string_view(reinterpret_cast<const char*>(frame_ptr->data()), frame_ptr->size()));
+					}
+					else
+					{
+						SPDLOG_ERROR("frame_ptr is null");
+					}				
 				}
-				else
-				{
-					SPDLOG_ERROR("frame_ptr is null");
-				}				
-			}
-		);
-	}
+			);
+		}
 
-	if(app.m_config->camera_configs.count("cam1"))
-	{
-		std::shared_ptr<nvac_imx219_pipe> cam1 = app.m_pipelines["cam1"]->get_element<nvac_imx219_pipe>("cam_1");
-		cam1->set_framebuffer_callback(
-			[&zmq_svr](const std::shared_ptr<const std::vector<uint8_t>>& frame_ptr)
-			{
-				if(frame_ptr)
+		if(app.m_config->camera_configs.count("cam1"))
+		{
+			std::shared_ptr<nvac_imx219_pipe> cam1 = app.m_pipelines["cam1"]->get_element<nvac_imx219_pipe>("cam_1");
+			cam1->set_framebuffer_callback(
+				[&zmq_svr](const std::shared_ptr<const std::vector<uint8_t>>& frame_ptr)
 				{
-					zmq_svr.send("/api/v1/cameras/cam1/live/full", "", std::string_view(reinterpret_cast<const char*>(frame_ptr->data()), frame_ptr->size()));
+					if(frame_ptr)
+					{
+						zmq_svr.send("/api/v1/cameras/cam1/live/full", "", std::string_view(reinterpret_cast<const char*>(frame_ptr->data()), frame_ptr->size()));
+					}
+					else
+					{
+						SPDLOG_ERROR("frame_ptr is null");
+					}
 				}
-				else
-				{
-					SPDLOG_ERROR("frame_ptr is null");
-				}
-			}
-		);
+			);
+		}
 	}
 
 	std::shared_ptr<jsonrpc::Server> jsonrpc_svr_disp = std::make_shared<jsonrpc::Server>();

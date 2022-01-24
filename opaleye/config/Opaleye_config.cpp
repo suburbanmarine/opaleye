@@ -41,8 +41,17 @@ bool app_config::deserialize(const boost::property_tree::ptree& tree)
 
 	sensors_launch = tree.get<std::string>("config.sensors.launch");
 
-	zeromq_launch = tree.get<std::string>("config.zeromq.launch");
-	// zeromq_ep = tree.get<std::string>("config.zeromq.endpoint");
+	{
+		zeromq_ep.clear();
+
+		zeromq_launch = tree.get<std::string>("config.zeromq.launch");
+		auto it_range = tree.equal_range("config.zeromq.endpoint");
+		for(auto it = it_range.first; it != it_range.second; ++it)
+		{
+			zeromq_ep.push_back(it->second.data());
+		}
+	}
+	
 
 	const boost::property_tree::ptree& cameras_tree = tree.get_child("config.cameras");
 	for( const auto& camera_i : cameras_tree)
@@ -73,7 +82,10 @@ bool app_config::serialize(boost::property_tree::ptree* const tree) const
 	tree->put("config.sensors.launch", sensors_launch);
 
 	tree->put("config.zeromq.launch", zeromq_launch);
-	// tree->put("config.zeromq.endpoint", zeromq_ep);
+	for(const std::string& str : zeromq_ep)
+	{
+		tree->add("config.zeromq.endpoint", str);
+	}
 
 	{
 		boost::property_tree::ptree cameras_tree;
