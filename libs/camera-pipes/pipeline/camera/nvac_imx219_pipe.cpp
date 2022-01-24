@@ -76,6 +76,9 @@ bool nvac_imx219_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
 
 bool nvac_imx219_pipe::init(const char name[])
 {
+  m_frame_buffer = std::make_shared<std::vector<uint8_t>>();
+  m_frame_buffer->reserve(10U*1024U*1024U);
+
   //init our internal bin and elements
   {
     m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
