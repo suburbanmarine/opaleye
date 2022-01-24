@@ -426,16 +426,17 @@ bool Opaleye_app::init()
   if(m_config->count("nvpmodel"))
   {
     std::array<char, 512> cmd;
-    int ret = snprintf(cmd.data(), cmd.size(), "nvpmodel -m %d", m_config[""])
+    int ret = snprintf(cmd.data(), cmd.size(), "nvpmodel -m %d", m_config.nvpmodel_mode);
     if( (ret < 0) || (ret >= cmd.size()) )
     {
       SPDLOG_ERROR("Opaleye_app::init could not format nvmpmodel command");
       return false;
     }
+
     ret = system(cmd.data());
     if(ret == -1)
     {
-      SPDLOG_ERROR("Opaleye_app::init nvpmodel failed");
+      SPDLOG_ERROR("Opaleye_app::init nvpmodel failed, {:s}", errno_to_str());
     }
     else
     {
@@ -443,6 +444,15 @@ bool Opaleye_app::init()
       {
         SPDLOG_ERROR("Opaleye_app::init nvpmodel signaled");
         return false; 
+      }
+      if(WEXITSTATUS(ret) != 0)
+      {
+        SPDLOG_ERROR("Opaleye_app::init nvpmodel returned non-zero code");
+        return false;  
+      }
+      else
+      {
+        SPDLOG_INFO("Opaleye_app::init nvpmodel set perf to {:d}", m_config.nvpmodel_mode);
       }
     }
   }
