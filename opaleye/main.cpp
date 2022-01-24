@@ -224,7 +224,7 @@ int main(int argc, char* argv[])
 		//the camera callbacks are called within the context of a gstreamer thread and should return promptly
 		if(app.m_config->camera_configs.count("cam0"))
 		{
-			std::shared_ptr<nvac_imx219_pipe> cam0 = app.m_pipelines["cam0"]->get_element<nvac_imx219_pipe>("cam_0");
+			std::shared_ptr<nvac_imx219_pipe> cam0 = app.m_pipelines["cam0"]->get_element<nvac_imx219_pipe>("cam0");
 			cam0->set_framebuffer_callback(
 				[&zmq_svr](const std::shared_ptr<const std::vector<uint8_t>>& frame_ptr)
 				{
@@ -242,7 +242,7 @@ int main(int argc, char* argv[])
 
 		if(app.m_config->camera_configs.count("cam1"))
 		{
-			std::shared_ptr<nvac_imx219_pipe> cam1 = app.m_pipelines["cam1"]->get_element<nvac_imx219_pipe>("cam_1");
+			std::shared_ptr<nvac_imx219_pipe> cam1 = app.m_pipelines["cam1"]->get_element<nvac_imx219_pipe>("cam1");
 			cam1->set_framebuffer_callback(
 				[&zmq_svr](const std::shared_ptr<const std::vector<uint8_t>>& frame_ptr)
 				{
