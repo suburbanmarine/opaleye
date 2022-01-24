@@ -264,10 +264,10 @@ int main(int argc, char* argv[])
 
 		if(app.m_config->camera_configs.count("cam1"))
 		{
-			std::shared_ptr<nvac_imx219_pipe> cam1 = app.m_pipelines["cam1"]->get_element<nvac_imx219_pipe>("cam_1");
+			std::shared_ptr<nvac_imx219_pipe> cam1 = app.m_pipelines["cam1"]->get_element<nvac_imx219_pipe>("cam_0");
 			if( ! cam1 )
 			{
-				SPDLOG_ERROR("Could not get element cam1");
+				SPDLOG_ERROR("Could not get element cam0");
 				return -1;
 			}
 
