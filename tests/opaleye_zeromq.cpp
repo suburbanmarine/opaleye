@@ -14,7 +14,7 @@ int main()
 	std::shared_ptr<zmq::socket_t> m_socket  = std::make_shared<zmq::socket_t>(*m_context, zmq::socket_type::sub);
     
     m_socket->set(zmq::sockopt::subscribe, "/topic/foo");
-    m_socket->set(zmq::sockopt::connect_timeout, 5000);
+    m_socket->set(zmq::sockopt::connect_timeout, 5*1000);
 	m_socket->set(zmq::sockopt::ipv6, 0);
 	m_socket->set(zmq::sockopt::linger, 0);
 	m_socket->set(zmq::sockopt::maxmsgsize, int64_t(100LL*1024LL*1024LL));
@@ -31,7 +31,21 @@ int main()
 	for(size_t i = 0; i < 10; i++)
 	{
 		rcv_msgs.clear();
-		zmq::recv_multipart(*m_socket, std::back_inserter(rcv_msgs));
+		try
+		{
+			zmq::recv_multipart(*m_socket, std::back_inserter(rcv_msgs));
+		}
+		catch(const zmq::error_t& e)
+		{
+			std::cout << "Got error: " << e.num() << ": " << e.what() << std::endl;
+			continue;
+		}
+
+		if(rcv_msgs.empty())
+		{
+			std::cout << "Got empty msg" << std::endl;
+			continue;	
+		}
 
 		//get connection property
 		std::cout << "X-Opaleye-api is " << rcv_msgs[0].gets("X-Opaleye-api") << std::endl;
@@ -44,6 +58,10 @@ int main()
 			std::cout << std::endl;
 		}
 	}
+
+	m_socket->close();
+	m_context->shutdown();
+	m_context->close();
 
 	return 0;
 }

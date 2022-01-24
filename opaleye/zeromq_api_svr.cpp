@@ -10,26 +10,22 @@ zeromq_api_svr::zeromq_api_svr()
 }
 zeromq_api_svr::~zeromq_api_svr()
 {
-	if(m_pub_socket)
-	{
-		m_pub_socket->close();
-		m_pub_socket.reset();
-	}
-	if(m_context)
-	{
-		m_context->shutdown();
-		m_context->close();
-		m_context.reset();
-	}
+	stop();
 }
 
 bool zeromq_api_svr::init()
 {
+	if(m_context || m_pub_socket)
+	{
+		return false;
+	}
+
 	m_context = std::make_shared<zmq::context_t>();
 	m_pub_socket  = std::make_shared<zmq::socket_t>(*m_context, zmq::socket_type::pub);
 
 	m_pub_socket->set(zmq::sockopt::metadata, zmq::str_buffer("X-Opaleye-api:1.0"));
 	// m_pub_socket->set(zmq::sockopt::bindtodevice, zmq::str_buffer("X-Opaleye-api:1.0"));
+    m_pub_socket->set(zmq::sockopt::connect_timeout, 5*1000);
 	m_pub_socket->set(zmq::sockopt::ipv6, 0);
 	m_pub_socket->set(zmq::sockopt::linger, 0);
 	m_pub_socket->set(zmq::sockopt::maxmsgsize, int64_t(100LL*1024LL*1024LL));
@@ -47,6 +43,23 @@ bool zeromq_api_svr::init()
 
 	m_api_pub_thread = std::make_shared<zeromq_api_svr_pub_thread>(m_pub_socket);
 	m_api_pub_thread->launch();
+
+	return true;
+}
+
+bool zeromq_api_svr::stop()
+{
+	if(m_pub_socket)
+	{
+		m_pub_socket->close();
+		m_pub_socket.reset();
+	}
+	if(m_context)
+	{
+		m_context->shutdown();
+		m_context->close();
+		m_context.reset();
+	}
 
 	return true;
 }

@@ -26,6 +26,8 @@ public:
 
 	bool init();
 
+	bool stop();
+
 protected:
 
 	std::shared_ptr<zeromq_api_svr_pub_thread> m_api_pub_thread;
