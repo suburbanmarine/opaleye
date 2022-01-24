@@ -7,6 +7,14 @@
 #include <memory>
 #include <list>
 
+
+// part 1 - topic
+// part 2 - Headers
+			// maybe HTTP, eg Content-Type: text/plain\r\nCache-Control: no-cache,no-store\r\nLast-Modified: <>
+			// maybe a json blob
+			// maybe just a mime type, text/plain
+// part 3 - data blob
+
 class zeromq_api_svr_pub_thread : public thread_base
 {
 public:
