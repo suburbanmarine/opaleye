@@ -44,8 +44,9 @@ bool app_config::deserialize(const boost::property_tree::ptree& tree)
 	{
 		zeromq_ep.clear();
 
+		const boost::property_tree::ptree& zmq_tree = tree.get_child("config.zeromq");
 		zeromq_launch = tree.get<std::string>("config.zeromq.launch");
-		auto it_range = tree.equal_range("config.zeromq.endpoint");
+		auto it_range = zmq_tree.equal_range("endpoint");
 		for(auto it = it_range.first; it != it_range.second; ++it)
 		{
 			zeromq_ep.push_back(it->second.data());
