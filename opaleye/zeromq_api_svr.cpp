@@ -51,8 +51,17 @@ bool zeromq_api_svr::init(const std::list<std::string>& ep)
 	m_ep = ep;
 	for(const std::string& str : m_ep)
 	{
-		SPDLOG_INFO("Binding to {:s}", str); 
-		m_pub_socket->bind(str.c_str());
+		SPDLOG_INFO("Binding to {:s}", str);
+		try
+		{
+			m_pub_socket->bind(str.c_str());
+		}
+		catch(const zmq::error_t& e)
+		{
+			std::cout << "ZMQ bind failed: " << e.num() << ": " << e.what() << std::endl;
+			stop();
+			return false;
+		}
 	}
 
 	m_api_pub_thread = std::make_shared<zeromq_api_svr_pub_thread>(m_pub_socket);

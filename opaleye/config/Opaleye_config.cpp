@@ -39,13 +39,16 @@ bool app_config::deserialize(const boost::property_tree::ptree& tree)
 	log_path   = tree.get<std::string>("config.log_path");
 	h264_mode  = tree.get<std::string>("config.h264_mode");
 
-	sensors_launch = tree.get<std::string>("config.sensors.launch");
+	{
+		const boost::property_tree::ptree& sensors_tree = tree.get_child("config.sensors");
+		sensors_launch = sensors_tree.get<std::string>("launch");
+	}
 
 	{
 		zeromq_ep.clear();
 
 		const boost::property_tree::ptree& zmq_tree = tree.get_child("config.zeromq");
-		zeromq_launch = tree.get<std::string>("config.zeromq.launch");
+		zeromq_launch = zmq_tree.get<std::string>("launch");
 		auto it_range = zmq_tree.equal_range("endpoint");
 		for(auto it = it_range.first; it != it_range.second; ++it)
 		{
