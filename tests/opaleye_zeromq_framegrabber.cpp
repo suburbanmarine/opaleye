@@ -10,7 +10,7 @@ int main()
 
 	std::shared_ptr<zmq::context_t> m_context = std::make_shared<zmq::context_t>();
 
-	const std::string endpoint = "tcp://127.0.0.1:50000";
+	const std::string endpoint = "tcp://192.168.40.70:51000";
 	std::shared_ptr<zmq::socket_t> m_socket  = std::make_shared<zmq::socket_t>(*m_context, zmq::socket_type::sub);
     
     m_socket->set(zmq::sockopt::subscribe, "/api/v1/cameras/cam0/live/full");
@@ -19,9 +19,9 @@ int main()
 	m_socket->set(zmq::sockopt::linger, 0);
 	m_socket->set(zmq::sockopt::maxmsgsize, int64_t(100LL*1024LL*1024LL));
 	m_socket->set(zmq::sockopt::multicast_hops, 1);
-	m_socket->set(zmq::sockopt::rcvbuf, 10*1024*1024);
+	m_socket->set(zmq::sockopt::rcvbuf, 100*1024*1024);
 	m_socket->set(zmq::sockopt::rcvtimeo, 10*1000);
-	m_socket->set(zmq::sockopt::sndbuf, 10*1024*1024);
+	m_socket->set(zmq::sockopt::sndbuf, 100*1024*1024);
 	m_socket->set(zmq::sockopt::sndtimeo, 10*1000);
 	// m_socket->set(zmq::sockopt::tos, 0);
 
@@ -54,7 +54,14 @@ int main()
 		for(size_t i = 0; i < rcv_msgs.size(); i++)
 		{
 			// std::cout << "\tPart " << i << ": " << std::string(rcv_msgs[i].data<char>(), rcv_msgs[i].size());
-			std::cout << "\tPart " << i << ": " << rcv_msgs[i].to_string_view();
+			if(i < 2)
+			{
+				std::cout << "\tPart " << i << ": " << rcv_msgs[i].to_string_view();
+			}
+			else
+			{
+				std::cout << "\tPart " << i << " is " << rcv_msgs[i].to_string_view().size() << " long";	
+			}
 			std::cout << std::endl;
 		}
 	}
