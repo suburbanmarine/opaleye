@@ -11,8 +11,13 @@
 
 	<zeromq>
 		<launch>false</launch>
-		<endpoint>tcp://*:50000</endpoint>
+		<endpoint>tcp://0.0.0.0:51000</endpoint>
+		<endpoint>ipc:///opaleye/feeds/0</endpoint>
 	</zeromq>
+
+	<fcgi>
+		<endpoint>127.0.0.1:50000</endpoint>
+	</fcgi>
 
 	<cameras>
 

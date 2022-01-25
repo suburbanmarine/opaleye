@@ -44,7 +44,7 @@ bool http_fcgi_work_thread::init(http_fcgi_svr* svr, int sock_fd)
 
 void http_fcgi_work_thread::work()
 {
-  SPDLOG_INFO("thread starting: {}", m_thread.get_id());
+  SPDLOG_INFO("thread starting: {}", std::this_thread::get_id());
 
   FCGX_Request request;
   memset(&request, 0, sizeof(FCGX_Request));
@@ -58,7 +58,7 @@ void http_fcgi_work_thread::work()
       //check if running
       if( is_interrupted() )
       {
-        SPDLOG_INFO("interruption requested: {}", m_thread.get_id());
+        SPDLOG_INFO("interruption requested: {}", std::this_thread::get_id());
 
         const char msg[]     = "Internal Error";
         const char msg_len = sizeof(msg) - 1;
@@ -201,5 +201,5 @@ void http_fcgi_work_thread::work()
 
   FCGX_Free(&request, m_sock_fd);
 
-  SPDLOG_INFO("thread stoppping: {}", m_thread.get_id());
+  SPDLOG_INFO("thread stoppping: {}", std::this_thread::get_id());
 }

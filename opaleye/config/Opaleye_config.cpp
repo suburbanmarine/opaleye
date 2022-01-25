@@ -118,7 +118,7 @@ bool app_config::make_default()
 
 	zeromq_launch = "true";
 	zeromq_ep.clear();
-	zeromq_ep.push_back("tcp://*:50000");
+	zeromq_ep.push_back("tcp://0.0.0.0:51000");
 	zeromq_ep.push_back("ipc:///opaleye/feeds/0");
 
 	camera_config cfg;
