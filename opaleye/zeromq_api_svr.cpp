@@ -43,8 +43,8 @@ bool zeromq_api_svr::init(const std::list<std::string>& ep)
 	m_pub_socket->set(zmq::sockopt::linger, 0);
 	m_pub_socket->set(zmq::sockopt::maxmsgsize, int64_t(25LL*1024LL*1024LL));
 	m_pub_socket->set(zmq::sockopt::multicast_hops, 1);
-	m_socket->set(zmq::sockopt::rcvbuf, 50*1024*1024);
-	m_socket->set(zmq::sockopt::rcvtimeo, 10*1000);
+	m_pub_socket->set(zmq::sockopt::rcvbuf, 50*1024*1024);
+	m_pub_socket->set(zmq::sockopt::rcvtimeo, 10*1000);
 	m_pub_socket->set(zmq::sockopt::sndbuf, 50*1024*1024);
 	m_pub_socket->set(zmq::sockopt::sndtimeo, 10*1000);
 	// m_socket->set(zmq::sockopt::tos, 0);
