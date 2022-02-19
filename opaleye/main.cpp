@@ -6,6 +6,7 @@
 
 #include "http-bridge/http_fcgi_svr.hpp"
 #include "http-bridge/http_req_callback_file.hpp"
+
 #include "http_req_callback_sensors.hpp"
 #include "http_req_jpeg.hpp"
 #include "http_req_jsonrpc.hpp"
