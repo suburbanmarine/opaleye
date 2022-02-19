@@ -179,7 +179,11 @@ int main(int argc, char* argv[])
 	fcgi_svr.register_cb_for_doc_uri("/api/v1/sensor_types/", sensor_cb);
 
 	SPDLOG_INFO("Starting fcgi connection");
-	fcgi_svr.start();
+	{
+		const char bind_addr[] = "127.0.0.1:50000";
+		const size_t num_threads = 4;
+		fcgi_svr.start(bind_addr, num_threads);
+	}
 
 	// test_app_mjpeg app;
 	Opaleye_app app;

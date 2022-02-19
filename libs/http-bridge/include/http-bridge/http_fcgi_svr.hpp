@@ -42,7 +42,7 @@ public:
 
   ~http_fcgi_svr();
 
-  bool start();
+  bool start(const char* bind_addr, const size_t num_threads);
 
   bool stop();
 
