@@ -19,7 +19,7 @@ target_link_libraries(opaleye-util
 
 target_include_directories(opaleye-util
 	PUBLIC
-		${CMAKE_CURRENT_SOURCE_DIR}
+		include
 )
 
 add_executable(opaleye-util-tests

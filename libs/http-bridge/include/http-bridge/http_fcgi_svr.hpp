@@ -9,7 +9,7 @@
 #include "http-bridge/http_req_callback_base.hpp"
 #include "http-bridge/http_fcgi_work_thread.hpp"
 
-#include "path/Directory_tree.hpp"
+#include "opaleye-util/path/Directory_tree.hpp"
 
 #define NO_FCGI_DEFINES 1
 #include <fcgi_config.h>

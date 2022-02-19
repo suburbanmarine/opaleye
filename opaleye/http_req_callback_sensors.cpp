@@ -11,12 +11,9 @@
 
 #include "linux_thermal_zone.hpp"
 
-#include "Ptree_util.hpp"
-
-#include <Unit_conv.hpp>
-
-
-#include "path/Path_util.hpp"
+#include "opaleye-util/Ptree_util.hpp"
+#include <opaleye-util/Unit_conv.hpp>
+#include "opaleye-util/path/Path_util.hpp"
 
 #include <boost/filesystem/path.hpp>
 

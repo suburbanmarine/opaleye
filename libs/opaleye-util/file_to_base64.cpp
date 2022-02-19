@@ -1,4 +1,4 @@
-#include "file_to_base64.hpp"
+#include "opaleye-util/file_to_base64.hpp"
 
 #include <b64/cencode.h>
 
