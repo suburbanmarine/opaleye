@@ -5,8 +5,9 @@
 */
 
 #include "http_req_callback_sensors.hpp"
-#include "http_req_util.hpp"
-#include "http_util.hpp"
+#include "http-bridge/http_req_util.hpp"
+#include "http-bridge/http_util.hpp"
+#include "http-bridge/http_common.hpp"
 
 #include "linux_thermal_zone.hpp"
 
@@ -14,7 +15,6 @@
 
 #include <Unit_conv.hpp>
 
-#include "http_common.hpp"
 
 #include "path/Path_util.hpp"
 

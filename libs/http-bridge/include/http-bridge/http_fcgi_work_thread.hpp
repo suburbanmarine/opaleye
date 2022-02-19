@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "http_fcgi_svr_fwd.hpp"
+#include "http-bridge/http_fcgi_svr_fwd.hpp"
 
 #include "thread_base.hpp"
 

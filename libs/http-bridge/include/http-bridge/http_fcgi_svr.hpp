@@ -6,8 +6,8 @@
 
 #pragma once
 
-#include "http_req_callback_base.hpp"
-#include "http_fcgi_work_thread.hpp"
+#include "http-bridge/http_req_callback_base.hpp"
+#include "http-bridge/http_fcgi_work_thread.hpp"
 
 #include "path/Directory_tree.hpp"
 

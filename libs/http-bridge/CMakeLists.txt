@@ -23,7 +23,7 @@ target_link_libraries(http-bridge
 target_include_directories(http-bridge
 	PUBLIC
 		include
-		${CMAKE_CURRENT_SOURCE_DIR}
+		${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 target_compile_options(http-bridge

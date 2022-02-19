@@ -4,9 +4,9 @@
  * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
 */
 
-#include "http_fcgi_work_thread.hpp"
+#include "http-bridge/http_fcgi_work_thread.hpp"
 
-#include "http_fcgi_svr.hpp"
+#include "http-bridge/http_fcgi_svr.hpp"
 
 #define NO_FCGI_DEFINES 1
 #include <fcgi_config.h>
