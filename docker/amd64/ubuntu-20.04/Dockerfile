@@ -50,6 +50,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
 	libgstrtspserver-1.0-dev \ 
 	libi2c-dev \ 
 	liblockfile-dev \ 
+	libopencv-dev \ 
 	libopencv-contrib-dev \ 
 	libopencv-core-dev \ 
 	libopencv-imgcodecs-dev \ 
