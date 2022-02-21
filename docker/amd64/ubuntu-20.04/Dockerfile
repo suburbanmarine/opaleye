@@ -12,6 +12,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
 	cmake                \
 	git                  \
 	rsync                \
+	software-properties-common \ 
 	&& apt-get clean
 
 RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin -O /etc/apt/preferences.d/cuda-repository-pin-600
