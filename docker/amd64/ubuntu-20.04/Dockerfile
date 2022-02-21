@@ -21,7 +21,7 @@ RUN add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/r
 
 
 RUN echo "deb https://repo.download.nvidia.com/jetson/common r32.2 main" >> /etc/apt/sources.list.d/jetson-multimedia.repo
-RUN echo "deb https://repo.download.nvidia.com/jetson/t194 r32.2 main" >> /etc/apt/sources.list.d/jetson-multimedia.list
+# RUN echo "deb https://repo.download.nvidia.com/jetson/t194 r32.2 main" >> /etc/apt/sources.list.d/jetson-multimedia.list
 
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \ 
