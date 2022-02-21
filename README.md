@@ -109,13 +109,13 @@ Opaleye depends on a number of external components.
  - git
  - grunt
  - gtk-doc-tools
+ - gtk-doc-tools
  - lm-sensors
  - node-grunt-cli
  - nodejs
  - npm
  - openssh-client
  - openssh-server
- - gtk-doc-tools
 
 ### Libraries
  - googletest
@@ -139,6 +139,7 @@ Opaleye depends on a number of external components.
  - libprotobuf-dev
  - libprotoc-dev
  - libuvc-dev
+ - libzmq3-dev
  - nvidia-jetpack
  - nvidia-l4t-jetson-multimedia-api
  - nvidia-l4t-multimedia
