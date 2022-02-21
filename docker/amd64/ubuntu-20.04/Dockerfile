@@ -2,6 +2,13 @@ FROM ubuntu:20.04
 
 RUN echo "Acquire::http::Proxy \"http://helios10g.lan:3142\";" > /etc/apt/apt.conf.d/02proxy
 
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \ 
+	build-essential      \
+	wget                 \
+	cmake                \
+	git                  \
+	rsync                \
+	&& apt-get clean
 
 RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin -O /etc/apt/preferences.d/cuda-repository-pin-600
 RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub
@@ -15,12 +22,10 @@ RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update && apt-get install 
 	tzdata               \ 
 	&& apt-get clean
 
+
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \ 
-	build-essential      \
-	cmake                \
 	device-tree-compiler \
 	gdb                  \
-	git                  \
 	grunt                \
 	gtk-doc-tools        \
 	lm-sensors           \
