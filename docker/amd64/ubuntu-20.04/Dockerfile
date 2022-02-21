@@ -60,10 +60,10 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
 	libprotoc-dev \ 
 	libuvc-dev \ 
 	libzmq3-dev \ 
-	nvidia-jetpack \ 
-	nvidia-l4t-jetson-multimedia-api \ 
-	nvidia-l4t-multimedia \ 
-	nvidia-l4t-multimedia-utils \ 
+	# nvidia-jetpack \ 
+	# nvidia-l4t-jetson-multimedia-api \ 
+	# nvidia-l4t-multimedia \ 
+	# nvidia-l4t-multimedia-utils \ 
 	protobuf-c-compiler \ 
 	protobuf-compiler \ 
 	protobuf-compiler-grpc \ 
