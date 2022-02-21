@@ -1,6 +1,6 @@
 FROM ubuntu:20.04
 
-# RUN echo "Acquire::http::Proxy \"http://helios.lan:3142\";" > /etc/apt/apt.conf.d/02proxy
+RUN echo "Acquire::http::Proxy \"http://helios10g.lan:3142\";" > /etc/apt/apt.conf.d/02proxy
 
 
 # wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
