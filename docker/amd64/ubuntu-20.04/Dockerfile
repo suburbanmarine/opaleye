@@ -11,7 +11,7 @@ FROM ubuntu:20.04
 # apt-get -y install cuda
 
 RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update && apt-get install -y \ 
-	tzdata
+	tzdata               \ 
 	&& apt-get clean
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \ 
