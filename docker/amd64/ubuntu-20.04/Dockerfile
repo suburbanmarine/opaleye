@@ -20,8 +20,8 @@ RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/
 RUN add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /"
 
 
-RUN echo "deb https://repo.download.nvidia.com/jetson/common r32.2 main" >> /etc/apt/apt.sources.d/jetson.repo
-RUN echo "deb https://repo.download.nvidia.com/jetson/t194 r32.2 main" >> /etc/apt/apt.sources.d/jetson.repo
+RUN echo "deb https://repo.download.nvidia.com/jetson/common r32.2 main" >> /etc/apt/sources.list.d/jetson.repo
+RUN echo "deb https://repo.download.nvidia.com/jetson/t194 r32.2 main" >> /etc/apt/sources.list.d/jetson.repo
 
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \ 
