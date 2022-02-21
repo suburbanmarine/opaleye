@@ -81,8 +81,11 @@ RUN apt-get update && apt-get install -y \
 	libgstrtspserver-1.0-dev  \
 	&& apt-get clean
 
-RUN git clone https://github.com/suburbanmarine/opaleye
+RUN git clone https://github.com/suburbanmarine/opaleye && \
+	git submodule update --init --recursive 
 
 WORKDIR opaleye
-
 RUN ./generate_cmake_x86.sh
+
+WORKDIR opaleye/build/debug
+RUN make -j`nproc`
