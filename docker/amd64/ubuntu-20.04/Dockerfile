@@ -2,6 +2,10 @@ FROM ubuntu:20.04
 
 RUN echo "Acquire::http::Proxy \"http://helios10g.lan:3142\";" > /etc/apt/apt.conf.d/02proxy
 
+RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update && apt-get install -y \ 
+	tzdata               \ 
+	&& apt-get clean
+
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \ 
 	build-essential      \
 	wget                 \
@@ -17,10 +21,6 @@ RUN add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/r
 
 RUN echo "deb https://repo.download.nvidia.com/jetson/common r32.2 main" >> /etc/apt/apt.sources.d/jetson.repo
 RUN echo "deb https://repo.download.nvidia.com/jetson/t194 r32.2 main" >> /etc/apt/apt.sources.d/jetson.repo
-
-RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update && apt-get install -y \ 
-	tzdata               \ 
-	&& apt-get clean
 
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \ 
