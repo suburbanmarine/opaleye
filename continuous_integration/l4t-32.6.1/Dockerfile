@@ -2,17 +2,14 @@ FROM nvcr.io/nvidia/l4t-base:r32.6.1
 
 # RUN echo "Acquire::http::Proxy \"http://helios10g.lan:3142\";" > /etc/apt/apt.conf.d/02proxy
 
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y \ 
-	tzdata               \ 
-	&& apt-get clean
-
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \ 
 	build-essential      \
-	wget                 \
 	cmake                \
 	git                  \
 	rsync                \
 	software-properties-common \ 
+	tzdata               \ 
+	wget                 \
 	&& apt-get clean
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \ 
@@ -65,12 +62,12 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 #	gstreamer1.0-plugins-rtp         \
 	&& apt-get clean
 
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \ 
-	nvidia-jetpack                   \ 
-	nvidia-l4t-jetson-multimedia-api \ 
-	nvidia-l4t-multimedia            \ 
-	nvidia-l4t-multimedia-utils      \ 
-	&& apt-get clean
+# RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \ 
+# 	nvidia-jetpack                   \ 
+# 	nvidia-l4t-jetson-multimedia-api \ 
+# 	nvidia-l4t-multimedia            \ 
+# 	nvidia-l4t-multimedia-utils      \ 
+# 	&& apt-get clean
 
 WORKDIR /root
 RUN git clone https://github.com/suburbanmarine/opaleye
