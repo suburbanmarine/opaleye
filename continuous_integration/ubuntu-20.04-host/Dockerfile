@@ -3,11 +3,11 @@ FROM ubuntu:20.04
 # RUN echo "Acquire::http::Proxy \"http://helios10g.lan:3142\";" > /etc/apt/apt.conf.d/02proxy
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \ 
-	gdebi \ 
-	git   \ 
-	rsync \ 
+	gdebi  \ 
+	git    \ 
+	rsync  \ 
 	tzdata \ 
-	wget  \ 
+	wget   \ 
 	&& apt-get clean
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \ 
@@ -15,8 +15,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 	valgrind \ 
 	&& apt-get clean
 
-WORKDIR /root
-RUN git clone https://github.com/suburbanmarine/opaleye
+COPY opaleye-*.deb /root
 
-WORKDIR /root/opaleye
+WORKDIR /root
 RUN gdebi -n opaleye-*.deb
