@@ -10,6 +10,7 @@ on:
   pull_request:
     branches:
       - '**'
+
 env:
   DOCKER_REPO: docker.pkg.github.com/suburbanmarine/opaleye/opaleye-ci
 
@@ -18,8 +19,8 @@ jobs:
 
     if: github.event_name == 'push' || github.event_name == 'pull_request'
 
-    # runs-on: ubuntu-18.04
-    runs-on: self-hosted
+    runs-on: ubuntu-18.04
+    # runs-on: self-hosted
     timeout-minutes: 30
 
     steps:
@@ -47,7 +48,7 @@ jobs:
       run: docker push $DOCKER_REPO:${GITHUB_REF##*/}
 
     - name: build
-      run: $GITHUB_WORKSPACE/scripts/build_ci.sh
+      run: ${{ github.workspace }}/scripts/build_ci.sh
 
     - name: Upload debug artifacts
       uses: actions/upload-artifact@v2
@@ -69,8 +70,8 @@ jobs:
 
   release:
 
-    # runs-on: ubuntu-18.04
-    runs-on: self-hosted
+    runs-on: ubuntu-18.04
+    # runs-on: self-hosted
     timeout-minutes: 30
     
     needs: build
