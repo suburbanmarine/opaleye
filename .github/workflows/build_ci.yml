@@ -54,16 +54,18 @@ jobs:
       with:
         name: opaleye-debug
         path: |
-          ${{ github.workspace }}/opaleye-*.deb
-          ${{ github.workspace }}/sha256.txt
+          ${{ github.workspace }}/build/debug/opaleye-*.deb
+          ${{ github.workspace }}/build/debug/opaleye-*.tar.gz
+          ${{ github.workspace }}/build/debug/sha256.txt
 
     - name: Upload release artifacts
       uses: actions/upload-artifact@v2
       with:
         name: opaleye-release
         path: |
-          ${{ github.workspace }}/opaleye-*.deb
-          ${{ github.workspace }}/sha256.txt
+          ${{ github.workspace }}/build/release/opaleye-*.deb
+          ${{ github.workspace }}/build/release/opaleye-*.tar.gz
+          ${{ github.workspace }}/build/release/sha256.txt
 
   release:
 
