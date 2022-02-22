@@ -51,14 +51,26 @@ jobs:
     - name: Upload debug artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: hadoucan-fw-debug
-        path: ${{ github.workspace }}/hadoucan-fw-debug-${{ github.sha }}.tar.gz
+        name: opaleye-debug
+        path: ${{ github.workspace }}/opaleye-*.deb
+
+    - name: Upload debug artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: opaleye-debug
+        path: ${{ github.workspace }}/sha256.txt
 
     - name: Upload release artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: hadoucan-fw-release
-        path: ${{ github.workspace }}/hadoucan-fw-release-${{ github.sha }}.tar.gz
+        name: opaleye-release
+        path: ${{ github.workspace }}/opaleye-*.deb
+
+    - name: Upload release artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: opaleye-release
+        path: ${{ github.workspace }}/sha256.txt
 
   release:
 
@@ -73,14 +85,14 @@ jobs:
     - name: Get artifact
       uses: actions/download-artifact@v2
       with:
-        name: hadoucan-fw-release
-        path: ${{ github.workspace }}/hadoucan-fw-release-${{ github.sha }}.tar.gz
+        name: opaleye-release
+        path: ${{ github.workspace }}/opaleye-release-${{ github.sha }}.tar.gz
 
     - name: Mangle name
-      run: mv hadoucan-fw-release-${{ github.sha }}.tar.gz hadoucan-fw-release-${{ github.sha }}-${{ github.event.ref }}.tar.gz
+      run: mv opaleye-release-${{ github.sha }}.tar.gz opaleye-release-${{ github.sha }}-${{ github.event.ref }}.tar.gz
 
     - name: Upload release artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: hadoucan-fw-release
-        path: ${{ github.workspace }}/hadoucan-fw-release-${{ github.sha }}-${{ github.event.ref }}.tar.gz
+        name: opaleye-release
+        path: ${{ github.workspace }}/opaleye-release-${{ github.sha }}-${{ github.event.ref }}.tar.gz
