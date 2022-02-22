@@ -38,54 +38,54 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
 
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \ 
-	googletest \ 
-	i2c-tools \ 
-	libboost-all-dev \ 
-	libfcgi-dev \ 
-	libgpiod-dev \ 
-	libgrpc++-dev \ 
-	libgrpc-dev \ 
-	libgstreamer1.0-dev \ 
-	libgstreamermm-1.0-dev \ 
-	libgstrtspserver-1.0-dev \ 
-	libi2c-dev \ 
-	liblockfile-dev \ 
-	libopencv-dev \ 
-	libopencv-contrib-dev \ 
-	libopencv-core-dev \ 
-	libopencv-imgcodecs-dev \ 
-	libopencv-imgproc-dev \ 
-	libopencv-video-dev \ 
-	libprotobuf-c-dev \ 
-	libprotobuf-dev \ 
-	libprotoc-dev \ 
-	libuvc-dev \ 
-	libzmq3-dev \ 
-	# nvidia-jetpack \ 
-	# nvidia-l4t-jetson-multimedia-api \ 
-	# nvidia-l4t-multimedia \ 
-	# nvidia-l4t-multimedia-utils \ 
-	protobuf-c-compiler \ 
-	protobuf-compiler \ 
+	googletest             \ 
+	i2c-tools              \ 
+	libboost-all-dev       \ 
+	libfcgi-dev            \ 
+	libgpiod-dev           \ 
+	libgrpc++-dev          \ 
+	libgrpc-dev            \ 
+	libi2c-dev             \ 
+	liblockfile-dev        \ 
+	libprotobuf-c-dev      \ 
+	libprotobuf-dev        \ 
+	libprotoc-dev          \ 
+	libuvc-dev             \ 
+	libzmq3-dev            \ 
+	protobuf-c-compiler    \ 
+	protobuf-compiler      \ 
 	protobuf-compiler-grpc \ 
-	rapidjson-dev \ 
+	rapidjson-dev          \ 
 	&& apt-get clean
 
 RUN apt-get update && apt-get install -y \ 
-	gstreamer1.0-libav        \
-	gstreamer1.0-plugins-bad  \
-	gstreamer1.0-plugins-ugly \
-#	gstreamer1.0-plugins-rtp  \
-	gstreamer1.0-rtsp         \
-	libgstreamermm-1.0-dev    \
-	libgstrtspserver-1.0-dev  \
+#	nvidia-jetpack \ 
+#	nvidia-l4t-jetson-multimedia-api \ 
+#	nvidia-l4t-multimedia            \ 
+#	nvidia-l4t-multimedia-utils      \ 
+	gstreamer1.0-libav               \ 
+	gstreamer1.0-plugins-bad         \ 
+	gstreamer1.0-plugins-ugly        \ 
+	gstreamer1.0-rtsp                \ 
+	libgstreamer1.0-dev              \ 
+	libgstreamermm-1.0-dev           \ 
+	libgstrtspserver-1.0-dev         \ 
+	libopencv-contrib-dev            \ 
+	libopencv-core-dev               \ 
+	libopencv-dev                    \ 
+	libopencv-imgcodecs-dev          \ 
+	libopencv-imgproc-dev            \ 
+	libopencv-video-dev              \ 
+#	gstreamer1.0-plugins-rtp         \
 	&& apt-get clean
 
+WORKDIR /root
 RUN git clone https://github.com/suburbanmarine/opaleye
 
-WORKDIR opaleye
+WORKDIR /root/opaleye
+RUN git checkout docker_build
 RUN git submodule update --init --recursive
 RUN ./generate_cmake_x86.sh
 
-WORKDIR opaleye/build/debug
+WORKDIR /root/opaleye/build/debug
 RUN make -j`nproc`
