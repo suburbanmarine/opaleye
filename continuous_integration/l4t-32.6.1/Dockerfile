@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM nvcr.io/nvidia/l4t-base:r32.6.1
 
 # RUN echo "Acquire::http::Proxy \"http://helios10g.lan:3142\";" > /etc/apt/apt.conf.d/02proxy
 
@@ -15,16 +15,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 	software-properties-common \ 
 	&& apt-get clean
 
-RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin -O /etc/apt/preferences.d/cuda-repository-pin-600
-RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub
-RUN add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /"
-
-
-RUN echo "deb https://repo.download.nvidia.com/jetson/common r32.2 main" >> /etc/apt/sources.list.d/jetson-multimedia.repo
-# RUN echo "deb https://repo.download.nvidia.com/jetson/t194 r32.2 main" >> /etc/apt/sources.list.d/jetson-multimedia.list
-
-
-UN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \ 
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \ 
 	device-tree-compiler \
 	gdb                  \
 	grunt                \
@@ -74,13 +65,20 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 #	gstreamer1.0-plugins-rtp         \
 	&& apt-get clean
 
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \ 
+	nvidia-jetpack                   \ 
+	nvidia-l4t-jetson-multimedia-api \ 
+	nvidia-l4t-multimedia            \ 
+	nvidia-l4t-multimedia-utils      \ 
+	&& apt-get clean
+
 WORKDIR /root
 RUN git clone https://github.com/suburbanmarine/opaleye
 
 WORKDIR /root/opaleye
 RUN git checkout docker_build
 RUN git submodule update --init --recursive
-RUN ./generate_cmake_x86.sh
+RUN ./generate_cmake_xaviernx.sh
 
 WORKDIR /root/opaleye/build/debug
 RUN make -j`nproc`
