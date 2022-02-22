@@ -47,7 +47,7 @@ jobs:
       run: docker push $DOCKER_REPO:${GITHUB_REF##*/}
 
     - name: build
-      run: ./scripts/build_ci.sh
+      run: $GITHUB_WORKSPACE/scripts/build_ci.sh
 
     - name: Upload debug artifacts
       uses: actions/upload-artifact@v2
