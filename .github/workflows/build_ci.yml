@@ -37,10 +37,10 @@ jobs:
       run: docker pull $DOCKER_REPO:${GITHUB_REF##*/} || true
 
     - name: build container
-      run: docker build --cache-from $DOCKER_REPO:master --cache-from $DOCKER_REPO:${GITHUB_REF##*/} continuous_integration/build --file continuous_integration/build/Dockerfile --tag hadoucan-fw-tools
+      run: docker build --cache-from $DOCKER_REPO:master --cache-from $DOCKER_REPO:${GITHUB_REF##*/} continuous_integration/ubuntu-20.04 --file continuous_integration/ubuntu-20.04/Dockerfile --tag opaleye-ci-ubu-20.04
 
     - name: tag container
-      run: docker tag hadoucan-fw-tools $DOCKER_REPO:${GITHUB_REF##*/}
+      run: docker tag opaleye-ci-ubu-20.04 $DOCKER_REPO:${GITHUB_REF##*/}
 
     - name: push container
       run: docker push $DOCKER_REPO:${GITHUB_REF##*/}
