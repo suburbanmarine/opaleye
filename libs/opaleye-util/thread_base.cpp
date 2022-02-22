@@ -1,4 +1,4 @@
-#include "thread_base.hpp"
+#include "opaleye-util/thread_base.hpp"
 
 #include <spdlog/spdlog.h>
 

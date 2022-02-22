@@ -12,7 +12,7 @@
 
 #include "pipeline/GST_element_base.hpp"
 
-#include "errno_util.hpp"
+#include "opaleye-util/errno_util.hpp"
 
 #include <gstreamermm/caps.h>
 #include <gstreamermm/capsfilter.h>

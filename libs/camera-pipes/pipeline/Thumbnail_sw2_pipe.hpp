@@ -11,7 +11,7 @@
 #include "pipeline/GST_element_base.hpp"
 #include "Thumbnail_sw_pipe.hpp"
 
-#include "Stopwatch.hpp"
+#include "opaleye-util/Stopwatch.hpp"
 
 #include <spdlog/spdlog.h>
 

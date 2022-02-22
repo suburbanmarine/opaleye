@@ -4,7 +4,7 @@
  * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
 */
 
-#include "http_fcgi_svr.hpp"
+#include "http-bridge/http_fcgi_svr.hpp"
 
 #include <spdlog/spdlog.h>
 
@@ -21,11 +21,10 @@ http_fcgi_svr::~http_fcgi_svr()
   }
 }
 
-bool http_fcgi_svr::start()
+bool http_fcgi_svr::start(const char* bind_addr, const size_t num_threads)
 {
   SPDLOG_INFO("Starting server");
 
-  const char bind_addr[] = "127.0.0.1:50000";
   SPDLOG_INFO("Binding to {:s}", bind_addr);
   m_sock_fd = FCGX_OpenSocket(bind_addr, 1024);
 
@@ -39,7 +38,7 @@ bool http_fcgi_svr::start()
   FCGX_Init();
 
   SPDLOG_INFO("Staring threads");
-  m_thread_pool.resize(4);
+  m_thread_pool.resize(num_threads);
   for(size_t i = 0; i < m_thread_pool.size(); i++)
   {
     m_thread_pool[i] = std::make_shared<http_fcgi_work_thread>();

@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <http_common.hpp>
+#include <http-bridge/http_common.hpp>
 
 #define NO_FCGI_DEFINES 1
 #include <fcgi_config.h>

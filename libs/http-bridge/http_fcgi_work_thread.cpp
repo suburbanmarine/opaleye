@@ -4,9 +4,9 @@
  * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
 */
 
-#include "http_fcgi_work_thread.hpp"
+#include "http-bridge/http_fcgi_work_thread.hpp"
 
-#include "http_fcgi_svr.hpp"
+#include "http-bridge/http_fcgi_svr.hpp"
 
 #define NO_FCGI_DEFINES 1
 #include <fcgi_config.h>
@@ -142,47 +142,6 @@ void http_fcgi_work_thread::work()
           FCGX_FPrintF(request.out, "%s", msg);
           FCGX_Finish_r(&request);
         }
-
-        // std::cout << std::endl << std::endl;
-        // std::stringstream buf;
-        //       buf << "Content-type: text/html\r\n"
-        //           << "\r\n"
-        //           << "<html>\n"
-        //           << "  <head>\n"
-        //           << "    <title>Hello, World!</title>\n"
-        //           << "  </head>\n"
-        //           << "  <body>\n"
-        //           << "    <h1>Hello, World!</h1>\n"
-        //           << "  </body>\n"
-        //           << "</html>\n";
-      
-        // FCGX_FPrintF(request.out, "%s", buf.str().c_str());
-
-        // FCGX_FPrintF(request.out, "%s", "Content-type: image/jpeg\n");
-        // FCGX_FPrintF(request.out, "%s", "Content-length: 37321\n");
-        // FCGX_FPrintF(request.out, "%s", "\n");
-
-        // FILE* f = fopen("/home/rounin/image-19.jpg", "r");
-        // if(f)
-        // {
-        //   std::array<char, 4096> buf;
-        //   size_t read_ret;
-        //   do
-        //   {
-        //     read_ret = fread(buf.data(), 1, buf.size(), f);
-        //     if(read_ret > 0)
-        //     {
-        //       FCGX_PutStr(buf.data(), read_ret, request.out);
-        //     }
-        //   } while(read_ret > 0);
-
-        //   fclose(f);
-        // }
-        // else
-        // {
-        //   std::cout << "no file" << std::endl;  
-        // }
-
       }
       else
       {

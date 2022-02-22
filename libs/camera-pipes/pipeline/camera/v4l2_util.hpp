@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "errno_util.hpp"
+#include "opaleye-util/errno_util.hpp"
 
 #include <linux/v4l2-controls.h>
 #include <linux/videodev2.h>

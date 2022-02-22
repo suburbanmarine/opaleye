@@ -1,0 +1,95 @@
+name: Opaleye CI
+
+on: 
+  create:
+    tags:
+      - '**'
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+env:
+  DOCKER_REPO: docker.pkg.github.com/suburbanmarine/opaleye/opaleye-ci
+
+jobs:
+  build:
+
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+
+    runs-on: ubuntu-18.04
+    # runs-on: self-hosted
+    timeout-minutes: 30
+
+    steps:
+    - name: clone
+      uses: actions/checkout@v2
+      with:
+        submodules: true
+
+    - name: login to docker.pkg.github.com
+      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+
+    - name: fetch container master
+      run: docker pull $DOCKER_REPO:master || true
+
+    - name: fetch container for branch
+      run: docker pull $DOCKER_REPO:${GITHUB_REF##*/} || true
+
+    - name: build container
+      run: docker build --cache-from $DOCKER_REPO:master --cache-from $DOCKER_REPO:${GITHUB_REF##*/} continuous_integration/ubuntu-20.04 --file continuous_integration/ubuntu-20.04/Dockerfile --tag opaleye-ci-ubu-20.04
+
+    - name: tag container
+      run: docker tag opaleye-ci-ubu-20.04 $DOCKER_REPO:${GITHUB_REF##*/}
+
+    - name: push container
+      run: docker push $DOCKER_REPO:${GITHUB_REF##*/}
+
+    - name: build
+      run: ${{ github.workspace }}/scripts/build_ci.sh
+
+    - name: Upload debug artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: opaleye-debug
+        path: |
+          ${{ github.workspace }}/build/debug/opaleye-*.deb
+          ${{ github.workspace }}/build/debug/opaleye-*.tar.gz
+          ${{ github.workspace }}/build/debug/sha256.txt
+
+    - name: Upload release artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: opaleye-release
+        path: |
+          ${{ github.workspace }}/build/release/opaleye-*.deb
+          ${{ github.workspace }}/build/release/opaleye-*.tar.gz
+          ${{ github.workspace }}/build/release/sha256.txt
+
+  release:
+
+    runs-on: ubuntu-18.04
+    # runs-on: self-hosted
+    timeout-minutes: 30
+    
+    needs: build
+
+    if: github.event_name == 'create' && github.event.ref_type == 'tag'
+    
+    steps:
+    - name: Get artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: opaleye-release
+        path: ${{ github.workspace }}/opaleye-release-${{ github.sha }}.tar.gz
+
+    - name: Mangle name
+      run: mv opaleye-release-${{ github.sha }}.tar.gz opaleye-release-${{ github.sha }}-${{ github.event.ref }}.tar.gz
+
+    - name: Upload release artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: opaleye-release
+        path: ${{ github.workspace }}/opaleye-release-${{ github.sha }}-${{ github.event.ref }}.tar.gz

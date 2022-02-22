@@ -4,7 +4,7 @@
  * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
 */
 
-#include "errno_util.hpp"
+#include "opaleye-util/errno_util.hpp"
 
 #include <cstring>
 #include <errno.h>

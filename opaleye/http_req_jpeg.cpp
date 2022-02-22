@@ -5,10 +5,10 @@
 */
 
 #include "http_req_jpeg.hpp"
-#include "http_req_util.hpp"
-#include "http_util.hpp"
 
-#include "http_common.hpp"
+#include "http-bridge/http_req_util.hpp"
+#include "http-bridge/http_util.hpp"
+#include "http-bridge/http_common.hpp"
 
 #include <boost/filesystem/path.hpp>
 #include <boost/property_tree/ptree.hpp>

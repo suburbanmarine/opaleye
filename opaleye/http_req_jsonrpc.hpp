@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "http_req_callback_base.hpp"
+#include "http-bridge/http_req_callback_base.hpp"
 
 #include "pipeline/camera/Logitech_brio_pipe.hpp"
 
