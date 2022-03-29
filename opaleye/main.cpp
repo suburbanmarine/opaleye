@@ -111,45 +111,45 @@ int main(int argc, char* argv[])
 	}
 
 	{
-		if("none" == vm["config"].as<std::string>())
+		if("none" == vm["gst-log-level"].as<std::string>())
 		{
 			gst_debug_set_default_threshold(GST_LEVEL_NONE);
 		}
-		else if("error" == vm["config"].as<std::string>())
+		else if("error" == vm["gst-log-level"].as<std::string>())
 		{
 			gst_debug_set_default_threshold(GST_LEVEL_ERROR);
 		}
-		else if("warning" == vm["config"].as<std::string>())
+		else if("warning" == vm["gst-log-level"].as<std::string>())
 		{
 			gst_debug_set_default_threshold(GST_LEVEL_WARNING);
 		}
-		else if("fixme" == vm["config"].as<std::string>())
+		else if("fixme" == vm["gst-log-level"].as<std::string>())
 		{
 			gst_debug_set_default_threshold(GST_LEVEL_FIXME);
 		}
-		else if("info" == vm["config"].as<std::string>())
+		else if("info" == vm["gst-log-level"].as<std::string>())
 		{
 			gst_debug_set_default_threshold(GST_LEVEL_INFO);
 		}
-		else if("debug" == vm["config"].as<std::string>())
+		else if("debug" == vm["gst-log-level"].as<std::string>())
 		{
 			gst_debug_set_default_threshold(GST_LEVEL_DEBUG);
 		}
-		else if("log" == vm["config"].as<std::string>())
+		else if("log" == vm["gst-log-level"].as<std::string>())
 		{
 			gst_debug_set_default_threshold(GST_LEVEL_LOG);
 		}
-		else if("trace" == vm["config"].as<std::string>())
+		else if("trace" == vm["gst-log-level"].as<std::string>())
 		{
 			gst_debug_set_default_threshold(GST_LEVEL_TRACE);
 		}
-		else if("memdump" == vm["config"].as<std::string>())
+		else if("memdump" == vm["gst-log-level"].as<std::string>())
 		{
 			gst_debug_set_default_threshold(GST_LEVEL_MEMDUMP);
 		}
 		else
 		{
-			SPDLOG_ERROR("Unknown gst-log-level: {:s}", vm["config"].as<std::string>());
+			SPDLOG_ERROR("Unknown gst-log-level: {:s}", vm["gst-log-level"].as<std::string>());
 			return -1;
 		}
 	}
