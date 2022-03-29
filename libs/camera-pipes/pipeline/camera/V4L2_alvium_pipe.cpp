@@ -134,9 +134,20 @@ bool V4L2_alvium_pipe::init(const char name[])
   //init our internal bin and elements
   {
     m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
+    if(! m_bin )
+    {
+      SPDLOG_ERROR("Failed to create bin");
+      return false;
+    }
 
     //source
     m_src = Gst::ElementFactory::create_element("v4l2src", name);
+    if(! m_src )
+    {
+      SPDLOG_ERROR("Failed to create src");
+      return false;
+    }
+
     m_src->set_property("do-timestamp", true);
     m_src->set_property("is-live", true);
     m_src->set_property("device", Glib::ustring("/dev/video0"));
@@ -160,23 +171,27 @@ bool V4L2_alvium_pipe::init(const char name[])
       "height",             2056
     );
 
+    if(! m_src_caps )
+    {
+      SPDLOG_ERROR("Failed to create m_src_caps");
+    }
+
     m_in_capsfilter = Gst::CapsFilter::create("incaps");
+    if(! m_in_capsfilter )
+    {
+      SPDLOG_ERROR("Failed to create m_in_capsfilter");
+      return false;
+    }
+
     m_in_capsfilter->property_caps() = m_src_caps;
 
-    m_jpegparse    = Gst::ElementFactory::create_element("jpegparse");
-    
-    m_videorate    = Gst::ElementFactory::create_element("videorate");
-
-    m_out_caps = Gst::Caps::create_simple(
-      "image/jpeg",
-      "pixel-aspect-ratio", Gst::Fraction(1, 1),
-      "framerate",         Gst::Fraction(1000, 60)
-      );
-
-    m_out_capsfilter = Gst::CapsFilter::create("outcaps");
-    m_out_capsfilter->property_caps() = m_out_caps;
-
     m_in_queue     = Gst::Queue::create();
+    if(! m_in_queue )
+    {
+      SPDLOG_ERROR("Failed to create m_in_queue");
+      return false;
+    }
+
     // m_in_queue->set_property("leaky", Gst::QUEUE_LEAK_DOWNSTREAM);
     // m_in_queue->property_min_threshold_time()    = 0;
     // m_in_queue->property_min_threshold_buffers() = 0;
@@ -187,22 +202,21 @@ bool V4L2_alvium_pipe::init(const char name[])
 
     //output tee
     m_out_tee = Gst::Tee::create();
-
+    if(! m_out_tee )
+    {
+      SPDLOG_ERROR("Failed to create m_out_tee");
+      return false;
+    }
+    
     m_bin->add(m_src);
     m_bin->add(m_in_capsfilter);
-    // m_bin->add(m_jpegparse);
-    m_bin->add(m_videorate);
     m_bin->add(m_out_capsfilter);
     m_bin->add(m_in_queue);
     m_bin->add(m_out_tee);
   }
 
   m_src->link(m_in_capsfilter);
-  // m_in_capsfilter->link(m_jpegparse);
-  // m_jpegparse->link(m_videorate);
-  m_in_capsfilter->link(m_videorate);
-  m_videorate->link(m_out_capsfilter);
-  m_out_capsfilter->link(m_in_queue);
+  m_in_capsfilter->link(m_in_queue);
   m_in_queue->link(m_out_tee);
   
   // m_videoconvert->link(m_capsfilter);
