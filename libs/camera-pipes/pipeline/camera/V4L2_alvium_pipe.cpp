@@ -132,7 +132,7 @@ bool V4L2_alvium_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
   }
   catch(const std::exception& e)
   {
-    SPDLOG_ERROR("Failed to link back: %s", e.what());
+    SPDLOG_ERROR("Failed to link back: {:s}", e.what());
   }
   catch(...)
   {

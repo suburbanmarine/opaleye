@@ -149,7 +149,7 @@ int main(int argc, char* argv[])
 		}
 		else
 		{
-			SPDLOG_ERROR("Unknown gst-log-level: %s", vm["config"].as<std::string>());
+			SPDLOG_ERROR("Unknown gst-log-level: {:s}", vm["config"].as<std::string>());
 			return -1;
 		}
 	}
