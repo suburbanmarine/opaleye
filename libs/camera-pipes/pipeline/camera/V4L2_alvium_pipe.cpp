@@ -231,8 +231,5 @@ bool V4L2_alvium_pipe::init(const char name[])
   m_in_capsfilter->link(m_in_queue);
   m_in_queue->link(m_out_tee);
 
-  v4l2_probe();
-  get_property_description();
-
   return true;
 }
