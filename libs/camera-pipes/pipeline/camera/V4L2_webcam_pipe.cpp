@@ -862,8 +862,6 @@ bool V4L2_webcam_pipe::get_property_description()
 				return false;
 			}
 		}
-		
-		SPDLOG_ERROR("ok");
 
 		ext_ctrl_desc_array.GetArray().PushBack(ext_ctrl_desc, doc.GetAllocator());
 	}
