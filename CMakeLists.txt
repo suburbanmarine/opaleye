@@ -212,6 +212,6 @@ set(CPACK_INSTALL_PREFIX /opt/suburbanmarine/opaleye)
 set(CPACK_GENERATOR "DEB;TGZ")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "SM")
 set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${PROJECT_SOURCE_DIR}/scripts/preinst;${PROJECT_SOURCE_DIR}/scripts/postinst;${PROJECT_SOURCE_DIR}/scripts/prerm;${PROJECT_SOURCE_DIR}/scripts/postrm")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libgstreamer1.0-0, libgstreamer-plugins-base1.0-0, libgstreamer-plugins-good1.0-0, libgstreamer-plugins-bad1.0-0, libgstreamermm-1.0-1, libgstrtspserver-1.0-0, libfcgi0ldbl, liblockfile1, libprotobuf17, libprotobuf-c1, libprotoc17, libgrpc++1, libgrpc6, graphviz, libfcgi-bin, libi2c0, samba, googletest, v4l-utils, nginx-full")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libgstreamer1.0-0, libgstreamer-plugins-base1.0-0, libgstreamer-plugins-good1.0-0, libgstreamer-plugins-bad1.0-0, libgstreamermm-1.0-1, libgstrtspserver-1.0-0, libfcgi0ldbl, liblockfile1, libprotobuf, libprotobuf-c1, libprotoc, libgrpc++1, libgrpc6, graphviz, libfcgi-bin, libi2c0, samba, googletest, v4l-utils, nginx-full")
 include(CPack)
 
