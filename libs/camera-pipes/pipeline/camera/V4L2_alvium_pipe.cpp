@@ -177,12 +177,22 @@ bool V4L2_alvium_pipe::init(const char name[])
     //src caps
     m_src_caps = Gst::Caps::create_simple(
       "video/x-raw",
+      // "format","xRGB",
       "format","BGRx",
       "pixel-aspect-ratio", Gst::Fraction(1, 1),
       "framerate",          Gst::Fraction(16593, 1000),
       "width",              2464,
       "height",             2056
     );
+
+    // m_src_caps = Gst::Caps::create_simple(
+    //   "video/x-bayer",
+    //   "format","rggb",
+    //   "pixel-aspect-ratio", Gst::Fraction(1, 1),
+    //   "framerate",          Gst::Fraction(16593, 1000),
+    //   "width",              2464,
+    //   "height",             2056
+    // );
 
     if(! m_src_caps )
     {
