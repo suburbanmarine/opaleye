@@ -125,8 +125,17 @@ bool V4L2_alvium_pipe::link_front(const Glib::RefPtr<Gst::Element>& node)
 }
 bool V4L2_alvium_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
 {
-  m_out_tee->link(node);
-  return true;
+  try
+  {
+    m_out_tee->link(node);
+    return true;
+  }
+  catch(const std::exception& e)
+  {
+    SPDLOG_ERROR("Failed to link back: %s", e.what());
+  }
+
+  return false;
 }
 
 bool V4L2_alvium_pipe::init(const char name[])
