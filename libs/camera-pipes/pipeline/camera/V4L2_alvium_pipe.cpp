@@ -207,10 +207,9 @@ bool V4L2_alvium_pipe::init(const char name[])
       SPDLOG_ERROR("Failed to create m_out_tee");
       return false;
     }
-    
+
     m_bin->add(m_src);
     m_bin->add(m_in_capsfilter);
-    m_bin->add(m_out_capsfilter);
     m_bin->add(m_in_queue);
     m_bin->add(m_out_tee);
   }
@@ -218,9 +217,6 @@ bool V4L2_alvium_pipe::init(const char name[])
   m_src->link(m_in_capsfilter);
   m_in_capsfilter->link(m_in_queue);
   m_in_queue->link(m_out_tee);
-  
-  // m_videoconvert->link(m_capsfilter);
-  // m_capsfilter->link(m_out_queue);
 
   return true;
 }
