@@ -63,9 +63,6 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	gst_debug_set_default_threshold(GST_LEVEL_INFO);
-	// gst_debug_set_default_threshold(GST_LEVEL_TRACE);
-
 	//spdlog init
 	auto spdlog_glbl_thread_pool = std::make_shared<spdlog::details::thread_pool>(16*1024, 1);
 	{
@@ -89,6 +86,7 @@ int main(int argc, char* argv[])
 	    desc.add_options() 
 			("help"  , "Print usage information and exit")
 			("config", bpo::value<std::string>()->default_value("/opt/suburbanmarine/opaleye/conf/config.xml"), "Path to config file")
+			("gst-log-level", bpo::value<std::string>()->default_value("none"), "GST log level")
 			;
 	
 		//Parse options
@@ -110,6 +108,50 @@ int main(int argc, char* argv[])
 		  	std::cout << desc << std::endl;
 			return -1;
 	    }
+	}
+
+	{
+		if("none" == vm["config"].as<std::string>())
+		{
+			gst_debug_set_default_threshold(GST_LEVEL_NONE);
+		}
+		else if("error" == vm["config"].as<std::string>())
+		{
+			gst_debug_set_default_threshold(GST_LEVEL_ERROR);
+		}
+		else if("warning" == vm["config"].as<std::string>())
+		{
+			gst_debug_set_default_threshold(GST_LEVEL_WARNING);
+		}
+		else if("fixme" == vm["config"].as<std::string>())
+		{
+			gst_debug_set_default_threshold(GST_LEVEL_FIXME);
+		}
+		else if("info" == vm["config"].as<std::string>())
+		{
+			gst_debug_set_default_threshold(GST_LEVEL_INFO);
+		}
+		else if("debug" == vm["config"].as<std::string>())
+		{
+			gst_debug_set_default_threshold(GST_LEVEL_DEBUG);
+		}
+		else if("log" == vm["config"].as<std::string>())
+		{
+			gst_debug_set_default_threshold(GST_LEVEL_LOG);
+		}
+		else if("trace" == vm["config"].as<std::string>())
+		{
+			gst_debug_set_default_threshold(GST_LEVEL_TRACE);
+		}
+		else if("memdump" == vm["config"].as<std::string>())
+		{
+			gst_debug_set_default_threshold(GST_LEVEL_MEMDUMP);
+		}
+		else
+		{
+			SPDLOG_ERROR("Unknown gst-log-level: %s", vm["config"].as<std::string>());
+			return -1;
+		}
 	}
 
 	//load config and add a file sink logger
