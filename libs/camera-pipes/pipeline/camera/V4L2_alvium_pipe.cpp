@@ -134,6 +134,10 @@ bool V4L2_alvium_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
   {
     SPDLOG_ERROR("Failed to link back: %s", e.what());
   }
+  catch(...)
+  {
+    SPDLOG_ERROR("Failed to link back, unknown exception"); 
+  }
 
   return false;
 }
