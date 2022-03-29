@@ -175,14 +175,16 @@ bool V4L2_alvium_pipe::init(const char name[])
     // m_src->add_probe(GST_PAD_PROBE_TYPE_IDLE | GST_PAD_PROBE_TYPE_EVENT_BOTH, sigc::mem_fun(&V4L2_alvium_pipe::on_pad_probe, this))
 
     //src caps
-    m_src_caps = Gst::Caps::create_simple(
-      "video/x-raw",
-      "format","(string)BGRx",
-      "pixel-aspect-ratio", Gst::Fraction(1, 1),
-      "framerate",          Gst::Fraction(16593, 1000),
-      "width",              2464,
-      "height",             2056
-    );
+    // m_src_caps = Gst::Caps::create_simple(
+    //   "video/x-raw",
+    //   "format","(string)BGRx",
+    //   "pixel-aspect-ratio", Gst::Fraction(1, 1),
+    //   "framerate",          Gst::Fraction(16593, 1000),
+    //   "width",              2464,
+    //   "height",             2056
+    // );
+
+    m_src_caps = Gst::Caps::create_from_string("video/x-raw, width=(int)2464, height=(int)2056, format=(string)BGRx, framerate=(fraction)16593/1000, pixel-aspect-ratio=(fraction)1/1");
 
     // m_src_caps = Gst::Caps::create_simple(
     //   "video/x-bayer",
