@@ -48,27 +48,27 @@ public:
 //    UVC_base::copy_frame(m_frame_buffer, out_frame);
 //  }
 
-  bool set_exposure_mode(int32_t val);
-  bool get_exposure_mode(int32_t* const val);
+  virtual bool set_exposure_mode(int32_t val);
+  virtual bool get_exposure_mode(int32_t* const val);
 
-  bool set_exposure_value(int32_t val);
-  bool get_exposure_value(int32_t* const val);
+  virtual bool set_exposure_value(int32_t val);
+  virtual bool get_exposure_value(int32_t* const val);
 
-  bool set_focus_absolute(int32_t val);
-  bool get_focus_absolute(int32_t* const val);
+  virtual bool set_focus_absolute(int32_t val);
+  virtual bool get_focus_absolute(int32_t* const val);
 
-  bool set_focus_auto(bool val);
-  bool get_focus_auto(bool* const val);
+  virtual bool set_focus_auto(bool val);
+  virtual bool get_focus_auto(bool* const val);
 
-  bool set_brightness(int32_t val);
-  bool get_brightness(int32_t* const val);
+  virtual bool set_brightness(int32_t val);
+  virtual bool get_brightness(int32_t* const val);
 
-  bool set_gain(int32_t val);
-  bool get_gain(int32_t* const val);
+  virtual bool set_gain(int32_t val);
+  virtual bool get_gain(int32_t* const val);
 
-  bool v4l2_probe();
+  virtual bool v4l2_probe();
 
-  bool get_property_description();
+  virtual bool get_property_description();
   
 protected:
 
