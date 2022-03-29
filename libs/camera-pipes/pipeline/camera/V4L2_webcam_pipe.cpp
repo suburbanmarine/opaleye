@@ -879,7 +879,10 @@ bool V4L2_webcam_pipe::get_property_description()
 	return true;
 }
 
-
+void V4L2_webcam_pipe::set_sensor_device(const char* dev_path)
+{
+    m_src->set_property("device", Glib::ustring(dev_path));
+}
 
 bool V4L2_webcam_pipe::set_exposure_mode(int32_t val)
 {

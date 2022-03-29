@@ -40,6 +40,8 @@ public:
     return m_out_tee;
   }
 
+  void set_sensor_device(const char* dev_path);
+
   bool init(const char name[]) override;
 
 //  void copy_frame(std::shared_ptr<uvc_frame_t>& out_frame) const
