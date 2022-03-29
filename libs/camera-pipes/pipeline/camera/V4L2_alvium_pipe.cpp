@@ -184,7 +184,8 @@ bool V4L2_alvium_pipe::init(const char name[])
     //   "height",             2056
     // );
 
-    m_src_caps = Gst::Caps::create_from_string("video/x-raw, width=(int)2464, height=(int)2056, format=(string)BGRx, framerate=(fraction)16593/1000, pixel-aspect-ratio=(fraction)1/1");
+    // m_src_caps = Gst::Caps::create_from_string("video/x-raw, width=(int)2464, height=(int)2056, format=(string)BGRx, framerate=(fraction)16593/1000, pixel-aspect-ratio=(fraction)1/1");
+    m_src_caps = Gst::Caps::create_from_string("video/x-raw, width=(int)2464, height=(int)2056, format=(string)BGRx, pixel-aspect-ratio=(fraction)1/1");
 
     // m_src_caps = Gst::Caps::create_simple(
     //   "video/x-bayer",
