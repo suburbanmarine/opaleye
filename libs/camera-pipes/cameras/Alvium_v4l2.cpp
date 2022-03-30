@@ -30,6 +30,7 @@ bool Alvium_v4l2::open(const char dev_path[])
 {
   if(m_fd == -1)
   {
+    SPDLOG_ERROR("fd already set");
     return false;
   }
 
@@ -41,8 +42,7 @@ bool Alvium_v4l2::open(const char dev_path[])
 
   m_v4l2_util.set_fd(m_fd);
 
-  v4l2_capability cap;
-  int ret = m_v4l2_util.ioctl_helper(VIDIOC_QUERYCAP, &cap);
+  int ret = m_v4l2_util.ioctl_helper(VIDIOC_QUERYCAP, &m_cap);
   if(ret == -1)
   {
     if(errno == EINVAL)
@@ -53,14 +53,14 @@ bool Alvium_v4l2::open(const char dev_path[])
     }
   }
 
-  if( ! (m_cap.capabilities & V4L2_CAP_VIDEO_CAPTURE) || (cap.capabilities & V4L2_CAP_VIDEO_CAPTURE_MPLANE) )
+  if( ! (m_cap.capabilities & V4L2_CAP_VIDEO_CAPTURE) || (m_cap.capabilities & V4L2_CAP_VIDEO_CAPTURE_MPLANE) )
   {
       SPDLOG_ERROR("Device {:s} is not a video capture device");
       close();
       return false;
   }
 
-  if( ! (cap.capabilities & V4L2_CAP_STREAMING)  )
+  if( ! (m_cap.capabilities & V4L2_CAP_STREAMING)  )
   {
       SPDLOG_ERROR("Device {:s} does not support streaming i/o");
       close();
@@ -72,13 +72,14 @@ bool Alvium_v4l2::open(const char dev_path[])
     m_v4l2_util.enum_format_descs(V4L2_BUF_TYPE_VIDEO_CAPTURE);
     m_buffer_type = (v4l2_buf_type)V4L2_CAP_VIDEO_CAPTURE;
   }
-  else if(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE_MPLANE)
+  else if(m_cap.capabilities & V4L2_CAP_VIDEO_CAPTURE_MPLANE)
   {
     m_v4l2_util.enum_format_descs(V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
     m_buffer_type = (v4l2_buf_type)V4L2_CAP_VIDEO_CAPTURE_MPLANE;
   }
   else
   {
+    SPDLOG_ERROR("Discovered unexpected VIDIOC_QUERYCAP capabilities: {:d}", m_cap.capabilities);
     return false;
   }
 
