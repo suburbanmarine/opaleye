@@ -13,17 +13,12 @@
 Alvium_v4l2::Alvium_v4l2()
 {
   m_fd = -1;
+  memset(&m_cap, 0, sizeof(m_cap));
 }
 
 Alvium_v4l2::~Alvium_v4l2()
 {
   close();
-}
-
-void Alvium_v4l2::reset()
-{
-  m_fd = -1;
-  memset(&m_cap, 0, sizeof(m_cap));
 }
 
 bool Alvium_v4l2::open(const char dev_path[])
@@ -125,6 +120,7 @@ bool Alvium_v4l2::init(const char name[])
 
   if(m_v4l2_util.get_fmt_descs().empty())
   {
+    SPDLOG_ERROR("Format descriptions not set");
     return false;
   }
 

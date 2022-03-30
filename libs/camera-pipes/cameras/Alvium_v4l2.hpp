@@ -14,8 +14,6 @@ public:
 	Alvium_v4l2();
 	virtual ~Alvium_v4l2();
 
-	void reset();
-
 	bool open(const char dev_path[]);
 	bool close();
 
