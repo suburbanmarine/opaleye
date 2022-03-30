@@ -13,6 +13,44 @@
 
 #include <cstdint>
 
+#include <list>
+
+class v4l2_mmap_buffer
+{
+public:
+	v4l2_mmap_buffer();
+	~v4l2_mmap_buffer();
+	bool init(const int fd, const v4l2_buffer& buf, const v4l2_format& fmt, const size_t idx);
+	bool unmap();
+
+    void* get_data() const;
+    size_t get_size() const;
+
+    uint32_t get_index() const;
+    uint32_t get_width() const;
+    uint32_t get_height() const;
+    uint32_t get_bytes_per_line() const;
+    uint32_t get_pixel_format() const;
+
+	const v4l2_buffer& get_buf() const
+	{
+		return m_buf;
+	}
+	const v4l2_format& get_fmt() const
+	{
+		return m_fmt;
+	}
+
+protected:
+	v4l2_buffer m_buf;
+	v4l2_format m_fmt;
+	size_t      m_idx;
+
+	void*  m_mmap_ptr;
+	size_t m_mmap_size;
+
+};
+
 class v4l2_util
 {
 public:
@@ -24,6 +62,20 @@ public:
 	{
 		m_v4l2_fd = fd;
 	}
+
+	const std::list<v4l2_fmtdesc>& get_fmt_descs() const
+	{
+		return m_fmt_descs;
+	}
+
+	int ioctl_helper(int req, void* arg);
+
+ 	// V4L2_BUF_TYPE_VIDEO_CAPTURE
+ 	// V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE
+ 	// V4L2_BUF_TYPE_VIDEO_OUTPUT
+ 	// V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE
+ 	// V4L2_BUF_TYPE_VIDEO_OVERLAY
+	bool enum_format_descs(const v4l2_buf_type buf_type);
 
 	bool v4l2_ctrl_set(uint32_t id, const bool val);
 	bool v4l2_ctrl_set(uint32_t id, const int32_t val);
@@ -95,4 +147,6 @@ protected:
 	int m_v4l2_fd;
 
 	errno_util m_errno;
+
+	std::list<v4l2_fmtdesc> m_fmt_descs;
 };

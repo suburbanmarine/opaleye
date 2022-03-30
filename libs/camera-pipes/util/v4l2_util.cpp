@@ -4,17 +4,217 @@
  * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
 */
 
-#include "v4l2_util.hpp"
+#include "util/v4l2_util.hpp"
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/fmt/fmt.h>
 
 #include <sys/ioctl.h>
+#include <sys/mman.h>
 
 #include <cstring>
 
 #include <array>
+
+v4l2_mmap_buffer::v4l2_mmap_buffer()
+{
+	m_idx = 0;
+	m_mmap_ptr = nullptr;
+	m_mmap_size = 0;
+}
+v4l2_mmap_buffer::~v4l2_mmap_buffer()
+{
+	unmap();
+}
+bool v4l2_mmap_buffer::init(const int fd, const v4l2_buffer& buf, const v4l2_format& fmt, const size_t idx)
+{
+	if(m_mmap_ptr != nullptr)
+	{
+		unmap();
+	}
+
+	m_buf = buf;
+	m_fmt = fmt;
+	m_idx = idx;
+
+	void* mmap_ptr = nullptr;
+
+  switch(fmt.type)
+  {
+    case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+    {
+			mmap_ptr = mmap(NULL, buf.length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, buf.m.offset);
+			break;
+    }
+    case V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE:
+    {
+			mmap_ptr = mmap(NULL, buf.m.planes[0].length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, buf.m.planes[0].m.mem_offset);
+			break;
+    }
+    default:
+    {
+    	throw std::domain_error("fmt.type not supported");
+    	break;
+    }
+  }
+
+	if (MAP_FAILED == mmap_ptr)
+	{
+		SPDLOG_ERROR("MMAP failed");
+    return false;
+	}
+
+	m_mmap_ptr = mmap_ptr;
+
+  switch(fmt.type)
+  {
+    case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+    {
+    	m_mmap_size = (size_t)buf.length;
+			break;
+    }
+    case V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE:
+    {
+    	m_mmap_size = (size_t)buf.m.planes[0].length;
+			break;
+    }
+    default:
+    {
+    	throw std::domain_error("fmt.type not supported");
+    	break;
+    }
+  }
+
+	return true;
+}
+
+bool v4l2_mmap_buffer::unmap()
+{
+	bool ret = true;
+	if(m_mmap_ptr)
+	{
+	  if(-1 == munmap(m_mmap_ptr, m_mmap_size))
+		{
+			SPDLOG_ERROR("Could not unmap mem");
+	    ret = false;
+		}
+		
+		m_mmap_ptr = nullptr;
+	}
+
+	return ret;
+}
+
+void* v4l2_mmap_buffer::get_data() const
+{
+	return m_mmap_ptr;
+}
+size_t v4l2_mmap_buffer::get_size() const
+{
+return m_mmap_size;
+}
+
+uint32_t v4l2_mmap_buffer::get_index() const
+{
+	return m_idx;
+}
+uint32_t v4l2_mmap_buffer::get_width() const
+{
+	uint32_t width = 0;
+  switch(m_fmt.type)
+  {
+    case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+    {
+			width = m_fmt.fmt.pix.width;
+			break;
+    }
+    case V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE:
+    {
+			width = m_fmt.fmt.pix_mp.width;
+			break;
+    }
+    default:
+    {
+    	throw std::domain_error("fmt.type not supported");
+    	break;
+    }
+  }
+
+  return width;
+}
+uint32_t v4l2_mmap_buffer::get_height() const
+{
+	uint32_t height = 0;
+  switch(m_fmt.type)
+  {
+    case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+    {
+			height = m_fmt.fmt.pix.height;
+			break;
+    }
+    case V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE:
+    {
+			height = m_fmt.fmt.pix_mp.height;
+			break;
+    }
+    default:
+    {
+    	throw std::domain_error("fmt.type not supported");
+    	break;
+    }
+  }
+
+  return height;
+}
+uint32_t v4l2_mmap_buffer::get_bytes_per_line() const
+{
+	uint32_t bytesperline = 0;
+  switch(m_fmt.type)
+  {
+    case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+    {
+			bytesperline = m_fmt.fmt.pix.bytesperline;
+			break;
+    }
+    case V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE:
+    {
+			bytesperline = m_fmt.fmt.pix_mp.plane_fmt[0].bytesperline;
+			break;
+    }
+    default:
+    {
+    	throw std::domain_error("fmt.type not supported");
+    	break;
+    }
+  }
+
+  return bytesperline;
+}
+uint32_t v4l2_mmap_buffer::get_pixel_format() const
+{
+	uint32_t pixelformat = 0;
+  switch(m_fmt.type)
+  {
+    case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+    {
+			pixelformat = m_fmt.fmt.pix.pixelformat;
+			break;
+    }
+    case V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE:
+    {
+			pixelformat = m_fmt.fmt.pix_mp.pixelformat;
+			break;
+    }
+    default:
+    {
+    	throw std::domain_error("fmt.type not supported");
+    	break;
+    }
+  }
+
+  return pixelformat; 
+}
 
 v4l2_util::v4l2_util()
 {
@@ -23,6 +223,53 @@ v4l2_util::v4l2_util()
 v4l2_util::~v4l2_util()
 {
 
+}
+
+int v4l2_util::ioctl_helper(int req, void* arg)
+{
+  int ret = 0;
+
+  do
+  {
+    ret = ioctl(m_v4l2_fd, req, arg);
+  } while((ret == -1) && (errno == EINTR));
+
+  return ret;
+}
+
+bool v4l2_util::enum_format_descs(const v4l2_buf_type buf_type)
+{
+	m_fmt_descs.clear();
+
+	v4l2_fmtdesc fmt;
+	memset(&fmt, 0, sizeof(fmt));
+
+	fmt.type = buf_type;
+
+	int ret = 0;
+
+	while(ret )
+	{
+		ret = ioctl_helper(VIDIOC_ENUM_FMT, &fmt);
+		if(ret == -1)
+		{
+			if(ret == EINVAL)
+			{
+				break;
+			}
+			else
+			{
+				SPDLOG_ERROR("ioctl VIDIOC_ENUM_FMT had error: {:d} - {:s}", errno, m_errno.to_str());
+				return false;
+			}
+		}
+
+		m_fmt_descs.push_back(fmt);
+		
+		fmt.index++;
+	}
+
+	return true;
 }
 
 bool v4l2_util::v4l2_ctrl_set(uint32_t id, const bool val)

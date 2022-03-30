@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "v4l2_util.hpp"
+#include "util/v4l2_util.hpp"
 
 #include "pipeline/GST_element_base.hpp"
 

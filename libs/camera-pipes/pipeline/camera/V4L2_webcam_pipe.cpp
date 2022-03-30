@@ -5,7 +5,7 @@
 */
 
 #include "V4L2_webcam_pipe.hpp"
-#include "v4l2_util.hpp"
+#include "util/v4l2_util.hpp"
 
 #include "pipeline/gst_common.hpp"
 

@@ -4,7 +4,7 @@
  * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
 */
 
-#include "V4L2_alvium_pipe.hpp"
+#include "V4L2src_alvium_pipe.hpp"
 #include "v4l2_util.hpp"
 
 #include "pipeline/gst_common.hpp"
@@ -108,23 +108,23 @@
 
 //TODO - ise v4l api directly, gstreamer v4l2src does not support enough modes
 //maybe keep this her since it works, make a new appsrc based plugin
-V4L2_alvium_pipe::V4L2_alvium_pipe()
+V4L2src_alvium_pipe::V4L2src_alvium_pipe()
 {
-  reset();
+  
 }
 
-void V4L2_alvium_pipe::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
+void V4L2src_alvium_pipe::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
 {
   bin->add(m_bin);
 
   m_bus = bin->get_bus();
 }
 
-bool V4L2_alvium_pipe::link_front(const Glib::RefPtr<Gst::Element>& node)
+bool V4L2src_alvium_pipe::link_front(const Glib::RefPtr<Gst::Element>& node)
 {
   return false;
 }
-bool V4L2_alvium_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
+bool V4L2src_alvium_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
 {
   try
   {
@@ -143,144 +143,8 @@ bool V4L2_alvium_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
   return false;
 }
 
-void reset()
+bool V4L2src_alvium_pipe::init(const char name[])
 {
-  m_fd = -1;
-  memset(&m_cap, 0, sizeof(m_cap));
-}
-
-bool V4L2_alvium_pipe::open(const char dev_path[])
-{
-  if(m_fd == -1)
-  {
-    return false;
-  }
-
-  m_fd = open(dev_path, O_RDWR | O_NONBLOCK, 0);
-  if(m_fd == -1)
-  {
-    SPDLOG_ERROR("open had error: {:d} - {:s}", errno, errno_to_str());
-  }
-
-  m_v4l2_util.set_fd(m_fd);
-
-  v4l2_capability cap;
-  int ret = ioctl_helper(m_fd, VIDIOC_QUERYCAP, &cap);
-  if(ret == -1)
-  {
-    if(errno == EINVAL)
-    {
-      SPDLOG_ERROR("Device {:s} is not a V4L2 device");
-      close();
-      return false;
-    }
-  }
-
-  if( ! (m_cap.capabilities & V4L2_CAP_VIDEO_CAPTURE) || (cap.capabilities & V4L2_CAP_VIDEO_CAPTURE_MPLANE) )
-  {
-      SPDLOG_ERROR("Device {:s} is not a video capture device");
-      close();
-      return false;
-  }
-
-  if( ! (cap.capabilities & V4L2_CAP_STREAMING)  )
-  {
-      SPDLOG_ERROR("Device {:s} does not support streaming i/o");
-      close();
-      return false;
-  }
-
-  if(m_cap.capabilities & V4L2_CAP_VIDEO_CAPTURE)
-  {
-    m_v4l2_util.enum_formats(V4L2_BUF_TYPE_VIDEO_CAPTURE);
-  }
-  else if(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE_MPLANE)
-  {
-    m_v4l2_util.enum_formats(V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
-  }
-  else
-  {
-    return false;
-  }
-
-  return m_fd != -1;
-}
-bool V4L2_alvium_pipe::close()
-{
-  if(m_fd == -1)
-  {
-    return true;
-  }
-
-  int ret = close(m_fd);
-  m_fd = -1;
-
-  if(m_fd == -1)
-  {
-    SPDLOG_ERROR("close had error: {:d} - {:s}", errno, errno_to_str());
-  }
-
-  return ret == 0;
-}
-bool V4L2_alvium_pipe::init(const char name[])
-{
-
-  if(m_v4l2_util.get_fmts().empty())
-  {
-    return false;
-  }
-
-  // Bayer format (8/10/12 bit)
-  // Pixel Format: 'RGGB' - V4L2_PIX_FMT_SRGGB8
-  // Name        : 8-bit Bayer RGRG/GBGB
-  // Pixel Format: 'JXR0' - v4l2_fourcc('J', 'X', 'R', '0')
-  // Name        : 10-bit/16-bit Bayer RGRG/GBGB
-  // Pixel Format: 'JXR2' - v4l2_fourcc('J', 'X', 'R', '2')
-  // Name        : 12-bit/16-bit Bayer RGRG/GBGB
-  
-  // Luma Format (8bit)
-  // Pixel Format: 'VYUY' - V4L2_PIX_FMT_VYUY
-  // Name        : VYUY 4:2:2
-
-  // Color Format (8bit)
-  // Pixel Format: 'XR24' - V4L2_PIX_FMT_XBGR32
-  // Name        : 32-bit BGRX 8-8-8-8
-
-  v4l2_format fmt;
-  memset(&fmt, 0, sizeof(fmt));
-  fmt.type = m_v4l2_util.get_fmt_descs().front().type;
-  if (-1 == xioctl(m_nFileDescriptor, VIDIOC_G_FMT, &fmt))
-  {
-      SPDLOG_ERROR("ioctl VIDIOC_G_FMT failed");
-      return false;
-  }
-
-  uint32_t pixel_format = V4L2_PIX_FMT_XBGR32;
-
-  switch(fmt.type)
-  {
-    case V4L2_BUF_TYPE_VIDEO_CAPTURE:
-    {
-      fmt.fmt.pix.pixelformat = pixel_format;
-      break;
-    }
-    case V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE:
-    {
-      fmt.fmt.pix_mp.pixelformat = pixel_format;
-      break;
-    }
-    default:
-    {
-      break;
-    }
-  }
-
-  if (-1 == xioctl(m_nFileDescriptor, VIDIOC_S_FMT, &fmt))
-  {
-    SPDLOG_ERROR("ioctl VIDIOC_S_FMT failed");
-    return false;
-  }
-
   //init our internal bin and elements
   {
     m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
@@ -309,7 +173,7 @@ bool V4L2_alvium_pipe::init(const char name[])
 	// (4): dmabuf           - GST_V4L2_IO_DMABUF
 	// (5): dmabuf-import    - GST_V4L2_IO_DMABUF_IMPORT
     m_src->set_property("io-mode", 2);
-    // m_src->add_probe(GST_PAD_PROBE_TYPE_IDLE | GST_PAD_PROBE_TYPE_EVENT_BOTH, sigc::mem_fun(&V4L2_alvium_pipe::on_pad_probe, this))
+    // m_src->add_probe(GST_PAD_PROBE_TYPE_IDLE | GST_PAD_PROBE_TYPE_EVENT_BOTH, sigc::mem_fun(&V4L2src_alvium_pipe::on_pad_probe, this))
 
     //src caps
     // m_src_caps = Gst::Caps::create_simple(

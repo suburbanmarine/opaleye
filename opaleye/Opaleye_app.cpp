@@ -306,7 +306,8 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
 
 bool Gstreamer_pipeline::make_alvium_pipeline()
 {
-  std::shared_ptr<V4L2_alvium_pipe> m_camera   = std::make_shared<V4L2_alvium_pipe>();
+  // std::shared_ptr<V4L2_alvium_pipe> m_camera   = std::make_shared<V4L2_alvium_pipe>();
+  std::shared_ptr<V4L2_alvium_pipe> m_camera;
   if( ! m_camera->init("cam_0") )
   {
    SPDLOG_ERROR("Could not init camera");
@@ -314,7 +315,7 @@ bool Gstreamer_pipeline::make_alvium_pipeline()
   }
   
   // m_camera->set_sensor_id(m_camera_config.get("properties.sensor-id", 0));
-  m_camera->set_sensor_device("/dev/video0");
+  // m_camera->set_sensor_device("/dev/video0");
 
   SPDLOG_INFO("NV mode");
   std::shared_ptr<GST_element_base> m_h264   = std::make_shared<h264_nvenc_bin>();
