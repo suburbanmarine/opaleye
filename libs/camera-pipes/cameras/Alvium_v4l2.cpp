@@ -28,7 +28,7 @@ void Alvium_v4l2::reset()
 
 bool Alvium_v4l2::open(const char dev_path[])
 {
-  if(m_fd == -1)
+  if(m_fd != -1)
   {
     SPDLOG_ERROR("fd already set");
     return false;
