@@ -241,32 +241,30 @@ bool v4l2_util::enum_format_descs(const v4l2_buf_type buf_type)
 {
 	m_fmt_descs.clear();
 
-	v4l2_fmtdesc fmt;
-	memset(&fmt, 0, sizeof(fmt));
-
-	fmt.type = buf_type;
-
-	int ret = 0;
-
-	while(ret )
+	for(__u32 i = 0; true; i++)
 	{
-		ret = ioctl_helper(VIDIOC_ENUM_FMT, &fmt);
+		v4l2_fmtdesc fmt;
+		memset(&fmt, 0, sizeof(fmt));
+		fmt.type = buf_type;
+		
+		fmt.index = i;
+
+		int ret = ioctl_helper(VIDIOC_ENUM_FMT, &fmt);
 		if(ret == -1)
 		{
-			if(ret == EINVAL)
+			if(errno == EINVAL)
 			{
 				break;
 			}
 			else
 			{
 				SPDLOG_ERROR("ioctl VIDIOC_ENUM_FMT had error: {:d} - {:s}", errno, m_errno.to_str());
+				m_fmt_descs.clear();
 				return false;
 			}
 		}
 
 		m_fmt_descs.push_back(fmt);
-		
-		fmt.index++;
 	}
 
 	return true;
