@@ -75,6 +75,38 @@ public:
 
 	static std::string fourcc_to_str(const uint32_t fcc);
 
+	static const char* v4l2_field_to_str(const __u32& val)
+	{
+		return v4l2_field_to_str((v4l2_field)val);
+	}
+	static const char* v4l2_colorspace_to_str(const __u32& val)
+	{
+		return v4l2_colorspace_to_str((v4l2_colorspace)val);
+	}
+	static const char* v4l2_ycbcr_encoding_to_str(const __u32& val)
+	{
+		return v4l2_ycbcr_encoding_to_str((v4l2_ycbcr_encoding)val);
+	}
+	static const char* v4l2_hsv_encoding_to_str(const __u8& val)
+	{
+		return v4l2_hsv_encoding_to_str((v4l2_hsv_encoding)val);
+	}
+	static const char* v4l2_quantization_to_str(const __u8& val)
+	{
+		return v4l2_quantization_to_str((v4l2_quantization)val);
+	}
+	static const char* v4l2_xfer_func_to_str(const __u8& val)
+	{
+		return v4l2_xfer_func_to_str((v4l2_xfer_func)val);
+	}
+
+	static const char* v4l2_field_to_str(const v4l2_field& val);
+	static const char* v4l2_colorspace_to_str(const v4l2_colorspace& val);
+	static const char* v4l2_ycbcr_encoding_to_str(const v4l2_ycbcr_encoding& val);
+	static const char* v4l2_hsv_encoding_to_str(const v4l2_hsv_encoding& val);
+	static const char* v4l2_quantization_to_str(const v4l2_quantization& val);
+	static const char* v4l2_xfer_func_to_str(const v4l2_xfer_func& val);
+
 	void set_fd(int fd)
 	{
 		m_v4l2_fd = fd;

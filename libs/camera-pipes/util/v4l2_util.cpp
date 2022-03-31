@@ -262,6 +262,306 @@ std::string v4l2_util::fourcc_to_str(const uint32_t fcc)
 	return ss.str();
 }
 
+const char* v4l2_util::v4l2_field_to_str(const v4l2_field& val)
+{
+	char const * str = "";
+	switch(val)
+	{
+		case V4L2_FIELD_ANY:
+		{
+			str = "ANY";
+			break;
+		}
+		case V4L2_FIELD_NONE:
+		{
+			str = "NONE";
+			break;
+		}
+		case V4L2_FIELD_TOP:
+		{
+			str = "TOP";
+			break;
+		}
+		case V4L2_FIELD_BOTTOM:
+		{
+			str = "BOTTOM";
+			break;
+		}
+		case V4L2_FIELD_INTERLACED:
+		{
+			str = "INTERLACED";
+			break;
+		}
+		case V4L2_FIELD_SEQ_TB:
+		{
+			str = "SEQ_TB";
+			break;
+		}
+		case V4L2_FIELD_SEQ_BT:
+		{
+			str = "SEQ_BT";
+			break;
+		}
+		case V4L2_FIELD_ALTERNATE:
+		{
+			str = "ALTERNATE";
+			break;
+		}
+		case V4L2_FIELD_INTERLACED_TB:
+		{
+			str = "INTERLACED_TB";
+			break;
+		}
+		case V4L2_FIELD_INTERLACED_BT:
+		{
+			str = "INTERLACED_BT";
+			break;
+		}
+		default:
+		{
+			str = "UNKOWN";
+			break;
+		}
+	}
+
+	return str;
+}
+const char* v4l2_util::v4l2_colorspace_to_str(const v4l2_colorspace& val)
+{
+	char const * str = "";
+	switch(val)
+	{
+		case V4L2_COLORSPACE_DEFAULT:
+		{
+			str = "DEFAULT";
+			break;
+		}
+		case V4L2_COLORSPACE_SMPTE170M:
+		{
+			str = "SMPTE170M";
+			break;
+		}
+		case V4L2_COLORSPACE_REC709:
+		{
+			str = "REC709";
+			break;
+		}
+		case V4L2_COLORSPACE_SRGB:
+		{
+			str = "SRGB";
+			break;
+		}
+		case V4L2_COLORSPACE_ADOBERGB:
+		{
+			str = "ADOBERGB";
+			break;
+		}
+		case V4L2_COLORSPACE_BT2020:
+		{
+			str = "BT2020";
+			break;
+		}
+		case V4L2_COLORSPACE_DCI_P3:
+		{
+			str = "DCI_P3";
+			break;
+		}
+		case V4L2_COLORSPACE_SMPTE240M:
+		{
+			str = "SMPTE240M";
+			break;
+		}
+		case V4L2_COLORSPACE_470_SYSTEM_M:
+		{
+			str = "470_SYSTEM_M";
+			break;
+		}
+		case V4L2_COLORSPACE_470_SYSTEM_BG:
+		{
+			str = "470_SYSTEM_BG";
+			break;
+		}
+		case V4L2_COLORSPACE_JPEG:
+		{
+			str = "JPEG";
+			break;
+		}
+		case V4L2_COLORSPACE_RAW:
+		{
+			str = "RAW";
+			break;
+		}
+		default:
+		{
+			str = "UNKOWN";
+			break;
+		}
+	}
+
+	return str;
+}
+const char* v4l2_util::v4l2_ycbcr_encoding_to_str(const v4l2_ycbcr_encoding& val)
+{
+	char const * str = "";
+	switch(val)
+	{
+		case V4L2_YCBCR_ENC_DEFAULT:
+		{
+			str = "DEFAULT";
+			break;
+		}
+		case V4L2_YCBCR_ENC_601:
+		{
+			str = "601";
+			break;
+		}
+		case V4L2_YCBCR_ENC_709:
+		{
+			str = "709";
+			break;
+		}
+		case V4L2_YCBCR_ENC_XV601:
+		{
+			str = "XV601";
+			break;
+		}
+		case V4L2_YCBCR_ENC_XV709:
+		{
+			str = "XV709";
+			break;
+		}
+		case V4L2_YCBCR_ENC_BT2020:
+		{
+			str = "BT2020";
+			break;
+		}
+		case V4L2_YCBCR_ENC_BT2020_CONST_LUM:
+		{
+			str = "BT2020_CONST_LUM";
+			break;
+		}
+		case V4L2_YCBCR_ENC_SMPTE240M:
+		{
+			str = "SMPTE_240M";
+			break;
+		}
+		default:
+		{
+			str = "UNKOWN";
+			break;
+		}
+	}
+
+	return str;
+}
+const char* v4l2_util::v4l2_hsv_encoding_to_str(const v4l2_hsv_encoding& val)
+{
+	char const * str = "";
+	switch(val)
+	{
+		case V4L2_HSV_ENC_180:
+		{
+			str = "180";
+			break;
+		}
+		case V4L2_HSV_ENC_256:
+		{
+			str = "256";
+			break;
+		}
+		default:
+		{
+			str = "UNKOWN";
+			break;
+		}
+	}
+
+	return str;
+}
+const char* v4l2_util::v4l2_quantization_to_str(const v4l2_quantization& val)
+{
+	char const * str = "";
+	switch(val)
+	{
+		case V4L2_QUANTIZATION_DEFAULT:
+		{
+			str = "DEFAULT";
+			break;
+		}
+		case V4L2_QUANTIZATION_FULL_RANGE:
+		{
+			str = "FULL_RANGE";
+			break;
+		}
+		case V4L2_QUANTIZATION_LIM_RANGE:
+		{
+			str = "LIM_RANGE";
+			break;
+		}
+		default:
+		{
+			str = "UNKOWN";
+			break;
+		}
+	}
+
+	return str;
+}
+const char* v4l2_util::v4l2_xfer_func_to_str(const v4l2_xfer_func& val)
+{
+	char const * str = "";
+	switch(val)
+	{
+		case V4L2_XFER_FUNC_DEFAULT:
+		{
+			str = "DEFAULT";
+			break;
+		}
+		case V4L2_XFER_FUNC_709:
+		{
+			str = "709";
+			break;
+		}
+		case V4L2_XFER_FUNC_SRGB:
+		{
+			str = "SRGB";
+			break;
+		}
+		case V4L2_XFER_FUNC_ADOBERGB:
+		{
+			str = "ADOBERGB";
+			break;
+		}
+		case V4L2_XFER_FUNC_SMPTE240M:
+		{
+			str = "SMPTE240M";
+			break;
+		}
+		case V4L2_XFER_FUNC_NONE:
+		{
+			str = "NONE";
+			break;
+		}
+		case V4L2_XFER_FUNC_DCI_P3:
+		{
+			str = "DCI_P3";
+			break;
+		}
+		case V4L2_XFER_FUNC_SMPTE2084:
+		{
+			str = "SMPTE2084";
+			break;
+		}
+		default:
+		{
+			str = "UNKOWN";
+			break;
+		}
+	}
+
+	return str;
+}
+
 int v4l2_util::ioctl_helper(int req)
 {
   int ret = 0;

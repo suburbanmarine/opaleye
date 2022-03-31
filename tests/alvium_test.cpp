@@ -1,8 +1,12 @@
 #include "cameras/Alvium_v4l2.hpp"
+#include "util/v4l2_metadata.hpp"
+
+#include "opaleye-util/Ptree_util.hpp"
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
 #include <spdlog/fmt/bundled/printf.h>
+
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -25,6 +29,17 @@ void new_frame_cb(const Alvium_v4l2::ConstMmapFramePtr& frame)
 		ss << "\theight: "       << frame->get_fmt().fmt.pix.height << "\n";
 		ss << "\tbytesperline: " << frame->get_fmt().fmt.pix.bytesperline << "\n";
 		ss << "\tpixelformat: "  << v4l2_util::fourcc_to_str(frame->get_fmt().fmt.pix.pixelformat) << "\n";
+
+		boost::property_tree::ptree buf_tree;
+		v4l2_metadata::v4l2_buffer_to_json(frame->get_buf(), &buf_tree);
+
+		boost::property_tree::ptree fmt_tree;
+		v4l2_metadata::v4l2_format_to_json(frame->get_fmt(), &fmt_tree);
+
+		SPDLOG_INFO("Metadata:\n\t{:s}\n\t{:s}", 
+			Ptree_util::ptree_to_json_str(buf_tree),
+			Ptree_util::ptree_to_json_str(fmt_tree)
+		);
 
 		switch(frame->get_fmt().type)
 		{
