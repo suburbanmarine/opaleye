@@ -9,6 +9,8 @@
 #include <unistd.h>
 
 #include <thread>
+#include <sstream>
+#include <string>
 
 static int filenum;
 
@@ -16,6 +18,15 @@ void new_frame_cb(const Alvium_v4l2::ConstMmapFramePtr& frame)
 {
 	if(frame)
 	{
+		std::stringstream ss;
+		ss << "\tsizeimage: "    << frame->get_fmt().fmt.pix.sizeimage;
+		ss << "\twidth: "        << frame->get_fmt().fmt.pix.width;
+		ss << "\theight: "       << frame->get_fmt().fmt.pix.height;
+		ss << "\tbytesperline: " << frame->get_fmt().fmt.pix.bytesperline;
+		ss << "\tpixelformat: "  << v4l2_util::fourcc_to_str(frame->get_fmt().fmt.pix.pixelformat);
+
+		SPDLOG_INFO("New Frame Info:\n{:s}", ss.str());
+
 		switch(frame->get_fmt().type)
 		{
 			case V4L2_BUF_TYPE_VIDEO_CAPTURE:
@@ -26,11 +37,6 @@ void new_frame_cb(const Alvium_v4l2::ConstMmapFramePtr& frame)
 				if(frame_buf.field != V4L2_FIELD_NONE)
 				{
 					SPDLOG_ERROR("unhandled frame field {:d}", frame_buf.field);
-				}
-
-				if((frame_buf.flags & V4L2_BUF_FLAG_DONE) == 0)
-				{
-					SPDLOG_ERROR("frame done flag not set");
 				}
 
 				if(frame_buf.flags & V4L2_BUF_FLAG_ERROR)

@@ -16,6 +16,8 @@
 #include <cstring>
 
 #include <array>
+#include <sstream>
+#include <string>
 
 v4l2_mmap_buffer::v4l2_mmap_buffer()
 {
@@ -248,6 +250,17 @@ v4l2_util::v4l2_util()
 v4l2_util::~v4l2_util()
 {
 
+}
+
+std::string v4l2_util::fourcc_to_str(const uint32_t fcc)
+{
+	std::stringstream ss;
+	ss << char( (fcc & 0xFF000000UL) >> 24 );
+	ss << char( (fcc & 0x00FF0000UL) >> 16 );
+	ss << char( (fcc & 0x0000FF00UL) >> 8 );
+	ss << char( (fcc & 0x000000FFUL) >> 0 );
+
+	return ss.str();
 }
 
 int v4l2_util::ioctl_helper(int req)

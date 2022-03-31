@@ -73,6 +73,8 @@ public:
 	v4l2_util();
 	~v4l2_util();
 
+	static std::string fourcc_to_str(const uint32_t fcc);
+
 	void set_fd(int fd)
 	{
 		m_v4l2_fd = fd;

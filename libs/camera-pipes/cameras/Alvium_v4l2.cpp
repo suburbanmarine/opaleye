@@ -9,8 +9,11 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#include <sstream>
+
 #include <cstdio>
 #include <cstring>
+
 
 ///
 /// Private alvium ioctls
@@ -224,7 +227,7 @@ bool Alvium_v4l2::init(const char name[])
   __u32 height       = 0;
   __u32 bytesperline = 0;
   __u32 pixelformat  = 0;
-  __u8 num_planes    = 0;
+  __u8  num_planes   = 0;
 
   switch(fmt.type)
   {
