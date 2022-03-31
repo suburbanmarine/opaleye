@@ -204,6 +204,7 @@ bool Alvium_v4l2::init(const char name[])
     }
   }
 
+  fmt.field = V4L2_FIELD_NONE;
   if (-1 == m_v4l2_util.ioctl_helper(VIDIOC_S_FMT, &fmt))
   {
     SPDLOG_ERROR("ioctl VIDIOC_S_FMT failed");
