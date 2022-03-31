@@ -3,11 +3,32 @@
 #include "opaleye-util/errno_util.hpp"
 
 #include "util/v4l2_util.hpp"
+#include "util/v4l2_mmap_buffer.hpp"
 
 #include <vector>
 #include <memory>
 #include <map>
 #include <functional>
+
+namespace Alvium_CSI
+{
+  enum class v4l2_trigger_source
+  {
+    V4L2_TRIGGER_SOURCE_SOFTWARE = 0,
+    V4L2_TRIGGER_SOURCE_LINE0    = 1,
+    V4L2_TRIGGER_SOURCE_LINE1    = 2,
+    V4L2_TRIGGER_SOURCE_LINE2    = 3,
+    V4L2_TRIGGER_SOURCE_LINE3    = 4
+  };
+  enum class v4l2_trigger_activation
+  {
+    V4L2_TRIGGER_ACTIVATION_RISING_EDGE  = 0,
+    V4L2_TRIGGER_ACTIVATION_FALLING_EDGE = 1,
+    V4L2_TRIGGER_ACTIVATION_ANY_EDGE     = 2,
+    V4L2_TRIGGER_ACTIVATION_LEVEL_HIGH   = 3,
+    V4L2_TRIGGER_ACTIVATION_LEVEL_LOW    = 4
+  };
+}
 
 class Alvium_v4l2
 {
@@ -42,7 +63,7 @@ public:
 
 	bool set_free_trigger();
 	bool set_sw_trigger();
-	bool set_hw_trigger();
+	bool set_hw_trigger(const Alvium_CSI::v4l2_trigger_source& src, const Alvium_CSI::v4l2_trigger_activation& act);
 
 	bool send_software_trigger();
 

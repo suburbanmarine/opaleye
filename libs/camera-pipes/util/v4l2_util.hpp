@@ -16,56 +16,6 @@
 #include <list>
 #include <vector>
 
-class v4l2_mmap_buffer
-{
-public:
-	v4l2_mmap_buffer();
-	~v4l2_mmap_buffer();
-	bool init(const int fd, const v4l2_buffer& buf, const v4l2_format& fmt, const size_t idx);
-	bool unmap();
-
-    void* get_data() const;  // mmap buffer
-    size_t get_size() const; // mmap size
-
-    uint32_t get_index() const;         // mmap buffer index
-    uint32_t get_width() const;         // px width
-    uint32_t get_height() const;        // px height
-    uint32_t get_bytes_per_line() const;
-    uint32_t get_pixel_format() const;  // format code
-
-    uint32_t get_bytes_used() const  // number of bytes with actual data within the larger mmap area
-    {
-    	return m_buf.bytesused;
-    }
-
-    //reset buf ecept for idx and type, ready to be enqueued
-    void reset_buf();
-
-	const v4l2_buffer& get_buf() const
-	{
-		return m_buf;
-	}
-	const v4l2_format& get_fmt() const
-	{
-		return m_fmt;
-	}
-
-	void set_buf(const v4l2_buffer& buf)
-	{
-		m_buf = buf;
-	}
-
-protected:
-	v4l2_buffer m_buf;
-	std::vector<v4l2_plane> m_planes;
-	v4l2_format m_fmt;
-	size_t      m_idx;
-
-	void*  m_mmap_ptr;
-	size_t m_mmap_size;
-
-};
-
 class v4l2_util
 {
 public:

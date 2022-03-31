@@ -27,26 +27,6 @@
 #define VIDIOC_G_TRIGGER_SOURCE             _IOR('V', BASE_VIDIOC_PRIVATE + 25, int)
 #define VIDIOC_TRIGGER_SOFTWARE             _IO('V',  BASE_VIDIOC_PRIVATE + 26)
 
-namespace Alvium_CSI
-{
-  enum class v4l2_trigger_source
-  {
-    V4L2_TRIGGER_SOURCE_SOFTWARE = 0,
-    V4L2_TRIGGER_SOURCE_LINE0    = 1,
-    V4L2_TRIGGER_SOURCE_LINE1    = 2,
-    V4L2_TRIGGER_SOURCE_LINE2    = 3,
-    V4L2_TRIGGER_SOURCE_LINE3    = 4
-  };
-  enum class v4l2_trigger_activation
-  {
-    V4L2_TRIGGER_ACTIVATION_RISING_EDGE  = 0,
-    V4L2_TRIGGER_ACTIVATION_FALLING_EDGE = 1,
-    V4L2_TRIGGER_ACTIVATION_ANY_EDGE     = 2,
-    V4L2_TRIGGER_ACTIVATION_LEVEL_HIGH   = 3,
-    V4L2_TRIGGER_ACTIVATION_LEVEL_LOW    = 4
-  };
-}
-
 Alvium_v4l2::Alvium_v4l2()
 {
   m_fd = -1;
@@ -80,6 +60,12 @@ bool Alvium_v4l2::open(const char dev_path[])
     if(errno == EINVAL)
     {
       SPDLOG_ERROR("Device {:s} is not a V4L2 device");
+      close();
+      return false;
+    }
+    else
+    {
+      SPDLOG_ERROR("ioctl VIDIOC_QUERYCAP failed: {:s}", m_errno.to_str());
       close();
       return false;
     }
@@ -166,7 +152,7 @@ bool Alvium_v4l2::init(const char name[], const uint32_t fcc)
   fmt.type = m_buffer_type;
   if (-1 == m_v4l2_util.ioctl_helper(VIDIOC_G_FMT, &fmt))
   {
-      SPDLOG_ERROR("ioctl VIDIOC_G_FMT failed");
+      SPDLOG_ERROR("ioctl VIDIOC_G_FMT failed: {:s}", m_errno.to_str());
       return false;
   }
 
@@ -186,7 +172,7 @@ bool Alvium_v4l2::init(const char name[], const uint32_t fcc)
   // Pixel Format: 'XR24' - V4L2_PIX_FMT_XBGR32
   // Name        : 32-bit BGRX 8-8-8-8
 
-  
+
   __u32 pixel_format = fcc;
 
   switch(fmt.type)
@@ -212,14 +198,14 @@ bool Alvium_v4l2::init(const char name[], const uint32_t fcc)
   fmt.fmt.pix.field = V4L2_FIELD_NONE;
   if (-1 == m_v4l2_util.ioctl_helper(VIDIOC_S_FMT, &fmt))
   {
-    SPDLOG_ERROR("ioctl VIDIOC_S_FMT failed");
+    SPDLOG_ERROR("ioctl VIDIOC_S_FMT failed: {:s}", m_errno.to_str());
     return false;
   }
  
   fmt.type = m_buffer_type;
   if (-1 == m_v4l2_util.ioctl_helper(VIDIOC_G_FMT, &fmt))
   {
-      SPDLOG_ERROR("ioctl VIDIOC_G_FMT failed");
+      SPDLOG_ERROR("ioctl VIDIOC_G_FMT failed: {:s}", m_errno.to_str());
       return false;
   }
 
@@ -472,8 +458,41 @@ bool Alvium_v4l2::set_sw_trigger()
 
   return true;
 }
-bool Alvium_v4l2::set_hw_trigger()
+bool Alvium_v4l2::set_hw_trigger(const Alvium_CSI::v4l2_trigger_source& src, const Alvium_CSI::v4l2_trigger_activation& act)
 {
+  switch(src)
+  {
+    case Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE0:
+    case Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE1:
+    case Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE2:
+    case Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE3:
+    {
+      break;
+    }
+    default:
+    {
+      SPDLOG_ERROR("v4l2_trigger_source not valid");
+      return false;
+    }
+  }
+
+  switch(act)
+  {
+    case Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE:
+    case Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_FALLING_EDGE:
+    case Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_ANY_EDGE:
+    case Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_LEVEL_HIGH:
+    case Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_LEVEL_LOW:
+    {
+      break;
+    }
+    default:
+    {
+      SPDLOG_ERROR("v4l2_trigger_activation not valid");
+      return false;
+    }
+  }
+
   // Set trigger mode
   if( m_v4l2_util.ioctl_helper(VIDIOC_TRIGGER_MODE_ON ) == -1 )
   {
@@ -482,7 +501,7 @@ bool Alvium_v4l2::set_hw_trigger()
   }
 
   // Set trigger source
-  int source = (int)Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE0;
+  int source = (int)src;
   if( m_v4l2_util.ioctl_helper(VIDIOC_S_TRIGGER_SOURCE, &source ) == -1 )
   {
       SPDLOG_ERROR("ioctl VIDIOC_S_TRIGGER_SOURCE / V4L2_TRIGGER_SOURCE_LINE0 failed: {:s}", m_errno.to_str());
@@ -490,11 +509,7 @@ bool Alvium_v4l2::set_hw_trigger()
   }
 
   // Set trigger activation
-  int activation = (int)Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE;
-  // int activation = (int)Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_FALLING_EDGE;
-  // int activation = (int)Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_ANY_EDGE;
-  // int activation = (int)Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_LEVEL_HIGH;
-  // int activation = (int)Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_LEVEL_LOW;
+  int activation = (int)act;
   if( m_v4l2_util.ioctl_helper(VIDIOC_S_TRIGGER_ACTIVATION, &activation ) == -1 )
   {
       SPDLOG_ERROR("ioctl VIDIOC_S_TRIGGER_ACTIVATION failed: {:s}", m_errno.to_str());

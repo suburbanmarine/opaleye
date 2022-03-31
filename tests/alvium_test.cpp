@@ -80,7 +80,7 @@ void new_frame_cb(const Alvium_v4l2::ConstMmapFramePtr& frame)
 					case V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC:
 					{
 						ss << fmt::sprintf("\ttimestamp_monotonic: %d.%06d\n", frame_buf.timestamp.tv_sec, frame_buf.timestamp.tv_usec);
-						ss << fmt::sprintf("\tcallback timestamp_monotonic: %d.%09d\n", cb_time.tv_sec, cb_time.tv_usec);
+						ss << fmt::sprintf("\tcallback timestamp_monotonic: %d.%09d\n", cb_time.tv_sec, cb_time.tv_nsec);
 						break;
 					}
 					case V4L2_BUF_FLAG_TIMESTAMP_COPY:
@@ -208,19 +208,18 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
+	if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE3, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) )
+	{
+		SPDLOG_ERROR("cam.set_hw_trigger() failed");
+		return -1;
+	}
+
 	if( ! cam.start_streaming() )
 	{
 		SPDLOG_ERROR("cam.start_streaming() failed");
 		return -1;
 	}
 
-	if( ! cam.set_sw_trigger() )
-	{
-		SPDLOG_ERROR("cam.set_sw_trigger() failed");
-		return -1;
-	}
-
-	
 	for(int i = 0; i < 10; i++)
 	{
 		if( ! cam.send_software_trigger() )

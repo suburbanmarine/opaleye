@@ -19,6 +19,7 @@ add_library(camera-pipes
 
 	util/v4l2_util.cpp
 	util/v4l2_metadata.cpp
+	util/v4l2_mmap_buffer.cpp
 
 	#pipeline/camera/Logitech_brio_pipe.cpp
 	#pipeline/camera/Logitech_C525_gst.cpp
