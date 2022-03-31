@@ -3,10 +3,12 @@
 
 #include "opaleye-util/Ptree_util.hpp"
 
+#include <boost/filesystem.hpp>
+#include <boost/program_options.hpp>
+
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
 #include <spdlog/fmt/bundled/printf.h>
-
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -16,6 +18,7 @@
 #include <thread>
 #include <sstream>
 #include <string>
+#include <iostream>
 
 static int filenum;
 
@@ -56,11 +59,6 @@ void new_frame_cb(const Alvium_v4l2::ConstMmapFramePtr& frame)
 				if(frame_buf.flags & V4L2_BUF_FLAG_ERROR)
 				{
 					SPDLOG_ERROR("frame error flag set");
-				}
-
-				if(frame_buf.flags & V4L2_BUF_FLAG_TIMECODE)
-				{
-					ss << "\ttimecode: " << frame_buf.timecode << "\n";
 				}
 
 				switch(frame_buf.flags & V4L2_BUF_FLAG_TIMESTAMP_MASK)
@@ -142,8 +140,40 @@ void new_frame_cb(const Alvium_v4l2::ConstMmapFramePtr& frame)
 	}
 }
 
-int main()
+int main(int argc, char* argv[])
 {
+	//Parse program options
+	boost::program_options::variables_map vm;
+	{
+		//register options
+		namespace bpo = boost::program_options;
+		bpo::options_description desc("Options"); 
+	    desc.add_options() 
+			("help"  , "Print usage information and exit")
+			("fcc"   , "fcc code to ask for image format")
+			;
+	
+		//Parse options
+	    try
+	    {
+	    	bpo::store(bpo::parse_command_line(argc, argv, desc), vm);
+
+			if(vm.count("help"))
+			{
+				std::cout << desc << std::endl;
+				return 0;
+			}
+
+	    	bpo::notify(vm);
+	    }
+	    catch(const bpo::error& e)
+	    {
+	    	std::cout << e.what() << std::endl;
+		  	std::cout << desc << std::endl;
+			return -1;
+	    }
+	}
+
 	Alvium_v4l2 cam;
 
 	if( ! cam.open("/dev/video0") )
@@ -152,7 +182,7 @@ int main()
 		return -1;
 	}
 
-	if( ! cam.init("cam0") )
+	if( ! cam.init("cam0", V4L2_PIX_FMT_XBGR32) )
 	{
 		SPDLOG_ERROR("cam.init failed");
 		return -1;

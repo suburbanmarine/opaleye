@@ -24,7 +24,7 @@ public:
 	bool open(const char dev_path[]);
 	bool close();
 
-	bool init(const char name[]);
+	bool init(const char name[], const uint32_t fcc);
 
 	bool start_streaming();
 	bool stop_streaming();

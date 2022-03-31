@@ -152,7 +152,7 @@ bool Alvium_v4l2::close()
 
   return ret == 0;
 }
-bool Alvium_v4l2::init(const char name[])
+bool Alvium_v4l2::init(const char name[], const uint32_t fcc)
 {
 
   if(m_v4l2_util.get_fmt_descs().empty())
@@ -185,7 +185,9 @@ bool Alvium_v4l2::init(const char name[])
   // Color Format (8bit)
   // Pixel Format: 'XR24' - V4L2_PIX_FMT_XBGR32
   // Name        : 32-bit BGRX 8-8-8-8
-  __u32 pixel_format = V4L2_PIX_FMT_XBGR32;
+
+  
+  __u32 pixel_format = fcc;
 
   switch(fmt.type)
   {

@@ -42,6 +42,49 @@ void v4l2_metadata::v4l2_buffer_to_json(const v4l2_buffer& buf, boost::property_
 void v4l2_metadata::v4l2_timecode_to_json(const v4l2_timecode& tc, boost::property_tree::ptree* const out_ptree)
 {
 	out_ptree->clear();
+
+	char const * tc_str = "";
+
+	switch(tc.type)
+	{
+		case V4L2_TC_TYPE_24FPS:
+		{
+			tc_str = "24FPS";
+			break;
+		}
+		case V4L2_TC_TYPE_25FPS:
+		{
+			tc_str = "25FPS";
+			break;
+		}
+		case V4L2_TC_TYPE_30FPS:
+		{
+			tc_str = "30FPS";
+			break;
+		}
+		case V4L2_TC_TYPE_50FPS:
+		{
+			tc_str = "50FPS";
+			break;
+		}
+		case V4L2_TC_TYPE_60FPS:
+		{
+			tc_str = "60FPS";
+			break;
+		}
+		default:
+		{
+			tc_str = "UNKFPS";
+			break;
+		}
+	}
+
+	out_ptree->put("type",    tc_str);
+	out_ptree->put("flags",   tc.flags);
+	out_ptree->put("frames",  tc.frames);
+	out_ptree->put("seconds", tc.seconds);
+	out_ptree->put("minutes", tc.minutes);
+	out_ptree->put("hours",   tc.hours);
 }
 void v4l2_metadata::v4l2_format_to_json(const v4l2_format& fmt, boost::property_tree::ptree* out_ptree)
 {
