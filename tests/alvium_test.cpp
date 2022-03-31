@@ -33,16 +33,22 @@ void new_frame_cb(const Alvium_v4l2::ConstMmapFramePtr& frame)
 		ss << "\tbytesperline: " << frame->get_fmt().fmt.pix.bytesperline << "\n";
 		ss << "\tpixelformat: "  << v4l2_util::fourcc_to_str(frame->get_fmt().fmt.pix.pixelformat) << "\n";
 
-		boost::property_tree::ptree buf_tree;
-		v4l2_metadata::v4l2_buffer_to_json(frame->get_buf(), &buf_tree);
+		{
+			boost::property_tree::ptree meta_tree;
 
-		boost::property_tree::ptree fmt_tree;
-		v4l2_metadata::v4l2_format_to_json(frame->get_fmt(), &fmt_tree);
+			boost::property_tree::ptree buf_tree;
+			v4l2_metadata::v4l2_buffer_to_json(frame->get_buf(), &buf_tree);
 
-		SPDLOG_INFO("Metadata:\n\t{:s}\n\t{:s}", 
-			Ptree_util::ptree_to_json_str(buf_tree),
-			Ptree_util::ptree_to_json_str(fmt_tree)
-		);
+			boost::property_tree::ptree fmt_tree;
+			v4l2_metadata::v4l2_format_to_json(frame->get_fmt(), &fmt_tree);
+
+			meta_tree.put_child("buf", buf_tree);
+			meta_tree.put_child("fmt", fmt_tree);
+
+			SPDLOG_INFO("Metadata:\n{:s}\n\t{:s}", 
+				Ptree_util::ptree_to_json_str(meta_tree)
+			);
+		}
 
 		switch(frame->get_fmt().type)
 		{
