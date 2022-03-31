@@ -80,12 +80,12 @@ void new_frame_cb(const Alvium_v4l2::ConstMmapFramePtr& frame)
 					case V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC:
 					{
 						ss << fmt::sprintf("\ttimestamp_monotonic: %d.%06d\n", frame_buf.timestamp.tv_sec, frame_buf.timestamp.tv_usec);
-						ss << fmt::sprintf("\tcallback timestamp_monotonic: %d.%09d\n", frame_buf.timestamp.tv_sec, frame_buf.timestamp.tv_usec);
+						ss << fmt::sprintf("\tcallback timestamp_monotonic: %d.%09d\n", cb_time.tv_sec, cb_time.tv_usec);
 						break;
 					}
 					case V4L2_BUF_FLAG_TIMESTAMP_COPY:
 					{
-						ss << fmt::sprintf("\ttimestamp_copy: %d.%06d\n", cb_time.tv_sec, cb_time.tv_nsec);
+						ss << fmt::sprintf("\ttimestamp_copy: %d.%06d\n", frame_buf.timestamp.tv_sec, frame_buf.timestamp.tv_usec);
 						break;
 					}
 					default:
