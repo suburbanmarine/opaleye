@@ -112,7 +112,10 @@ void new_frame_cb(const Alvium_v4l2::ConstMmapFramePtr& frame)
 
 				SPDLOG_INFO("New Frame Info:\n{:s}", ss.str());
 
-				std::string fname = fmt::format("/tmp/temp_{:d}.bin", filenum);
+				std::string fname = fmt::format("/tmp/temp_{:d}.{:s}.bin", 
+					filenum,
+					v4l2_util::fourcc_to_str(frame->get_fmt().fmt.pix.pixelformat)
+					);
 				filenum++;
 				
 				{
