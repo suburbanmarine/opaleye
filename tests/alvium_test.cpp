@@ -28,10 +28,10 @@ void new_frame_cb(const Alvium_v4l2::ConstMmapFramePtr& frame)
 					SPDLOG_ERROR("unhandled frame field {:d}", frame_buf.field);
 				}
 
-				// if((frame_buf.flags & V4L2_BUF_FLAG_DONE) == 0)
-				// {
-				// 	SPDLOG_ERROR("frame done flag not set");
-				// }
+				if((frame_buf.flags & V4L2_BUF_FLAG_DONE) == 0)
+				{
+					SPDLOG_ERROR("frame done flag not set");
+				}
 
 				if(frame_buf.flags & V4L2_BUF_FLAG_ERROR)
 				{

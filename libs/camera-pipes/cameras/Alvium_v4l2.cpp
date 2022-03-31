@@ -412,6 +412,9 @@ bool Alvium_v4l2::wait_for_frame(const std::chrono::microseconds& timeout, const
       //process buffer
       std::shared_ptr<v4l2_mmap_buffer> new_frame = it->second;
       
+      //update buf metadata
+      new_frame->set_buf(buf);
+      
       SPDLOG_INFO("Got new frame idx {:d} ptr {}", new_frame->get_index(), fmt::ptr(new_frame->get_data()));
       if(cb)
       {

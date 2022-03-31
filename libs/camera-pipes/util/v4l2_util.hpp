@@ -50,6 +50,11 @@ public:
 		return m_fmt;
 	}
 
+	void set_buf(const v4l2_buffer& buf)
+	{
+		m_buf = buf;
+	}
+
 protected:
 	v4l2_buffer m_buf;
 	std::vector<v4l2_plane> m_planes;
