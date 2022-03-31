@@ -219,11 +219,17 @@ uint32_t v4l2_mmap_buffer::get_pixel_format() const
 void v4l2_mmap_buffer::reset_buf()
 {
 	v4l2_buffer temp_buf = m_buf;
-	
+
 	memset(&m_buf, 0, sizeof(m_buf));
 
-	m_buf.index = temp_buf.index;
-	m_buf.type = temp_buf.type;
+	m_buf.index  = temp_buf.index;
+	m_buf.type   = temp_buf.type;
+	m_buf.memory = temp_buf.memory;
+	if(m_buf.type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE)
+	{
+		m_buf.m.planes = temp_buf.m.planes;
+		m_buf.length   = temp_buf.length;
+	}
 }
 
 v4l2_util::v4l2_util()
