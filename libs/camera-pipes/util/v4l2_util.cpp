@@ -231,6 +231,11 @@ void v4l2_mmap_buffer::reset_buf()
 	m_buf.memory = temp_buf.memory;
 	if(m_buf.type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE)
 	{
+		for(size_t i = 0; i < m_planes.size(); i++)
+		{
+			memset(m_planes.data() + i, 0, sizeof(m_planes[i]));
+		}
+
 		m_buf.m.planes = temp_buf.m.planes;
 		m_buf.length   = temp_buf.length;
 	}
