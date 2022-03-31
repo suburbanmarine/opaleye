@@ -164,6 +164,7 @@ int main(int argc, char* argv[])
 	    desc.add_options() 
 			("help"  , "Print usage information and exit")
 			("fourcc"   , bpo::value<std::string>()->default_value("XR24"), "fcc code to ask for image format, try XR24, RGGB, JXR0, JXR2, VYUY")
+			("trigger"  , bpo::value<std::string>()->default_value("SW"),   "Trigger type, SW or HW")
 			;
 
 		//Parse options
@@ -187,12 +188,28 @@ int main(int argc, char* argv[])
 	    }
 	}
 
- 	std::string fourcc = vm["fourcc"].as<std::string>();
- 	if(fourcc.size() != 4)
- 	{
+	std::string fourcc = vm["fourcc"].as<std::string>();
+	if(fourcc.size() != 4)
+	{
 	  	std::cout << "FCC code must be 4 chars long" << std::endl;
 		return -1;
- 	}
+	}
+
+	bool sw_trigger = false;
+	std::string trigger = vm["trigger"].as<std::string>();
+	if(trigger.compare("SW") == 0)
+	{
+		sw_trigger = true;
+	}
+	else if(trigger.compare("HW") == 0)
+	{
+		sw_trigger = false;
+	}
+	else
+	{
+		std::cout << "Unknown trigger type" << std::endl;
+		return -1;
+	}
 
 	Alvium_v4l2 cam;
 
@@ -208,10 +225,21 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE3, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) )
+	if(sw_trigger)
 	{
-		SPDLOG_ERROR("cam.set_hw_trigger() failed");
-		return -1;
+		if( ! cam.set_sw_trigger() )
+		{
+			SPDLOG_ERROR("cam.set_sw_trigger() failed");
+			return -1;
+		}
+	}
+	else
+	{
+		if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE3, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) )
+		{
+			SPDLOG_ERROR("cam.set_hw_trigger(V4L2_TRIGGER_SOURCE_LINE3, V4L2_TRIGGER_ACTIVATION_RISING_EDGE) failed");
+			return -1;
+		}
 	}
 
 	if( ! cam.start_streaming() )
@@ -222,10 +250,13 @@ int main(int argc, char* argv[])
 
 	for(int i = 0; i < 10; i++)
 	{
-		if( ! cam.send_software_trigger() )
+		if(sw_trigger)
 		{
-			SPDLOG_ERROR("cam.send_software_trigger() failed");
-			return -1;
+			if( ! cam.send_software_trigger() )
+			{
+				SPDLOG_ERROR("cam.send_software_trigger() failed");
+				return -1;
+			}
 		}
 
 		if( ! cam.wait_for_frame(std::chrono::milliseconds(250), new_frame_cb) )
