@@ -49,6 +49,10 @@ bool v4l2_mmap_buffer::init(const int fd, const v4l2_buffer& buf, const v4l2_for
     }
     case V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE:
     {
+    	//we use our heap allocated planes instead of the user planes, and update the pointer
+    	m_planes.resize(m_buf.length);
+    	m_buf.m.planes = m_planes.data();
+
 			mmap_ptr = mmap(NULL, buf.m.planes[0].length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, buf.m.planes[0].m.mem_offset);
 			break;
     }

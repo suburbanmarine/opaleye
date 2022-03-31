@@ -14,6 +14,7 @@
 #include <cstdint>
 
 #include <list>
+#include <vector>
 
 class v4l2_mmap_buffer
 {
@@ -51,6 +52,7 @@ public:
 
 protected:
 	v4l2_buffer m_buf;
+	std::vector<v4l2_plane> m_planes;
 	v4l2_format m_fmt;
 	size_t      m_idx;
 
