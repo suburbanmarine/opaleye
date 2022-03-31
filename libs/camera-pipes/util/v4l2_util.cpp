@@ -225,6 +225,18 @@ v4l2_util::~v4l2_util()
 
 }
 
+int v4l2_util::ioctl_helper(int req)
+{
+  int ret = 0;
+
+  do
+  {
+    ret = ioctl(m_v4l2_fd, req);
+  } while((ret == -1) && (errno == EINTR));
+
+  return ret;
+}
+
 int v4l2_util::ioctl_helper(int req, void* arg)
 {
   int ret = 0;

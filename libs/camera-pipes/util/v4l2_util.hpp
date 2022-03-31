@@ -68,6 +68,7 @@ public:
 		return m_fmt_descs;
 	}
 
+	int ioctl_helper(int req);
 	int ioctl_helper(int req, void* arg);
 
  	// V4L2_BUF_TYPE_VIDEO_CAPTURE

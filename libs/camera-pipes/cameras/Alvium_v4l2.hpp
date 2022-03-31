@@ -23,6 +23,12 @@ public:
 	bool stop_streaming();
 	bool wait_for_frame();
 
+	bool set_free_trigger();
+	bool set_sw_trigger();
+	bool set_hw_trigger();
+
+	bool send_software_trigger();
+
 protected:
 	errno_util m_errno;
 

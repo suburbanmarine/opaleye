@@ -3,6 +3,8 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
 
+#include <thread>
+
 int main()
 {
 	Alvium_v4l2 cam;
@@ -25,13 +27,28 @@ int main()
 		return -1;
 	}
 
-	for(int i = 0; i < 100; i++)
+	if( ! cam.set_sw_trigger() )
 	{
+		SPDLOG_ERROR("cam.set_sw_trigger() failed");
+		return -1;
+	}
+
+	
+	for(int i = 0; i < 10; i++)
+	{
+		if( ! cam.send_software_trigger() )
+		{
+			SPDLOG_ERROR("cam.send_software_trigger() failed");
+			return -1;
+		}
+
 		if( ! cam.wait_for_frame() )
 		{
 			SPDLOG_ERROR("cam.wait_for_frame() failed");
 			return -1;
 		}
+
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 
 	if( ! cam.stop_streaming() )
