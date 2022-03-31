@@ -168,3 +168,5 @@ protected:
 
 	std::list<v4l2_fmtdesc> m_fmt_descs;
 };
+
+std::ostream& operator<<(std::ostream& os, const v4l2_timecode& tc);

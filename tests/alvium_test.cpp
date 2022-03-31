@@ -19,13 +19,11 @@ void new_frame_cb(const Alvium_v4l2::ConstMmapFramePtr& frame)
 	if(frame)
 	{
 		std::stringstream ss;
-		ss << "\tsizeimage: "    << frame->get_fmt().fmt.pix.sizeimage;
-		ss << "\twidth: "        << frame->get_fmt().fmt.pix.width;
-		ss << "\theight: "       << frame->get_fmt().fmt.pix.height;
-		ss << "\tbytesperline: " << frame->get_fmt().fmt.pix.bytesperline;
-		ss << "\tpixelformat: "  << v4l2_util::fourcc_to_str(frame->get_fmt().fmt.pix.pixelformat);
-
-		SPDLOG_INFO("New Frame Info:\n{:s}", ss.str());
+		ss << "\tsizeimage: "    << frame->get_fmt().fmt.pix.sizeimage << "\n";
+		ss << "\twidth: "        << frame->get_fmt().fmt.pix.width << "\n";
+		ss << "\theight: "       << frame->get_fmt().fmt.pix.height << "\n";
+		ss << "\tbytesperline: " << frame->get_fmt().fmt.pix.bytesperline << "\n";
+		ss << "\tpixelformat: "  << v4l2_util::fourcc_to_str(frame->get_fmt().fmt.pix.pixelformat) << "\n";
 
 		switch(frame->get_fmt().type)
 		{
@@ -46,44 +44,53 @@ void new_frame_cb(const Alvium_v4l2::ConstMmapFramePtr& frame)
 
 				if(frame_buf.flags & V4L2_BUF_FLAG_TIMECODE)
 				{
-					switch(frame_buf.flags & V4L2_BUF_FLAG_TIMESTAMP_MASK)
-					{
-						case V4L2_BUF_FLAG_TIMESTAMP_UNKNOWN:
-						{
-							break;
-						}
-						case V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC:
-						{
-							break;
-						}
-						case V4L2_BUF_FLAG_TIMESTAMP_COPY:
-						{
-							break;
-						}
-						default:
-						{
-							SPDLOG_ERROR("unhandled TIMESTAMP {:d}", frame_buf.flags & V4L2_BUF_FLAG_TIMESTAMP_MASK);
-							break;
-						}
-					}
+					ss << "\ttimecode: " << frame_buf.timecode << "\n";
+				}
 
-					switch(frame_buf.flags & V4L2_BUF_FLAG_TSTAMP_SRC_MASK)
+				switch(frame_buf.flags & V4L2_BUF_FLAG_TIMESTAMP_MASK)
+				{
+					case V4L2_BUF_FLAG_TIMESTAMP_UNKNOWN:
 					{
-						case V4L2_BUF_FLAG_TSTAMP_SRC_EOF:
-						{
-							break;
-						}
-						case V4L2_BUF_FLAG_TSTAMP_SRC_SOE:
-						{
-							break;
-						}
-						default:
-						{
-							SPDLOG_ERROR("unhandled TSTAMP_SRC {:d}", frame_buf.flags & V4L2_BUF_FLAG_TSTAMP_SRC_MASK);
-							break;
-						}
+						ss << fmt::format("\ttimestamp_unknown: %d.%06d\n", frame_buf.timestamp.tv_sec, frame_buf.timestamp.tv_usec);
+						break;
+					}
+					case V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC:
+					{
+						ss << fmt::format("\ttimestamp_monotonic: %d.%06d\n", frame_buf.timestamp.tv_sec, frame_buf.timestamp.tv_usec);
+						break;
+					}
+					case V4L2_BUF_FLAG_TIMESTAMP_COPY:
+					{
+						ss << fmt::format("\ttimestamp_copy: %d.%06d\n", frame_buf.timestamp.tv_sec, frame_buf.timestamp.tv_usec);
+						break;
+					}
+					default:
+					{
+						SPDLOG_ERROR("unhandled TIMESTAMP {:d}", frame_buf.flags & V4L2_BUF_FLAG_TIMESTAMP_MASK);
+						break;
 					}
 				}
+
+				switch(frame_buf.flags & V4L2_BUF_FLAG_TSTAMP_SRC_MASK)
+				{
+					case V4L2_BUF_FLAG_TSTAMP_SRC_EOF:
+					{
+						ss << "\ttimestamp_src: eof\n";
+						break;
+					}
+					case V4L2_BUF_FLAG_TSTAMP_SRC_SOE:
+					{
+						ss << "\ttimestamp_src: soe\n";
+						break;
+					}
+					default:
+					{
+						SPDLOG_ERROR("unhandled TSTAMP_SRC {:d}", frame_buf.flags & V4L2_BUF_FLAG_TSTAMP_SRC_MASK);
+						break;
+					}
+				}
+
+				SPDLOG_INFO("New Frame Info:\n{:s}", ss.str());
 
 				std::string fname = fmt::format("/tmp/temp_{:d}.bin", filenum);
 				filenum++;
