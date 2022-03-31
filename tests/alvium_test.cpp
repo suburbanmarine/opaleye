@@ -156,9 +156,9 @@ int main(int argc, char* argv[])
 		bpo::options_description desc("Options"); 
 	    desc.add_options() 
 			("help"  , "Print usage information and exit")
-			("fcc"   , "fcc code to ask for image format")
+			("fourcc"   , bpo::value<std::string>()->default_value("XR24"), "fcc code to ask for image format, try XR24, RGGB, JXR0, JXR2, VYUY")
 			;
-	
+
 		//Parse options
 	    try
 	    {
@@ -180,6 +180,13 @@ int main(int argc, char* argv[])
 	    }
 	}
 
+ 	std::string fourcc = vm["fourcc"].as<std::string>();
+ 	if(fourcc.size() != 4)
+ 	{
+	  	std::cout << "FCC code must be 4 chars long" << std::endl;
+		return -1;
+ 	}
+
 	Alvium_v4l2 cam;
 
 	if( ! cam.open("/dev/video0") )
@@ -188,7 +195,7 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	if( ! cam.init("cam0", V4L2_PIX_FMT_XBGR32) )
+	if( ! cam.init("cam0", v4l2_fourcc(fourcc[0], fourcc[1], fourcc[2], fourcc[3])) )
 	{
 		SPDLOG_ERROR("cam.init failed");
 		return -1;
