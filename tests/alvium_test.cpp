@@ -2,6 +2,7 @@
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
+#include <spdlog/fmt/bundled/printf.h>
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -51,17 +52,17 @@ void new_frame_cb(const Alvium_v4l2::ConstMmapFramePtr& frame)
 				{
 					case V4L2_BUF_FLAG_TIMESTAMP_UNKNOWN:
 					{
-						ss << fmt::format("\ttimestamp_unknown: %d.%06d\n", frame_buf.timestamp.tv_sec, frame_buf.timestamp.tv_usec);
+						ss << fmt::sprintf("\ttimestamp_unknown: %d.%06d\n", frame_buf.timestamp.tv_sec, frame_buf.timestamp.tv_usec);
 						break;
 					}
 					case V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC:
 					{
-						ss << fmt::format("\ttimestamp_monotonic: %d.%06d\n", frame_buf.timestamp.tv_sec, frame_buf.timestamp.tv_usec);
+						ss << fmt::sprintf("\ttimestamp_monotonic: %d.%06d\n", frame_buf.timestamp.tv_sec, frame_buf.timestamp.tv_usec);
 						break;
 					}
 					case V4L2_BUF_FLAG_TIMESTAMP_COPY:
 					{
-						ss << fmt::format("\ttimestamp_copy: %d.%06d\n", frame_buf.timestamp.tv_sec, frame_buf.timestamp.tv_usec);
+						ss << fmt::sprintf("\ttimestamp_copy: %d.%06d\n", frame_buf.timestamp.tv_sec, frame_buf.timestamp.tv_usec);
 						break;
 					}
 					default:
