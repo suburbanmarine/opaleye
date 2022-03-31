@@ -45,7 +45,7 @@ void new_frame_cb(const Alvium_v4l2::ConstMmapFramePtr& frame)
 			meta_tree.put_child("buf", buf_tree);
 			meta_tree.put_child("fmt", fmt_tree);
 
-			SPDLOG_INFO("Metadata:\n{:s}\n\t{:s}", 
+			SPDLOG_INFO("Metadata:\n{:s}", 
 				Ptree_util::ptree_to_json_str(meta_tree)
 			);
 		}
