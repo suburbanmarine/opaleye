@@ -1,9 +1,10 @@
 add_library(opaleye-util
+	chrono_util.cpp
 	errno_util.cpp
-	Unit_conv.cpp
+	Ptree_util.cpp
 	Stopwatch.cpp
 	thread_base.cpp
-	Ptree_util.cpp
+	Unit_conv.cpp
 
 	path/Directory_tree.cpp
 	path/Directory_tree_node.cpp

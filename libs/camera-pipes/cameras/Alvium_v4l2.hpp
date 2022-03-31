@@ -21,7 +21,7 @@ public:
 
 	bool start_streaming();
 	bool stop_streaming();
-	bool wait_for_frame();
+	bool wait_for_frame(const std::chrono::microseconds& timeout);
 
 	bool set_free_trigger();
 	bool set_sw_trigger();

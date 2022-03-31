@@ -1,5 +1,7 @@
 #include "Alvium_v4l2.hpp"
 
+#include "opaleye-util/chrono_util.hpp"
+
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
 
@@ -364,17 +366,19 @@ bool Alvium_v4l2::stop_streaming()
   return true;
 }
 
-bool Alvium_v4l2::wait_for_frame()
+bool Alvium_v4l2::wait_for_frame(const std::chrono::microseconds& timeout)
 {
   fd_set fdset;
   FD_ZERO(&fdset);
   FD_SET(m_fd, &fdset);
 
-  timeval tv;
-  tv.tv_sec = 1;
-  tv.tv_usec = 0;
+  timeval tv = chrono_to_timeval(timeout);
 
-  int nResult = select(m_fd + 1, &fdset, NULL, NULL, &tv);
+  int ret = select(m_fd + 1, &fdset, NULL, NULL, &tv);
+  if(ret == -1)
+  {
+    SPDLOG_ERROR("select failed: {:s}", m_errno.to_str());
+  }
 
   if (FD_ISSET(m_fd, &fdset) != 0)
   {

@@ -42,7 +42,7 @@ int main()
 			return -1;
 		}
 
-		if( ! cam.wait_for_frame() )
+		if( ! cam.wait_for_frame(std::chrono::milliseconds(250)) )
 		{
 			SPDLOG_ERROR("cam.wait_for_frame() failed");
 			return -1;
