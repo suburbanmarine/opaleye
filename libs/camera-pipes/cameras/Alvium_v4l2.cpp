@@ -368,6 +368,11 @@ bool Alvium_v4l2::stop_streaming()
 
 bool Alvium_v4l2::wait_for_frame(const std::chrono::microseconds& timeout)
 {
+  return wait_for_frame(timeout, FrameCallback());
+}
+
+bool Alvium_v4l2::wait_for_frame(const std::chrono::microseconds& timeout, const FrameCallback& cb)
+{
   fd_set fdset;
   FD_ZERO(&fdset);
   FD_SET(m_fd, &fdset);
@@ -406,6 +411,10 @@ bool Alvium_v4l2::wait_for_frame(const std::chrono::microseconds& timeout)
       std::shared_ptr<v4l2_mmap_buffer> new_frame = it->second;
       
       SPDLOG_INFO("Got new frame idx {:d} ptr {}", new_frame->get_index(), fmt::ptr(new_frame->get_data()));
+      if(cb)
+      {
+        cb(new_frame);
+      }
 
       //return buffer
       {

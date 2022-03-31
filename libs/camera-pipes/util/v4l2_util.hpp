@@ -23,14 +23,14 @@ public:
 	bool init(const int fd, const v4l2_buffer& buf, const v4l2_format& fmt, const size_t idx);
 	bool unmap();
 
-    void* get_data() const;
-    size_t get_size() const;
+    void* get_data() const;  // mmap buffer
+    size_t get_size() const; // mmap size
 
-    uint32_t get_index() const;
-    uint32_t get_width() const;
-    uint32_t get_height() const;
+    uint32_t get_index() const;         // mmap buffer index
+    uint32_t get_width() const;         // px width
+    uint32_t get_height() const;        // px height
     uint32_t get_bytes_per_line() const;
-    uint32_t get_pixel_format() const;
+    uint32_t get_pixel_format() const;  // format code
 
 	const v4l2_buffer& get_buf() const
 	{

@@ -5,6 +5,25 @@
 
 #include <thread>
 
+void new_frame_cb(const std::shared_ptr<const v4l2_mmap_buffer>& frame)
+{
+	if(frame)
+	{
+		switch(frame->get_fmt().type)
+		{
+			case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+			{
+				break;
+			}
+			default:
+			{
+				SPDLOG_ERROR("unhandled frame type");
+				break;
+			}
+		}
+	}
+}
+
 int main()
 {
 	Alvium_v4l2 cam;

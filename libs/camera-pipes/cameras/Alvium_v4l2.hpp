@@ -7,10 +7,14 @@
 #include <vector>
 #include <memory>
 #include <map>
+#include <functional>
 
 class Alvium_v4l2
 {
 public:
+	
+	typedef std::function<void(const std::shared_ptr<const v4l2_mmap_buffer>&)> FrameCallback;
+
 	Alvium_v4l2();
 	virtual ~Alvium_v4l2();
 
@@ -21,7 +25,16 @@ public:
 
 	bool start_streaming();
 	bool stop_streaming();
+
+	// wait for frame with synchronous callback and V4L2 buffer de-queue / enqueue
+	// cb is run in same thread context as caller of wait_for_frame
 	bool wait_for_frame(const std::chrono::microseconds& timeout);
+	bool wait_for_frame(const std::chrono::microseconds& timeout, const FrameCallback& cb);
+
+	// wait for frame with asynchronous callback and V4L2 buffer de-queue / enqueue
+	// causes buffer copy to local buffer
+	// bool async_wait_for_frame(const std::chrono::microseconds& timeout);
+	// bool async_wait_for_frame(const std::chrono::microseconds& timeout, const FrameCallback& cb);
 
 	bool set_free_trigger();
 	bool set_sw_trigger();
