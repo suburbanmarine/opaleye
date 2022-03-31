@@ -18,6 +18,7 @@ add_library(camera-pipes
 	cameras/Alvium_v4l2.cpp
 
 	util/v4l2_util.cpp
+	util/v4l2_metadata.cpp
 
 	#pipeline/camera/Logitech_brio_pipe.cpp
 	#pipeline/camera/Logitech_C525_gst.cpp
