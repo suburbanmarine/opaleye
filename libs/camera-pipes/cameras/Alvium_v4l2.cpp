@@ -335,6 +335,7 @@ bool Alvium_v4l2::start_streaming()
 {
   for(auto b : m_buf_by_idx)
   {
+    b.second->reset_buf();
     v4l2_buffer buf = b.second->get_buf();
     if (-1 == m_v4l2_util.ioctl_helper(VIDIOC_QBUF, &buf))
     {
@@ -418,6 +419,7 @@ bool Alvium_v4l2::wait_for_frame(const std::chrono::microseconds& timeout, const
 
       //return buffer
       {
+        new_frame->reset_buf();
         v4l2_buffer buf = new_frame->get_buf();
         if (-1 == m_v4l2_util.ioctl_helper(VIDIOC_QBUF, &buf))
         {

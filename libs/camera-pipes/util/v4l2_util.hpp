@@ -32,6 +32,14 @@ public:
     uint32_t get_bytes_per_line() const;
     uint32_t get_pixel_format() const;  // format code
 
+    uint32_t get_bytes_used() const  // number of bytes with actual data within the larger mmap area
+    {
+    	return m_buf.bytesused;
+    }
+
+    //reset buf ecept for idx and type, ready to be enqueued
+    void reset_buf();
+
 	const v4l2_buffer& get_buf() const
 	{
 		return m_buf;

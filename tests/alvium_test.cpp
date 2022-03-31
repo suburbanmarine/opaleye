@@ -3,9 +3,16 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
 
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 #include <thread>
 
-void new_frame_cb(const ConstMmapFramePtr& frame)
+static int filenum;
+
+void new_frame_cb(const Alvium_v4l2::ConstMmapFramePtr& frame)
 {
 	if(frame)
 	{
@@ -13,6 +20,74 @@ void new_frame_cb(const ConstMmapFramePtr& frame)
 		{
 			case V4L2_BUF_TYPE_VIDEO_CAPTURE:
 			{
+				const v4l2_buffer& frame_buf = frame->get_buf();
+				size_t blob_size = frame_buf.bytesused;
+
+				if(frame_buf.field != V4L2_FIELD_NONE)
+				{
+					SPDLOG_ERROR("unhandled frame field {:d}", frame_buf.field);
+				}
+
+				if((frame_buf.flags & V4L2_BUF_FLAG_DONE) == 0)
+				{
+					SPDLOG_ERROR("frame done flag not set");
+				}
+
+				if(frame_buf.flags & V4L2_BUF_FLAG_ERROR)
+				{
+					SPDLOG_ERROR("frame error flag set");
+				}
+
+				if(frame_buf.flags & V4L2_BUF_FLAG_TIMECODE)
+				{
+					switch(frame_buf.flags & V4L2_BUF_FLAG_TIMESTAMP_MASK)
+					{
+						case V4L2_BUF_FLAG_TIMESTAMP_UNKNOWN:
+						{
+							break;
+						}
+						case V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC:
+						{
+							break;
+						}
+						case V4L2_BUF_FLAG_TIMESTAMP_COPY:
+						{
+							break;
+						}
+						default:
+						{
+							SPDLOG_ERROR("unhandled TIMESTAMP {:d}", frame_buf.flags & V4L2_BUF_FLAG_TIMESTAMP_MASK);
+							break;
+						}
+					}
+
+					switch(frame_buf.flags & V4L2_BUF_FLAG_TSTAMP_SRC_MASK)
+					{
+						case V4L2_BUF_FLAG_TSTAMP_SRC_EOF:
+						{
+							break;
+						}
+						case V4L2_BUF_FLAG_TSTAMP_SRC_SOE:
+						{
+							break;
+						}
+						default:
+						{
+							SPDLOG_ERROR("unhandled TSTAMP_SRC {:d}", frame_buf.flags & V4L2_BUF_FLAG_TSTAMP_SRC_MASK);
+							break;
+						}
+					}
+				}
+
+				std::string fname = fmt::format("/tmp/temp_{:d}.bin", filenum);
+				filenum++;
+				
+				{
+					int fd = open(fname.c_str(), O_WRONLY | O_CREAT, 0644);
+					write(fd, frame->get_data(), frame->get_bytes_used());
+					close(fd);
+				}
+
 				break;
 			}
 			default:
@@ -61,7 +136,7 @@ int main()
 			return -1;
 		}
 
-		if( ! cam.wait_for_frame(std::chrono::milliseconds(250)) )
+		if( ! cam.wait_for_frame(std::chrono::milliseconds(250), new_frame_cb) )
 		{
 			SPDLOG_ERROR("cam.wait_for_frame() failed");
 			return -1;

@@ -216,6 +216,16 @@ uint32_t v4l2_mmap_buffer::get_pixel_format() const
   return pixelformat; 
 }
 
+void v4l2_mmap_buffer::reset_buf()
+{
+	v4l2_buffer temp_buf = m_buf;
+	
+	memset(&m_buf, 0, sizeof(m_buf));
+
+	m_buf.index = temp_buf.index;
+	m_buf.type = temp_buf.type;
+}
+
 v4l2_util::v4l2_util()
 {
 	m_v4l2_fd = -1;
