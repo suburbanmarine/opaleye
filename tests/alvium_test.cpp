@@ -28,10 +28,10 @@ void new_frame_cb(const Alvium_v4l2::ConstMmapFramePtr& frame)
 					SPDLOG_ERROR("unhandled frame field {:d}", frame_buf.field);
 				}
 
-				if((frame_buf.flags & V4L2_BUF_FLAG_DONE) == 0)
-				{
-					SPDLOG_ERROR("frame done flag not set");
-				}
+				// if((frame_buf.flags & V4L2_BUF_FLAG_DONE) == 0)
+				// {
+				// 	SPDLOG_ERROR("frame done flag not set");
+				// }
 
 				if(frame_buf.flags & V4L2_BUF_FLAG_ERROR)
 				{
@@ -84,8 +84,22 @@ void new_frame_cb(const Alvium_v4l2::ConstMmapFramePtr& frame)
 				
 				{
 					int fd = open(fname.c_str(), O_WRONLY | O_CREAT, 0644);
-					write(fd, frame->get_data(), frame->get_bytes_used());
-					close(fd);
+					if(fd < 0)
+					{
+						SPDLOG_ERROR("failed to open file");
+					}
+
+					int ret = write(fd, frame->get_data(), frame->get_bytes_used());
+					if(ret != frame->get_bytes_used())
+					{
+						SPDLOG_ERROR("write failed: {:d}", ret);
+					}
+
+					ret = close(fd);
+					if(ret != 0)
+					{
+						SPDLOG_ERROR("close failed");
+					}
 				}
 
 				break;
