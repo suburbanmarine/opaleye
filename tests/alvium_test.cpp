@@ -5,7 +5,7 @@
 
 #include <thread>
 
-void new_frame_cb(const std::shared_ptr<const v4l2_mmap_buffer>& frame)
+void new_frame_cb(const ConstMmapFramePtr& frame)
 {
 	if(frame)
 	{

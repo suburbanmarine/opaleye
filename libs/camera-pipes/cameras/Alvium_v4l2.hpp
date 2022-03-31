@@ -12,8 +12,11 @@
 class Alvium_v4l2
 {
 public:
-	
-	typedef std::function<void(const std::shared_ptr<const v4l2_mmap_buffer>&)> FrameCallback;
+
+
+	typedef std::shared_ptr<v4l2_mmap_buffer>	 MmapFramePtr;
+	typedef std::shared_ptr<const v4l2_mmap_buffer>	 ConstMmapFramePtr;
+	typedef std::function<void(const ConstMmapFramePtr&)> FrameCallback;
 
 	Alvium_v4l2();
 	virtual ~Alvium_v4l2();
@@ -28,6 +31,7 @@ public:
 
 	// wait for frame with synchronous callback and V4L2 buffer de-queue / enqueue
 	// cb is run in same thread context as caller of wait_for_frame
+	// the ConstMmapFramePtr must not have lifetime extended beyond time within the FrameCallback
 	bool wait_for_frame(const std::chrono::microseconds& timeout);
 	bool wait_for_frame(const std::chrono::microseconds& timeout, const FrameCallback& cb);
 
