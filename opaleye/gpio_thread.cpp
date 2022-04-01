@@ -84,14 +84,29 @@ bool gpio_thread::init()
 	m_gpio_chip0 = gpiod_chip_open("/dev/gpiochip0"); // tegra-gpio, base 288
 	// m_gpio_chip1 = gpiod_chip_open("/dev/gpiochip1"); // tegra-gpio-aon, base 248
 	// m_gpio_chip2 = gpiod_chip_open("/dev/gpiochip2"); // max77620-gpio, base 246
+	if(m_gpio_chip0 == nullptr)
+	{
+		SPDLOG_ERROR("gpiod_chip_open failed");
+		return false;
+	}
 
 	//CAM0_PWDN - GPIO03_P04;
 	//CAM1_PWDN - GPIO03_P05;
 	//CAM0_MCLK - GPIO03_P00;
 	//CAM1_MCLK - GPIO03_P01;
 	m_line = gpiod_chip_get_line(m_gpio_chip0, 288+TEGRA194_MAIN_GPIO_PORT_P*8+0);
+	if(m_line == nullptr)
+	{
+		SPDLOG_ERROR("gpiod_chip_get_line failed");
+		return false;
+	}
 
-	gpiod_line_request_output(m_line, "opaleye-GPIO03_P00", 0);
+	int ret = gpiod_line_request_output(m_line, "opaleye-GPIO03_P00", 0);
+	if(ret != 0)
+	{
+		SPDLOG_ERROR("gpiod_line_request_output failed");
+		return false;
+	}
 
 	set(false);
 
