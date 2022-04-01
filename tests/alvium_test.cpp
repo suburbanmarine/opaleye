@@ -269,7 +269,7 @@ int main(int argc, char* argv[])
 		}
 		else
 		{
-			// user_gpio.set(true);
+			user_gpio.set(true);
 		}
 
 		if( ! cam.wait_for_frame(std::chrono::milliseconds(250), new_frame_cb) )
@@ -278,7 +278,7 @@ int main(int argc, char* argv[])
 			return -1;
 		}
 
-		// user_gpio.false(true);
+		user_gpio.false(true);
 
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
