@@ -59,26 +59,30 @@ gpio_thread::~gpio_thread()
 
 bool gpio_thread::close()
 {
+	bool ret = true;
 	if(m_timer_fd)
 	{
-		int ret = close(m_timer_fd);
+		int ret = ::close(m_timer_fd);
 		if(ret != 0)
 		{
-			//log
+			SPDLOG_ERROR("close(m_timer_fd) failed");
+			ret = false;
 		}
 	}
 
-	if( ! m_line )
+	if( m_line )
 	{
 		gpiod_line_release(m_line);
 		m_line = nullptr;
 	}
 
-	if( ! m_gpio_chip0 )
+	if( m_gpio_chip0 )
 	{
 		gpiod_chip_close(m_gpio_chip0);
 		m_gpio_chip0 = nullptr;
 	}
+
+	return ret;
 }
 
 bool gpio_thread::init()
@@ -105,7 +109,7 @@ bool gpio_thread::init()
 	//CAM1_PWDN - GPIO03_P05;
 	//CAM0_MCLK - GPIO03_P00;
 	//CAM1_MCLK - GPIO03_P01;
-	m_line = gpiod_chip_get_line(m_gpio_chip0, 288+TEGRA194_MAIN_GPIO_PORT_P*8+0);
+	m_line = gpiod_chip_get_line(m_gpio_chip0, TEGRA194_MAIN_GPIO_PORT_P*8+0);
 	if(m_line == nullptr)
 	{
 		SPDLOG_ERROR("gpiod_chip_get_line failed");
