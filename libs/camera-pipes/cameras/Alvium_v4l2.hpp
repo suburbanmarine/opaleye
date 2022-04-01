@@ -15,10 +15,10 @@ namespace Alvium_CSI
   enum class v4l2_trigger_source
   {
     V4L2_TRIGGER_SOURCE_SOFTWARE = 0,
-    V4L2_TRIGGER_SOURCE_LINE0    = 1,
-    V4L2_TRIGGER_SOURCE_LINE1    = 2,
-    V4L2_TRIGGER_SOURCE_LINE2    = 3,
-    V4L2_TRIGGER_SOURCE_LINE3    = 4
+    V4L2_TRIGGER_SOURCE_LINE0    = 1, // this seems to be "EXT-GPIO2" aka PWDN
+    V4L2_TRIGGER_SOURCE_LINE1    = 2, // this seems to be "EXT-GPIO3" aka MCLK
+    V4L2_TRIGGER_SOURCE_LINE2    = 3, // not connected?
+    V4L2_TRIGGER_SOURCE_LINE3    = 4  // not connected?
   };
   enum class v4l2_trigger_activation
   {
