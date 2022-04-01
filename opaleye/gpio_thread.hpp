@@ -23,7 +23,7 @@ public:
 	bool close();
 	bool set(const bool val);
 
-	// void work() override;
+	void work() override;
 
 protected:
 	int m_timer_fd;

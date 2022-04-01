@@ -5,7 +5,7 @@
 */
 
 #include "gpio_thread.hpp"
-
+#include "opaleye-util/chrono_util.hpp"
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/printf.h>
@@ -134,12 +134,31 @@ bool gpio_thread::set(const bool val)
 {
 	return 0 == gpiod_line_set_value(m_line, val);
 }
-#if 0
 void gpio_thread::work()
 {	
-	// or maybe sleep with
-	// clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, ...)
+	while( ! is_interrupted() )
+	{
+		// next top of second, if it is at least 0.5s away
+		timespec now;
+		int ret = clock_gettime(CLOCK_REALTIME, &now);
 
+		timespec_add_chrono(now, std::chrono::seconds(1));
+
+		//wait
+		ret = 0;
+		do
+		{
+			ret = clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &now, &now);
+		} while( (ret != 0) && (errno == EINTR));
+
+
+		//fire
+		set(true);
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		set(false);
+	}
+
+#if 0
 	timespec t_now;
 	int ret = clock_gettime(CLOCK_REALTIME, &t_now);
 
@@ -169,5 +188,5 @@ void gpio_thread::work()
 			}
 		}
 	}
-}
 #endif
+}
