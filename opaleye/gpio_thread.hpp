@@ -21,10 +21,13 @@ public:
 
 	bool init();
 
-	void work() override;
+	bool set(const bool val);
+
+	// void work() override;
 
 protected:
 	int m_timer_fd;
 
 	gpiod_chip* m_gpio_chip0;
+	gpiod_line* m_line;
 };

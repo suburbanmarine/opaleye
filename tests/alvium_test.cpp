@@ -1,6 +1,8 @@
 #include "cameras/Alvium_v4l2.hpp"
 #include "util/v4l2_metadata.hpp"
 
+#include "gpio_thread.hpp"
+
 #include "opaleye-util/Ptree_util.hpp"
 
 #include <boost/filesystem.hpp>
@@ -211,6 +213,13 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
+	gpio_thread user_gpio;
+	if( ! user_gpio.init() )
+	{
+		std::cout << "Gpio init failed" << std::endl;
+		return -1;
+	}
+
 	Alvium_v4l2 cam;
 
 	if( ! cam.open("/dev/video0") )
@@ -258,12 +267,18 @@ int main(int argc, char* argv[])
 				return -1;
 			}
 		}
+		else
+		{
+			// user_gpio.set(true);
+		}
 
 		if( ! cam.wait_for_frame(std::chrono::milliseconds(250), new_frame_cb) )
 		{
 			SPDLOG_ERROR("cam.wait_for_frame() failed");
 			return -1;
 		}
+
+		// user_gpio.false(true);
 
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
