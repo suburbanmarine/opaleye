@@ -105,10 +105,10 @@ bool gpio_thread::init()
 		return false;
 	}
 
-	//CAM0_PWDN - GPIO03_P04;
-	//CAM1_PWDN - GPIO03_P05;
-	//CAM0_MCLK - GPIO03_P00;
-	//CAM1_MCLK - GPIO03_P01;
+	//CAM0_PWDN / cam0 GPIO0 - xavier GPIO03_P04
+	//CAM1_PWDN / cam1 GPIO0 - xavier GPIO03_P05
+	//CAM0_MCLK / cam0 GPIO1 - xavier GPIO03_P00
+	//CAM1_MCLK / cam1 GPIO1 - xavier GPIO03_P01
 	m_line = gpiod_chip_get_line(m_gpio_chip0, TEGRA194_MAIN_GPIO_PORT_P*8+0);
 	if(m_line == nullptr)
 	{

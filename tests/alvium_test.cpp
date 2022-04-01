@@ -244,9 +244,9 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-		if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE3, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) )
+		if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE1, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) )
 		{
-			SPDLOG_ERROR("cam.set_hw_trigger(V4L2_TRIGGER_SOURCE_LINE3, V4L2_TRIGGER_ACTIVATION_RISING_EDGE) failed");
+			SPDLOG_ERROR("cam.set_hw_trigger(V4L2_TRIGGER_SOURCE_LINE1, V4L2_TRIGGER_ACTIVATION_RISING_EDGE) failed");
 			return -1;
 		}
 	}
@@ -278,7 +278,7 @@ int main(int argc, char* argv[])
 			return -1;
 		}
 
-		user_gpio.false(true);
+		user_gpio.set(false);
 
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
