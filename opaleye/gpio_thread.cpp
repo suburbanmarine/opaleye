@@ -54,6 +54,11 @@ gpio_thread::gpio_thread()
 }
 gpio_thread::~gpio_thread()
 {
+	close();
+}
+
+bool gpio_thread::close()
+{
 	if(m_timer_fd)
 	{
 		int ret = close(m_timer_fd);
@@ -63,10 +68,14 @@ gpio_thread::~gpio_thread()
 		}
 	}
 
-	if( ! m_gpio_chip0 )
+	if( ! m_line )
 	{
 		gpiod_line_release(m_line);
 		m_line = nullptr;
+	}
+
+	if( ! m_gpio_chip0 )
+	{
 		gpiod_chip_close(m_gpio_chip0);
 		m_gpio_chip0 = nullptr;
 	}
@@ -78,6 +87,7 @@ bool gpio_thread::init()
 	if(m_timer_fd < 0)
 	{
 		//log
+		close();
 		return false;
 	}
 
@@ -87,6 +97,7 @@ bool gpio_thread::init()
 	if(m_gpio_chip0 == nullptr)
 	{
 		SPDLOG_ERROR("gpiod_chip_open failed");
+		close();
 		return false;
 	}
 
@@ -98,6 +109,7 @@ bool gpio_thread::init()
 	if(m_line == nullptr)
 	{
 		SPDLOG_ERROR("gpiod_chip_get_line failed");
+		close();
 		return false;
 	}
 
@@ -105,6 +117,7 @@ bool gpio_thread::init()
 	if(ret != 0)
 	{
 		SPDLOG_ERROR("gpiod_line_request_output failed");
+		close();
 		return false;
 	}
 

@@ -20,7 +20,7 @@ public:
 	~gpio_thread() override;
 
 	bool init();
-
+	bool close();
 	bool set(const bool val);
 
 	// void work() override;
