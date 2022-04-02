@@ -109,7 +109,8 @@ bool gpio_thread::init()
 	//CAM1_PWDN / cam1 GPIO0 - xavier GPIO03_P05
 	//CAM0_MCLK / cam0 GPIO1 - xavier GPIO03_P00
 	//CAM1_MCLK / cam1 GPIO1 - xavier GPIO03_P01
-	m_line = gpiod_chip_get_line(m_gpio_chip0, TEGRA194_MAIN_GPIO_PORT_P*8+0);
+	// m_line = gpiod_chip_get_line(m_gpio_chip0, TEGRA194_MAIN_GPIO_PORT_P*8+0);
+	m_line = gpiod_chip_get_line(m_gpio_chip0, TEGRA194_MAIN_GPIO_PORT_P*8+4);
 	if(m_line == nullptr)
 	{
 		SPDLOG_ERROR("gpiod_chip_get_line failed");
@@ -117,7 +118,8 @@ bool gpio_thread::init()
 		return false;
 	}
 
-	int ret = gpiod_line_request_output(m_line, "opaleye-GPIO03_P00", 0);
+	// int ret = gpiod_line_request_output(m_line, "opaleye-GPIO03_P00", 0);
+	int ret = gpiod_line_request_output(m_line, "opaleye-GPIO03_P04", 0);
 	if(ret != 0)
 	{
 		SPDLOG_ERROR("gpiod_line_request_output failed");

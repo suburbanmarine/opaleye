@@ -255,7 +255,8 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-		if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE1, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) )
+		if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE0, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) )
+		// if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE1, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) )
 		{
 			SPDLOG_ERROR("cam.set_hw_trigger(V4L2_TRIGGER_SOURCE_LINE1, V4L2_TRIGGER_ACTIVATION_RISING_EDGE) failed");
 			return -1;
