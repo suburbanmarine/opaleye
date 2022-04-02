@@ -254,8 +254,8 @@ int main(int argc, char* argv[])
 	}
 	else if(trigger.compare("HW-user") == 0)
 	{
-		// if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE0, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) )    //PDWN
-		if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE1, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) ) // MCLK
+		if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE0, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) )    //PDWN
+		// if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE1, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) ) // MCLK
 		{
 			SPDLOG_ERROR("cam.set_hw_trigger(V4L2_TRIGGER_SOURCE_LINE1, V4L2_TRIGGER_ACTIVATION_RISING_EDGE) failed");
 			return -1;
@@ -271,8 +271,8 @@ int main(int argc, char* argv[])
 	}
 	else if(trigger.compare("HW-kernel") == 0)
 	{
-		// if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE0, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) ) // PDWN
-		if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE1, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) )    // MCLK
+		if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE0, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) ) // PDWN
+		// if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE1, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) )    // MCLK
 		{
 			SPDLOG_ERROR("cam.set_hw_trigger(V4L2_TRIGGER_SOURCE_LINE1, V4L2_TRIGGER_ACTIVATION_RISING_EDGE) failed");
 			return -1;
