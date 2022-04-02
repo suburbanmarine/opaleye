@@ -194,11 +194,9 @@ int __init opaleye_gpio_init(void)
 }
 void __exit opaleye_gpio_exit(void)
 {
-
-
 	if(g_gpio_state)
 	{
-		gpio_free(state->GPIO03_P04);
+		gpio_free(g_gpio_state->GPIO03_P04);
 
 		//stop thread
 		int task_ret = kthread_stop(g_gpio_state->main_task_ptr);
