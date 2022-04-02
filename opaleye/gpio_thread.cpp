@@ -145,17 +145,21 @@ void gpio_thread::work()
 		timespec_add_chrono(now, std::chrono::seconds(1));
 
 		//wait
+		timespec rem;
 		ret = 0;
 		do
 		{
-			ret = clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &now, &now);
+			ret = clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &now, &rem);
 		} while( (ret != 0) && (errno == EINTR));
 
 
 		//fire
-		set(true);
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
-		set(false);
+		if(ret == 0)
+		{
+			set(true);
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			set(false);
+		}
 	}
 
 #if 0
