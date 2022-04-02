@@ -88,6 +88,7 @@ int __init opaleye_gpio_init(void)
 	}
 
 	//get CSI gpios
+#if 0
 	state->GPIO03_P04 = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_P, 4);
 	int ret = gpio_request_one(state->GPIO03_P04, GPIOF_DIR_OUT | GPIOF_INIT_LOW, "opaleye_GPIO03_P04");
 	if(ret != 0)
@@ -109,9 +110,9 @@ int __init opaleye_gpio_init(void)
 		state = NULL;
 		return -1;
 	}
-
+#endif
 	state->GPIO03_P00 = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_P, 0);
-	ret = gpio_request_one(state->GPIO03_P00, GPIOF_DIR_OUT | GPIOF_INIT_LOW, "opaleye_GPIO03_P00");
+	int ret = gpio_request_one(state->GPIO03_P00, GPIOF_DIR_OUT | GPIOF_INIT_LOW, "opaleye_GPIO03_P00");
 	if(ret != 0)
 	{
 		printk(KERN_ERR "gpio_request_one failed to start GPIO03_P00");
@@ -132,6 +133,7 @@ int __init opaleye_gpio_init(void)
 		return -1;
 	}
 
+#if 0
 	// get Ext40 gpios
 	state->GPIO13_N01 = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_N, 1);
 	ret = gpio_request_one(state->GPIO13_N01, GPIOF_DIR_OUT | GPIOF_INIT_LOW, "opaleye_gpio_pin13");
@@ -176,7 +178,7 @@ int __init opaleye_gpio_init(void)
 		state = NULL;
 		return -1;
 	}
-
+#endif
 	// or to pin to a cpu
 	// kthread_create
 	// kthread_bind

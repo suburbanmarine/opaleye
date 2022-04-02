@@ -239,6 +239,9 @@ Max Power
 foo@bar:~$ sudo jetson_clocks
 ```
 
+## PTP4l
+sudo ./ptp4l -H -E -i eth0 -m
+
 ## Opaleye Pinout
 
 ### X1 802.3af / 802.3at POE 30W 37.0-57.0
