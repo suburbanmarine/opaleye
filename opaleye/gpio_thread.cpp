@@ -140,11 +140,12 @@ void gpio_thread::work()
 	//TODO if it is at least 0.5s away
 	timespec now;
 	int ret = clock_gettime(CLOCK_REALTIME, &now);
-	now.tv_nsec = 0;
+	now.tv_sec  += 1;
+	now.tv_nsec  = 0;
 
 	while( ! is_interrupted() )
 	{
-		timespec_add_chrono(now, std::chrono::seconds(1));
+		timespec_add_chrono(now, std::chrono::seconds(2));
 
 		//wait
 		timespec rem;
