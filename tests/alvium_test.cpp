@@ -23,6 +23,8 @@
 #include <iostream>
 
 static int filenum;
+static bool write_to_disk;
+static int num_trigger;
 
 void new_frame_cb(const Alvium_v4l2::ConstMmapFramePtr& frame)
 {
@@ -31,6 +33,8 @@ void new_frame_cb(const Alvium_v4l2::ConstMmapFramePtr& frame)
 
 	if(frame)
 	{
+		num_trigger++;
+
 		std::stringstream ss;
 		ss << "\tsizeimage: "    << frame->get_fmt().fmt.pix.sizeimage << "\n";
 		ss << "\twidth: "        << frame->get_fmt().fmt.pix.width << "\n";
@@ -118,29 +122,32 @@ void new_frame_cb(const Alvium_v4l2::ConstMmapFramePtr& frame)
 
 				SPDLOG_INFO("New Frame Info:\n{:s}", ss.str());
 
-				std::string fname = fmt::format("/tmp/temp_{:d}.{:s}.bin", 
-					filenum,
-					v4l2_util::fourcc_to_str(frame->get_fmt().fmt.pix.pixelformat)
-					);
-				filenum++;
-				
+				if(write_to_disk)
 				{
-					int fd = open(fname.c_str(), O_WRONLY | O_CREAT, 0644);
-					if(fd < 0)
+					std::string fname = fmt::format("/tmp/temp_{:d}.{:s}.bin", 
+						filenum,
+						v4l2_util::fourcc_to_str(frame->get_fmt().fmt.pix.pixelformat)
+						);
+					filenum++;
+					
 					{
-						SPDLOG_ERROR("failed to open file");
-					}
+						int fd = open(fname.c_str(), O_WRONLY | O_CREAT, 0644);
+						if(fd < 0)
+						{
+							SPDLOG_ERROR("failed to open file");
+						}
 
-					int ret = write(fd, frame->get_data(), frame->get_bytes_used());
-					if(ret != frame->get_bytes_used())
-					{
-						SPDLOG_ERROR("write failed: {:d}", ret);
-					}
+						int ret = write(fd, frame->get_data(), frame->get_bytes_used());
+						if(ret != frame->get_bytes_used())
+						{
+							SPDLOG_ERROR("write failed: {:d}", ret);
+						}
 
-					ret = close(fd);
-					if(ret != 0)
-					{
-						SPDLOG_ERROR("close failed");
+						ret = close(fd);
+						if(ret != 0)
+						{
+							SPDLOG_ERROR("close failed");
+						}
 					}
 				}
 
@@ -164,9 +171,11 @@ int main(int argc, char* argv[])
 		namespace bpo = boost::program_options;
 		bpo::options_description desc("Options"); 
 	    desc.add_options() 
-			("help"  , "Print usage information and exit")
-			("fourcc"   , bpo::value<std::string>()->default_value("XR24"), "fcc code to ask for image format, try XR24, RGGB, JXR0, JXR2, VYUY")
-			("trigger"  , bpo::value<std::string>()->default_value("SW"),   "Trigger type, SW or HW")
+			("help"      , "Print usage information and exit")
+			("fourcc"    , bpo::value<std::string>()->default_value("XR24"), "fcc code to ask for image format, try XR24, RGGB, JXR0, JXR2, VYUY")
+			("trigger"   , bpo::value<std::string>()->default_value("SW"),   "Trigger type, SW or HW")
+			("disk"      , bpo::value<bool>()->default_value(false),         "Write to disk")
+			("num_frames", bpo::value<int>()->default_value(10),          "Number of frames to grab")
 			;
 
 		//Parse options
@@ -189,6 +198,8 @@ int main(int argc, char* argv[])
 			return -1;
 	    }
 	}
+
+	write_to_disk = vm["disk"].as<bool>();
 
 	std::string fourcc = vm["fourcc"].as<std::string>();
 	if(fourcc.size() != 4)
@@ -249,6 +260,8 @@ int main(int argc, char* argv[])
 			SPDLOG_ERROR("cam.set_hw_trigger(V4L2_TRIGGER_SOURCE_LINE1, V4L2_TRIGGER_ACTIVATION_RISING_EDGE) failed");
 			return -1;
 		}
+
+		user_gpio.launch();
 	}
 
 	if( ! cam.start_streaming() )
@@ -257,7 +270,9 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	for(int i = 0; i < 10; i++)
+	int num_frames = vm["num_frames"].as<int>();
+	bool keep_going = num_frames != 0;
+	while(keep_going)
 	{
 		if(sw_trigger)
 		{
@@ -266,10 +281,11 @@ int main(int argc, char* argv[])
 				SPDLOG_ERROR("cam.send_software_trigger() failed");
 				return -1;
 			}
+			num_trigger++;
 		}
 		else
 		{
-			user_gpio.set(true);
+			// user_gpio.set(true);
 		}
 
 		if( ! cam.wait_for_frame(std::chrono::milliseconds(250), new_frame_cb) )
@@ -278,7 +294,17 @@ int main(int argc, char* argv[])
 			return -1;
 		}
 
-		user_gpio.set(false);
+		// user_gpio.set(false);
+
+		if(num_frames < 0)
+		{
+			keep_going = true;
+		}
+		else if(num_trigger >= num_frames)
+		{
+			keep_going = false;
+			break;
+		}
 
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
@@ -288,6 +314,9 @@ int main(int argc, char* argv[])
 		SPDLOG_ERROR("cam.stop_streaming() failed");
 		return -1;
 	}
+
+	user_gpio.interrupt();
+	user_gpio.join();
 
 	if( ! cam.close() )
 	{
