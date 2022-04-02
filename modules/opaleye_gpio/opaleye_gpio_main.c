@@ -53,8 +53,8 @@ typedef struct opaleye_gpio_state_t
 	int GPIO03_P04_val;
 
 	//CAM1_PWDN
-	// unsigned GPIO03_P05;
-	// int GPIO03_P05_val;
+	unsigned GPIO03_P05;
+	int GPIO03_P05_val;
 
 	//CAM0_MCLK
 	// unsigned GPIO03_P00;
@@ -100,15 +100,15 @@ int __init opaleye_gpio_init(void)
 	}
 
 	// cam1 GPIO0 - xavier GPIO03_P05
-	// state->GPIO03_P05 = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_P, 5);
-	// ret = gpio_request_one(state->GPIO03_P05, GPIOF_DIR_OUT | GPIOF_INIT_LOW, "opaleye_GPIO03_P05");
-	// if(ret != 0)
-	// {
-	// 	printk(KERN_ERR "gpio_request_one failed to start GPIO03_P05");
-	// 	kfree(state);
-	// 	state = NULL;
-	// 	return -1;
-	// }
+	state->GPIO03_P05 = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_P, 5);
+	ret = gpio_request_one(state->GPIO03_P05, GPIOF_DIR_OUT | GPIOF_INIT_LOW, "opaleye_GPIO03_P05");
+	if(ret != 0)
+	{
+		printk(KERN_ERR "gpio_request_one failed to start GPIO03_P05");
+		kfree(state);
+		state = NULL;
+		return -1;
+	}
 
 	// cam0 GPIO1 - xavier GPIO03_P00
 	// state->GPIO03_P00 = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_P, 0);
@@ -197,6 +197,7 @@ void __exit opaleye_gpio_exit(void)
 	if(g_gpio_state)
 	{
 		gpio_free(g_gpio_state->GPIO03_P04);
+		gpio_free(g_gpio_state->GPIO03_P05);
 
 		//stop thread
 		int task_ret = kthread_stop(g_gpio_state->main_task_ptr);
@@ -230,6 +231,9 @@ enum hrtimer_restart opaleye_gpio_on_timer_cb(struct hrtimer* t)
 	gpio_set_value(state->GPIO03_P04, 1);
 	state->GPIO03_P04 = 1;
 
+	gpio_set_value(state->GPIO03_P05, 1);
+	state->GPIO03_P05 = 1;
+
 	// return HRTIMER_NORESTART;
 	return HRTIMER_RESTART;
 }
@@ -254,6 +258,9 @@ enum hrtimer_restart opaleye_gpio_off_timer_cb(struct hrtimer* t)
 	//do something, toggle a pin
 	gpio_set_value(state->GPIO03_P04, 0);
 	state->GPIO03_P04 = 0;
+
+	gpio_set_value(state->GPIO03_P05, 0);
+	state->GPIO03_P05 = 0;
 
 	// return HRTIMER_NORESTART;
 	return HRTIMER_RESTART;

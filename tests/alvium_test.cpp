@@ -172,7 +172,7 @@ int main(int argc, char* argv[])
 		bpo::options_description desc("Options"); 
 	    desc.add_options() 
 			("help"      , "Print usage information and exit")
-			("device"    , bpo::value<std::string>()->default_value("device"), "device to open")
+			("device"    , bpo::value<std::string>()->default_value("/dev/video0"), "device to open")
 			("fourcc"    , bpo::value<std::string>()->default_value("XR24"), "fcc code to ask for image format, try XR24, RGGB, JXR0, JXR2, VYUY")
 			("trigger"   , bpo::value<std::string>()->default_value("SW"),   "Trigger type, SW or HW-kernel or HW-user")
 			("disk"      , bpo::value<bool>()->default_value(false),         "Write to disk")
