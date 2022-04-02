@@ -136,12 +136,14 @@ bool gpio_thread::set(const bool val)
 }
 void gpio_thread::work()
 {	
+	// next top of second
+	//TODO if it is at least 0.5s away
+	timespec now;
+	int ret = clock_gettime(CLOCK_REALTIME, &now);
+	now.tv_nsec = 0;
+
 	while( ! is_interrupted() )
 	{
-		// next top of second, if it is at least 0.5s away
-		timespec now;
-		int ret = clock_gettime(CLOCK_REALTIME, &now);
-
 		timespec_add_chrono(now, std::chrono::seconds(1));
 
 		//wait
