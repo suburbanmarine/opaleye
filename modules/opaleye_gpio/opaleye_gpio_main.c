@@ -112,7 +112,7 @@ int __init opaleye_gpio_init(void)
 
 	// CAM0_MCLK cam0 GPIO1 - xavier GPIO03_P00
 	state->GPIO03_P00 = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_P, 0);
-	int ret = gpio_request_one(state->GPIO03_P00, GPIOF_DIR_OUT | GPIOF_INIT_LOW, "opaleye_GPIO03_P00");
+	ret = gpio_request_one(state->GPIO03_P00, GPIOF_DIR_OUT | GPIOF_INIT_LOW, "opaleye_GPIO03_P00");
 	if(ret != 0)
 	{
 		printk(KERN_ERR "gpio_request_one failed to start GPIO03_P00");
@@ -123,7 +123,7 @@ int __init opaleye_gpio_init(void)
 
 	// CAM1_MCLK cam1 GPIO1 - xavier GPIO03_P01
 	state->GPIO03_P01 = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_P, 1);
-	int ret = gpio_request_one(state->GPIO03_P01, GPIOF_DIR_OUT | GPIOF_INIT_LOW, "opaleye_GPIO03_P01");
+	ret = gpio_request_one(state->GPIO03_P01, GPIOF_DIR_OUT | GPIOF_INIT_LOW, "opaleye_GPIO03_P01");
 	if(ret != 0)
 	{
 		printk(KERN_ERR "gpio_request_one failed to start GPIO03_P01");
