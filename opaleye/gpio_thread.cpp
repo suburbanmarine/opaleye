@@ -60,7 +60,7 @@ gpio_thread::~gpio_thread()
 bool gpio_thread::close()
 {
 	bool ret = true;
-	if(m_timer_fd)
+	if(m_timer_fd != -1)
 	{
 		int ret = ::close(m_timer_fd);
 		if(ret != 0)
@@ -68,6 +68,7 @@ bool gpio_thread::close()
 			SPDLOG_ERROR("close(m_timer_fd) failed");
 			ret = false;
 		}
+		m_timer_fd = -1;
 	}
 
 	if( m_line )
