@@ -232,7 +232,7 @@ int main(int argc, char* argv[])
 	gpio_thread user_gpio;
 	Alvium_v4l2 cam;
 
-	if( ! cam.open(vm["device"].as<std::string>()) )
+	if( ! cam.open(vm["device"].as<std::string>().c_str()) )
 	{
 		SPDLOG_ERROR("cam.open({:s}) failed", vm["device"].as<std::string>());
 		return -1;
