@@ -110,7 +110,6 @@ int __init opaleye_gpio_init(void)
 		state = NULL;
 		return -1;
 	}
-#endif
 	state->GPIO03_P00 = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_P, 0);
 	int ret = gpio_request_one(state->GPIO03_P00, GPIOF_DIR_OUT | GPIOF_INIT_LOW, "opaleye_GPIO03_P00");
 	if(ret != 0)
@@ -121,8 +120,9 @@ int __init opaleye_gpio_init(void)
 		state = NULL;
 		return -1;
 	}
+#endif
 
-	state->GPIO03_P01 = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_P, 1);
+	int state->GPIO03_P01 = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_P, 1);
 	ret = gpio_request_one(state->GPIO03_P01, GPIOF_DIR_OUT | GPIOF_INIT_LOW, "opaleye_GPIO03_P01");
 	if(ret != 0)
 	{
@@ -203,7 +203,7 @@ void __exit opaleye_gpio_exit(void)
 
 	if(g_gpio_state)
 	{
-		gpio_free(state->GPIO03_P00);
+		// gpio_free(state->GPIO03_P00);
 		gpio_free(state->GPIO03_P01);
 
 		//stop thread
