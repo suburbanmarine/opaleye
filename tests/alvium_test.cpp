@@ -173,7 +173,7 @@ int main(int argc, char* argv[])
 	    desc.add_options() 
 			("help"      , "Print usage information and exit")
 			("fourcc"    , bpo::value<std::string>()->default_value("XR24"), "fcc code to ask for image format, try XR24, RGGB, JXR0, JXR2, VYUY")
-			("trigger"   , bpo::value<std::string>()->default_value("SW"),   "Trigger type, SW or HW")
+			("trigger"   , bpo::value<std::string>()->default_value("SW"),   "Trigger type, SW or HW-kernel or HW-user")
 			("disk"      , bpo::value<bool>()->default_value(false),         "Write to disk")
 			("num_frames", bpo::value<int>()->default_value(10),          "Number of frames to grab")
 			;
@@ -214,7 +214,11 @@ int main(int argc, char* argv[])
 	{
 		sw_trigger = true;
 	}
-	else if(trigger.compare("HW") == 0)
+	else if(trigger.compare("HW-user") == 0)
+	{
+		sw_trigger = false;
+	}
+	else if(trigger.compare("HW-kernel") == 0)
 	{
 		sw_trigger = false;
 	}
@@ -245,7 +249,7 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	if(sw_trigger)
+	if(trigger.compare("SW") == 0)
 	{
 		if( ! cam.set_sw_trigger() )
 		{
@@ -253,7 +257,7 @@ int main(int argc, char* argv[])
 			return -1;
 		}
 	}
-	else
+	else if(trigger.compare("HW-user") == 0)
 	{
 		if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE0, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) )
 		// if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE1, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) )
@@ -263,6 +267,15 @@ int main(int argc, char* argv[])
 		}
 
 		user_gpio.launch();
+	}
+	else if(trigger.compare("HW-kernel") == 0)
+	{
+		if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE0, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) )
+		// if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE1, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) )
+		{
+			SPDLOG_ERROR("cam.set_hw_trigger(V4L2_TRIGGER_SOURCE_LINE1, V4L2_TRIGGER_ACTIVATION_RISING_EDGE) failed");
+			return -1;
+		}
 	}
 
 	if( ! cam.start_streaming() )
@@ -282,11 +295,6 @@ int main(int argc, char* argv[])
 				SPDLOG_ERROR("cam.send_software_trigger() failed");
 				return -1;
 			}
-			num_trigger++;
-		}
-		else
-		{
-			// user_gpio.set(true);
 		}
 
 		if( ! cam.wait_for_frame(std::chrono::milliseconds(250), new_frame_cb) )
@@ -294,8 +302,6 @@ int main(int argc, char* argv[])
 			SPDLOG_ERROR("cam.wait_for_frame() failed");
 			return -1;
 		}
-
-		// user_gpio.set(false);
 
 		if(num_frames < 0)
 		{
@@ -316,8 +322,11 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	user_gpio.interrupt();
-	user_gpio.join();
+	if(trigger.compare("HW-user") == 0)
+	{
+		user_gpio.interrupt();
+		user_gpio.join();
+	}
 
 	if( ! cam.close() )
 	{
