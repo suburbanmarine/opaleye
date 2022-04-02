@@ -53,16 +53,16 @@ typedef struct opaleye_gpio_state_t
 	int GPIO03_P04_val;
 
 	//CAM1_PWDN
-	unsigned GPIO03_P05;
-	int GPIO03_P05_val;
+	// unsigned GPIO03_P05;
+	// int GPIO03_P05_val;
 
 	//CAM0_MCLK
-	unsigned GPIO03_P00;
-	int GPIO03_P00_val;
+	// unsigned GPIO03_P00;
+	// int GPIO03_P00_val;
 
 	//CAM1_MCLK
-	unsigned GPIO03_P01;
-	int GPIO03_P01_val;
+	// unsigned GPIO03_P01;
+	// int GPIO03_P01_val;
 
 	// unsigned GPIO13_N01;
 	// int GPIO13_N01_val;
