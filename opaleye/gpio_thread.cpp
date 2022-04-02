@@ -147,11 +147,10 @@ void gpio_thread::work()
 		now.tv_nsec  = 0;
 
 		//wait
-		timespec rem;
 		ret = 0;
 		do
 		{
-			ret = clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &now, &rem);
+			ret = clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &now, NULL);
 		} while( (ret != 0) && (errno == EINTR));
 
 
@@ -159,7 +158,15 @@ void gpio_thread::work()
 		if(ret == 0)
 		{
 			set(true);
-			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+			timespec delay;
+			delay.tv_sec  = 0;
+			delay.tv_nsec  = 50*1000;
+			do
+			{
+				ret = clock_nanosleep(CLOCK_MONOTONIC, 0, &delay, &delay);
+			} while( (ret != 0) && (errno == EINTR));
+
 			set(false);
 		}
 	}
