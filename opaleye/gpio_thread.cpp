@@ -140,10 +140,9 @@ void gpio_thread::work()
 	while( ! is_interrupted() )
 	{
 		// next top of second
-		//TODO if it is at least 0.5s away
 		timespec now;
 		int ret = clock_gettime(CLOCK_REALTIME, &now);
-		now.tv_sec  += 2;
+		now.tv_sec  += 1;
 		now.tv_nsec  = 0;
 
 		//wait
@@ -161,7 +160,7 @@ void gpio_thread::work()
 
 			timespec delay;
 			delay.tv_sec  = 0;
-			delay.tv_nsec  = 50*1000;
+			delay.tv_nsec  = 10*1000*1000;
 			do
 			{
 				ret = clock_nanosleep(CLOCK_MONOTONIC, 0, &delay, &delay);
