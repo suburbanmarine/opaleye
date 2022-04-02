@@ -229,12 +229,6 @@ int main(int argc, char* argv[])
 	}
 
 	gpio_thread user_gpio;
-	if( ! user_gpio.init() )
-	{
-		std::cout << "Gpio init failed" << std::endl;
-		return -1;
-	}
-
 	Alvium_v4l2 cam;
 
 	if( ! cam.open("/dev/video0") )
@@ -263,6 +257,12 @@ int main(int argc, char* argv[])
 		if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE1, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) ) // MCLK
 		{
 			SPDLOG_ERROR("cam.set_hw_trigger(V4L2_TRIGGER_SOURCE_LINE1, V4L2_TRIGGER_ACTIVATION_RISING_EDGE) failed");
+			return -1;
+		}
+
+		if( ! user_gpio.init() )
+		{
+			std::cout << "Gpio init failed" << std::endl;
 			return -1;
 		}
 
