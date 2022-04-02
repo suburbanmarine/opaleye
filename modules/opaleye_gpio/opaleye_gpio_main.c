@@ -199,8 +199,13 @@ int __init opaleye_gpio_init(void)
 }
 void __exit opaleye_gpio_exit(void)
 {
+
+
 	if(g_gpio_state)
 	{
+		gpio_free(state->GPIO03_P00);
+		gpio_free(state->GPIO03_P01);
+
 		//stop thread
 		int task_ret = kthread_stop(g_gpio_state->main_task_ptr);
 
@@ -230,8 +235,8 @@ enum hrtimer_restart opaleye_gpio_on_timer_cb(struct hrtimer* t)
 	//or hrtimer_set_expires
 
 	//do something, toggle a pin
-	gpio_set_value(state->GPIO03_P00, 1);
-	state->GPIO03_P00_val = 1;
+	gpio_set_value(state->GPIO03_P01, 1);
+	state->GPIO03_P01_val = 1;
 
 	// return HRTIMER_NORESTART;
 	return HRTIMER_RESTART;
@@ -255,8 +260,8 @@ enum hrtimer_restart opaleye_gpio_off_timer_cb(struct hrtimer* t)
 	//or hrtimer_set_expires
 
 	//do something, toggle a pin
-	gpio_set_value(state->GPIO03_P00, 0);
-	state->GPIO03_P00_val = 0;
+	gpio_set_value(state->GPIO03_P01, 0);
+	state->GPIO03_P01_val = 0;
 
 	// return HRTIMER_NORESTART;
 	return HRTIMER_RESTART;
