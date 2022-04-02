@@ -122,8 +122,8 @@ int __init opaleye_gpio_init(void)
 	}
 #endif
 
-	int state->GPIO03_P01 = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_P, 1);
-	ret = gpio_request_one(state->GPIO03_P01, GPIOF_DIR_OUT | GPIOF_INIT_LOW, "opaleye_GPIO03_P01");
+	state->GPIO03_P01 = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_P, 1);
+	int ret = gpio_request_one(state->GPIO03_P01, GPIOF_DIR_OUT | GPIOF_INIT_LOW, "opaleye_GPIO03_P01");
 	if(ret != 0)
 	{
 		printk(KERN_ERR "gpio_request_one failed to start GPIO03_P01");
