@@ -33,7 +33,10 @@ void thread_base::interrupt()
 }
 void thread_base::join()
 {
-	m_thread.join();
+	if(joinable())
+	{
+		m_thread.join();
+	}
 }
 bool thread_base::joinable() const
 {
