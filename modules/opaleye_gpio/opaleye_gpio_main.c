@@ -196,9 +196,6 @@ void __exit opaleye_gpio_exit(void)
 {
 	if(g_gpio_state)
 	{
-		gpio_free(g_gpio_state->GPIO03_P04);
-		gpio_free(g_gpio_state->GPIO03_P05);
-
 		//stop thread
 		int task_ret = kthread_stop(g_gpio_state->main_task_ptr);
 
@@ -309,6 +306,11 @@ int opaleye_gpio_main(void* data)
 		//stop event cb
 		hrtimer_cancel(&g_gpio_state->gpio_on_timer);
 		hrtimer_cancel(&g_gpio_state->gpio_off_timer);
+	}
+
+	{
+		gpio_free(g_gpio_state->GPIO03_P04);
+		gpio_free(g_gpio_state->GPIO03_P05);
 	}
 
 	printk(KERN_INFO "opaleye_gpio_main done");
