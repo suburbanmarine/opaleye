@@ -240,7 +240,9 @@ foo@bar:~$ sudo jetson_clocks
 ```
 
 ## PTP4l
-sudo ./ptp4l -H -E -i eth0 -m
+sudo ./ptp4l -H -E -i eth0 -m --tx_timestamp_timeout=50
+sudo ./phc2sys -a -r -m
+or chrony
 
 ## Opaleye Pinout
 
