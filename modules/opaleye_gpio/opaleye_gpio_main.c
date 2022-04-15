@@ -48,31 +48,22 @@ typedef struct opaleye_gpio_state_t
 	struct hrtimer gpio_on_timer;
 	struct hrtimer gpio_off_timer;
 
-	//CAM0_PWDN
-	unsigned GPIO03_P04;
-	int GPIO03_P04_val;
+	struct csi_gpio[4];
 
-	// //CAM1_PWDN
-	// unsigned GPIO03_P05;
-	// int GPIO03_P05_val;
+	struct hdr_gpio[4];
 
-	// //CAM0_MCLK
-	// unsigned GPIO03_P00;
-	// int GPIO03_P00_val;
-
-	// //CAM1_MCLK
-	// unsigned GPIO03_P01;
-	// int GPIO03_P01_val;
-
-	// unsigned GPIO13_N01;
-	// int GPIO13_N01_val;
-	// unsigned GPIO01_Q05;
-	// int GPIO01_Q05_val;
-	// unsigned GPIO11_Q06;
-	// int GPIO11_Q06_val;
-	// unsigned GPIO09_R00;
-	// int GPIO09_R00_val;
+	class* cls;
+	dev_t  dev;
 } opaleye_gpio_state_t;
+
+struct file_operations ioctl_d_interface_fops = {
+	.owner = THIS_MODULE,
+	.read = NULL,
+	.write = NULL,
+	.open = ioctl_d_interface_open,
+	.unlocked_ioctl = ioctl_d_interface_ioctl,
+	.release = ioctl_d_interface_release
+};
 
 static struct opaleye_gpio_state_t* g_gpio_state;
 
@@ -87,91 +78,68 @@ int __init opaleye_gpio_init(void)
 		return -1;
 	}
 
-	//get CSI gpios
+	//get CSI gpios	
 	// CAM0_PWDN cam0 GPIO0 - xavier GPIO03_P04
-	state->GPIO03_P04 = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_P, 4);
-	int ret = gpio_request_one(state->GPIO03_P04, GPIOF_DIR_OUT | GPIOF_INIT_LOW, "opaleye_GPIO03_P04");
+	state->csi_gpio[0].gpio  = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_P, 4);
+	state->csi_gpio[0].flags = GPIOF_DIR_OUT | GPIOF_INIT_LOW;
+	state->csi_gpio[0].label = "opaleye_GPIO03_P04";
+	
+	// CAM1_PWDN cam1 GPIO0 - xavier GPIO03_P05
+	state->csi_gpio[1].gpio  = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_P, 5);
+	state->csi_gpio[1].flags = GPIOF_DIR_OUT | GPIOF_INIT_LOW;
+	state->csi_gpio[1].label = "opaleye_GPIO03_P05";
+	
+	// CAM0_MCLK cam0 GPIO1 - xavier GPIO03_P00
+	state->csi_gpio[2].gpio  = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_P, 0);
+	state->csi_gpio[2].flags = GPIOF_DIR_OUT | GPIOF_INIT_LOW;
+	state->csi_gpio[2].label = "opaleye_GPIO03_P00";
+	
+	// CAM1_MCLK cam1 GPIO1 - xavier GPIO03_P01
+	state->csi_gpio[3].gpio  = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_P, 1);
+	state->csi_gpio[3].flags = GPIOF_DIR_OUT | GPIOF_INIT_LOW;
+	state->csi_gpio[3].label = "opaleye_GPIO03_P01";
+
+	int ret = gpio_request_array(state->csi_gpio, sizeof(state->csi_gpio) / sizeof(state->csi_gpio[0]));
 	if(ret != 0)
 	{
-		printk(KERN_ERR "gpio_request_one failed to start GPIO03_P04");
+		printk(KERN_ERR "gpio_request_one failed to start csi_gpio");
 		kfree(state);
 		state = NULL;
 		return -1;
 	}
 
-	// // CAM1_PWDN cam1 GPIO0 - xavier GPIO03_P05
-	// state->GPIO03_P05 = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_P, 5);
-	// ret = gpio_request_one(state->GPIO03_P05, GPIOF_DIR_OUT | GPIOF_INIT_LOW, "opaleye_GPIO03_P05");
-	// if(ret != 0)
-	// {
-	// 	printk(KERN_ERR "gpio_request_one failed to start GPIO03_P05");
-	// 	kfree(state);
-	// 	state = NULL;
-	// 	return -1;
-	// }
+	// get Ext40 gpios
+	// GPIO 13 - xavier GPIO03_N01
+	state->hdr_gpio[0].gpio  = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_N, 1);
+	state->hdr_gpio[0].flags = GPIOF_DIR_OUT | GPIOF_INIT_LOW;
+	state->hdr_gpio[0].label = "opaleye_GPIO03_N01";
+	
+	// GPIO 1 - xavier GPIO03_Q05
+	state->hdr_gpio[1].gpio  = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_Q, 5);
+	state->hdr_gpio[1].flags = GPIOF_DIR_OUT | GPIOF_INIT_LOW;
+	state->hdr_gpio[1].label = "opaleye_GPIO03_Q05";
+	
+	// GPIO 11 - xavier GPIO03_Q06
+	state->hdr_gpio[2].gpio  = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_Q, 6);
+	state->hdr_gpio[2].flags = GPIOF_DIR_OUT | GPIOF_INIT_LOW;
+	state->hdr_gpio[2].label = "opaleye_GPIO03_Q06";
+	
+	// GPIO 9 - xavier GPIO03_R00
+	state->hdr_gpio[3].gpio  = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_R, 0);
+	state->hdr_gpio[3].flags = GPIOF_DIR_OUT | GPIOF_INIT_LOW;
+	state->hdr_gpio[3].label = "opaleye_GPIO03_R00";
 
-	// // CAM0_MCLK cam0 GPIO1 - xavier GPIO03_P00
-	// state->GPIO03_P00 = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_P, 0);
-	// ret = gpio_request_one(state->GPIO03_P00, GPIOF_DIR_OUT | GPIOF_INIT_LOW, "opaleye_GPIO03_P00");
-	// if(ret != 0)
-	// {
-	// 	printk(KERN_ERR "gpio_request_one failed to start GPIO03_P00");
-	// 	kfree(state);
-	// 	state = NULL;
-	// 	return -1;
-	// }
+	ret = gpio_request_array(state->hdr_gpio, sizeof(state->hdr_gpio) / sizeof(state->hdr_gpio[0]));
+	if(ret != 0)
+	{
+		printk(KERN_ERR "gpio_request_one failed to start hdr_gpio");
+		kfree(state);
+		state = NULL;
+		return -1;
+	}
 
-	// // CAM1_MCLK cam1 GPIO1 - xavier GPIO03_P01
-	// state->GPIO03_P01 = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_P, 1);
-	// ret = gpio_request_one(state->GPIO03_P01, GPIOF_DIR_OUT | GPIOF_INIT_LOW, "opaleye_GPIO03_P01");
-	// if(ret != 0)
-	// {
-	// 	printk(KERN_ERR "gpio_request_one failed to start GPIO03_P01");
-	// 	kfree(state);
-	// 	state = NULL;
-	// 	return -1;
-	// }
-
-	// // get Ext40 gpios
-	// state->GPIO13_N01 = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_N, 1);
-	// ret = gpio_request_one(state->GPIO13_N01, GPIOF_DIR_OUT | GPIOF_INIT_LOW, "opaleye_gpio_pin13");
-	// if(ret != 0)
-	// {
-	// 	printk(KERN_ERR "gpio_request_one failed to start GPIO13_N01");
-	// 	kfree(state);
-	// 	state = NULL;
-	// 	return -1;
-	// }
-
-	// state->GPIO01_Q05 = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_Q, 5);
-	// ret = gpio_request_one(state->GPIO01_Q05, GPIOF_DIR_OUT | GPIOF_INIT_LOW, "opaleye_gpio_pin1");
-	// if(ret != 0)
-	// {
-	// 	printk(KERN_ERR "gpio_request_one failed to start GPIO01_Q05");
-	// 	kfree(state);
-	// 	state = NULL;
-	// 	return -1;
-	// }
-
-	// state->GPIO11_Q06 = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_Q, 6);
-	// ret = gpio_request_one(state->GPIO11_Q06, GPIOF_DIR_OUT | GPIOF_INIT_LOW, "opaleye_gpio_pin11");
-	// if(ret != 0)
-	// {
-	// 	printk(KERN_ERR "gpio_request_one failed to start GPIO11_Q06");
-	// 	kfree(state);
-	// 	state = NULL;
-	// 	return -1;
-	// }
-
-	// state->GPIO09_R00 = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_R, 0);
-	// ret = gpio_request_one(state->GPIO09_R00, GPIOF_DIR_OUT | GPIOF_INIT_LOW, "opaleye_gpio_pin9");
-	// if(ret != 0)
-	// {
-	// 	printk(KERN_ERR "gpio_request_one failed to start GPIO09_R00");
-	// 	kfree(state);
-	// 	state = NULL;
-	// 	return -1;
-	// }
+	state->cls         = class_create(THIS_MODULE, "opaleye");
+	struct device* dvs = device_create(state->cls, NULL, state->dev, NULL, "gpio");
 
 	// or to pin to a cpu
 	// kthread_create
@@ -198,9 +166,20 @@ void __exit opaleye_gpio_exit(void)
 		//stop thread
 		int task_ret = kthread_stop(g_gpio_state->main_task_ptr);
 
-		//release mem
-		kfree(g_gpio_state);
-		g_gpio_state = NULL;
+		//stop gpio
+		if(g_gpio_state)
+		{
+			gpio_free_array(state->csi_gpio, sizeof(state->csi_gpio) / sizeof(state->csi_gpio[0]));
+			gpio_free_array(state->hdr_gpio, sizeof(state->hdr_gpio) / sizeof(state->hdr_gpio[0]));
+
+			device_destroy(state->cls, state->dev);
+			class_destroy(state->cls);
+
+			//release mem
+			kfree(g_gpio_state);
+			g_gpio_state = NULL;
+		}
+
 	}
 
 	printk(KERN_INFO "opaleye_gpio done");
