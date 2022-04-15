@@ -49,22 +49,12 @@ typedef struct opaleye_gpio_state_t
 	struct hrtimer gpio_on_timer;
 	struct hrtimer gpio_off_timer;
 
-	struct csi_gpio[4];
-
-	struct hdr_gpio[4];
+	struct gpio csi_gpio[4];
+	struct gpio hdr_gpio[4];
 
 	class* cls;
 	dev_t  dev;
 } opaleye_gpio_state_t;
-
-struct file_operations ioctl_d_interface_fops = {
-	.owner = THIS_MODULE,
-	.read = NULL,
-	.write = NULL,
-	.open = ioctl_d_interface_open,
-	.unlocked_ioctl = ioctl_d_interface_ioctl,
-	.release = ioctl_d_interface_release
-};
 
 static struct opaleye_gpio_state_t* g_gpio_state;
 
@@ -170,12 +160,6 @@ void __exit opaleye_gpio_exit(void)
 		//stop gpio
 		if(g_gpio_state)
 		{
-			gpio_free_array(state->csi_gpio, sizeof(state->csi_gpio) / sizeof(state->csi_gpio[0]));
-			gpio_free_array(state->hdr_gpio, sizeof(state->hdr_gpio) / sizeof(state->hdr_gpio[0]));
-
-			device_destroy(state->cls, state->dev);
-			class_destroy(state->cls);
-
 			//release mem
 			kfree(g_gpio_state);
 			g_gpio_state = NULL;
@@ -280,7 +264,13 @@ int opaleye_gpio_main(void* data)
 	}
 
 	{
+		gpio_free_array(state->csi_gpio, sizeof(state->csi_gpio) / sizeof(state->csi_gpio[0]));
+		gpio_free_array(state->hdr_gpio, sizeof(state->hdr_gpio) / sizeof(state->hdr_gpio[0]));
+	}
 
+	{
+		device_destroy(state->cls, state->dev);
+		class_destroy(state->cls);
 	}
 
 	printk(KERN_INFO "opaleye_gpio_main done");
