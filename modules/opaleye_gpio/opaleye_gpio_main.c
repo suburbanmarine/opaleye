@@ -4,6 +4,8 @@
 #include "opaleye_gpio_main.h"
 
 #include <linux/delay.h>
+#include <linux/device.h>
+#include <linux/gpio.h>
 #include <linux/hrtimer.h>
 #include <linux/init.h>
 #include <linux/interrupt.h>
@@ -12,7 +14,6 @@
 #include <linux/module.h>
 #include <linux/slab.h>
 #include <linux/timekeeping.h>
-#include <linux/gpio.h>
 
 //xavier
 #include <dt-bindings/gpio/tegra194-gpio.h>
@@ -203,17 +204,7 @@ enum hrtimer_restart opaleye_gpio_on_timer_cb(struct hrtimer* t)
 	//or hrtimer_set_expires
 
 	//do something, toggle a pin
-	gpio_set_value(state->GPIO03_P04, 1);
-	state->GPIO03_P04_val = 1;
-
-	// gpio_set_value(state->GPIO03_P05, 1);
-	// state->GPIO03_P05_val = 1;
-
-	// gpio_set_value(state->GPIO03_P00, 1);
-	// state->GPIO03_P00_val = 1;
-
-	// gpio_set_value(state->GPIO03_P01, 1);
-	// state->GPIO03_P01_val = 1;
+	gpio_set_value(state->csi_gpio[0], 1);
 
 	// return HRTIMER_NORESTART;
 	return HRTIMER_RESTART;
@@ -237,17 +228,7 @@ enum hrtimer_restart opaleye_gpio_off_timer_cb(struct hrtimer* t)
 	//or hrtimer_set_expires
 
 	//do something, toggle a pin
-	gpio_set_value(state->GPIO03_P04, 0);
-	state->GPIO03_P04_val = 0;
-
-	// gpio_set_value(state->GPIO03_P05, 0);
-	// state->GPIO03_P05_val = 0;
-
-	// gpio_set_value(state->GPIO03_P00, 0);
-	// state->GPIO03_P00_val = 0;
-
-	// gpio_set_value(state->GPIO03_P01, 0);
-	// state->GPIO03_P01_val = 0;
+	gpio_set_value(state->csi_gpio[0], 0);
 
 	// return HRTIMER_NORESTART;
 	return HRTIMER_RESTART;
@@ -299,11 +280,7 @@ int opaleye_gpio_main(void* data)
 	}
 
 	{
-		gpio_free(g_gpio_state->GPIO03_P04);
-		// gpio_free(g_gpio_state->GPIO03_P05);
 
-		// gpio_free(g_gpio_state->GPIO03_P00);
-		// gpio_free(g_gpio_state->GPIO03_P01);
 	}
 
 	printk(KERN_INFO "opaleye_gpio_main done");
