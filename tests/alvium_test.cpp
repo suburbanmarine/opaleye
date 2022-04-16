@@ -291,6 +291,8 @@ int main(int argc, char* argv[])
 	{
 		if(sw_trigger)
 		{
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+			
 			if( ! cam.send_software_trigger() )
 			{
 				SPDLOG_ERROR("cam.send_software_trigger() failed");
@@ -314,7 +316,6 @@ int main(int argc, char* argv[])
 			break;
 		}
 
-		// std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 
 	if( ! cam.stop_streaming() )
