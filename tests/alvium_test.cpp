@@ -314,7 +314,7 @@ int main(int argc, char* argv[])
 			break;
 		}
 
-		std::this_thread::sleep_for(std::chrono::seconds(1));
+		// std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 
 	if( ! cam.stop_streaming() )
