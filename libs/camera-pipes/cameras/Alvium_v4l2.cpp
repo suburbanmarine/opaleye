@@ -248,7 +248,7 @@ bool Alvium_v4l2::init(const char name[], const uint32_t fcc)
 
   v4l2_requestbuffers req;
   memset(&req, 0, sizeof(req));
-  req.count  = 2;
+  req.count  = NUM_BUFFERS;
   req.type   = m_buffer_type;
   req.memory = V4L2_MEMORY_MMAP;
   if (-1 == m_v4l2_util.ioctl_helper(VIDIOC_REQBUFS, &req))

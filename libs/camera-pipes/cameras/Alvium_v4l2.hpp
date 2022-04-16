@@ -82,4 +82,6 @@ protected:
 
 	std::map<uint32_t, std::shared_ptr<v4l2_mmap_buffer>> m_buf_by_idx;
 	std::map<void*,    std::shared_ptr<v4l2_mmap_buffer>> m_buf_by_ptr;
+
+	static constexpr size_t NUM_BUFFERS = 3;
 };
