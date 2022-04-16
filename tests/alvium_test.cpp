@@ -36,9 +36,10 @@ void new_frame_cb(const Alvium_v4l2::ConstMmapFramePtr& frame)
 		num_trigger++;
 
 		std::stringstream ss;
-		ss << "\tsizeimage: "    << frame->get_fmt().fmt.pix.sizeimage << "\n";
-		ss << "\twidth: "        << frame->get_fmt().fmt.pix.width << "\n";
-		ss << "\theight: "       << frame->get_fmt().fmt.pix.height << "\n";
+		ss << "\tsequence:  "    << frame->get_buf().sequence             << "\n";
+		ss << "\tsizeimage: "    << frame->get_fmt().fmt.pix.sizeimage    << "\n";
+		ss << "\twidth: "        << frame->get_fmt().fmt.pix.width        << "\n";
+		ss << "\theight: "       << frame->get_fmt().fmt.pix.height       << "\n";
 		ss << "\tbytesperline: " << frame->get_fmt().fmt.pix.bytesperline << "\n";
 		ss << "\tpixelformat: "  << v4l2_util::fourcc_to_str(frame->get_fmt().fmt.pix.pixelformat) << "\n";
 
