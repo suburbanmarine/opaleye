@@ -415,9 +415,9 @@ int opaleye_gpio_main(void* data)
 	opaleye_gpio_state_t* state = (opaleye_gpio_state_t*) data;
 
 	// set prio
-	// 	struct sched_param param = {
-	// 		.sched_priority = 50
-	// 	};
+	// struct sched_param param = {
+	// 	.sched_priority = 50
+	// };
 	// sched_setscheduler(state->main_task_ptr, SCHED_RR, &param); // or SCHED_FIFO
 
 	while( ! kthread_should_stop() )
