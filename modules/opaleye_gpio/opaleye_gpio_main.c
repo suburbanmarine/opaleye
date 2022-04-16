@@ -267,7 +267,7 @@ static ssize_t opaleye_timer_settings_attr_store(struct kobject *kobj, struct ko
 		mutex_lock(&g_gpio_state_mutex);
 		if(g_gpio_state->enabled)
 		{
-			printk(KERN_ERR "opaleye_timer_settings_attr_store failed - enabled");
+			printk(KERN_ERR "opaleye_timer_settings_attr_store failed - timer is enabled");
 		}
 		else
 		{
