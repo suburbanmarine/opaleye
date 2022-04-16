@@ -203,26 +203,67 @@ static ssize_t opaleye_enable_attr_store(struct kobject *kobj, struct kobj_attri
 
 	return count;
 }
+
+static long int char_to_num(const char c)
+{
+	return c - '0';
+}
+
+static long int nsstr_to_ns(const char* buf)
+{
+	long int accum = 0;
+	long int mul   = 100000000;
+
+	char const * ptr = buf;
+	while(*ptr)
+	{
+		accum += char_to_num(*ptr) * mul;
+		mul = mul / 10;
+		ptr++;
+	}
+
+	return accum;
+}
+
 static ssize_t opaleye_timer_settings_attr_store(struct kobject *kobj, struct kobj_attribute *attr, const char *buf, size_t count)
 {
-	long int t0_sec;
-	long int t0_nsec;
-	long int period_sec;
-	long int period_nsec;
-	long int width_sec;
-	long int width_nsec;
+	// long int t0_sec;
+	// long int t0_nsec;
+	// long int period_sec;
+	// long int period_nsec;
+	// long int width_sec;
+	// long int width_nsec;
 
-	int ret = sscanf(buf, "%ld.%ld,%ld.%ld,%ld.%ld",
-				&t0_sec,     &t0_nsec,
-				&period_sec, &period_nsec,
-				&width_sec,  &width_nsec
+	// int ret = sscanf(buf, "%ld.%ld,%ld.%ld,%ld.%ld",
+	// 			&t0_sec,     &t0_nsec,
+	// 			&period_sec, &period_nsec,
+	// 			&width_sec,  &width_nsec
+	// 	);
+
+	long int t0_sec;
+	char  t0_nsec_str[10];
+	long int period_sec;
+	char  period_nsec_str[10];
+	long int width_sec;
+	char width_nsec_str[10];
+
+	int ret = sscanf(buf, "%ld.%9[0123456789],%ld.%9[0123456789],%ld.%9[0123456789]",
+				&t0_sec,     t0_nsec_str,
+				&period_sec, period_nsec_str,
+				&width_sec,  width_nsec_str
 		);
+
+
 	if(ret != 6)
 	{
 		printk(KERN_ERR "opaleye_timer_settings_attr_store failed to parse");
 	}
 	else
 	{
+		const long int t0_nsec     = nsstr_to_ns(t0_nsec_str);
+		const long int period_nsec = nsstr_to_ns(period_nsec_str);
+		const long int width_nsec  = nsstr_to_ns(width_nsec_str);
+		
 		mutex_lock(&g_gpio_state_mutex);
 		if(g_gpio_state->enabled)
 		{
