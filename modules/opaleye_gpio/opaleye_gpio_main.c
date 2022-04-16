@@ -65,6 +65,59 @@ typedef struct opaleye_gpio_state_t
 static struct opaleye_gpio_state_t* g_gpio_state;
 DEFINE_MUTEX(g_gpio_state_mutex);
 
+static enum hrtimer_restart opaleye_gpio_on_timer_cb(struct hrtimer* t)
+{
+	if( ! t )
+	{
+		printk(KERN_ERR "opaleye_gpio_on_timer_cb t is null");
+	}
+
+	opaleye_gpio_state_t* state = container_of(t, opaleye_gpio_state_t, gpio_on_timer);
+	if( ! state )
+	{
+		printk(KERN_ERR "opaleye_gpio_on_timer_cb state is null");
+	}
+
+	hrtimer_forward_now(&state->gpio_on_timer, state->period);
+	//or hrtimer_set_expires
+
+	//do something, toggle a pin
+	gpio_set_value(state->csi_gpio[0].gpio, 1);
+	gpio_set_value(state->csi_gpio[1].gpio, 1);
+
+	// return HRTIMER_NORESTART;
+	return HRTIMER_RESTART;
+}
+
+static enum hrtimer_restart opaleye_gpio_off_timer_cb(struct hrtimer* t)
+{
+	if( ! t )
+	{
+		printk(KERN_ERR "opaleye_gpio_off_timer_cb t is null");
+	}
+
+	opaleye_gpio_state_t* state = container_of(t, opaleye_gpio_state_t, gpio_off_timer);
+	if( ! state )
+	{
+		printk(KERN_ERR "opaleye_gpio_off_timer_cb state is null");
+	}
+
+	hrtimer_forward_now(&state->gpio_off_timer, state->period); // 1s
+	//or hrtimer_set_expires
+
+	//do something, toggle a pin
+	gpio_set_value(state->csi_gpio[0].gpio, 0);
+	gpio_set_value(state->csi_gpio[1].gpio, 0);
+
+	// return HRTIMER_NORESTART;
+	return HRTIMER_RESTART;
+}
+
+// https://github.com/torvalds/linux/blob/master/include/dt-bindings/gpio/tegra194-gpio.h
+static unsigned get_tegra194_gpio(int base, int port, int offset)
+{
+	return base + port*8 + offset;
+}
 
 static ssize_t opaleye_enable_attr_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
 {
@@ -95,7 +148,55 @@ static ssize_t opaleye_enable_attr_store(struct kobject *kobj, struct kobj_attri
 	}
 	else
 	{
+		unsigned int edge = 0;
+		edge |= (g_gpio_state->enabled) ? (1U << 0) : (0U);
+		edge |= (val)                   ? (1U << 1) : (0U);
+
 		mutex_lock(&g_gpio_state_mutex);
+
+		switch(edge)
+		{
+			case 1: // on-> off
+			{
+				hrtimer_cancel(&g_gpio_state->gpio_on_timer);
+				hrtimer_cancel(&g_gpio_state->gpio_off_timer);
+				break;
+			}
+			case 2: // off -> on
+			{
+				ktime_t kt_0_on;
+				if(ktime_equal(g_gpio_state->t0, ktime_set(0, 0)))
+				{
+					//if t0 == 0, start in 1s at top of second, if less than 0.25 wait till next second
+					struct timespec64 t_now;
+					ktime_get_real_ts64(&t_now);
+
+					kt_0_on = ktime_set(t_now.tv_sec + 1, 0);
+					
+					ktime_t diff = ktime_sub(kt_0_on, ktime_set(t_now.tv_sec, t_now.tv_nsec));
+					if(ktime_to_ns(diff) < 250*1000*1000ULL)
+					{
+						kt_0_on = ktime_add(kt_0_on, ktime_set(1, 0));	
+					}
+				}
+				else
+				{
+					kt_0_on = g_gpio_state->t0;
+				}
+				hrtimer_start(&g_gpio_state->gpio_on_timer, kt_0_on, HRTIMER_MODE_ABS); // HRTIMER_MODE_ABS_HARD
+
+				ktime_t kt_0_off = ktime_add(kt_0_on, g_gpio_state->width);
+				hrtimer_start(&g_gpio_state->gpio_off_timer, kt_0_off, HRTIMER_MODE_ABS); // HRTIMER_MODE_ABS_HARD
+				break;
+			}
+			case 0:
+			case 3:
+			default:
+			{
+				break;
+			}
+		}
+
 		g_gpio_state->enabled = val;
 		mutex_unlock(&g_gpio_state_mutex);
 	}
@@ -123,16 +224,21 @@ static ssize_t opaleye_timer_settings_attr_store(struct kobject *kobj, struct ko
 	else
 	{
 		mutex_lock(&g_gpio_state_mutex);
-		g_gpio_state->t0     = ktime_set(t0_sec,     t0_nsec);
-		g_gpio_state->period = ktime_set(period_sec, period_nsec);
-		g_gpio_state->width  = ktime_set(width_sec,  width_nsec);
+		if(g_gpio_state->enabled)
+		{
+			printk(KERN_ERR "opaleye_timer_settings_attr_store failed - enabled");
+		}
+		else
+		{
+			g_gpio_state->t0     = ktime_set(t0_sec,     t0_nsec);
+			g_gpio_state->period = ktime_set(period_sec, period_nsec);
+			g_gpio_state->width  = ktime_set(width_sec,  width_nsec);
+		}
 		mutex_unlock(&g_gpio_state_mutex);
 	}
 
-
 	return count;
 }
-
 
 static struct kobj_attribute opaleye_enable_attr         =__ATTR(enable, 0660, opaleye_enable_attr_show, opaleye_enable_attr_store);
 static struct kobj_attribute opaleye_timer_settings_attr =__ATTR(timer_settings, 0660, opaleye_timer_settings_attr_show, opaleye_timer_settings_attr_store);
@@ -216,6 +322,13 @@ int __init opaleye_gpio_init(void)
 	state->width  = ktime_set(0, 100*1000*1000);
 	state->period = ktime_set(1, 0);
 
+	//startup
+	hrtimer_init(&state->gpio_on_timer, CLOCK_REALTIME, HRTIMER_MODE_ABS); // HRTIMER_MODE_ABS_HARD
+	state->gpio_on_timer.function = opaleye_gpio_on_timer_cb;
+
+	hrtimer_init(&state->gpio_off_timer, CLOCK_REALTIME, HRTIMER_MODE_ABS); // HRTIMER_MODE_ABS_HARD
+	state->gpio_off_timer.function = opaleye_gpio_off_timer_cb;
+
 	// or to pin to a cpu
 	// kthread_create
 	// kthread_bind
@@ -254,58 +367,6 @@ void __exit opaleye_gpio_exit(void)
 	printk(KERN_INFO "opaleye_gpio done");
 }
 
-enum hrtimer_restart opaleye_gpio_on_timer_cb(struct hrtimer* t)
-{
-	if( ! t )
-	{
-		printk(KERN_ERR "opaleye_gpio_on_timer_cb t is null");
-	}
-
-	opaleye_gpio_state_t* state = container_of(t, opaleye_gpio_state_t, gpio_on_timer);
-	if( ! state )
-	{
-		printk(KERN_ERR "opaleye_gpio_on_timer_cb state is null");
-	}
-
-	hrtimer_forward_now(&state->gpio_on_timer, state->period);
-	//or hrtimer_set_expires
-
-	//do something, toggle a pin
-	gpio_set_value(state->csi_gpio[0].gpio, 1);
-
-	// return HRTIMER_NORESTART;
-	return HRTIMER_RESTART;
-}
-
-enum hrtimer_restart opaleye_gpio_off_timer_cb(struct hrtimer* t)
-{
-	if( ! t )
-	{
-		printk(KERN_ERR "opaleye_gpio_off_timer_cb t is null");
-	}
-
-	opaleye_gpio_state_t* state = container_of(t, opaleye_gpio_state_t, gpio_off_timer);
-	if( ! state )
-	{
-		printk(KERN_ERR "opaleye_gpio_off_timer_cb state is null");
-	}
-
-	hrtimer_forward_now(&state->gpio_off_timer, state->period); // 1s
-	//or hrtimer_set_expires
-
-	//do something, toggle a pin
-	gpio_set_value(state->csi_gpio[0].gpio, 0);
-
-	// return HRTIMER_NORESTART;
-	return HRTIMER_RESTART;
-}
-
-// https://github.com/torvalds/linux/blob/master/include/dt-bindings/gpio/tegra194-gpio.h
-unsigned get_tegra194_gpio(int base, int port, int offset)
-{
-	return base + port*8 + offset;
-}
-
 int opaleye_gpio_main(void* data)
 {
 	printk(KERN_INFO "opaleye_gpio_main starting");
@@ -317,23 +378,6 @@ int opaleye_gpio_main(void* data)
 	// 		.sched_priority = 50
 	// 	};
 	// sched_setscheduler(state->main_task_ptr, SCHED_RR, &param); // or SCHED_FIFO
-
-	//startup
-	hrtimer_init(&state->gpio_on_timer, CLOCK_REALTIME, HRTIMER_MODE_ABS); // HRTIMER_MODE_ABS_HARD
-	state->gpio_on_timer.function = opaleye_gpio_on_timer_cb;
-
-	hrtimer_init(&state->gpio_off_timer, CLOCK_REALTIME, HRTIMER_MODE_ABS); // HRTIMER_MODE_ABS_HARD
-	state->gpio_off_timer.function = opaleye_gpio_off_timer_cb;
-
-	// ktime_t kt_now = ktime_get_real();
-	struct timespec64 t_now;
-	ktime_get_real_ts64(&t_now);
-
-	ktime_t kt_0_on = ktime_set(t_now.tv_sec + 1, 0);
-	hrtimer_start(&state->gpio_on_timer, kt_0_on, HRTIMER_MODE_ABS); // HRTIMER_MODE_ABS_HARD
-
-	ktime_t kt_0_off = ktime_add(kt_0_on, state->width);
-	hrtimer_start(&state->gpio_off_timer, kt_0_off, HRTIMER_MODE_ABS); // HRTIMER_MODE_ABS_HARD
 
 	while( ! kthread_should_stop() )
 	{
