@@ -350,14 +350,55 @@ int __init opaleye_gpio_init(void)
 	if(ret != 0)
 	{
 		printk(KERN_ERR "gpio_request_one failed to start hdr_gpio");
+		
+		gpio_free_array(state->csi_gpio, sizeof(state->csi_gpio) / sizeof(state->csi_gpio[0]));
+
 		kfree(state);
 		state = NULL;
 		return -1;
 	}
 
 	state->opaleye_dir_kobj = kobject_create_and_add("opaleye", kernel_kobj);
-	sysfs_create_file(state->opaleye_dir_kobj, &opaleye_enable_attr.attr);
-	sysfs_create_file(state->opaleye_dir_kobj, &opaleye_timer_settings_attr.attr);
+	if( ! state->opaleye_dir_kobj )
+	{
+		printk(KERN_ERR "kobject_create_and_add failed");
+		
+		gpio_free_array(state->hdr_gpio, sizeof(state->hdr_gpio) / sizeof(state->hdr_gpio[0]));
+		gpio_free_array(state->csi_gpio, sizeof(state->csi_gpio) / sizeof(state->csi_gpio[0]));
+
+		kfree(state);
+		state = NULL;
+		return -1;	
+	}
+	ret = sysfs_create_file(state->opaleye_dir_kobj, &opaleye_enable_attr.attr);
+	if( ret != 0 )
+	{
+		printk(KERN_ERR "sysfs_create_file failed");
+		
+		kobject_put(state->opaleye_dir_kobj);
+
+		gpio_free_array(state->hdr_gpio, sizeof(state->hdr_gpio) / sizeof(state->hdr_gpio[0]));
+		gpio_free_array(state->csi_gpio, sizeof(state->csi_gpio) / sizeof(state->csi_gpio[0]));
+
+		kfree(state);
+		state = NULL;
+		return -1;	
+	}
+
+	ret = sysfs_create_file(state->opaleye_dir_kobj, &opaleye_timer_settings_attr.attr);
+	if( ret != 0 )
+	{
+		printk(KERN_ERR "sysfs_create_file failed");
+		
+		kobject_put(state->opaleye_dir_kobj);
+
+		gpio_free_array(state->hdr_gpio, sizeof(state->hdr_gpio) / sizeof(state->hdr_gpio[0]));
+		gpio_free_array(state->csi_gpio, sizeof(state->csi_gpio) / sizeof(state->csi_gpio[0]));
+
+		kfree(state);
+		state = NULL;
+		return -1;	
+	}
 
 	state->t0     = ktime_set(0, 0);
 	state->width  = ktime_set(0, 100*1000*1000);
@@ -378,6 +419,11 @@ int __init opaleye_gpio_init(void)
 	if( ! state->main_task_ptr )
 	{
 		printk(KERN_ERR "opaleye_gpio failed to start thread");
+
+		kobject_put(state->opaleye_dir_kobj);
+		
+		gpio_free_array(state->hdr_gpio, sizeof(state->hdr_gpio) / sizeof(state->hdr_gpio[0]));
+		gpio_free_array(state->csi_gpio, sizeof(state->csi_gpio) / sizeof(state->csi_gpio[0]));
 
 		kfree(state);
 		state = NULL;
