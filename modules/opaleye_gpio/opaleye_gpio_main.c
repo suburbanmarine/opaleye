@@ -102,7 +102,7 @@ static enum hrtimer_restart opaleye_gpio_off_timer_cb(struct hrtimer* t)
 		printk(KERN_ERR "opaleye_gpio_off_timer_cb state is null");
 	}
 
-	hrtimer_forward_now(&state->gpio_off_timer, state->period); // 1s
+	hrtimer_forward_now(&state->gpio_off_timer, state->period);
 	//or hrtimer_set_expires
 
 	//do something, toggle a pin
