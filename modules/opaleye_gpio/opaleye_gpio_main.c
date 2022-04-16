@@ -281,8 +281,8 @@ static ssize_t opaleye_timer_settings_attr_store(struct kobject *kobj, struct ko
 	return count;
 }
 
-static struct kobj_attribute opaleye_enable_attr         =__ATTR(enable, 0660, opaleye_enable_attr_show, opaleye_enable_attr_store);
-static struct kobj_attribute opaleye_timer_settings_attr =__ATTR(timer_settings, 0660, opaleye_timer_settings_attr_show, opaleye_timer_settings_attr_store);
+static struct kobj_attribute opaleye_enable_attr         =__ATTR(enable, 0664, opaleye_enable_attr_show, opaleye_enable_attr_store);
+static struct kobj_attribute opaleye_timer_settings_attr =__ATTR(timer_settings, 0664, opaleye_timer_settings_attr_show, opaleye_timer_settings_attr_store);
 
 int __init opaleye_gpio_init(void)
 {
