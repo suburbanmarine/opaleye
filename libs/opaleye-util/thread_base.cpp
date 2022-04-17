@@ -1,4 +1,4 @@
-#include "thread_base.hpp"
+#include "opaleye-util/thread_base.hpp"
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
@@ -34,7 +34,10 @@ void thread_base::interrupt()
 }
 void thread_base::join()
 {
-	m_thread.join();
+	if(joinable())
+	{
+		m_thread.join();
+	}
 }
 bool thread_base::joinable() const
 {

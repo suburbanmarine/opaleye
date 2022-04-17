@@ -4,8 +4,9 @@
  * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
 */
 
-#include "http_fcgi_svr.hpp"
-#include "http_req_callback_file.hpp"
+#include "http-bridge/http_fcgi_svr.hpp"
+#include "http-bridge/http_req_callback_file.hpp"
+
 #include "http_req_callback_sensors.hpp"
 #include "http_req_jpeg.hpp"
 #include "http_req_jsonrpc.hpp"
@@ -62,9 +63,6 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	gst_debug_set_default_threshold(GST_LEVEL_INFO);
-	// gst_debug_set_default_threshold(GST_LEVEL_TRACE);
-
 	//spdlog init
 	auto spdlog_glbl_thread_pool = std::make_shared<spdlog::details::thread_pool>(16*1024, 1);
 	{
@@ -88,6 +86,7 @@ int main(int argc, char* argv[])
 	    desc.add_options() 
 			("help"  , "Print usage information and exit")
 			("config", bpo::value<std::string>()->default_value("/opt/suburbanmarine/opaleye/conf/config.xml"), "Path to config file")
+			("gst-log-level", bpo::value<std::string>()->default_value("none"), "GST log level")
 			;
 	
 		//Parse options
@@ -109,6 +108,50 @@ int main(int argc, char* argv[])
 		  	std::cout << desc << std::endl;
 			return -1;
 	    }
+	}
+
+	{
+		if("none" == vm["gst-log-level"].as<std::string>())
+		{
+			gst_debug_set_default_threshold(GST_LEVEL_NONE);
+		}
+		else if("error" == vm["gst-log-level"].as<std::string>())
+		{
+			gst_debug_set_default_threshold(GST_LEVEL_ERROR);
+		}
+		else if("warning" == vm["gst-log-level"].as<std::string>())
+		{
+			gst_debug_set_default_threshold(GST_LEVEL_WARNING);
+		}
+		else if("fixme" == vm["gst-log-level"].as<std::string>())
+		{
+			gst_debug_set_default_threshold(GST_LEVEL_FIXME);
+		}
+		else if("info" == vm["gst-log-level"].as<std::string>())
+		{
+			gst_debug_set_default_threshold(GST_LEVEL_INFO);
+		}
+		else if("debug" == vm["gst-log-level"].as<std::string>())
+		{
+			gst_debug_set_default_threshold(GST_LEVEL_DEBUG);
+		}
+		else if("log" == vm["gst-log-level"].as<std::string>())
+		{
+			gst_debug_set_default_threshold(GST_LEVEL_LOG);
+		}
+		else if("trace" == vm["gst-log-level"].as<std::string>())
+		{
+			gst_debug_set_default_threshold(GST_LEVEL_TRACE);
+		}
+		else if("memdump" == vm["gst-log-level"].as<std::string>())
+		{
+			gst_debug_set_default_threshold(GST_LEVEL_MEMDUMP);
+		}
+		else
+		{
+			SPDLOG_ERROR("Unknown gst-log-level: {:s}", vm["gst-log-level"].as<std::string>());
+			return -1;
+		}
 	}
 
 	//load config and add a file sink logger
@@ -178,7 +221,11 @@ int main(int argc, char* argv[])
 	fcgi_svr.register_cb_for_doc_uri("/api/v1/sensor_types/", sensor_cb);
 
 	SPDLOG_INFO("Starting fcgi connection");
-	fcgi_svr.start();
+	{
+		const char bind_addr[] = "127.0.0.1:50000";
+		const size_t num_threads = 4;
+		fcgi_svr.start(bind_addr, num_threads);
+	}
 
 	// test_app_mjpeg app;
 	Opaleye_app app;

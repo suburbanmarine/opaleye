@@ -4,8 +4,8 @@
  * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
 */
 
-#include "v4l2_webcam_pipe.hpp"
-#include "v4l2_util.hpp"
+#include "V4L2_webcam_pipe.hpp"
+#include "util/v4l2_util.hpp"
 
 #include "pipeline/gst_common.hpp"
 
@@ -862,8 +862,6 @@ bool V4L2_webcam_pipe::get_property_description()
 				return false;
 			}
 		}
-		
-		SPDLOG_ERROR("ok");
 
 		ext_ctrl_desc_array.GetArray().PushBack(ext_ctrl_desc, doc.GetAllocator());
 	}
@@ -879,7 +877,10 @@ bool V4L2_webcam_pipe::get_property_description()
 	return true;
 }
 
-
+void V4L2_webcam_pipe::set_sensor_device(const char* dev_path)
+{
+    m_src->set_property("device", Glib::ustring(dev_path));
+}
 
 bool V4L2_webcam_pipe::set_exposure_mode(int32_t val)
 {

@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "thread_base.hpp"
+#include "opaleye-util/thread_base.hpp"
 
 #include <gpiod.h>
 
@@ -20,6 +20,8 @@ public:
 	~gpio_thread() override;
 
 	bool init();
+	bool close();
+	bool set(const bool val);
 
 	void work() override;
 
@@ -27,4 +29,5 @@ protected:
 	int m_timer_fd;
 
 	gpiod_chip* m_gpio_chip0;
+	gpiod_line* m_line;
 };

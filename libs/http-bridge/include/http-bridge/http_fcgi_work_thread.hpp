@@ -6,9 +6,9 @@
 
 #pragma once
 
-#include "http_fcgi_svr_fwd.hpp"
+#include "http-bridge/http_fcgi_svr_fwd.hpp"
 
-#include "thread_base.hpp"
+#include "opaleye-util/thread_base.hpp"
 
 class http_fcgi_work_thread : public thread_base
 {

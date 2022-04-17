@@ -1,6 +1,6 @@
 #pragma once
 
-#include "http_common.hpp"
+#include "http-bridge/http_common.hpp"
 
 #include <boost/filesystem/path.hpp>
 

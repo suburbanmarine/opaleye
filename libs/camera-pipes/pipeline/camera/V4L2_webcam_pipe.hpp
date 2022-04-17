@@ -6,11 +6,11 @@
 
 #pragma once
 
-#include "v4l2_util.hpp"
+#include "util/v4l2_util.hpp"
 
 #include "pipeline/GST_element_base.hpp"
 
-#include "errno_util.hpp"
+#include "opaleye-util/errno_util.hpp"
 
 #include <gstreamermm/caps.h>
 #include <gstreamermm/capsfilter.h>
@@ -40,6 +40,8 @@ public:
     return m_out_tee;
   }
 
+  void set_sensor_device(const char* dev_path);
+
   bool init(const char name[]) override;
 
 //  void copy_frame(std::shared_ptr<uvc_frame_t>& out_frame) const
@@ -48,27 +50,27 @@ public:
 //    UVC_base::copy_frame(m_frame_buffer, out_frame);
 //  }
 
-  bool set_exposure_mode(int32_t val);
-  bool get_exposure_mode(int32_t* const val);
+  virtual bool set_exposure_mode(int32_t val);
+  virtual bool get_exposure_mode(int32_t* const val);
 
-  bool set_exposure_value(int32_t val);
-  bool get_exposure_value(int32_t* const val);
+  virtual bool set_exposure_value(int32_t val);
+  virtual bool get_exposure_value(int32_t* const val);
 
-  bool set_focus_absolute(int32_t val);
-  bool get_focus_absolute(int32_t* const val);
+  virtual bool set_focus_absolute(int32_t val);
+  virtual bool get_focus_absolute(int32_t* const val);
 
-  bool set_focus_auto(bool val);
-  bool get_focus_auto(bool* const val);
+  virtual bool set_focus_auto(bool val);
+  virtual bool get_focus_auto(bool* const val);
 
-  bool set_brightness(int32_t val);
-  bool get_brightness(int32_t* const val);
+  virtual bool set_brightness(int32_t val);
+  virtual bool get_brightness(int32_t* const val);
 
-  bool set_gain(int32_t val);
-  bool get_gain(int32_t* const val);
+  virtual bool set_gain(int32_t val);
+  virtual bool get_gain(int32_t* const val);
 
-  bool v4l2_probe();
+  virtual bool v4l2_probe();
 
-  bool get_property_description();
+  virtual bool get_property_description();
   
 protected:
 

@@ -12,14 +12,16 @@ public:
 	thread_base();
 	virtual ~thread_base();
 
-	void launch();
-
+	//internal
 	virtual void work();
 
-	//MT safe
-	void interrupt();
+	//not MT safe
+	void launch();
 	void join();
 	bool joinable() const;
+	
+	//MT safe
+	void interrupt();
 
 	bool is_interrupted() const
 	{

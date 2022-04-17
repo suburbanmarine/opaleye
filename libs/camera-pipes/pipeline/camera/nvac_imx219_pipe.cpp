@@ -5,7 +5,7 @@
 */
 
 #include "nvac_imx219_pipe.hpp"
-#include "v4l2_util.hpp"
+#include "util/v4l2_util.hpp"
 
 #include "pipeline/gst_common.hpp"
 

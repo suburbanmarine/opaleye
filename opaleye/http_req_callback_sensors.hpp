@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "http_req_callback_base.hpp"
+#include "http-bridge/http_req_callback_base.hpp"
 #include "sensor_thread.hpp"
 
 #define NO_FCGI_DEFINES 1
