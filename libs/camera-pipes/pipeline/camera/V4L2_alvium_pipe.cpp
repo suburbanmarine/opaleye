@@ -5,7 +5,7 @@
 */
 
 #include "V4L2_alvium_pipe.hpp"
-#include "v4l2_util.hpp"
+#include "util/v4l2_util.hpp"
 
 #include "pipeline/gst_common.hpp"
 
@@ -105,9 +105,6 @@
 //         Size: Discrete 2464x2056
 //             Interval: Discrete 0.060s (16.593 fps)
 
-
-//TODO - ise v4l api directly, gstreamer v4l2src does not support enough modes
-//maybe keep this her since it works, make a new appsrc based plugin
 V4L2_alvium_pipe::V4L2_alvium_pipe()
 {
   reset();
@@ -143,92 +140,27 @@ bool V4L2_alvium_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
   return false;
 }
 
-void reset()
-{
-  m_fd = -1;
-  memset(&m_cap, 0, sizeof(m_cap));
-}
-
 bool V4L2_alvium_pipe::open(const char dev_path[])
 {
-  if(m_fd == -1)
-  {
-    return false;
-  }
-
-  m_fd = open(dev_path, O_RDWR | O_NONBLOCK, 0);
-  if(m_fd == -1)
-  {
-    SPDLOG_ERROR("open had error: {:d} - {:s}", errno, errno_to_str());
-  }
-
-  m_v4l2_util.set_fd(m_fd);
-
-  v4l2_capability cap;
-  int ret = ioctl_helper(m_fd, VIDIOC_QUERYCAP, &cap);
-  if(ret == -1)
-  {
-    if(errno == EINVAL)
-    {
-      SPDLOG_ERROR("Device {:s} is not a V4L2 device");
-      close();
-      return false;
-    }
-  }
-
-  if( ! (m_cap.capabilities & V4L2_CAP_VIDEO_CAPTURE) || (cap.capabilities & V4L2_CAP_VIDEO_CAPTURE_MPLANE) )
-  {
-      SPDLOG_ERROR("Device {:s} is not a video capture device");
-      close();
-      return false;
-  }
-
-  if( ! (cap.capabilities & V4L2_CAP_STREAMING)  )
-  {
-      SPDLOG_ERROR("Device {:s} does not support streaming i/o");
-      close();
-      return false;
-  }
-
-  if(m_cap.capabilities & V4L2_CAP_VIDEO_CAPTURE)
-  {
-    m_v4l2_util.enum_formats(V4L2_BUF_TYPE_VIDEO_CAPTURE);
-  }
-  else if(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE_MPLANE)
-  {
-    m_v4l2_util.enum_formats(V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
-  }
-  else
-  {
-    return false;
-  }
-
-  return m_fd != -1;
+  return m_cam->open("/dev/video0");
 }
 bool V4L2_alvium_pipe::close()
 {
-  if(m_fd == -1)
+  m_frame_worker->interrupt();
+  m_frame_worker->join();
+
+  if( ! m_cam->close() )
   {
-    return true;
+    SPDLOG_ERROR("close had error");
+    return false;
   }
 
-  int ret = close(m_fd);
-  m_fd = -1;
-
-  if(m_fd == -1)
-  {
-    SPDLOG_ERROR("close had error: {:d} - {:s}", errno, errno_to_str());
-  }
-
-  return ret == 0;
+  return true;
 }
 bool V4L2_alvium_pipe::init(const char name[])
 {
 
-  if(m_v4l2_util.get_fmts().empty())
-  {
-    return false;
-  }
+  m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
 
   // Bayer format (8/10/12 bit)
   // Pixel Format: 'RGGB' - V4L2_PIX_FMT_SRGGB8
@@ -246,108 +178,57 @@ bool V4L2_alvium_pipe::init(const char name[])
   // Pixel Format: 'XR24' - V4L2_PIX_FMT_XBGR32
   // Name        : 32-bit BGRX 8-8-8-8
 
-  v4l2_format fmt;
-  memset(&fmt, 0, sizeof(fmt));
-  fmt.type = m_v4l2_util.get_fmt_descs().front().type;
-  if (-1 == xioctl(m_nFileDescriptor, VIDIOC_G_FMT, &fmt))
-  {
-      SPDLOG_ERROR("ioctl VIDIOC_G_FMT failed");
-      return false;
-  }
-
-  uint32_t pixel_format = V4L2_PIX_FMT_XBGR32;
-
-  switch(fmt.type)
-  {
-    case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+    m_cam = std::make_shared<Alvium_v4l2>();
+    // m_cam->init("cam", v4l2_fourcc('J','X','Y','0')); // 12 bit gray
+    m_cam->init("cam", v4l2_fourcc('X','R','2','4')); // 8 bit BGRX
+    if( ! m_cam->set_free_trigger() ) 
     {
-      fmt.fmt.pix.pixelformat = pixel_format;
-      break;
+      SPDLOG_ERROR("Failed to set trigger mode");
     }
-    case V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE:
-    {
-      fmt.fmt.pix_mp.pixelformat = pixel_format;
-      break;
-    }
-    default:
-    {
-      break;
-    }
-  }
+    // if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE0, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) ) // PDWN
+    // {
+    //   SPDLOG_ERROR("Failed to set trigger mode");
+    // }
 
-  if (-1 == xioctl(m_nFileDescriptor, VIDIOC_S_FMT, &fmt))
-  {
-    SPDLOG_ERROR("ioctl VIDIOC_S_FMT failed");
-    return false;
-  }
-
-  //init our internal bin and elements
-  {
-    m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
-    if(! m_bin )
-    {
-      SPDLOG_ERROR("Failed to create bin");
-      return false;
-    }
-
-    //source
-    m_src = Gst::ElementFactory::create_element("v4l2src", name);
-    if(! m_src )
-    {
-      SPDLOG_ERROR("Failed to create src");
-      return false;
-    }
-
-    m_src->set_property("do-timestamp", true);
-    m_src->set_property("is-live", true);
-    m_src->set_property("device", Glib::ustring("/dev/video0"));
-
-	// (0): auto             - GST_V4L2_IO_AUTO
-	// (1): rw               - GST_V4L2_IO_RW
-	// (2): mmap             - GST_V4L2_IO_MMAP
-	// (3): userptr          - GST_V4L2_IO_USERPTR
-	// (4): dmabuf           - GST_V4L2_IO_DMABUF
-	// (5): dmabuf-import    - GST_V4L2_IO_DMABUF_IMPORT
-    m_src->set_property("io-mode", 2);
-    // m_src->add_probe(GST_PAD_PROBE_TYPE_IDLE | GST_PAD_PROBE_TYPE_EVENT_BOTH, sigc::mem_fun(&V4L2_alvium_pipe::on_pad_probe, this))
-
-    //src caps
-    // m_src_caps = Gst::Caps::create_simple(
-    //   "video/x-raw",
-    //   "format","(string)BGRx",
-    //   "pixel-aspect-ratio", Gst::Fraction(1, 1),
-    //   "framerate",          Gst::Fraction(16593, 1000),
-    //   "width",              2464,
-    //   "height",             2056
-    // );
-
+    //source caps
     //sometimes camera reports framerate as 16/1, sometimes 16593/1000
     //caps don't negotiate if framerate is wrong...
     // m_src_caps = Gst::Caps::create_from_string("video/x-raw, width=(int)2464, height=(int)2056, format=(string)BGRx, framerate=(fraction)16593/1000, pixel-aspect-ratio=(fraction)1/1");
     m_src_caps = Gst::Caps::create_from_string("video/x-raw, format=(string)BGRx, width=(int)2464, height=(int)2056, pixel-aspect-ratio=(fraction)1/1");
-
-    // m_src_caps = Gst::Caps::create_simple(
-    //   "video/x-bayer",
-    //   "format","rggb",
-    //   "pixel-aspect-ratio", Gst::Fraction(1, 1),
-    //   "framerate",          Gst::Fraction(16593, 1000),
-    //   "width",              2464,
-    //   "height",             2056
-    // );
-
     if(! m_src_caps )
     {
       SPDLOG_ERROR("Failed to create m_src_caps");
     }
 
-    m_in_capsfilter = Gst::CapsFilter::create("incaps");
-    if(! m_in_capsfilter )
+    //source
+    m_src = Gst::AppSrc::create();
+    m_src->property_caps().set_value(m_src_caps);
+
+    m_src->property_is_live()      = true;
+    m_src->property_do_timestamp() = true;
+    // m_src->property_block()        = false;
+    m_src->property_block()        = true; // TODO: this may need to be true to enable internal buffer
+    m_src->property_min_latency()  = 0;
+    m_src->property_max_latency()  = 1*GST_SECOND / 30;
+
+    // m_src->property_num_buffers()  = 30;
+    // m_src->property_max_bytes()    = 100*1024*1024;
+
+    m_src->property_emit_signals() = false;
+    m_src->property_stream_type()  = Gst::APP_STREAM_TYPE_STREAM;
+    m_src->property_format()       = Gst::FORMAT_TIME;
+
+    m_videorate    = Gst::ElementFactory::create_element("videorate");
+
+    m_out_caps = Gst::Caps::create_from_string("video/x-raw, format=(string)BGRx, width=(int)2464, height=(int)2056, pixel-aspect-ratio=(fraction)1/1");
+
+    m_out_capsfilter = Gst::CapsFilter::create("outcaps");
+    if(! m_out_capsfilter )
     {
-      SPDLOG_ERROR("Failed to create m_in_capsfilter");
+      SPDLOG_ERROR("Failed to create m_out_capsfilter");
       return false;
     }
-
-    m_in_capsfilter->property_caps() = m_src_caps;
+    m_out_capsfilter->property_caps() = m_out_caps;
 
     m_in_queue     = Gst::Queue::create();
     if(! m_in_queue )
@@ -373,14 +254,64 @@ bool V4L2_alvium_pipe::init(const char name[])
     }
 
     m_bin->add(m_src);
-    m_bin->add(m_in_capsfilter);
+    m_bin->add(m_videorate);
+    m_bin->add(m_out_capsfilter);
     m_bin->add(m_in_queue);
     m_bin->add(m_out_tee);
-  }
 
-  m_src->link(m_in_capsfilter);
-  m_in_capsfilter->link(m_in_queue);
-  m_in_queue->link(m_out_tee);
+  m_src->link(m_videorate);
+  m_videorate->link(m_out_capsfilter);
+  m_out_capsfilter->link(m_in_queue);
+  m_out_capsfilter->link(m_out_tee);
+
+  m_frame_worker = std::make_shared<V4L2_alvium_frame_worker>(std::bind(&V4L2_alvium_pipe::new_frame_cb_XR24, this, std::placeholders::_1), m_cam);
+  m_frame_worker->launch();
 
   return true;
+}
+
+void V4L2_alvium_pipe::handle_need_data(guint val)
+{
+  // SPDLOG_ERROR("handle_need_data");
+  m_gst_need_data = true;
+}
+void V4L2_alvium_pipe::handle_enough_data()
+{
+  // SPDLOG_ERROR("handle_enough_data");
+  m_gst_need_data = false;
+}
+
+void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
+{
+  {
+    std::lock_guard<std::mutex> lock(m_frame_buffer_mutex);
+    m_frame_buffer.assign((uint8_t const *)frame_buf->get_data(), (uint8_t const *)frame_buf->get_data() + frame_buf->get_bytes_used());
+  }
+
+  if(m_gst_need_data)
+  {
+    Glib::RefPtr<Gst::Buffer> buf = Gst::Buffer::create(frame_buf->get_bytes_used());
+    gsize ins_len = buf->fill(0, frame_buf->get_data(), frame_buf->get_bytes_used());
+    if(ins_len != frame_buf->get_bytes_used())
+    {
+      SPDLOG_ERROR("buffer did not accept all data");
+    }
+
+    // std::chrono::seconds      tv_sec(frame->capture_time.tv_sec);
+    // std::chrono::microseconds tv_usec(frame->capture_time.tv_usec);
+    // std::chrono::nanoseconds  pts_nsec = tv_sec + tv_usec;
+
+    // buf->set_pts(m_curr_pts.count());
+    // buf->set_duration(GST_SECOND / 30);
+
+    // m_curr_pts += std::chrono::nanoseconds(GST_SECOND / 30);
+
+    // this used to be a problem - m_gst_need_data seems to help
+    // do-timestamp=TRUE but buffers are provided before reaching the PLAYING state and having a clock. Timestamps will not be accurate!
+    Gst::FlowReturn ret = m_src->push_buffer(buf);
+    if(ret != Gst::FLOW_OK)
+    {
+      SPDLOG_ERROR("appsrc did not accept data"); 
+    }
+  }
 }

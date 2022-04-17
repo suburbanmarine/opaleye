@@ -67,6 +67,11 @@ public:
 
 	bool send_software_trigger();
 
+	// JXR0 - 10-bit/16-bit Bayer RGRG/GBGB
+	// JXR2 - 12-bit/16-bit Bayer RGRG/GBGB
+	// JXY2 - 12-bit/16-bit Greyscale
+	// XR24 - 32-bit BGRX 8-8-8-8
+
 protected:
 	errno_util m_errno;
 
