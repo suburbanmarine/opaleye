@@ -13,7 +13,8 @@
 
 #include "pipeline/camera/Testsrc_pipe.hpp"
 // #include "pipeline/camera/Logitech_brio_pipe.hpp"
-#include "pipeline/camera/v4l2_webcam_pipe.hpp"
+#include "pipeline/camera/V4L2_webcam_pipe.hpp"
+#include "pipeline/camera/V4L2_alvium_pipe.hpp"
 #include "pipeline/camera/nvac_imx219_pipe.hpp"
 #include "pipeline/display/autovideosink_pipe.hpp"
 #include "pipeline/stream/rtp_h264_pipe.hpp"
@@ -100,6 +101,7 @@ protected:
     
   bool make_brio_pipeline();
   bool make_imx219_pipeline();
+  bool make_alvium_pipeline();
   bool make_virtual_pipeline();
 
 

@@ -6,10 +6,10 @@
 
 #pragma once
 
-#include "http_req_callback_base.hpp"
-#include "http_fcgi_work_thread.hpp"
+#include "http-bridge/http_req_callback_base.hpp"
+#include "http-bridge/http_fcgi_work_thread.hpp"
 
-#include "path/Directory_tree.hpp"
+#include "opaleye-util/path/Directory_tree.hpp"
 
 #define NO_FCGI_DEFINES 1
 #include <fcgi_config.h>
@@ -42,7 +42,7 @@ public:
 
   ~http_fcgi_svr();
 
-  bool start();
+  bool start(const char* bind_addr, const size_t num_threads);
 
   bool stop();
 

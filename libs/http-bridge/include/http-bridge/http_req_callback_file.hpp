@@ -6,9 +6,7 @@
 
 #pragma once
 
-#include "http_req_callback_base.hpp"
-
-#include "http_common.hpp"
+#include "http-bridge/http_req_callback_base.hpp"
 
 #define NO_FCGI_DEFINES 1
 #include <fcgi_config.h>
@@ -16,16 +14,16 @@
 
 #include <array>
 
-class http_req_error_handler : public http_req_callback_base
+class http_req_callback_file : public http_req_callback_base
 {
 public:
 
-  http_req_error_handler()
+  http_req_callback_file()
   {
-    m_status_code = http_common::STATUS_CODES::OK;
+
   }
 
-  ~http_req_error_handler() override
+  ~http_req_callback_file() override
   {
     
   }
@@ -34,6 +32,6 @@ public:
 
 protected:
 
-http_common::STATUS_CODES m_status_code;
+  std::array<char, 4096> m_buf;
 
 };

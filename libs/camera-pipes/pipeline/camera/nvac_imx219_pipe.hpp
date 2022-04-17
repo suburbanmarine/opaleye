@@ -8,11 +8,11 @@
 
 #pragma once
 
-#include "v4l2_util.hpp"
+#include "util/v4l2_util.hpp"
 
 #include "pipeline/GST_element_base.hpp"
 
-#include "errno_util.hpp"
+#include "opaleye-util/errno_util.hpp"
 
 #include <gstreamermm/appsink.h>
 #include <gstreamermm/caps.h>

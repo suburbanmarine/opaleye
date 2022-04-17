@@ -6,12 +6,15 @@
 
 #pragma once
 
-#include "errno_util.hpp"
+#include "opaleye-util/errno_util.hpp"
 
 #include <linux/v4l2-controls.h>
 #include <linux/videodev2.h>
 
 #include <cstdint>
+
+#include <list>
+#include <vector>
 
 class v4l2_util
 {
@@ -20,10 +23,59 @@ public:
 	v4l2_util();
 	~v4l2_util();
 
+	static std::string fourcc_to_str(const uint32_t fcc);
+
+	static const char* v4l2_field_to_str(const __u32& val)
+	{
+		return v4l2_field_to_str((v4l2_field)val);
+	}
+	static const char* v4l2_colorspace_to_str(const __u32& val)
+	{
+		return v4l2_colorspace_to_str((v4l2_colorspace)val);
+	}
+	static const char* v4l2_ycbcr_encoding_to_str(const __u32& val)
+	{
+		return v4l2_ycbcr_encoding_to_str((v4l2_ycbcr_encoding)val);
+	}
+	static const char* v4l2_hsv_encoding_to_str(const __u8& val)
+	{
+		return v4l2_hsv_encoding_to_str((v4l2_hsv_encoding)val);
+	}
+	static const char* v4l2_quantization_to_str(const __u8& val)
+	{
+		return v4l2_quantization_to_str((v4l2_quantization)val);
+	}
+	static const char* v4l2_xfer_func_to_str(const __u8& val)
+	{
+		return v4l2_xfer_func_to_str((v4l2_xfer_func)val);
+	}
+
+	static const char* v4l2_field_to_str(const v4l2_field& val);
+	static const char* v4l2_colorspace_to_str(const v4l2_colorspace& val);
+	static const char* v4l2_ycbcr_encoding_to_str(const v4l2_ycbcr_encoding& val);
+	static const char* v4l2_hsv_encoding_to_str(const v4l2_hsv_encoding& val);
+	static const char* v4l2_quantization_to_str(const v4l2_quantization& val);
+	static const char* v4l2_xfer_func_to_str(const v4l2_xfer_func& val);
+
 	void set_fd(int fd)
 	{
 		m_v4l2_fd = fd;
 	}
+
+	const std::list<v4l2_fmtdesc>& get_fmt_descs() const
+	{
+		return m_fmt_descs;
+	}
+
+	int ioctl_helper(int req);
+	int ioctl_helper(int req, void* arg);
+
+ 	// V4L2_BUF_TYPE_VIDEO_CAPTURE
+ 	// V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE
+ 	// V4L2_BUF_TYPE_VIDEO_OUTPUT
+ 	// V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE
+ 	// V4L2_BUF_TYPE_VIDEO_OVERLAY
+	bool enum_format_descs(const v4l2_buf_type buf_type);
 
 	bool v4l2_ctrl_set(uint32_t id, const bool val);
 	bool v4l2_ctrl_set(uint32_t id, const int32_t val);
@@ -95,4 +147,6 @@ protected:
 	int m_v4l2_fd;
 
 	errno_util m_errno;
+
+	std::list<v4l2_fmtdesc> m_fmt_descs;
 };

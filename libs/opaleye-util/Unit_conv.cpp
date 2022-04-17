@@ -4,7 +4,7 @@
  * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
 */
 
-#include "Unit_conv.hpp"
+#include "opaleye-util/Unit_conv.hpp"
 
 constexpr double Unit_conv::FEET_TO_METER;
 constexpr double Unit_conv::METER_TO_FEET;

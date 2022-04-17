@@ -13,7 +13,7 @@
 
 #include "pipeline/camera/Testsrc_pipe.hpp"
 // #include "pipeline/camera/Logitech_brio_pipe.hpp"
-#include "pipeline/camera/v4l2_webcam_pipe.hpp"
+#include "pipeline/camera/V4L2_webcam_pipe.hpp"
 #include "pipeline/display/autovideosink_pipe.hpp"
 #include "pipeline/stream/rtp_h264_pipe.hpp"
 #include "pipeline/stream/rtp_mjpeg_pipe.hpp"

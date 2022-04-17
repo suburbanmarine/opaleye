@@ -4,7 +4,7 @@
  * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
 */
 
-#include "http_util.hpp"
+#include "http-bridge/http_util.hpp"
 
 bool http_util::time_to_httpdate(const time_t& t, HttpDateStr* out_str)
 {

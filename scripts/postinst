@@ -7,7 +7,7 @@ trap 'exit -1' err
 
 if ! id -u opaleye &>/dev/null ; then
 	# create a no-login system user with a home dir
-	useradd opaleye -s /usr/sbin/nologin --create-home --system -U -G cdrom,audio,dip,video,plugdev,lightdm
+	useradd opaleye -s /usr/sbin/nologin --create-home --system -U -G audio,dip,dialout,video,plugdev
 fi
 
 # add nvidia groups

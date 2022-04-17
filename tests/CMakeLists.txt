@@ -1,4 +1,14 @@
 
+
+add_executable(alvium_test
+	alvium_test.cpp
+)
+
+target_link_libraries(alvium_test
+	PUBLIC
+		opaleye_app
+)
+
 add_executable(opaleye_config_test
 	opaleye_config_test.cpp
 )
@@ -64,6 +74,7 @@ target_include_directories(opaleye_zeromq_svr
 INSTALL(
 	TARGETS
 		opaleye_config_test
+		alvium_test
 	DESTINATION
 		bin
 )
