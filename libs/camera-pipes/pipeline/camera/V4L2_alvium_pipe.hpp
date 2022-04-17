@@ -78,7 +78,7 @@ protected:
 
   std::atomic<bool> m_gst_need_data;
   std::mutex        m_frame_buffer_mutex;
-  std::vector<uint8_t> m_frame_buffer; 
+  std::shared_ptr<std::vector<uint8_t>> m_frame_buffer; 
 
   Glib::RefPtr<Gst::Bin>        m_bin;
   Glib::RefPtr<Gst::Bus>        m_bus;

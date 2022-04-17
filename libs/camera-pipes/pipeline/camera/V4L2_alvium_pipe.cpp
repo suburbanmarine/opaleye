@@ -283,10 +283,20 @@ void V4L2_alvium_pipe::handle_enough_data()
 
 void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
 {
+  //allocate new buffer and cache frame
   {
-    std::lock_guard<std::mutex> lock(m_frame_buffer_mutex);
-    m_frame_buffer.assign((uint8_t const *)frame_buf->get_data(), (uint8_t const *)frame_buf->get_data() + frame_buf->get_bytes_used());
+    //todo put this in an object pool so we can share with zmq outgoing queue
+    std::shared_ptr<std::vector<uint8_t>> new_frame = std::make_shared<std::vector<uint8_t>>(frame_buf->get_bytes_used());
+    new_frame->assign((uint8_t const *)frame_buf->get_data(), (uint8_t const *)frame_buf->get_data() + frame_buf->get_bytes_used());
+    
+    {
+      std::lock_guard<std::mutex> lock(m_frame_buffer_mutex);
+      m_frame_buffer = new_frame;
+    }
   }
+
+  //todo send to zmq?
+  //todo object pool for frame memory
 
   if(m_gst_need_data)
   {
