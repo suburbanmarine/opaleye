@@ -1,6 +1,6 @@
 #pragma once
 
-#include <thread_base.hpp>
+#include <opaleye-util/thread_base.hpp>
 
 #include <zmq.hpp>
 
