@@ -76,6 +76,9 @@ bool nvac_imx219_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
 
 bool nvac_imx219_pipe::init(const char name[])
 {
+  m_frame_buffer = std::make_shared<std::vector<uint8_t>>();
+  m_frame_buffer->reserve(10U*1024U*1024U);
+
   //init our internal bin and elements
   {
     m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
@@ -111,7 +114,7 @@ bool nvac_imx219_pipe::init(const char name[])
     //   "height",             1080
     //   );
 
-    m_in_capsfilter = Gst::CapsFilter::create("incaps");
+    m_in_capsfilter = Gst::CapsFilter::create();
     m_in_capsfilter->property_caps() = m_src_caps;
 
     m_in_queue     = Gst::Queue::create();
@@ -126,15 +129,53 @@ bool nvac_imx219_pipe::init(const char name[])
     //output tee
     m_out_tee = Gst::Tee::create();
 
+    //appsink branch of pipeline
+    m_appsink_queue     = Gst::Queue::create();
+    m_appsink_queue->property_max_size_buffers()      = 4;
+    m_appsink_queue->property_max_size_bytes()        = 0;
+    m_appsink_queue->property_max_size_time()         = 0;
+
+    m_videoconvert = Gst::ElementFactory::create_element("nvvidconv");
+
+    m_appsink_caps = Gst::Caps::create_from_string("video/x-raw, format=(string)NV12");
+
+    m_appsink_capsfilter = Gst::CapsFilter::create();
+    m_appsink_capsfilter->property_caps() = m_appsink_caps;
+
+    m_appsink = Gst::AppSink::create();
+    m_appsink->property_caps().set_value(m_appsink_caps);
+    m_appsink->property_emit_signals() = true;
+    m_appsink->property_drop()         = true;
+    m_appsink->property_max_buffers()  = 1;
+    m_appsink->property_sync()         = false;
+
+    m_appsink->signal_new_sample().connect(
+      [this]()
+      {
+        handle_new_sample();
+        return Gst::FLOW_OK;
+      }
+    );
+
     m_bin->add(m_src);
     m_bin->add(m_in_capsfilter);
     m_bin->add(m_in_queue);
     m_bin->add(m_out_tee);
+
+    m_bin->add(m_appsink_queue);
+    m_bin->add(m_videoconvert);
+    m_bin->add(m_appsink_capsfilter);
+    m_bin->add(m_appsink);
   }
 
   m_src->link(m_in_capsfilter);
   m_in_capsfilter->link(m_in_queue);
   m_in_queue->link(m_out_tee);
+
+  m_out_tee->link(m_appsink_queue);
+  m_appsink_queue->link(m_videoconvert);
+  m_videoconvert->link(m_appsink_capsfilter);
+  m_appsink_capsfilter->link(m_appsink);
   
   return true;
 }
@@ -207,4 +248,50 @@ bool nvac_imx219_pipe::get_gain(int32_t* const val)
 {
     return false;
 	//return m_v4l2_util.v4l2_ctrl_get(V4L2_CID_GAIN, val);
+}
+
+void nvac_imx219_pipe::handle_new_sample()
+{
+    Glib::RefPtr<Gst::Sample> sample = m_appsink->try_pull_sample(0);
+    if(sample)
+    {
+        Glib::RefPtr<Gst::Buffer> buffer = sample->get_buffer();
+
+        SPDLOG_INFO("nvac_imx219_pipe::handle_new_sample has {}", buffer->get_size());
+        {
+            std::unique_lock<std::mutex> lock(m_frame_buffer_mutex);
+
+            m_frame_buffer->resize(buffer->get_size());
+            uint8_t* out_ptr = m_frame_buffer->data();
+
+            guint num = buffer->n_memory();
+            for(guint i = 0; i < num; i++)
+            {
+                Glib::RefPtr<Gst::Memory> mem_i = buffer->peek_memory(i);
+
+                Gst::MapInfo map_info;
+                mem_i->map(map_info, Gst::MAP_READ);
+
+                SPDLOG_INFO("nvac_imx219_pipe::handle_new_sample block {} is {}", i, map_info.get_size());
+
+                guint8* blk_ptr = map_info.get_data();
+                gsize   blk_len = map_info.get_size();
+
+                std::copy_n(blk_ptr, blk_len, out_ptr);
+                out_ptr += blk_len;
+
+                mem_i->unmap(map_info);
+            }
+
+            if(m_buffer_dispatch_cb)
+            {
+                m_buffer_dispatch_cb(m_frame_buffer);
+            }
+        }
+
+    }
+    else
+    {
+        SPDLOG_WARN("nvac_imx219_pipe::handle_new_sample has null sample"); 
+    }
 }

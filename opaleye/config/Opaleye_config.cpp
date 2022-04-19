@@ -39,7 +39,23 @@ bool app_config::deserialize(const boost::property_tree::ptree& tree)
 	log_path   = tree.get<std::string>("config.log_path");
 	h264_mode  = tree.get<std::string>("config.h264_mode");
 
-	sensors_launch = tree.get<std::string>("config.sensors.launch");
+	{
+		const boost::property_tree::ptree& sensors_tree = tree.get_child("config.sensors");
+		sensors_launch = sensors_tree.get<std::string>("launch");
+	}
+
+	{
+		zeromq_ep.clear();
+
+		const boost::property_tree::ptree& zmq_tree = tree.get_child("config.zeromq");
+		zeromq_launch = zmq_tree.get<std::string>("launch");
+		auto it_range = zmq_tree.equal_range("endpoint");
+		for(auto it = it_range.first; it != it_range.second; ++it)
+		{
+			zeromq_ep.push_back(it->second.data());
+		}
+	}
+	
 
 	const boost::property_tree::ptree& cameras_tree = tree.get_child("config.cameras");
 	for( const auto& camera_i : cameras_tree)
@@ -69,6 +85,12 @@ bool app_config::serialize(boost::property_tree::ptree* const tree) const
 
 	tree->put("config.sensors.launch", sensors_launch);
 
+	tree->put("config.zeromq.launch", zeromq_launch);
+	for(const std::string& str : zeromq_ep)
+	{
+		tree->add("config.zeromq.endpoint", str);
+	}
+
 	{
 		boost::property_tree::ptree cameras_tree;
 		for(const auto& it : camera_configs)
@@ -93,6 +115,11 @@ bool app_config::make_default()
 	h264_mode  = "cpu";
 
 	sensors_launch  = "true";
+
+	zeromq_launch = "true";
+	zeromq_ep.clear();
+	zeromq_ep.push_back("tcp://0.0.0.0:51000");
+	zeromq_ep.push_back("ipc:///opaleye/feeds/0");
 
 	camera_config cfg;
 	cfg.name          = "cam0";
