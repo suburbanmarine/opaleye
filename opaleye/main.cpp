@@ -12,6 +12,8 @@
 #include "http_req_jsonrpc.hpp"
 #include "signal_handler.hpp"
 
+#include "zeromq_api_svr.hpp"
+
 #include "Opaleye_app.hpp"
 #include "config/Opaleye_config.hpp"
 
@@ -241,10 +243,19 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
+	//register http callbacks
 	if(app.m_config->camera_configs.count("cam0"))
 	{
 		std::shared_ptr<http_req_jpeg> jpg_cb = std::make_shared<http_req_jpeg>();
-		jpg_cb->set_get_image_cb(std::bind(&Thumbnail_pipe_base::copy_frame_buffer, app.m_pipelines["cam0"]->get_element<Thumbnail_pipe_base>("thumb_0").get(), std::placeholders::_1));
+
+		auto thumb_0 = app.m_pipelines["cam0"]->get_element<Thumbnail_pipe_base>("thumb_0");
+		if( ! thumb_0 )
+		{
+			SPDLOG_ERROR("Could not get element thumb_0");
+			return -1;
+		}
+
+		jpg_cb->set_get_image_cb(std::bind(&Thumbnail_pipe_base::copy_frame_buffer, thumb_0.get(), std::placeholders::_1));
 		fcgi_svr.register_cb_for_doc_uri("/cameras/cam0.jpg", jpg_cb);
 		fcgi_svr.register_cb_for_doc_uri("/api/v1/cameras/cam0/live/full", jpg_cb);
 		fcgi_svr.register_cb_for_doc_uri("/api/v1/cameras/cam0/live/thumb", jpg_cb);
@@ -253,10 +264,79 @@ int main(int argc, char* argv[])
 	if(app.m_config->camera_configs.count("cam1"))
 	{
 		std::shared_ptr<http_req_jpeg> jpg_cb = std::make_shared<http_req_jpeg>();
-		jpg_cb->set_get_image_cb(std::bind(&Thumbnail_pipe_base::copy_frame_buffer, app.m_pipelines["cam1"]->get_element<Thumbnail_pipe_base>("thumb_0").get(), std::placeholders::_1));
+		
+		auto thumb_0 = app.m_pipelines["cam1"]->get_element<Thumbnail_pipe_base>("thumb_0");
+		if( ! thumb_0 )
+		{
+			SPDLOG_ERROR("Could not get element thumb_0");
+			return -1;
+		}
+
+		jpg_cb->set_get_image_cb(std::bind(&Thumbnail_pipe_base::copy_frame_buffer, thumb_0.get(), std::placeholders::_1));
 		fcgi_svr.register_cb_for_doc_uri("/cameras/cam1.jpg", jpg_cb);
 		fcgi_svr.register_cb_for_doc_uri("/api/v1/cameras/cam1/live/full", jpg_cb);
 		fcgi_svr.register_cb_for_doc_uri("/api/v1/cameras/cam1/live/thumb", jpg_cb);
+	}
+
+	std::shared_ptr<zeromq_api_svr> zmq_svr;
+	if(app.m_config->zeromq_launch == "true")
+	{
+		SPDLOG_INFO("Starting 0mq svr");
+		zmq_svr = std::make_shared<zeromq_api_svr>();
+		if( ! zmq_svr->init(app.m_config->zeromq_ep))
+		{
+			SPDLOG_ERROR("zmq_svr init failed");
+			return -1;			
+		}
+		//register 0mq services
+		//the camera callbacks are called within the context of a gstreamer thread and should return promptly
+		if(app.m_config->camera_configs.count("cam0"))
+		{
+			std::shared_ptr<nvac_imx219_pipe> cam0 = app.m_pipelines["cam0"]->get_element<nvac_imx219_pipe>("cam_0");
+			if( ! cam0 )
+			{
+				SPDLOG_ERROR("Could not get element cam0");
+				return -1;
+			}
+
+			cam0->set_framebuffer_callback(
+				[zmq_svr](const std::shared_ptr<const std::vector<uint8_t>>& frame_ptr)
+				{
+					if(frame_ptr)
+					{
+						zmq_svr->send("/api/v1/cameras/cam0/live/full", "", std::string_view(reinterpret_cast<const char*>(frame_ptr->data()), frame_ptr->size()));
+					}
+					else
+					{
+						SPDLOG_ERROR("frame_ptr is null");
+					}				
+				}
+			);
+		}
+
+		if(app.m_config->camera_configs.count("cam1"))
+		{
+			std::shared_ptr<nvac_imx219_pipe> cam1 = app.m_pipelines["cam1"]->get_element<nvac_imx219_pipe>("cam_0");
+			if( ! cam1 )
+			{
+				SPDLOG_ERROR("Could not get element cam0");
+				return -1;
+			}
+
+			cam1->set_framebuffer_callback(
+				[zmq_svr](const std::shared_ptr<const std::vector<uint8_t>>& frame_ptr)
+				{
+					if(frame_ptr)
+					{
+						zmq_svr->send("/api/v1/cameras/cam1/live/full", "", std::string_view(reinterpret_cast<const char*>(frame_ptr->data()), frame_ptr->size()));
+					}
+					else
+					{
+						SPDLOG_ERROR("frame_ptr is null");
+					}
+				}
+			);
+		}
 	}
 
 	std::shared_ptr<jsonrpc::Server> jsonrpc_svr_disp = std::make_shared<jsonrpc::Server>();
