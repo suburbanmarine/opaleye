@@ -17,6 +17,9 @@
 #include <gstreamermm/capsfilter.h>
 #include <gstreamermm/queue.h>
 #include <gstreamermm/tee.h>
+#include <gstreamermm/fakesink.h>
+
+class V4L2_alvium_pipe;
 
 class V4L2_alvium_frame_worker : public thread_base
 {
@@ -24,30 +27,40 @@ public:
 
   V4L2_alvium_frame_worker(const Alvium_v4l2::FrameCallback& cb, const std::shared_ptr<Alvium_v4l2>& cam)
   {
-    m_cb = cb;
+    m_cb  = cb;
     m_cam = cam;
   }
 
-  void work() override
-  {
-    while( ! is_interrupted() )
-    {
-      m_cam->wait_for_frame(std::chrono::milliseconds(250), m_cb);
-    }
-  }
+  void work() override;
 
 protected:
   std::shared_ptr<Alvium_v4l2> m_cam;
   Alvium_v4l2::FrameCallback   m_cb;
 };
 
+class V4L2_alvium_gst_worker : public thread_base
+{
+public:
+
+  V4L2_alvium_gst_worker(V4L2_alvium_pipe* cam_pipe)
+  {
+    m_cam_pipe = cam_pipe;
+  }
+
+  void work() override;
+
+protected:
+  V4L2_alvium_pipe* m_cam_pipe;
+};
+
 class V4L2_alvium_pipe : public GST_camera_base
 {
+  friend V4L2_alvium_gst_worker;
 public:
   V4L2_alvium_pipe();
   ~V4L2_alvium_pipe() override
   {
-
+    close();
   }
 
   void set_framebuffer_callback(const GST_camera_base::FramebufferCallback& cb) override
@@ -65,16 +78,15 @@ public:
   //   return m_out_tee;
   // }
 
-  void reset();
-
-  void set_sensor_device(const char* dev_path);
-  bool open(const char dev_path[]);
-  bool close();
-
+  void set_params(const char dev_path[], const uint32_t fourcc);
   bool init(const char name[]) override;
 
 protected:
+  bool close();
+  //avt specific things
   std::shared_ptr<Alvium_v4l2> m_cam;
+  std::string m_dev_path;
+  uint32_t    m_fourcc;
 
   void handle_need_data(guint val);
   void handle_enough_data();
@@ -88,7 +100,7 @@ protected:
 
   std::atomic<bool> m_gst_need_data;
   std::mutex        m_frame_buffer_mutex;
-  std::shared_ptr<std::vector<uint8_t>> m_frame_buffer; 
+  std::shared_ptr<std::vector<uint8_t>> m_frame_buffer;
   FramebufferCallback m_buffer_dispatch_cb;
 
   Glib::RefPtr<Gst::Bin>        m_bin;
@@ -101,5 +113,8 @@ protected:
   Glib::RefPtr<Gst::CapsFilter> m_out_capsfilter;
   Glib::RefPtr<Gst::Queue>      m_in_queue;
   Glib::RefPtr<Gst::Tee>        m_out_tee;
+  Glib::RefPtr<Gst::FakeSink>   m_sink;
 
+
+  // std::chrono::nanoseconds m_curr_pts;
 };

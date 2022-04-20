@@ -105,9 +105,63 @@
 //         Size: Discrete 2464x2056
 //             Interval: Discrete 0.060s (16.593 fps)
 
+void V4L2_alvium_frame_worker::work()
+{
+  while( ! is_interrupted() )
+  {
+    try
+    {
+      m_cam->wait_for_frame(std::chrono::milliseconds(250), m_cb);
+    }
+    catch(const std::exception& e)
+    {
+      SPDLOG_ERROR("V4L2_alvium_frame_worker::work: {:s}", e.what());
+    }
+    catch(...)
+    {
+      SPDLOG_ERROR("V4L2_alvium_frame_worker::work: unk exception");
+    }
+  }
+}
+
+void V4L2_alvium_gst_worker::work()
+{
+  while( ! is_interrupted() )
+  {
+    if(m_cam_pipe->m_gst_need_data)
+    {
+      std::shared_ptr<std::vector<uint8_t>> frame_buf = m_cam_pipe->m_frame_buffer;
+      
+      Glib::RefPtr<Gst::Buffer> buf = Gst::Buffer::create(frame_buf->size());
+      gsize ins_len = buf->fill(0, frame_buf->data(), frame_buf->size());
+      if(ins_len != frame_buf->size())
+      {
+        SPDLOG_ERROR("buffer did not accept all data");
+      }
+
+      // std::chrono::seconds      tv_sec(frame->capture_time.tv_sec);
+      // std::chrono::microseconds tv_usec(frame->capture_time.tv_usec);
+      // std::chrono::nanoseconds  pts_nsec = tv_sec + tv_usec;
+
+      // buf->set_pts(m_curr_pts.count());
+      // buf->set_duration(GST_SECOND / 30);
+
+      // m_curr_pts += std::chrono::nanoseconds(GST_SECOND / 30);
+
+      // this used to be a problem - m_gst_need_data seems to help
+      // do-timestamp=TRUE but buffers are provided before reaching the PLAYING state and having a clock. Timestamps will not be accurate!
+      Gst::FlowReturn ret = m_cam_pipe->m_src->push_buffer(buf);
+      if(ret != Gst::FLOW_OK)
+      {
+        SPDLOG_ERROR("appsrc did not accept data"); 
+      }
+    }
+  }
+}
+
 V4L2_alvium_pipe::V4L2_alvium_pipe()
 {
-  reset();
+  
 }
 
 void V4L2_alvium_pipe::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
@@ -140,14 +194,19 @@ bool V4L2_alvium_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
   return false;
 }
 
-bool V4L2_alvium_pipe::open(const char dev_path[])
+void V4L2_alvium_pipe::set_params(const char dev_path[], const uint32_t fourcc)
 {
-  return m_cam->open("/dev/video0");
+  m_dev_path = dev_path;
+  m_fourcc   = fourcc;
 }
 bool V4L2_alvium_pipe::close()
 {
   m_frame_worker->interrupt();
   m_frame_worker->join();
+
+  m_cam->set_sw_trigger();
+
+  m_cam->stop_streaming();
 
   if( ! m_cam->close() )
   {
@@ -180,7 +239,16 @@ bool V4L2_alvium_pipe::init(const char name[])
 
     m_cam = std::make_shared<Alvium_v4l2>();
     // m_cam->init("cam", v4l2_fourcc('J','X','Y','0')); // 12 bit gray
-    m_cam->init("cam", v4l2_fourcc('X','R','2','4')); // 8 bit BGRX
+    if( ! m_cam->open(m_dev_path.c_str()) )
+    {
+      SPDLOG_ERROR("Failed to open camera");
+    }
+    
+    if( ! m_cam->init("cam", m_fourcc) )
+    {
+      SPDLOG_ERROR("Failed to init camera");
+    }
+
     if( ! m_cam->set_free_trigger() ) 
     {
       SPDLOG_ERROR("Failed to set trigger mode");
@@ -190,14 +258,29 @@ bool V4L2_alvium_pipe::init(const char name[])
     //   SPDLOG_ERROR("Failed to set trigger mode");
     // }
 
+    if( ! m_cam->start_streaming() )
+    {
+      SPDLOG_ERROR("m_cam.start_streaming() failed");
+      return -1;
+    }
+
     //source caps
     //sometimes camera reports framerate as 16/1, sometimes 16593/1000
     //caps don't negotiate if framerate is wrong...
     // m_src_caps = Gst::Caps::create_from_string("video/x-raw, width=(int)2464, height=(int)2056, format=(string)BGRx, framerate=(fraction)16593/1000, pixel-aspect-ratio=(fraction)1/1");
-    m_src_caps = Gst::Caps::create_from_string("video/x-raw, format=(string)BGRx, width=(int)2464, height=(int)2056, pixel-aspect-ratio=(fraction)1/1");
+    // m_src_caps = Gst::Caps::create_from_string("video/x-raw, format=(string)BGRx, width=(int)2464, height=(int)2056, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)0/1");
+    m_src_caps = Gst::Caps::create_simple(
+      "video/x-raw",
+      "pixel-aspect-ratio", Gst::Fraction(1, 1),
+      "format","BGRx",
+      "framerate", Gst::Fraction(0, 1),
+      "width",  2464,
+      "height", 2056
+      );
     if(! m_src_caps )
     {
       SPDLOG_ERROR("Failed to create m_src_caps");
+      return false;
     }
 
     //source
@@ -206,10 +289,10 @@ bool V4L2_alvium_pipe::init(const char name[])
 
     m_src->property_is_live()      = true;
     m_src->property_do_timestamp() = true;
-    // m_src->property_block()        = false;
-    m_src->property_block()        = true; // TODO: this may need to be true to enable internal buffer
+    m_src->property_block()        = false;
+    // m_src->property_block()        = true; // TODO: this may need to be true to enable internal buffer
     m_src->property_min_latency()  = 0;
-    m_src->property_max_latency()  = 1*GST_SECOND / 30;
+    m_src->property_max_latency()  = 1*GST_SECOND / 2;
 
     // m_src->property_num_buffers()  = 30;
     // m_src->property_max_bytes()    = 100*1024*1024;
@@ -220,7 +303,7 @@ bool V4L2_alvium_pipe::init(const char name[])
 
     m_videorate    = Gst::ElementFactory::create_element("videorate");
 
-    m_out_caps = Gst::Caps::create_from_string("video/x-raw, format=(string)BGRx, width=(int)2464, height=(int)2056, pixel-aspect-ratio=(fraction)1/1");
+    m_out_caps = Gst::Caps::create_from_string("video/x-raw, format=(string)BGRx, width=(int)2464, height=(int)2056, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)4/1");
 
     m_out_capsfilter = Gst::CapsFilter::create("outcaps");
     if(! m_out_capsfilter )
@@ -253,18 +336,31 @@ bool V4L2_alvium_pipe::init(const char name[])
       return false;
     }
 
+    m_sink = Gst::FakeSink::create();
+
     m_bin->add(m_src);
     m_bin->add(m_videorate);
     m_bin->add(m_out_capsfilter);
     m_bin->add(m_in_queue);
     m_bin->add(m_out_tee);
+    m_bin->add(m_sink);
 
   m_src->link(m_videorate);
   m_videorate->link(m_out_capsfilter);
   m_out_capsfilter->link(m_in_queue);
-  m_out_capsfilter->link(m_out_tee);
+  m_in_queue->link(m_out_tee);
+  m_out_tee->link(m_sink);
 
-  m_frame_worker = std::make_shared<V4L2_alvium_frame_worker>(std::bind(&V4L2_alvium_pipe::new_frame_cb_XR24, this, std::placeholders::_1), m_cam);
+  if(m_fourcc == v4l2_fourcc('X','R','2','4'))
+  {
+    m_frame_worker = std::make_shared<V4L2_alvium_frame_worker>(std::bind(&V4L2_alvium_pipe::new_frame_cb_XR24, this, std::placeholders::_1), m_cam);
+  }
+  else
+  {
+    SPDLOG_ERROR("unsupported fourcc");
+    return false;
+  }
+  
   m_frame_worker->launch();
 
   return true;
@@ -283,6 +379,8 @@ void V4L2_alvium_pipe::handle_enough_data()
 
 void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
 {
+  SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_XR24 - start");
+
   //allocate new buffer and cache frame
   {
     //todo put this in an object pool so we can share with zmq outgoing queue
@@ -298,6 +396,7 @@ void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& f
   //todo send to zmq?
   //todo object pool for frame memory
 
+  // if(false)
   if(m_gst_need_data)
   {
     Glib::RefPtr<Gst::Buffer> buf = Gst::Buffer::create(frame_buf->get_bytes_used());
@@ -333,4 +432,6 @@ void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& f
         m_buffer_dispatch_cb(metadata, m_frame_buffer);
     }
   }
+
+  SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_XR24 - end");
 }

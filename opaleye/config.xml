@@ -23,12 +23,12 @@
 
 		<camera>
 			<name>cam0</name>
-			<type>brio</type>
+			<type>alvium</type>
 			<properties>
 			</properties>
 			<pipeline>
 				<name>pipe0</name>
-				<type>brio</type>
+				<type>alvium</type>
 			</pipeline>
 		</camera>
 

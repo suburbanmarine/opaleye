@@ -360,26 +360,20 @@ int main(int argc, char* argv[])
 	jsonrpc_api_req->set_rpc_server(jsonrpc_svr_disp);
 	fcgi_svr.register_cb_for_doc_uri("/api/v1", jsonrpc_api_req);
 
-	// Logitech_brio cam;
-	// cam.open();
-	// cam.start();
-
-	// app.run();
-
-	std::this_thread::sleep_for(std::chrono::seconds(5));
-	if(app.m_config->camera_configs.count("cam0"))
-	{
-		std::shared_ptr<V4L2_webcam_pipe> m_camera = app.m_pipelines["cam0"]->get_element<V4L2_webcam_pipe>("cam_0");
-		if( ! m_camera )
-		{
-			SPDLOG_ERROR("only V4L2_webcam_pipe camera support now, refactor these to a camera base class");
-		}
-		else
-		{
-			m_camera->v4l2_probe();
-			m_camera->get_property_description();
-		}
-	}
+	// std::this_thread::sleep_for(std::chrono::seconds(5));
+	// if(app.m_config->camera_configs.count("cam0"))
+	// {
+	// 	std::shared_ptr<V4L2_webcam_pipe> m_camera = app.m_pipelines["cam0"]->get_element<V4L2_webcam_pipe>("cam_0");
+	// 	if( ! m_camera )
+	// 	{
+	// 		SPDLOG_ERROR("only V4L2_webcam_pipe camera support now, refactor these to a camera base class");
+	// 	}
+	// 	else
+	// 	{
+	// 		m_camera->v4l2_probe();
+	// 		m_camera->get_property_description();
+	// 	}
+	// }
 
 	if( ! sig_hndl.mask_def_signals() )
 	{
