@@ -324,4 +324,13 @@ void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& f
       SPDLOG_ERROR("appsrc did not accept data"); 
     }
   }
+
+  {
+    std::lock_guard<std::mutex> lock(m_frame_buffer_mutex);
+    if(m_buffer_dispatch_cb)
+    {
+        std::string metadata; // todo fill this out
+        m_buffer_dispatch_cb(metadata, m_frame_buffer);
+    }
+  }
 }

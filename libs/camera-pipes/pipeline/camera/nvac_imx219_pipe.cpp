@@ -285,7 +285,8 @@ void nvac_imx219_pipe::handle_new_sample()
 
             if(m_buffer_dispatch_cb)
             {
-                m_buffer_dispatch_cb(m_frame_buffer);
+                std::string metadata; // todo fill this out
+                m_buffer_dispatch_cb(metadata, m_frame_buffer);
             }
         }
 

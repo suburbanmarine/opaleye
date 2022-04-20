@@ -8,7 +8,7 @@
 
 #include "opaleye-util/thread_base.hpp"
 
-#include "pipeline/GST_element_base.hpp"
+#include "pipeline/camera/GST_camera_base.hpp"
 
 #include "cameras/Alvium_v4l2.hpp"
 
@@ -41,10 +41,20 @@ protected:
   Alvium_v4l2::FrameCallback   m_cb;
 };
 
-class V4L2_alvium_pipe : public GST_element_base
+class V4L2_alvium_pipe : public GST_camera_base
 {
 public:
   V4L2_alvium_pipe();
+  ~V4L2_alvium_pipe() override
+  {
+
+  }
+
+  void set_framebuffer_callback(const GST_camera_base::FramebufferCallback& cb) override
+  {
+    std::unique_lock<std::mutex> lock(m_frame_buffer_mutex);
+    m_buffer_dispatch_cb = cb;
+  }
 
   void add_to_bin(const Glib::RefPtr<Gst::Bin>& bin) override;
   bool link_front(const Glib::RefPtr<Gst::Element>& node) override;
@@ -79,6 +89,7 @@ protected:
   std::atomic<bool> m_gst_need_data;
   std::mutex        m_frame_buffer_mutex;
   std::shared_ptr<std::vector<uint8_t>> m_frame_buffer; 
+  FramebufferCallback m_buffer_dispatch_cb;
 
   Glib::RefPtr<Gst::Bin>        m_bin;
   Glib::RefPtr<Gst::Bus>        m_bus;

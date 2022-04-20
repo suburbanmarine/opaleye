@@ -1,0 +1,1 @@
+#include "GST_camera_base.hpp"
