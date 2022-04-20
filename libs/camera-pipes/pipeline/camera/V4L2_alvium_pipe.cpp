@@ -11,6 +11,8 @@
 
 #include <gstreamermm/buffer.h>
 #include <gstreamermm/elementfactory.h>
+#include <gst/video/video-format.h>
+#include <gst/video/gstvideometa.h>
 
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
@@ -159,7 +161,7 @@ void V4L2_alvium_gst_worker::work()
   }
 }
 */
-V4L2_alvium_pipe::V4L2_alvium_pipe()
+V4L2_alvium_pipe::V4L2_alvium_pipe() : m_gst_need_data(false)
 {
   
 }
@@ -266,17 +268,15 @@ bool V4L2_alvium_pipe::init(const char name[])
 
     //source caps
     //sometimes camera reports framerate as 16/1, sometimes 16593/1000
-    //caps don't negotiate if framerate is wrong...
-    // m_src_caps = Gst::Caps::create_from_string("video/x-raw, width=(int)2464, height=(int)2056, format=(string)BGRx, framerate=(fraction)16593/1000, pixel-aspect-ratio=(fraction)1/1");
-    // m_src_caps = Gst::Caps::create_from_string("video/x-raw, format=(string)BGRx, width=(int)2464, height=(int)2056, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)0/1");
-    m_src_caps = Gst::Caps::create_simple(
-      "video/x-raw",
-      "pixel-aspect-ratio", Gst::Fraction(1, 1),
-      "format","BGRx",
-      "framerate", Gst::Fraction(0, 1),
-      "width",  2464,
-      "height", 2056
-      );
+    m_src_caps = Gst::Caps::create_from_string("video/x-raw, format=(string)BGRx, width=(int)2464, height=(int)2056, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)0/1");
+    // m_src_caps = Gst::Caps::create_simple(
+    //   "video/x-raw",
+    //   "pixel-aspect-ratio", Gst::Fraction(1, 1),
+    //   "format","BGRx",
+    //   "framerate", Gst::Fraction(0, 1),
+    //   "width",  2464,
+    //   "height", 2056
+    //   );
     if(! m_src_caps )
     {
       SPDLOG_ERROR("Failed to create m_src_caps");
@@ -297,13 +297,38 @@ bool V4L2_alvium_pipe::init(const char name[])
     // m_src->property_num_buffers()  = 30;
     // m_src->property_max_bytes()    = 100*1024*1024;
 
-    m_src->property_emit_signals() = false;
+    m_src->property_emit_signals() = true;
     m_src->property_stream_type()  = Gst::APP_STREAM_TYPE_STREAM;
     m_src->property_format()       = Gst::FORMAT_TIME;
 
+    m_src->signal_need_data().connect(
+      [this](guint val){handle_need_data(val);}
+      );
+    m_src->signal_enough_data().connect(
+      [this](){handle_enough_data();}
+      );
+    // m_src->signal_seek_data().connect(
+    //   [this](guint64 val){return handle_seek_data(val);}
+    //   );
+
+    m_videoconvert = Gst::ElementFactory::create_element("nvvidconv");
+
     m_videorate    = Gst::ElementFactory::create_element("videorate");
 
-    m_out_caps = Gst::Caps::create_from_string("video/x-raw, format=(string)BGRx, width=(int)2464, height=(int)2056, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)4/1");
+    m_out_caps = Gst::Caps::create_from_string("video/x-raw(memory:NVMM), format=(string)NV12, framerate=(fraction)4/1");
+    // m_out_caps = Gst::Caps::create_simple(
+    //   "video/x-raw",
+    //   "pixel-aspect-ratio", Gst::Fraction(1, 1),
+    //   "format","NV12",
+    //   "framerate", Gst::Fraction(10, 1),
+    //   "width",  2464,
+    //   "height", 2056
+    //   );
+    if(! m_out_caps )
+    {
+      SPDLOG_ERROR("Failed to create m_out_caps");
+      return false;
+    }
 
     m_out_capsfilter = Gst::CapsFilter::create("outcaps");
     if(! m_out_capsfilter )
@@ -311,7 +336,7 @@ bool V4L2_alvium_pipe::init(const char name[])
       SPDLOG_ERROR("Failed to create m_out_capsfilter");
       return false;
     }
-    m_out_capsfilter->property_caps() = m_out_caps;
+    m_out_capsfilter->property_caps().set_value(m_out_caps);
 
     m_in_queue     = Gst::Queue::create();
     if(! m_in_queue )
@@ -336,20 +361,18 @@ bool V4L2_alvium_pipe::init(const char name[])
       return false;
     }
 
-    m_sink = Gst::FakeSink::create();
-
     m_bin->add(m_src);
+    m_bin->add(m_videoconvert);
     m_bin->add(m_videorate);
     m_bin->add(m_out_capsfilter);
     m_bin->add(m_in_queue);
     m_bin->add(m_out_tee);
-    m_bin->add(m_sink);
 
-  m_src->link(m_videorate);
+  m_src->link(m_videoconvert);
+  m_videoconvert->link(m_videorate);
   m_videorate->link(m_out_capsfilter);
   m_out_capsfilter->link(m_in_queue);
   m_in_queue->link(m_out_tee);
-  m_out_tee->link(m_sink);
 
   if(m_fourcc == v4l2_fourcc('X','R','2','4'))
   {
@@ -397,9 +420,19 @@ void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& f
   //todo object pool for frame memory
 
   // if(false)
-  if(m_gst_need_data)
+  // if(m_gst_need_data)
   {
+    SPDLOG_INFO("feeding gst");
     Glib::RefPtr<Gst::Buffer> buf = Gst::Buffer::create(frame_buf->get_bytes_used());
+
+    guint width  = 2464;
+    guint height = 2056;
+    gsize offset[1] = {0};
+    gint xstride = 2464*4;
+    gint stride[1] = {xstride};
+    gst_buffer_add_video_meta_full(buf->gobj(), GST_VIDEO_FRAME_FLAG_NONE, GST_VIDEO_FORMAT_BGRx, width, height, 1, offset, stride);
+    GST_BUFFER_FLAG_SET(buf->gobj(), GST_BUFFER_FLAG_LIVE);
+
     gsize ins_len = buf->fill(0, frame_buf->get_data(), frame_buf->get_bytes_used());
     if(ins_len != frame_buf->get_bytes_used())
     {
