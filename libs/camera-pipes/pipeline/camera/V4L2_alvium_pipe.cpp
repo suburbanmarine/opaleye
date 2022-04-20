@@ -123,7 +123,7 @@ void V4L2_alvium_frame_worker::work()
     }
   }
 }
-
+/*
 void V4L2_alvium_gst_worker::work()
 {
   while( ! is_interrupted() )
@@ -158,7 +158,7 @@ void V4L2_alvium_gst_worker::work()
     }
   }
 }
-
+*/
 V4L2_alvium_pipe::V4L2_alvium_pipe()
 {
   

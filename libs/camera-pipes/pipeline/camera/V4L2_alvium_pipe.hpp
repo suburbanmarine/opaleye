@@ -37,7 +37,7 @@ protected:
   std::shared_ptr<Alvium_v4l2> m_cam;
   Alvium_v4l2::FrameCallback   m_cb;
 };
-
+/*
 class V4L2_alvium_gst_worker : public thread_base
 {
 public:
@@ -52,10 +52,10 @@ public:
 protected:
   V4L2_alvium_pipe* m_cam_pipe;
 };
-
+*/
 class V4L2_alvium_pipe : public GST_camera_base
 {
-  friend V4L2_alvium_gst_worker;
+  //friend V4L2_alvium_gst_worker;
 public:
   V4L2_alvium_pipe();
   ~V4L2_alvium_pipe() override
