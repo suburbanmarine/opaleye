@@ -40,6 +40,8 @@ public:
 
 	bool send(const std::string_view& topic, const std::string_view& header, const std::string_view& payload);
 
+	// bool async_send(const std::string_view& topic, const std::string_view& header, const std::string_view& payload);
+
 protected:
 
 	std::shared_ptr<zeromq_api_svr_pub_thread> m_api_pub_thread;
@@ -47,6 +49,7 @@ protected:
 	std::shared_ptr<zmq::context_t> m_context;
 
 	//publish socket
+	std::mutex m_pub_socket_mutex;
 	std::list<std::string> m_ep;
 	std::shared_ptr<zmq::socket_t>  m_pub_socket;
 

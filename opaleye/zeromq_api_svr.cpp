@@ -41,12 +41,14 @@ bool zeromq_api_svr::init(const std::list<std::string>& ep)
     m_pub_socket->set(zmq::sockopt::connect_timeout, 5*1000);
 	m_pub_socket->set(zmq::sockopt::ipv6, 0);
 	m_pub_socket->set(zmq::sockopt::linger, 0);
-	m_pub_socket->set(zmq::sockopt::maxmsgsize, int64_t(25LL*1024LL*1024LL));
+	m_pub_socket->set(zmq::sockopt::maxmsgsize, int64_t(50LL*1024LL*1024LL));
 	m_pub_socket->set(zmq::sockopt::multicast_hops, 1);
-	m_pub_socket->set(zmq::sockopt::rcvbuf, 50*1024*1024);
+	m_pub_socket->set(zmq::sockopt::rcvbuf, 100*1024*1024);
 	m_pub_socket->set(zmq::sockopt::rcvtimeo, 10*1000);
-	m_pub_socket->set(zmq::sockopt::sndbuf, 50*1024*1024);
+	m_pub_socket->set(zmq::sockopt::sndbuf, 100*1024*1024);
 	m_pub_socket->set(zmq::sockopt::sndtimeo, 10*1000);
+	m_pub_socket->set(zmq::sockopt::rcvhwm, 10);
+	m_pub_socket->set(zmq::sockopt::sndhwm, 10);
 	// m_socket->set(zmq::sockopt::tos, 0);
 
 	m_ep = ep;
@@ -90,6 +92,8 @@ bool zeromq_api_svr::stop()
 
 bool zeromq_api_svr::send(const std::string_view& topic, const std::string_view& header, const std::string_view& payload)
 {
+	std::lock_guard<std::mutex> lock(m_pub_socket_mutex);
+
 	std::array<zmq::const_buffer, 3> msgs;
 	msgs[0] = zmq::const_buffer(topic.data(),   topic.size());   // Topic or URI
 	msgs[1] = zmq::const_buffer(header.data(),  header.size());  // MIME
@@ -100,7 +104,8 @@ bool zeromq_api_svr::send(const std::string_view& topic, const std::string_view&
 	zmq::send_result_t res;
 	try
 	{
-		 res = zmq::send_multipart(*m_pub_socket, msgs, zmq::send_flags::dontwait);
+		 // res = zmq::send_multipart(*m_pub_socket, msgs, zmq::send_flags::dontwait);
+		res = zmq::send_multipart(*m_pub_socket, msgs, zmq::send_flags::none);
 	}
 	catch(const zmq::error_t& e)
 	{
@@ -126,11 +131,11 @@ void zeromq_api_svr_pub_thread::work()
 {
 	while(!is_interrupted())
 	{
-		std::vector<zmq::const_buffer> msgs;
-		msgs.push_back( zmq::str_buffer("/topic/foo") ); // Topic or URI
-		msgs.push_back( zmq::str_buffer("text/plain") ); // MIME
-		msgs.push_back( zmq::str_buffer("payload") );    // Payload
-		zmq::send_multipart(*m_socket, msgs);
+		// std::vector<zmq::const_buffer> msgs;
+		// msgs.push_back( zmq::str_buffer("/topic/foo") ); // Topic or URI
+		// msgs.push_back( zmq::str_buffer("text/plain") ); // MIME
+		// msgs.push_back( zmq::str_buffer("payload") );    // Payload
+		// zmq::send_multipart(*m_socket, msgs);
 
 		wait_for_interruption(std::chrono::seconds(1));
 	}
