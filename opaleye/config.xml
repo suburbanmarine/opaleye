@@ -41,7 +41,7 @@
 			<type>alvium</type>
 
 			<properties>
-				<format>BGRx</format>
+				<format>XR24</format>
 				<device>/dev/video1</device>
 			</properties>
 			
