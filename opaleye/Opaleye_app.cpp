@@ -314,8 +314,10 @@ bool Gstreamer_pipeline::make_alvium_pipeline()
     return false;    
   }
 
+  std::string device = m_camera_config.get<std::string>("properties.device");
+
   std::shared_ptr<V4L2_alvium_pipe> m_camera   = std::make_shared<V4L2_alvium_pipe>();
-  m_camera->set_params("/dev/video0", v4l2_fourcc(format[0], format[1], format[2], format[3]));
+  m_camera->set_params(device.c_str(), v4l2_fourcc(format[0], format[1], format[2], format[3]));
   if( ! m_camera->init("cam_0") )
   {
     SPDLOG_ERROR("Could not init camera");
