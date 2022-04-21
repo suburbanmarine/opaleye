@@ -78,8 +78,14 @@ public:
   //   return m_out_tee;
   // }
 
-  void set_params(const char dev_path[], const uint32_t fourcc);
+  void set_params(const char dev_path[], const uint32_t fourcc, const std::string& trigger_mode);
   bool init(const char name[]) override;
+
+  //for api calls
+  bool set_camera_property(const std::string& property_id, const std::string& value) override;
+  bool start_streaming();
+  bool stop_streaming();
+  bool set_trigger_mode(const std::string& mode);
 
 protected:
   bool close();
@@ -87,6 +93,7 @@ protected:
   std::shared_ptr<Alvium_v4l2> m_cam;
   std::string m_dev_path;
   uint32_t    m_fourcc;
+  std::string m_trigger_mode;
 
   void handle_need_data(guint val);
   void handle_enough_data();

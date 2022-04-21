@@ -8,7 +8,7 @@
 
 #include "util/v4l2_util.hpp"
 
-#include "pipeline/GST_element_base.hpp"
+#include "pipeline/camera/GST_camera_base.hpp"
 
 #include "opaleye-util/errno_util.hpp"
 
@@ -26,7 +26,7 @@
 #include <mutex>
 #include <set>
 
-class V4L2_webcam_pipe : public GST_element_base
+class V4L2_webcam_pipe : public GST_camera_base
 {
 public:
   V4L2_webcam_pipe();
@@ -50,35 +50,25 @@ public:
 //    UVC_base::copy_frame(m_frame_buffer, out_frame);
 //  }
 
-  virtual bool set_exposure_mode(int32_t val);
-  virtual bool get_exposure_mode(int32_t* const val);
+  bool set_exposure_mode(int32_t val) override;
+  bool get_exposure_mode(int32_t* const val) override;
 
-  virtual bool set_exposure_value(int32_t val);
-  virtual bool get_exposure_value(int32_t* const val);
+  bool set_exposure_value(int32_t val) override;
+  bool get_exposure_value(int32_t* const val) override;
 
-  virtual bool set_focus_absolute(int32_t val);
-  virtual bool get_focus_absolute(int32_t* const val);
+  bool set_focus_absolute(int32_t val) override;
+  bool get_focus_absolute(int32_t* const val) override;
 
-  virtual bool set_focus_auto(bool val);
-  virtual bool get_focus_auto(bool* const val);
+  bool set_focus_auto(bool val) override;
+  bool get_focus_auto(bool* const val) override;
 
-  virtual bool set_brightness(int32_t val);
-  virtual bool get_brightness(int32_t* const val);
+  bool set_brightness(int32_t val) override;
+  bool get_brightness(int32_t* const val) override;
 
-  virtual bool set_gain(int32_t val);
-  virtual bool get_gain(int32_t* const val);
-
-  virtual bool v4l2_probe();
-
-  virtual bool get_property_description();
+  bool set_gain(int32_t val) override;
+  bool get_gain(int32_t* const val) override;
   
 protected:
-
-
-  // ctrl id -> v4l2_query_ext_ctrl
-  std::map<uint32_t, v4l2_query_ext_ctrl> device_ctrl;
-  // ctrl id -> index -> menu_entries
-  std::map<uint32_t, std::map<int64_t, v4l2_querymenu>> menu_entries;
 
   errno_util m_errno;
   v4l2_util m_v4l2_util;

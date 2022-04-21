@@ -202,10 +202,11 @@ bool V4L2_alvium_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
   return false;
 }
 
-void V4L2_alvium_pipe::set_params(const char dev_path[], const uint32_t fourcc)
+void V4L2_alvium_pipe::set_params(const char dev_path[], const uint32_t fourcc, const std::string& trigger_mode)
 {
-  m_dev_path = dev_path;
-  m_fourcc   = fourcc;
+  m_dev_path     = dev_path;
+  m_fourcc       = fourcc;
+  m_trigger_mode = trigger_mode;
 }
 bool V4L2_alvium_pipe::close()
 {
@@ -257,19 +258,10 @@ bool V4L2_alvium_pipe::init(const char name[])
       SPDLOG_ERROR("Failed to init camera");
     }
 
-    if( ! m_cam->set_free_trigger() ) 
+    if(! set_trigger_mode(m_trigger_mode) )
     {
       SPDLOG_ERROR("Failed to set trigger mode");
-    }
-    // if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE0, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) ) // PDWN
-    // {
-    //   SPDLOG_ERROR("Failed to set trigger mode");
-    // }
-
-    if( ! m_cam->start_streaming() )
-    {
-      SPDLOG_ERROR("m_cam.start_streaming() failed");
-      return -1;
+      return false;
     }
 
     //source caps
@@ -476,6 +468,12 @@ bool V4L2_alvium_pipe::init(const char name[])
   
   m_frame_worker->launch();
 
+  if( ! m_cam->start_streaming() )
+  {
+    SPDLOG_ERROR("m_cam.start_streaming() failed");
+    return false;
+  }
+
   return true;
 }
 
@@ -599,8 +597,8 @@ void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& f
   //todo send to zmq?
   //todo object pool for frame memory
 
-  // if(false)
   // if(m_gst_need_data)
+  if(false)
   {
     SPDLOG_INFO("feeding gst");
     Glib::RefPtr<Gst::Buffer> buf = Gst::Buffer::create(frame_buf->get_bytes_used());
@@ -655,4 +653,78 @@ void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& f
   }
 
   SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_XR24 - end");
+}
+
+bool V4L2_alvium_pipe::set_camera_property(const std::string& property_id, const std::string& value)
+{
+  if(property_id == "streaming")
+  {
+    if(value == "on")
+    {
+      return start_streaming();
+    }
+    else if(value == "off")
+    {
+      return stop_streaming();
+    }
+  }
+  else if(property_id == "trigger")
+  {
+    return set_trigger_mode(value);
+  }
+
+  return false;
+}
+
+bool V4L2_alvium_pipe::start_streaming()
+{
+  if( ! m_cam->start_streaming() )
+  {
+    SPDLOG_ERROR("m_cam.start_streaming() failed");
+    return false;
+  }
+
+  return true;
+}
+bool V4L2_alvium_pipe::stop_streaming()
+{
+  if( ! m_cam->stop_streaming() )
+  {
+    SPDLOG_ERROR("m_cam.stop_streaming() failed");
+    return false;
+  }
+
+  return true;
+}
+bool V4L2_alvium_pipe::set_trigger_mode(const std::string& mode)
+{
+  if(mode == "free")
+  {
+    if( ! m_cam->set_free_trigger() ) 
+    {
+      return false;
+    }
+    m_trigger_mode = mode;
+  }
+  else if(mode == "hw")
+  {
+    if( ! m_cam->set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE0, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) ) 
+    {
+      return false;
+    }
+    m_trigger_mode = mode;
+  }
+  else if(mode == "sw")
+  {
+    if( ! m_cam->set_sw_trigger() ) 
+    {
+      return false;
+    }
+    m_trigger_mode = mode;
+  }
+  else
+  {
+    return false;
+  }
+  return true;
 }

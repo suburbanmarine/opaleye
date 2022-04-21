@@ -41,6 +41,7 @@
 			<properties>
 				<format>JXR0</format>
 				<device>/dev/video0</device>
+				<trigger_mode>hw</trigger_mode>
 			</properties>
 
 			<pipeline>
@@ -56,6 +57,7 @@
 			<properties>
 				<format>XR24</format>
 				<device>/dev/video1</device>
+				<trigger_mode>hw</trigger_mode>
 			</properties>
 
 			<pipeline>

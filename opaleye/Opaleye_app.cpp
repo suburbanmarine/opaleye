@@ -316,8 +316,10 @@ bool Gstreamer_pipeline::make_alvium_pipeline()
 
   std::string device = m_camera_config.get<std::string>("properties.device");
 
+  std::string trigger_mode = m_camera_config.get<std::string>("properties.trigger_mode");
+
   std::shared_ptr<V4L2_alvium_pipe> m_camera   = std::make_shared<V4L2_alvium_pipe>();
-  m_camera->set_params(device.c_str(), v4l2_fourcc(format[0], format[1], format[2], format[3]));
+  m_camera->set_params(device.c_str(), v4l2_fourcc(format[0], format[1], format[2], format[3]), trigger_mode);
   if( ! m_camera->init("cam_0") )
   {
     SPDLOG_ERROR("Could not init camera");
@@ -889,47 +891,48 @@ std::vector<std::string> Opaleye_app::get_camera_list() const
   return std::vector<std::string>();
 }
 
-bool Opaleye_app::set_camera_property(const std::string& camera_id, const std::string& property_id, int value)
+bool Opaleye_app::set_camera_property_int(const std::string& pipeline_id, const std::string& camera_id, const std::string& property_id, int value)
 {
-  std::shared_ptr<V4L2_webcam_pipe> m_camera = m_pipelines["cam0"]->get_element<V4L2_webcam_pipe>("cam_0");
+  std::shared_ptr<GST_camera_base> cam;
 
-  if( ! m_camera )
+  auto pipe_it = m_pipelines.find(pipeline_id);
+  if(pipe_it == m_pipelines.end())
   {
-    SPDLOG_ERROR("only V4L2_webcam_pipe camera support now, refactor these to a camera base class");
+    SPDLOG_ERROR("Could not get pipeline {:s}", pipeline_id);
+    return false;
+  }
+
+  cam = pipe_it->second->get_element<GST_camera_base>(camera_id);
+  if( ! cam )
+  {
+    SPDLOG_ERROR("Could not get camera {:s}, is it a GST_camera_base", camera_id);
     return false;
   }
 
   bool ret = false;
-  if(camera_id == "cam0")
+  if(property_id == "exposure_mode")
   {
-    if(property_id == "exposure_mode")
-    {
-      ret = m_camera->set_exposure_mode(value); 
-    }
-    else if(property_id == "exposure_absolute")
-    {
-     ret = m_camera->set_exposure_value(value);
-    }
-    else if(property_id == "focus_absolute")
-    {
-      ret = m_camera->set_focus_absolute(value);
-    }
-    else if(property_id == "focus_auto")
-    {
-      ret = m_camera->set_focus_auto(value);
-    }
-    else if(property_id == "brightness")
-    {
-      ret = m_camera->set_brightness(value);
-    }
-    else if(property_id == "gain")
-    {
-      ret = m_camera->set_gain(value);
-    }
-    else
-    {
-      ret = false; 
-    }
+    ret = cam->set_exposure_mode(value); 
+  }
+  else if(property_id == "exposure_absolute")
+  {
+   ret = cam->set_exposure_value(value);
+  }
+  else if(property_id == "focus_absolute")
+  {
+    ret = cam->set_focus_absolute(value);
+  }
+  else if(property_id == "focus_auto")
+  {
+    ret = cam->set_focus_auto(value);
+  }
+  else if(property_id == "brightness")
+  {
+    ret = cam->set_brightness(value);
+  }
+  else if(property_id == "gain")
+  {
+    ret = cam->set_gain(value);
   }
   else
   {
@@ -937,4 +940,25 @@ bool Opaleye_app::set_camera_property(const std::string& camera_id, const std::s
   }
 
   return ret;
+}
+
+bool Opaleye_app::set_camera_property_str(const std::string& pipeline_id, const std::string& camera_id, const std::string& property_id, const std::string& value)
+{
+  std::shared_ptr<GST_camera_base> cam;
+
+  auto pipe_it = m_pipelines.find(pipeline_id);
+  if(pipe_it == m_pipelines.end())
+  {
+    SPDLOG_ERROR("Could not get pipeline {:s}", pipeline_id);
+    return false;
+  }
+
+  cam = pipe_it->second->get_element<GST_camera_base>(camera_id);
+  if( ! cam )
+  {
+    SPDLOG_ERROR("Could not get camera {:s}, is it a GST_camera_base", camera_id);
+    return false;
+  }
+
+  return cam->set_camera_property(property_id, value);
 }
