@@ -32,6 +32,15 @@
 		<endpoint>127.0.0.1:50000</endpoint>
 	</fcgi>
 
+	<hw_trigger>
+		<enable>0</enable>
+
+		<!-- in us -->
+		<t0>0</t0>
+		<period>1000000</period>
+		<width>50000</width>
+	</hw_trigger>
+
 	<cameras>
 
 		<camera>

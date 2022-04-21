@@ -3,6 +3,8 @@
 #include "opaleye-util/chrono_util.hpp"
 #include "opaleye-util/errno_util.hpp"
 
+#include <boost/filesystem.hpp>
+
 #include <spdlog/spdlog.h>
 
 #include <cstdio>
@@ -18,6 +20,11 @@ Opaleye_gpio_mod_ctrl::Opaleye_gpio_mod_ctrl()
 Opaleye_gpio_mod_ctrl::~Opaleye_gpio_mod_ctrl()
 {
 
+}
+
+bool Opaleye_gpio_mod_ctrl::is_loaded()
+{
+	return boost::filesystem::exists("/sys/kernel/opaleye");
 }
 
 bool Opaleye_gpio_mod_ctrl::open()

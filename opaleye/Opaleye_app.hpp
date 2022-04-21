@@ -5,6 +5,7 @@
 */
 
 #include "gst_filesink_pipeline.hpp"
+#include "Opaleye_gpio_mod_ctrl.hpp"
 
 #include "config/Opaleye_config_mgr.hpp"
 
@@ -202,7 +203,13 @@ public:
   bool set_camera_property_int(const std::string& pipeline_id, const std::string& camera_id, const std::string& property_id, int value);
   bool set_camera_property_str(const std::string& pipeline_id, const std::string& camera_id, const std::string& property_id, const std::string& value);
 
+  /* hw trigger */
+  bool hw_trigger_enable(const bool enable);
+  bool hw_trigger_config(const uint64_t t0, const uint64_t period, const uint64_t width);
+
 // protected:
+
+  Opaleye_gpio_mod_ctrl m_hw_trigger;
 
   //pipeline name to pipeline
   std::map<std::string, std::shared_ptr<GST_app_base>> m_pipelines;

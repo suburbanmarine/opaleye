@@ -9,6 +9,8 @@ public:
 	Opaleye_gpio_mod_ctrl();
 	~Opaleye_gpio_mod_ctrl();
 
+	static bool is_loaded();
+
 	bool open();
 	bool close();
 
