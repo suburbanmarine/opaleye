@@ -530,7 +530,7 @@ bool Opaleye_app::init()
     SPDLOG_INFO("Opaleye_app::init stashing cam0");
     m_pipelines.emplace("cam0", pipeline);
   }
-/*
+
   if(m_config->camera_configs.count("cam1"))
   {
     std::shared_ptr<Gstreamer_pipeline> pipeline = std::make_shared<Gstreamer_pipeline>();
@@ -549,7 +549,6 @@ bool Opaleye_app::init()
     SPDLOG_INFO("Opaleye_app::init stashing cam1");
     m_pipelines.emplace("cam1", pipeline);
   }
-  */
 
   return true;
 }
