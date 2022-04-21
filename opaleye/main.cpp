@@ -246,7 +246,6 @@ int main(int argc, char* argv[])
 	//register http callbacks
 	if(app.m_config->camera_configs.count("cam0"))
 	{
-		std::shared_ptr<http_req_jpeg> jpg_cb = std::make_shared<http_req_jpeg>();
 
 		auto thumb_0 = app.m_pipelines["cam0"]->get_element<Thumbnail_pipe_base>("thumb_0");
 		if( ! thumb_0 )
@@ -254,28 +253,34 @@ int main(int argc, char* argv[])
 			SPDLOG_ERROR("Could not get element thumb_0");
 			return -1;
 		}
+		else
+		{
+			std::shared_ptr<http_req_jpeg> jpg_cb = std::make_shared<http_req_jpeg>();
 
-		jpg_cb->set_get_image_cb(std::bind(&Thumbnail_pipe_base::copy_frame_buffer, thumb_0.get(), std::placeholders::_1));
-		fcgi_svr.register_cb_for_doc_uri("/cameras/cam0.jpg", jpg_cb);
-		fcgi_svr.register_cb_for_doc_uri("/api/v1/cameras/cam0/live/full", jpg_cb);
-		fcgi_svr.register_cb_for_doc_uri("/api/v1/cameras/cam0/live/thumb", jpg_cb);
+			jpg_cb->set_get_image_cb(std::bind(&Thumbnail_pipe_base::copy_frame_buffer, thumb_0.get(), std::placeholders::_1));
+			fcgi_svr.register_cb_for_doc_uri("/cameras/cam0.jpg", jpg_cb);
+			fcgi_svr.register_cb_for_doc_uri("/api/v1/cameras/cam0/live/full", jpg_cb);
+			fcgi_svr.register_cb_for_doc_uri("/api/v1/cameras/cam0/live/thumb", jpg_cb);
+		}
 	}
 
 	if(app.m_config->camera_configs.count("cam1"))
 	{
-		std::shared_ptr<http_req_jpeg> jpg_cb = std::make_shared<http_req_jpeg>();
 		
 		auto thumb_0 = app.m_pipelines["cam1"]->get_element<Thumbnail_pipe_base>("thumb_0");
 		if( ! thumb_0 )
 		{
 			SPDLOG_ERROR("Could not get element thumb_0");
-			return -1;
 		}
+		else
+		{
+			std::shared_ptr<http_req_jpeg> jpg_cb = std::make_shared<http_req_jpeg>();
 
-		jpg_cb->set_get_image_cb(std::bind(&Thumbnail_pipe_base::copy_frame_buffer, thumb_0.get(), std::placeholders::_1));
-		fcgi_svr.register_cb_for_doc_uri("/cameras/cam1.jpg", jpg_cb);
-		fcgi_svr.register_cb_for_doc_uri("/api/v1/cameras/cam1/live/full", jpg_cb);
-		fcgi_svr.register_cb_for_doc_uri("/api/v1/cameras/cam1/live/thumb", jpg_cb);
+			jpg_cb->set_get_image_cb(std::bind(&Thumbnail_pipe_base::copy_frame_buffer, thumb_0.get(), std::placeholders::_1));
+			fcgi_svr.register_cb_for_doc_uri("/cameras/cam1.jpg", jpg_cb);
+			fcgi_svr.register_cb_for_doc_uri("/api/v1/cameras/cam1/live/full", jpg_cb);
+			fcgi_svr.register_cb_for_doc_uri("/api/v1/cameras/cam1/live/thumb", jpg_cb);
+		}
 	}
 
 	std::shared_ptr<zeromq_api_svr> zmq_svr;
@@ -290,18 +295,19 @@ int main(int argc, char* argv[])
 		}
 		//register 0mq services
 		//the camera callbacks are called within the context of a gstreamer thread and should return promptly
+
 		if(app.m_config->camera_configs.count("cam0"))
 		{
 			std::shared_ptr<GST_camera_base> cam0 = app.m_pipelines["cam0"]->get_element<GST_camera_base>("cam_0");
 			if( ! cam0 )
 			{
 				SPDLOG_ERROR("Could not get element cam0");
-				return -1;
 			}
-
-			cam0->set_framebuffer_callback(
-				[zmq_svr](const std::string& metadata, const std::shared_ptr<const std::vector<uint8_t>>& frame_ptr)
-				{
+			else
+			{
+				cam0->set_framebuffer_callback(
+					[zmq_svr](const std::string& metadata, const std::shared_ptr<const std::vector<uint8_t>>& frame_ptr)
+					{
 					if(frame_ptr)
 					{
 						zmq_svr->send("/api/v1/cameras/cam0/live/full", metadata, std::string_view(reinterpret_cast<const char*>(frame_ptr->data()), frame_ptr->size()));
@@ -310,22 +316,25 @@ int main(int argc, char* argv[])
 					{
 						SPDLOG_ERROR("frame_ptr is null");
 					}				
-				}
-			);
+					}
+				);
+			}
 		}
+
 
 		if(app.m_config->camera_configs.count("cam1"))
 		{
 			std::shared_ptr<GST_camera_base> cam1 = app.m_pipelines["cam1"]->get_element<GST_camera_base>("cam_0");
 			if( ! cam1 )
 			{
-				SPDLOG_ERROR("Could not get element cam0");
+				SPDLOG_ERROR("Could not get element cam1");
 				return -1;
 			}
-
-			cam1->set_framebuffer_callback(
-				[zmq_svr](const std::string& metadata, const std::shared_ptr<const std::vector<uint8_t>>& frame_ptr)
-				{
+			else
+			{
+				cam1->set_framebuffer_callback(
+					[zmq_svr](const std::string& metadata, const std::shared_ptr<const std::vector<uint8_t>>& frame_ptr)
+					{
 					if(frame_ptr)
 					{
 						zmq_svr->send("/api/v1/cameras/cam1/live/full", metadata, std::string_view(reinterpret_cast<const char*>(frame_ptr->data()), frame_ptr->size()));
@@ -335,7 +344,8 @@ int main(int argc, char* argv[])
 						SPDLOG_ERROR("frame_ptr is null");
 					}
 				}
-			);
+				);
+			}
 		}
 	}
 
