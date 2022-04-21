@@ -244,14 +244,13 @@ int main(int argc, char* argv[])
 	}
 
 	//register http callbacks
-	if(app.m_config->camera_configs.count("cam0"))
+	if(app.m_pipelines.find("cam0") != app.m_pipelines.end())
 	{
 
 		auto thumb_0 = app.m_pipelines["cam0"]->get_element<Thumbnail_pipe_base>("thumb_0");
 		if( ! thumb_0 )
 		{
 			SPDLOG_ERROR("Could not get element thumb_0");
-			return -1;
 		}
 		else
 		{
@@ -264,9 +263,8 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	if(app.m_config->camera_configs.count("cam1"))
+	if(app.m_pipelines.find("cam1") != app.m_pipelines.end())
 	{
-		
 		auto thumb_0 = app.m_pipelines["cam1"]->get_element<Thumbnail_pipe_base>("thumb_0");
 		if( ! thumb_0 )
 		{
@@ -296,7 +294,7 @@ int main(int argc, char* argv[])
 		//register 0mq services
 		//the camera callbacks are called within the context of a gstreamer thread and should return promptly
 
-		if(app.m_config->camera_configs.count("cam0"))
+		if(app.m_pipelines.find("cam0") != app.m_pipelines.end())
 		{
 			std::shared_ptr<GST_camera_base> cam0 = app.m_pipelines["cam0"]->get_element<GST_camera_base>("cam_0");
 			if( ! cam0 )
@@ -308,21 +306,21 @@ int main(int argc, char* argv[])
 				cam0->set_framebuffer_callback(
 					[zmq_svr](const std::string& metadata, const std::shared_ptr<const std::vector<uint8_t>>& frame_ptr)
 					{
-					if(frame_ptr)
-					{
-						zmq_svr->send("/api/v1/cameras/cam0/live/full", metadata, std::string_view(reinterpret_cast<const char*>(frame_ptr->data()), frame_ptr->size()));
-					}
-					else
-					{
-						SPDLOG_ERROR("frame_ptr is null");
-					}				
+						if(frame_ptr)
+						{
+							zmq_svr->send("/api/v1/cameras/cam0/live/full", metadata, std::string_view(reinterpret_cast<const char*>(frame_ptr->data()), frame_ptr->size()));
+						}
+						else
+						{
+							SPDLOG_ERROR("frame_ptr is null");
+						}				
 					}
 				);
 			}
 		}
 
 
-		if(app.m_config->camera_configs.count("cam1"))
+		if(app.m_pipelines.find("cam1") != app.m_pipelines.end())
 		{
 			std::shared_ptr<GST_camera_base> cam1 = app.m_pipelines["cam1"]->get_element<GST_camera_base>("cam_0");
 			if( ! cam1 )
@@ -335,15 +333,15 @@ int main(int argc, char* argv[])
 				cam1->set_framebuffer_callback(
 					[zmq_svr](const std::string& metadata, const std::shared_ptr<const std::vector<uint8_t>>& frame_ptr)
 					{
-					if(frame_ptr)
-					{
-						zmq_svr->send("/api/v1/cameras/cam1/live/full", metadata, std::string_view(reinterpret_cast<const char*>(frame_ptr->data()), frame_ptr->size()));
+						if(frame_ptr)
+						{
+							zmq_svr->send("/api/v1/cameras/cam1/live/full", metadata, std::string_view(reinterpret_cast<const char*>(frame_ptr->data()), frame_ptr->size()));
+						}
+						else
+						{
+							SPDLOG_ERROR("frame_ptr is null");
+						}
 					}
-					else
-					{
-						SPDLOG_ERROR("frame_ptr is null");
-					}
-				}
 				);
 			}
 		}

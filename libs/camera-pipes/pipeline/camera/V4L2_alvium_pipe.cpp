@@ -5,9 +5,13 @@
 */
 
 #include "V4L2_alvium_pipe.hpp"
-#include "util/v4l2_util.hpp"
 
+#include "util/v4l2_util.hpp"
 #include "pipeline/gst_common.hpp"
+
+#include "opaleye-util/Ptree_util.hpp"
+
+#include <boost/property_tree/ptree.hpp>
 
 #include <gstreamermm/buffer.h>
 #include <gstreamermm/elementfactory.h>
@@ -179,6 +183,7 @@ bool V4L2_alvium_pipe::link_front(const Glib::RefPtr<Gst::Element>& node)
 }
 bool V4L2_alvium_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
 {
+  #if 0
   try
   {
     m_out_tee->link(node);
@@ -192,6 +197,7 @@ bool V4L2_alvium_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
   {
     SPDLOG_ERROR("Failed to link back, unknown exception"); 
   }
+  #endif
 
   return false;
 }
@@ -278,13 +284,59 @@ bool V4L2_alvium_pipe::init(const char name[])
     //   "height", 2056
     //   );
 
-    m_src_caps = Glib::wrap(gst_caps_new_simple ("video/x-raw",
-         "format", G_TYPE_STRING, "BGRx",
-         "framerate", GST_TYPE_FRACTION, 0, 1,
-         "pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
-         "width", G_TYPE_INT, 2464,
-         "height", G_TYPE_INT, 2056,
-         NULL));
+    switch(m_fourcc)
+    {
+      case v4l2_fourcc('J','X','R','0'):
+      {
+        m_src_caps = Glib::wrap(gst_caps_new_simple ("video/x-raw",
+                   "format", G_TYPE_STRING, "GRAY16_LE",
+                   "framerate", GST_TYPE_FRACTION, 0, 1,
+                   "pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
+                   "width", G_TYPE_INT, 2464,
+                   "height", G_TYPE_INT, 2056,
+                   NULL));
+        break;
+      }
+      case v4l2_fourcc('J','X','R','2'):
+      {
+        m_src_caps = Glib::wrap(gst_caps_new_simple ("video/x-raw",
+                   "format", G_TYPE_STRING, "GRAY16_LE",
+                   "framerate", GST_TYPE_FRACTION, 0, 1,
+                   "pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
+                   "width", G_TYPE_INT, 2464,
+                   "height", G_TYPE_INT, 2056,
+                   NULL));
+        break;
+      }
+      case v4l2_fourcc('J','X','Y','2'):
+      {
+        m_src_caps = Glib::wrap(gst_caps_new_simple ("video/x-raw",
+                   "format", G_TYPE_STRING, "GRAY16_LE",
+                   "framerate", GST_TYPE_FRACTION, 0, 1,
+                   "pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
+                   "width", G_TYPE_INT, 2464,
+                   "height", G_TYPE_INT, 2056,
+                   NULL));
+        break;
+      }
+      case v4l2_fourcc('X','R','2','4'):
+      {
+        m_src_caps = Glib::wrap(gst_caps_new_simple ("video/x-raw",
+             "format", G_TYPE_STRING, "BGRx",
+             "framerate", GST_TYPE_FRACTION, 0, 1,
+             "pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
+             "width", G_TYPE_INT, 2464,
+             "height", G_TYPE_INT, 2056,
+             NULL));
+        break;
+      }
+      default:
+      {
+        SPDLOG_ERROR("unsupported fourcc");
+        return false;
+        break;
+      }
+    }
 
     if(! m_src_caps )
     {
@@ -392,14 +444,34 @@ bool V4L2_alvium_pipe::init(const char name[])
   m_src->link(m_sink);
 
 
-  if(m_fourcc == v4l2_fourcc('X','R','2','4'))
+  switch(m_fourcc)
   {
-    m_frame_worker = std::make_shared<V4L2_alvium_frame_worker>(std::bind(&V4L2_alvium_pipe::new_frame_cb_XR24, this, std::placeholders::_1), m_cam);
-  }
-  else
-  {
-    SPDLOG_ERROR("unsupported fourcc");
-    return false;
+    case v4l2_fourcc('J','X','R','0'):
+    {
+      m_frame_worker = std::make_shared<V4L2_alvium_frame_worker>(std::bind(&V4L2_alvium_pipe::new_frame_cb_JXR0, this, std::placeholders::_1), m_cam);
+      break;
+    }
+    case v4l2_fourcc('J','X','R','2'):
+    {
+      m_frame_worker = std::make_shared<V4L2_alvium_frame_worker>(std::bind(&V4L2_alvium_pipe::new_frame_cb_JXR2, this, std::placeholders::_1), m_cam);
+      break;
+    }
+    case v4l2_fourcc('J','X','Y','2'):
+    {
+      m_frame_worker = std::make_shared<V4L2_alvium_frame_worker>(std::bind(&V4L2_alvium_pipe::new_frame_cb_JXY2, this, std::placeholders::_1), m_cam);
+      break;
+    }
+    case v4l2_fourcc('X','R','2','4'):
+    {
+      m_frame_worker = std::make_shared<V4L2_alvium_frame_worker>(std::bind(&V4L2_alvium_pipe::new_frame_cb_XR24, this, std::placeholders::_1), m_cam);
+      break;
+    }
+    default:
+    {
+      SPDLOG_ERROR("unsupported fourcc");
+      return false;
+      break;
+    }
   }
   
   m_frame_worker->launch();
@@ -418,9 +490,99 @@ void V4L2_alvium_pipe::handle_enough_data()
   m_gst_need_data = false;
 }
 
+void V4L2_alvium_pipe::new_frame_cb_JXR0(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
+{
+  SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_JXR0 - start");
+
+  boost::property_tree::ptree meta_tree;
+  Alvium_v4l2::frame_meta_to_ptree(frame_buf, &meta_tree);
+  std::string meta_str = Ptree_util::ptree_to_json_str(meta_tree);
+  SPDLOG_INFO("Metadata:\n{:s}", meta_str);
+
+  //allocate new buffer and cache frame
+  {
+    //todo put this in an object pool so we can share with zmq outgoing queue
+    std::shared_ptr<std::vector<uint8_t>> new_frame = std::make_shared<std::vector<uint8_t>>(frame_buf->get_bytes_used());
+    new_frame->assign((uint8_t const *)frame_buf->get_data(), (uint8_t const *)frame_buf->get_data() + frame_buf->get_bytes_used());
+    
+    {
+      std::lock_guard<std::mutex> lock(m_frame_buffer_mutex);
+      m_frame_buffer = new_frame;
+
+      if(m_buffer_dispatch_cb)
+      {
+          m_buffer_dispatch_cb(meta_str, m_frame_buffer);
+      }
+    }
+  }
+
+  SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_JXR0 - end");
+}
+void V4L2_alvium_pipe::new_frame_cb_JXR2(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
+{
+  SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_JXR2 - start");
+
+  boost::property_tree::ptree meta_tree;
+  Alvium_v4l2::frame_meta_to_ptree(frame_buf, &meta_tree);
+  std::string meta_str = Ptree_util::ptree_to_json_str(meta_tree);
+  SPDLOG_INFO("Metadata:\n{:s}", meta_str);
+
+  //allocate new buffer and cache frame
+  {
+    //todo put this in an object pool so we can share with zmq outgoing queue
+    std::shared_ptr<std::vector<uint8_t>> new_frame = std::make_shared<std::vector<uint8_t>>(frame_buf->get_bytes_used());
+    new_frame->assign((uint8_t const *)frame_buf->get_data(), (uint8_t const *)frame_buf->get_data() + frame_buf->get_bytes_used());
+    
+    {
+      std::lock_guard<std::mutex> lock(m_frame_buffer_mutex);
+      m_frame_buffer = new_frame;
+
+      if(m_buffer_dispatch_cb)
+      {
+          m_buffer_dispatch_cb(meta_str, m_frame_buffer);
+      }
+    }
+  }
+
+  SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_JXR2 - end");
+}
+void V4L2_alvium_pipe::new_frame_cb_JXY2(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
+{
+  SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_JXY2 - start");
+
+  boost::property_tree::ptree meta_tree;
+  Alvium_v4l2::frame_meta_to_ptree(frame_buf, &meta_tree);
+  std::string meta_str = Ptree_util::ptree_to_json_str(meta_tree);
+  SPDLOG_INFO("Metadata:\n{:s}", meta_str);
+
+  //allocate new buffer and cache frame
+  {
+    //todo put this in an object pool so we can share with zmq outgoing queue
+    std::shared_ptr<std::vector<uint8_t>> new_frame = std::make_shared<std::vector<uint8_t>>(frame_buf->get_bytes_used());
+    new_frame->assign((uint8_t const *)frame_buf->get_data(), (uint8_t const *)frame_buf->get_data() + frame_buf->get_bytes_used());
+    
+    {
+      std::lock_guard<std::mutex> lock(m_frame_buffer_mutex);
+      m_frame_buffer = new_frame;
+
+      if(m_buffer_dispatch_cb)
+      {
+          m_buffer_dispatch_cb(meta_str, m_frame_buffer);
+      }
+    }
+  }
+
+  SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_JXY2 - end");
+}
+
 void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
 {
   SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_XR24 - start");
+
+  boost::property_tree::ptree meta_tree;
+  Alvium_v4l2::frame_meta_to_ptree(frame_buf, &meta_tree);
+  std::string meta_str = Ptree_util::ptree_to_json_str(meta_tree);
+  SPDLOG_INFO("Metadata:\n{:s}", meta_str);
 
   //allocate new buffer and cache frame
   {
@@ -488,8 +650,7 @@ void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& f
     std::lock_guard<std::mutex> lock(m_frame_buffer_mutex);
     if(m_buffer_dispatch_cb)
     {
-        std::string metadata; // todo fill this out
-        m_buffer_dispatch_cb(metadata, m_frame_buffer);
+        m_buffer_dispatch_cb(meta_str, m_frame_buffer);
     }
   }
 

@@ -10,6 +10,10 @@
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/fmt/fmt.h>
 
+#include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
+
 #include <sys/ioctl.h>
 
 #include <cstring>
@@ -642,6 +646,322 @@ bool v4l2_util::v4l2_ctrl_get(uint32_t which, v4l2_ext_control* const ctrl)
 		SPDLOG_WARN("VIDIOC_G_EXT_CTRLS error: {:s}", m_errno.to_str());
 		return false;
 	}
+
+	return true;
+}
+
+bool v4l2_util::v4l2_probe_ctrl()
+{
+	v4l2_capability cap;
+	memset(&cap, 0, sizeof(cap));
+	int ret = ioctl(m_v4l2_fd, VIDIOC_QUERYCAP, &cap);
+	if(ret < 0)
+	{
+		SPDLOG_WARN("VIDIOC_QUERYCAP error: {:s}", m_errno.to_str());
+		return false;
+	}
+
+	v4l2_query_ext_ctrl ext_ctrl;
+	uint32_t current_ctrl_id = V4L2_CID_BASE;
+	do
+	{
+		memset(&ext_ctrl, 0, sizeof(ext_ctrl));
+		ext_ctrl.id = current_ctrl_id; // query [V4L2_CID_BASE, V4L2_CID_LASTP1]
+		ret = ioctl(m_v4l2_fd, VIDIOC_QUERY_EXT_CTRL, &ext_ctrl);
+		if(ret < 0)
+		{
+			if(errno == EINVAL)
+			{
+				//were done
+			}
+			else
+			{
+				SPDLOG_WARN("VIDIOC_QUERY_EXT_CTRL error: {:s}", m_errno.to_str());
+				return false;
+			}
+		}
+		else
+		{
+			SPDLOG_DEBUG("VIDIOC_QUERY_EXT_CTRL {:d} {:s}, {:d}, [{:d}, {:d}]/{:d}",
+				ext_ctrl.id,
+				ext_ctrl.name,
+				ext_ctrl.type,
+				ext_ctrl.minimum,
+				ext_ctrl.maximum,
+				ext_ctrl.step);
+
+			m_device_ctrl.insert(std::make_pair(ext_ctrl.id, ext_ctrl));
+
+			current_ctrl_id = ext_ctrl.id | V4L2_CTRL_FLAG_NEXT_CTRL;
+		}
+	} while(ret >= 0);
+
+	m_menu_entries.clear();
+	for(const auto& ctrl : m_device_ctrl)
+	{
+		bool is_menu_ctrl = false;
+		switch(ctrl.second.type)
+		{
+			case V4L2_CTRL_TYPE_MENU:
+			case V4L2_CTRL_TYPE_INTEGER_MENU:
+			{
+				is_menu_ctrl = true;
+				break;
+			}
+			default:
+			{
+				is_menu_ctrl = false;
+				break;
+			}
+		}
+
+		if(is_menu_ctrl)
+		{
+			std::map<int64_t, v4l2_querymenu>& menu_valid_entries_map_ref = m_menu_entries[ctrl.second.id];
+
+			v4l2_querymenu menu;
+			for(int64_t i = ctrl.second.minimum; i <= ctrl.second.maximum; i += ctrl.second.step)
+			{
+				memset(&menu, 0, sizeof(menu));
+				menu.id    = ctrl.second.id;
+				menu.index = i;
+		
+				ret = ioctl(m_v4l2_fd, VIDIOC_QUERYMENU, &menu);
+				if(ret < 0)
+				{
+					//menu entries may be sparse - so just note that this is invalid and keep scanning
+					SPDLOG_WARN("VIDIOC_QUERYMENU {:d} {:s}[{:d}]: error: {:s}", 
+						ctrl.second.id,
+						ctrl.second.name,
+						i,
+						m_errno.to_str());
+					continue;
+				}
+				else
+				{
+					menu_valid_entries_map_ref.insert(std::make_pair(i, menu));
+
+					switch(ctrl.second.type)
+					{
+						case V4L2_CTRL_TYPE_MENU:
+						{
+							const uint8_t* name = menu.name;
+							SPDLOG_DEBUG("VIDIOC_QUERYMENU {:d} {:s}[{:d}]: {:s}",
+								ctrl.second.id,
+								ctrl.second.name,
+								i,
+								name);
+							break;
+						}
+						case V4L2_CTRL_TYPE_INTEGER_MENU:
+						{
+							int64_t value = menu.value;
+							SPDLOG_DEBUG("VIDIOC_QUERYMENU {:d} {:s}[{:d}]: {:d}",
+								ctrl.second.id,
+								ctrl.second.name,
+								i,
+								value);
+							break;
+						}
+						default:
+						{
+							SPDLOG_WARN("VIDIOC_QUERYMENU invalid type");
+							return false;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return true;
+}
+
+bool v4l2_util::get_property_description()
+{
+	using namespace rapidjson;
+
+	typedef rapidjson::GenericValue<rapidjson::UTF8<>, rapidjson::CrtAllocator> JsonValue;
+	typedef rapidjson::GenericDocument<rapidjson::UTF8<>, rapidjson::CrtAllocator, rapidjson::CrtAllocator> JsonDoc;
+
+	rapidjson::CrtAllocator valueAlloc;
+	rapidjson::CrtAllocator parseAlloc;
+
+	JsonDoc doc(&valueAlloc, 16*1024, &parseAlloc);
+	doc.SetObject();
+	
+	JsonValue ext_ctrl_desc_array;
+	ext_ctrl_desc_array.SetArray();
+
+
+#if 1
+	for(const auto& ext_ctrl : m_device_ctrl)
+	{
+		JsonValue ext_ctrl_desc(rapidjson::kObjectType);
+
+		ext_ctrl_desc.AddMember<uint32_t>("id",   ext_ctrl.second.id,   doc.GetAllocator());
+		ext_ctrl_desc.AddMember<uint32_t>("type", ext_ctrl.second.type, doc.GetAllocator());
+
+		{
+			JsonValue params_name;
+			const char* msg = ext_ctrl.second.name;
+			params_name.SetString(msg, strlen(msg), doc.GetAllocator());
+			ext_ctrl_desc.AddMember("name", params_name, doc.GetAllocator());
+		}
+
+		switch(ext_ctrl.second.type)
+		{
+			case V4L2_CTRL_TYPE_INTEGER:
+			{
+				int32_t value;
+				v4l2_ctrl_get(ext_ctrl.second.id, &value);
+
+				ext_ctrl_desc.AddMember<int32_t>("value",   value,                   doc.GetAllocator());
+				ext_ctrl_desc.AddMember<int64_t>("default_value", ext_ctrl.second.default_value, doc.GetAllocator());
+				ext_ctrl_desc.AddMember<int64_t>("minimum", ext_ctrl.second.minimum, doc.GetAllocator());
+				ext_ctrl_desc.AddMember<int64_t>("maximum", ext_ctrl.second.maximum, doc.GetAllocator());
+				ext_ctrl_desc.AddMember<uint32_t>("step",   ext_ctrl.second.step,    doc.GetAllocator());
+
+				break;
+			}
+			case V4L2_CTRL_TYPE_BOOLEAN:
+			{
+				bool value;
+				v4l2_ctrl_get(ext_ctrl.second.id, &value);
+
+				ext_ctrl_desc.AddMember("value", value, doc.GetAllocator());
+				ext_ctrl_desc.AddMember<int64_t>("default_value", ext_ctrl.second.default_value, doc.GetAllocator());
+
+				break;
+			}
+			case V4L2_CTRL_TYPE_MENU:
+			{
+				JsonValue valid_params;
+				valid_params.SetArray();
+
+				int32_t value;
+				v4l2_ctrl_get(ext_ctrl.second.id, &value);
+
+				ext_ctrl_desc.AddMember<int32_t>("value",   value,                   doc.GetAllocator());
+				ext_ctrl_desc.AddMember<int64_t>("default_value", ext_ctrl.second.default_value, doc.GetAllocator());
+
+				auto it = m_menu_entries.find(ext_ctrl.second.id);
+				for(const auto& menu_entry : it->second) // for each index
+				{
+					JsonValue params;
+					params.SetObject();
+
+					JsonValue params_name;
+					const char* msg = (const char*)menu_entry.second.name;
+					params_name.SetString(msg, strlen(msg), doc.GetAllocator());
+
+					params.AddMember("name", params_name, doc.GetAllocator());
+					params.AddMember("index", menu_entry.second.index, doc.GetAllocator());
+
+					valid_params.PushBack(params, doc.GetAllocator());
+				}
+
+				ext_ctrl_desc.AddMember("enum", valid_params, doc.GetAllocator());
+
+				break;
+			}
+			case V4L2_CTRL_TYPE_BUTTON:
+			{
+				break;
+			}
+			case V4L2_CTRL_TYPE_INTEGER64:
+			{
+				int64_t value;
+				v4l2_ctrl_get(ext_ctrl.second.id, &value);
+
+				ext_ctrl_desc.AddMember<int64_t>("default_value", ext_ctrl.second.default_value, doc.GetAllocator());
+
+				ext_ctrl_desc.AddMember<int64_t>("value",   value,                   doc.GetAllocator());
+				ext_ctrl_desc.AddMember<int64_t>("minimum", ext_ctrl.second.minimum, doc.GetAllocator());
+				ext_ctrl_desc.AddMember<int64_t>("maximum", ext_ctrl.second.maximum, doc.GetAllocator());
+				ext_ctrl_desc.AddMember<uint64_t>("step",   ext_ctrl.second.step,    doc.GetAllocator());
+
+				break;
+			}
+			case V4L2_CTRL_TYPE_CTRL_CLASS:
+			{
+				break;
+			}
+			case V4L2_CTRL_TYPE_STRING:
+			{
+				break;
+			}
+			case V4L2_CTRL_TYPE_BITMASK:
+			{
+				int32_t value;
+				v4l2_ctrl_get(ext_ctrl.second.id, &value);
+
+				ext_ctrl_desc.AddMember<uint32_t>("default_value", ext_ctrl.second.default_value, doc.GetAllocator());
+
+				ext_ctrl_desc.AddMember<uint32_t>("value",   value,                   doc.GetAllocator());
+				ext_ctrl_desc.AddMember<uint32_t>("minimum", ext_ctrl.second.minimum, doc.GetAllocator());
+				ext_ctrl_desc.AddMember<uint32_t>("maximum", ext_ctrl.second.maximum, doc.GetAllocator());
+				break;
+			}
+			case V4L2_CTRL_TYPE_INTEGER_MENU:
+			{
+				JsonValue valid_params;
+				valid_params.SetArray();
+
+				int32_t value;
+				v4l2_ctrl_get(ext_ctrl.second.id, &value);
+
+				ext_ctrl_desc.AddMember<int32_t>("value",   value,                   doc.GetAllocator());
+				ext_ctrl_desc.AddMember<int64_t>("default_value", ext_ctrl.second.default_value, doc.GetAllocator());
+
+				auto it = m_menu_entries.find(ext_ctrl.second.id);
+				for(const auto& menu_entry : it->second)
+				{
+					JsonValue params;
+					params.SetObject();
+
+					JsonValue params_name;
+					const char* msg = (const char*)menu_entry.second.name;
+					params_name.SetString(msg, strlen(msg), doc.GetAllocator());
+
+					params.AddMember("name", params_name, doc.GetAllocator());
+					params.AddMember("index", menu_entry.second.index, doc.GetAllocator());
+
+					valid_params.PushBack(params, doc.GetAllocator());
+				}
+
+				ext_ctrl_desc.AddMember("enum", valid_params, doc.GetAllocator());
+				break;
+			}
+			case V4L2_CTRL_TYPE_U8:
+			{
+				break;
+			}
+			case V4L2_CTRL_TYPE_U16:
+			{
+				break;
+			}
+			case V4L2_CTRL_TYPE_U32:
+			{
+				break;
+			}
+			default:
+			{
+				SPDLOG_ERROR("Unknown type");
+				return false;
+			}
+		}
+
+		ext_ctrl_desc_array.GetArray().PushBack(ext_ctrl_desc, doc.GetAllocator());
+	}
+#endif
+	doc.AddMember("ext_ctrl", ext_ctrl_desc_array, doc.GetAllocator());
+
+	rapidjson::StringBuffer buf;
+	rapidjson::Writer<rapidjson::StringBuffer> writer(buf);
+	doc.Accept(writer);
+
+	SPDLOG_INFO("doc: {:s}", buf.GetString());
 
 	return true;
 }

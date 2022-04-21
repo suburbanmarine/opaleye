@@ -15,6 +15,7 @@
 
 #include <list>
 #include <vector>
+#include <map>
 
 class v4l2_util
 {
@@ -143,10 +144,28 @@ public:
 
 	bool v4l2_ctrl_set(v4l2_ext_control* const ctrl);
 	bool v4l2_ctrl_get(uint32_t which, v4l2_ext_control* const ctrl);
+
+	bool v4l2_probe_ctrl();
+	bool get_property_description();
+
+	const std::map<uint32_t, v4l2_query_ext_ctrl>& get_ctrl_map() const
+	{
+		return m_device_ctrl;
+	}
+	const std::map<uint32_t, std::map<int64_t, v4l2_querymenu>>& get_menu_entries() const
+	{
+		return m_menu_entries;
+	}
+
 protected:
 	int m_v4l2_fd;
 
 	errno_util m_errno;
 
 	std::list<v4l2_fmtdesc> m_fmt_descs;
+
+	// ctrl id -> v4l2_query_ext_ctrl
+	std::map<uint32_t, v4l2_query_ext_ctrl> m_device_ctrl;
+	// ctrl id -> index -> menu_entries
+	std::map<uint32_t, std::map<int64_t, v4l2_querymenu>> m_menu_entries;
 };

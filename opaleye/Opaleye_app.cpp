@@ -306,8 +306,16 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
 
 bool Gstreamer_pipeline::make_alvium_pipeline()
 {
+
+  std::string format = m_camera_config.get<std::string>("properties.format");
+  if(format.size() != 4)
+  {
+    SPDLOG_ERROR("fourcc format invalid: {:s}", format);
+    return false;    
+  }
+
   std::shared_ptr<V4L2_alvium_pipe> m_camera   = std::make_shared<V4L2_alvium_pipe>();
-  m_camera->set_params("/dev/video0", v4l2_fourcc('X','R','2','4'));
+  m_camera->set_params("/dev/video0", v4l2_fourcc(format[0], format[1], format[2], format[3]));
   if( ! m_camera->init("cam_0") )
   {
     SPDLOG_ERROR("Could not init camera");

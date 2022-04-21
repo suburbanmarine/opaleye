@@ -5,6 +5,8 @@
 #include "util/v4l2_util.hpp"
 #include "util/v4l2_mmap_buffer.hpp"
 
+#include <boost/property_tree/ptree_fwd.hpp>
+
 #include <vector>
 #include <memory>
 #include <map>
@@ -71,6 +73,8 @@ public:
 	// JXR2 - 12-bit/16-bit Bayer RGRG/GBGB
 	// JXY2 - 12-bit/16-bit Greyscale
 	// XR24 - 32-bit BGRX 8-8-8-8
+
+	static bool frame_meta_to_ptree(const ConstMmapFramePtr& frame, boost::property_tree::ptree* out_meta);
 
 protected:
 	errno_util m_errno;

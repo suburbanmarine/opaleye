@@ -91,10 +91,10 @@ protected:
   void handle_need_data(guint val);
   void handle_enough_data();
 
-  void new_frame_cb_JXR0(const Alvium_v4l2::ConstMmapFramePtr& frame_buf);
-  void new_frame_cb_JXR2(const Alvium_v4l2::ConstMmapFramePtr& frame_buf);
-  void new_frame_cb_JXY2(const Alvium_v4l2::ConstMmapFramePtr& frame_buf);
-  void new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& frame_buf);
+  void new_frame_cb_JXR0(const Alvium_v4l2::ConstMmapFramePtr& frame_buf); // 10-bit/16-bit Bayer RGRG/GBGB
+  void new_frame_cb_JXR2(const Alvium_v4l2::ConstMmapFramePtr& frame_buf); // 12-bit/16-bit Bayer RGRG/GBGB
+  void new_frame_cb_JXY2(const Alvium_v4l2::ConstMmapFramePtr& frame_buf); // 12-bit/16-bit Greyscale
+  void new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& frame_buf); // 32-bit BGRX 8-8-8-8
 
   std::shared_ptr<V4L2_alvium_frame_worker> m_frame_worker;
 
