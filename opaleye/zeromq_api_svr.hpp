@@ -38,6 +38,11 @@ public:
 
 	bool stop();
 
+	///
+	/// This is globally serializing - pub sockets are not thread safe
+	/// RADIO/DISH is thread safe but does not support multipart messages - we want multipart messages so topic is in own segment
+	/// Could make socket per topic that needs to be in own async send domain
+	///
 	bool send(const std::string_view& topic, const std::string_view& header, const std::string_view& payload);
 
 	// bool async_send(const std::string_view& topic, const std::string_view& header, const std::string_view& payload);
