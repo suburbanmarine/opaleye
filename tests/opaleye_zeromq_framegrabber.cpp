@@ -10,7 +10,7 @@ int main()
 
 	std::shared_ptr<zmq::context_t> m_context = std::make_shared<zmq::context_t>();
 
-	const std::string endpoint = "tcp://192.168.40.70:51000";
+	const std::string endpoint = "tcp://192.168.5.7:51000";
 	std::shared_ptr<zmq::socket_t> m_socket  = std::make_shared<zmq::socket_t>(*m_context, zmq::socket_type::sub);
     
     m_socket->set(zmq::sockopt::subscribe, "/api/v1/cameras/cam0/live/full");
