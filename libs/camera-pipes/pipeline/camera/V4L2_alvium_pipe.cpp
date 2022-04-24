@@ -207,18 +207,24 @@ void V4L2_alvium_pipe::set_params(const char dev_path[], const uint32_t fourcc, 
 }
 bool V4L2_alvium_pipe::close()
 {
-  m_frame_worker->interrupt();
-  m_frame_worker->join();
-
-  m_cam->set_sw_trigger();
-
-  m_cam->stop_streaming();
-
-  if( ! m_cam->close() )
+  if(m_frame_worker)
   {
-    SPDLOG_ERROR("close had error");
-    return false;
+    m_frame_worker->interrupt();
+    m_frame_worker->join();
   }
+
+  if(m_cam)
+  {
+    m_cam->set_sw_trigger();
+    m_cam->stop_streaming();
+  
+    if( ! m_cam->close() )
+    {
+      SPDLOG_ERROR("close had error");
+      return false;
+    }
+  }
+
 
   return true;
 }
@@ -334,6 +340,7 @@ bool V4L2_alvium_pipe::init(const char name[])
     }
 
     //source
+#if 1
     m_src = Gst::AppSrc::create();
     m_src->property_caps().set_value(m_src_caps);
 
@@ -344,8 +351,8 @@ bool V4L2_alvium_pipe::init(const char name[])
     m_src->property_min_latency()  = 0;
     m_src->property_max_latency()  = 1*GST_SECOND / 2;
 
-    // m_src->property_num_buffers()  = 30;
-    // m_src->property_max_bytes()    = 100*1024*1024;
+    m_src->property_num_buffers()  = 30;
+    m_src->property_max_bytes()    = 2464ULL*2056ULL*4ULL*10ULL;
 
     // m_src->property_emit_signals() = false;
     m_src->property_emit_signals() = true;
@@ -361,8 +368,13 @@ bool V4L2_alvium_pipe::init(const char name[])
     // m_src->signal_seek_data().connect(
     //   [this](guint64 val){return handle_seek_data(val);}
     //   );
+#else
+    m_src = Gst::AppSrc::create();
+    m_src->property_caps().set_value(m_src_caps);
+#endif
 #if 1
-    m_videoconvert = Gst::ElementFactory::create_element("videoconvert");
+    // m_videoconvert = Gst::ElementFactory::create_element("videoconvert");
+    m_videoconvert = Gst::ElementFactory::create_element("nvvidconv");
 
     // m_videorate    = Gst::ElementFactory::create_element("videorate");
 
@@ -372,13 +384,15 @@ bool V4L2_alvium_pipe::init(const char name[])
     //   "format","BGRx"
     //   );
 
-      m_out_caps = Glib::wrap(gst_caps_new_simple ("video/x-raw",
-           "format", G_TYPE_STRING, "NV12",
-           "framerate", GST_TYPE_FRACTION, 0, 1,
-           "pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
-           "width", G_TYPE_INT, 2464,
-           "height", G_TYPE_INT, 2056,
-           NULL));
+      // m_out_caps = Glib::wrap(gst_caps_new_simple ("video/x-raw(memory:NVMM)",
+      //      "format", G_TYPE_STRING, "NV12",
+      //      "framerate", GST_TYPE_FRACTION, 0, 1,
+      //      "pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
+      //      "width", G_TYPE_INT, 2464,
+      //      "height", G_TYPE_INT, 2056,
+      //      NULL));
+
+    m_out_caps = Glib::wrap(gst_caps_from_string("video/x-raw(memory:NVMM), width=(int)2464, height=(int)2056, format=(string)NV12"));
 
     if(! m_out_caps )
     {
@@ -417,20 +431,20 @@ bool V4L2_alvium_pipe::init(const char name[])
       return false;
     }
 #endif
-    m_sink = Gst::FakeSink::create();
+    // m_sink = Gst::FakeSink::create();
 
     m_bin->add(m_src);
     m_bin->add(m_videoconvert);
     m_bin->add(m_out_capsfilter);
     m_bin->add(m_in_queue);
     m_bin->add(m_out_tee);
-    m_bin->add(m_sink);
+    // m_bin->add(m_sink);
 
   m_src->link(m_videoconvert);
   m_videoconvert->link(m_out_capsfilter);
   m_out_capsfilter->link(m_in_queue);
   m_in_queue->link(m_out_tee);
-  m_out_tee->link(m_sink);
+  // m_out_tee->link(m_sink);
 
   switch(m_fourcc)
   {
