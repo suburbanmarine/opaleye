@@ -38,7 +38,14 @@ public:
 
 	bool stop();
 
+	///
+	/// This is globally serializing - pub sockets are not thread safe
+	/// RADIO/DISH is thread safe but does not support multipart messages - we want multipart messages so topic is in own segment
+	/// Could make socket per topic that needs to be in own async send domain
+	///
 	bool send(const std::string_view& topic, const std::string_view& header, const std::string_view& payload);
+
+	// bool async_send(const std::string_view& topic, const std::string_view& header, const std::string_view& payload);
 
 protected:
 
@@ -47,6 +54,7 @@ protected:
 	std::shared_ptr<zmq::context_t> m_context;
 
 	//publish socket
+	std::mutex m_pub_socket_mutex;
 	std::list<std::string> m_ep;
 	std::shared_ptr<zmq::socket_t>  m_pub_socket;
 

@@ -98,7 +98,7 @@ const char* v4l2_util::v4l2_field_to_str(const v4l2_field& val)
 		}
 		default:
 		{
-			str = "UNKOWN";
+			str = "UNKNOWN";
 			break;
 		}
 	}
@@ -172,7 +172,7 @@ const char* v4l2_util::v4l2_colorspace_to_str(const v4l2_colorspace& val)
 		}
 		default:
 		{
-			str = "UNKOWN";
+			str = "UNKNOWN";
 			break;
 		}
 	}
@@ -226,7 +226,7 @@ const char* v4l2_util::v4l2_ycbcr_encoding_to_str(const v4l2_ycbcr_encoding& val
 		}
 		default:
 		{
-			str = "UNKOWN";
+			str = "UNKNOWN";
 			break;
 		}
 	}
@@ -250,7 +250,7 @@ const char* v4l2_util::v4l2_hsv_encoding_to_str(const v4l2_hsv_encoding& val)
 		}
 		default:
 		{
-			str = "UNKOWN";
+			str = "UNKNOWN";
 			break;
 		}
 	}
@@ -279,7 +279,7 @@ const char* v4l2_util::v4l2_quantization_to_str(const v4l2_quantization& val)
 		}
 		default:
 		{
-			str = "UNKOWN";
+			str = "UNKNOWN";
 			break;
 		}
 	}
@@ -333,7 +333,7 @@ const char* v4l2_util::v4l2_xfer_func_to_str(const v4l2_xfer_func& val)
 		}
 		default:
 		{
-			str = "UNKOWN";
+			str = "UNKNOWN";
 			break;
 		}
 	}

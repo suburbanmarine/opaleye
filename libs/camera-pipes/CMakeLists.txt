@@ -28,6 +28,7 @@ add_library(camera-pipes
 	pipeline/camera/Testsrc_pipe.cpp
 	pipeline/camera/V4L2_alvium_pipe.cpp
 	pipeline/camera/V4L2_webcam_pipe.cpp
+	pipeline/camera/GST_v4l2_api.cpp
 
 	pipeline/display/autovideosink_pipe.cpp
 

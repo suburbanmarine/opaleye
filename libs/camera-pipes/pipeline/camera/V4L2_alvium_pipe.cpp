@@ -6,7 +6,6 @@
 
 #include "V4L2_alvium_pipe.hpp"
 
-#include "util/v4l2_util.hpp"
 #include "pipeline/gst_common.hpp"
 
 #include "opaleye-util/Ptree_util.hpp"
@@ -183,7 +182,6 @@ bool V4L2_alvium_pipe::link_front(const Glib::RefPtr<Gst::Element>& node)
 }
 bool V4L2_alvium_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
 {
-  #if 0
   try
   {
     m_out_tee->link(node);
@@ -197,15 +195,15 @@ bool V4L2_alvium_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
   {
     SPDLOG_ERROR("Failed to link back, unknown exception"); 
   }
-  #endif
 
   return false;
 }
 
-void V4L2_alvium_pipe::set_params(const char dev_path[], const uint32_t fourcc)
+void V4L2_alvium_pipe::set_params(const char dev_path[], const uint32_t fourcc, const std::string& trigger_mode)
 {
-  m_dev_path = dev_path;
-  m_fourcc   = fourcc;
+  m_dev_path     = dev_path;
+  m_fourcc       = fourcc;
+  m_trigger_mode = trigger_mode;
 }
 bool V4L2_alvium_pipe::close()
 {
@@ -257,19 +255,10 @@ bool V4L2_alvium_pipe::init(const char name[])
       SPDLOG_ERROR("Failed to init camera");
     }
 
-    if( ! m_cam->set_free_trigger() ) 
+    if(! set_trigger_mode(m_trigger_mode) )
     {
       SPDLOG_ERROR("Failed to set trigger mode");
-    }
-    // if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE0, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) ) // PDWN
-    // {
-    //   SPDLOG_ERROR("Failed to set trigger mode");
-    // }
-
-    if( ! m_cam->start_streaming() )
-    {
-      SPDLOG_ERROR("m_cam.start_streaming() failed");
-      return -1;
+      return false;
     }
 
     //source caps
@@ -358,20 +347,21 @@ bool V4L2_alvium_pipe::init(const char name[])
     // m_src->property_num_buffers()  = 30;
     // m_src->property_max_bytes()    = 100*1024*1024;
 
-    m_src->property_emit_signals() = false;
+    // m_src->property_emit_signals() = false;
+    m_src->property_emit_signals() = true;
     m_src->property_stream_type()  = Gst::APP_STREAM_TYPE_STREAM;
     m_src->property_format()       = Gst::FORMAT_BYTES;
 
-    // m_src->signal_need_data().connect(
-    //   [this](guint val){handle_need_data(val);}
-    //   );
-    // m_src->signal_enough_data().connect(
-    //   [this](){handle_enough_data();}
-    //   );
+    m_src->signal_need_data().connect(
+      [this](guint val){handle_need_data(val);}
+      );
+    m_src->signal_enough_data().connect(
+      [this](){handle_enough_data();}
+      );
     // m_src->signal_seek_data().connect(
     //   [this](guint64 val){return handle_seek_data(val);}
     //   );
-#if 0
+#if 1
     m_videoconvert = Gst::ElementFactory::create_element("videoconvert");
 
     // m_videorate    = Gst::ElementFactory::create_element("videorate");
@@ -382,9 +372,13 @@ bool V4L2_alvium_pipe::init(const char name[])
     //   "format","BGRx"
     //   );
 
-    m_out_caps = Glib::wrap(gst_caps_new_simple ("video/x-raw",
-         "format", G_TYPE_STRING, "BGRx",
-         NULL));
+      m_out_caps = Glib::wrap(gst_caps_new_simple ("video/x-raw",
+           "format", G_TYPE_STRING, "RGB",
+           "framerate", GST_TYPE_FRACTION, 0, 1,
+           "pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
+           "width", G_TYPE_INT, 2464,
+           "height", G_TYPE_INT, 2056,
+           NULL));
 
     if(! m_out_caps )
     {
@@ -426,23 +420,17 @@ bool V4L2_alvium_pipe::init(const char name[])
     m_sink = Gst::FakeSink::create();
 
     m_bin->add(m_src);
-    // m_bin->add(m_videoconvert);
-    // m_bin->add(m_videorate);
-    // m_bin->add(m_out_capsfilter);
-    // m_bin->add(m_in_queue);
-    // m_bin->add(m_out_tee);
+    m_bin->add(m_videoconvert);
+    m_bin->add(m_out_capsfilter);
+    m_bin->add(m_in_queue);
+    m_bin->add(m_out_tee);
     m_bin->add(m_sink);
 
-  // m_src->link(m_videoconvert);
-  // m_videoconvert->link(m_out_capsfilter);
-  // m_videorate->link(m_out_capsfilter);
-  // m_out_capsfilter->link(m_in_queue);
-
-  // m_src->link(m_in_queue);
-  // m_in_queue->link(m_out_tee);
-
-  m_src->link(m_sink);
-
+  m_src->link(m_videoconvert);
+  m_videoconvert->link(m_out_capsfilter);
+  m_out_capsfilter->link(m_in_queue);
+  m_in_queue->link(m_out_tee);
+  m_out_tee->link(m_sink);
 
   switch(m_fourcc)
   {
@@ -476,6 +464,12 @@ bool V4L2_alvium_pipe::init(const char name[])
   
   m_frame_worker->launch();
 
+  if( ! m_cam->start_streaming() )
+  {
+    SPDLOG_ERROR("m_cam.start_streaming() failed");
+    return false;
+  }
+
   return true;
 }
 
@@ -492,12 +486,12 @@ void V4L2_alvium_pipe::handle_enough_data()
 
 void V4L2_alvium_pipe::new_frame_cb_JXR0(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
 {
-  SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_JXR0 - start");
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_JXR0 - start");
 
   boost::property_tree::ptree meta_tree;
   Alvium_v4l2::frame_meta_to_ptree(frame_buf, &meta_tree);
   std::string meta_str = Ptree_util::ptree_to_json_str(meta_tree);
-  SPDLOG_INFO("Metadata:\n{:s}", meta_str);
+  SPDLOG_TRACE("Metadata:\n{:s}", meta_str);
 
   //allocate new buffer and cache frame
   {
@@ -516,16 +510,16 @@ void V4L2_alvium_pipe::new_frame_cb_JXR0(const Alvium_v4l2::ConstMmapFramePtr& f
     }
   }
 
-  SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_JXR0 - end");
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_JXR0 - end");
 }
 void V4L2_alvium_pipe::new_frame_cb_JXR2(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
 {
-  SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_JXR2 - start");
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_JXR2 - start");
 
   boost::property_tree::ptree meta_tree;
   Alvium_v4l2::frame_meta_to_ptree(frame_buf, &meta_tree);
   std::string meta_str = Ptree_util::ptree_to_json_str(meta_tree);
-  SPDLOG_INFO("Metadata:\n{:s}", meta_str);
+  SPDLOG_TRACE("Metadata:\n{:s}", meta_str);
 
   //allocate new buffer and cache frame
   {
@@ -544,16 +538,16 @@ void V4L2_alvium_pipe::new_frame_cb_JXR2(const Alvium_v4l2::ConstMmapFramePtr& f
     }
   }
 
-  SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_JXR2 - end");
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_JXR2 - end");
 }
 void V4L2_alvium_pipe::new_frame_cb_JXY2(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
 {
-  SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_JXY2 - start");
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_JXY2 - start");
 
   boost::property_tree::ptree meta_tree;
   Alvium_v4l2::frame_meta_to_ptree(frame_buf, &meta_tree);
   std::string meta_str = Ptree_util::ptree_to_json_str(meta_tree);
-  SPDLOG_INFO("Metadata:\n{:s}", meta_str);
+  SPDLOG_TRACE("Metadata:\n{:s}", meta_str);
 
   //allocate new buffer and cache frame
   {
@@ -572,17 +566,17 @@ void V4L2_alvium_pipe::new_frame_cb_JXY2(const Alvium_v4l2::ConstMmapFramePtr& f
     }
   }
 
-  SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_JXY2 - end");
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_JXY2 - end");
 }
 
 void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
 {
-  SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_XR24 - start");
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_XR24 - start");
 
   boost::property_tree::ptree meta_tree;
   Alvium_v4l2::frame_meta_to_ptree(frame_buf, &meta_tree);
   std::string meta_str = Ptree_util::ptree_to_json_str(meta_tree);
-  SPDLOG_INFO("Metadata:\n{:s}", meta_str);
+  SPDLOG_TRACE("Metadata:\n{:s}", meta_str);
 
   //allocate new buffer and cache frame
   {
@@ -600,9 +594,9 @@ void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& f
   //todo object pool for frame memory
 
   // if(false)
-  // if(m_gst_need_data)
+  if(m_gst_need_data)
   {
-    SPDLOG_INFO("feeding gst");
+    SPDLOG_TRACE("feeding gst");
     Glib::RefPtr<Gst::Buffer> buf = Gst::Buffer::create(frame_buf->get_bytes_used());
 
     guint width  = 2464;
@@ -654,5 +648,79 @@ void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& f
     }
   }
 
-  SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_XR24 - end");
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_XR24 - end");
+}
+
+bool V4L2_alvium_pipe::set_camera_property(const std::string& property_id, const std::string& value)
+{
+  if(property_id == "streaming")
+  {
+    if(value == "on")
+    {
+      return start_streaming();
+    }
+    else if(value == "off")
+    {
+      return stop_streaming();
+    }
+  }
+  else if(property_id == "trigger")
+  {
+    return set_trigger_mode(value);
+  }
+
+  return false;
+}
+
+bool V4L2_alvium_pipe::start_streaming()
+{
+  if( ! m_cam->start_streaming() )
+  {
+    SPDLOG_ERROR("m_cam.start_streaming() failed");
+    return false;
+  }
+
+  return true;
+}
+bool V4L2_alvium_pipe::stop_streaming()
+{
+  if( ! m_cam->stop_streaming() )
+  {
+    SPDLOG_ERROR("m_cam.stop_streaming() failed");
+    return false;
+  }
+
+  return true;
+}
+bool V4L2_alvium_pipe::set_trigger_mode(const std::string& mode)
+{
+  if(mode == "free")
+  {
+    if( ! m_cam->set_free_trigger() ) 
+    {
+      return false;
+    }
+    m_trigger_mode = mode;
+  }
+  else if(mode == "hw")
+  {
+    if( ! m_cam->set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE0, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) ) 
+    {
+      return false;
+    }
+    m_trigger_mode = mode;
+  }
+  else if(mode == "sw")
+  {
+    if( ! m_cam->set_sw_trigger() ) 
+    {
+      return false;
+    }
+    m_trigger_mode = mode;
+  }
+  else
+  {
+    return false;
+  }
+  return true;
 }

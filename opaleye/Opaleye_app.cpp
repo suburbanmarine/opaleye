@@ -314,15 +314,19 @@ bool Gstreamer_pipeline::make_alvium_pipeline()
     return false;    
   }
 
+  std::string device = m_camera_config.get<std::string>("properties.device");
+
+  std::string trigger_mode = m_camera_config.get<std::string>("properties.trigger_mode");
+
   std::shared_ptr<V4L2_alvium_pipe> m_camera   = std::make_shared<V4L2_alvium_pipe>();
-  m_camera->set_params("/dev/video0", v4l2_fourcc(format[0], format[1], format[2], format[3]));
+  m_camera->set_params(device.c_str(), v4l2_fourcc(format[0], format[1], format[2], format[3]), trigger_mode);
   if( ! m_camera->init("cam_0") )
   {
     SPDLOG_ERROR("Could not init camera");
     return false;
   }
   
-/*
+
   SPDLOG_INFO("NV mode");
   std::shared_ptr<GST_element_base> m_h264   = std::make_shared<h264_nvenc_bin>();
   std::shared_ptr<GST_element_base> m_thumb  = std::make_shared<Thumbnail_nv3_pipe>();
@@ -359,30 +363,30 @@ bool Gstreamer_pipeline::make_alvium_pipeline()
    SPDLOG_ERROR("Could not init m_udp");
    return false;
   }
-*/
+
   //add elements to top level bin
   m_camera->add_to_bin(m_pipeline);
-  // m_thumb->add_to_bin(m_pipeline);
-  // m_h264->add_to_bin(m_pipeline);
-  // m_h264_interpipesink->add_to_bin(m_pipeline);
-  // m_rtppay->add_to_bin(m_pipeline);
-  // m_rtpsink->add_to_bin(m_pipeline);
+  m_thumb->add_to_bin(m_pipeline);
+  m_h264->add_to_bin(m_pipeline);
+  m_h264_interpipesink->add_to_bin(m_pipeline);
+  m_rtppay->add_to_bin(m_pipeline);
+  m_rtpsink->add_to_bin(m_pipeline);
 
   // //link pipeline
-  // m_camera->link_back(m_h264->front());
-  // m_camera->link_back(m_thumb->front());
+  m_camera->link_back(m_h264->front());
+  m_camera->link_back(m_thumb->front());
 
-  // m_h264->link_back(m_rtppay->front());
-  // m_h264->link_back(m_h264_interpipesink->front());
+  m_h264->link_back(m_rtppay->front());
+  m_h264->link_back(m_h264_interpipesink->front());
 
-  // m_rtppay->link_back(m_rtpsink->front());
+  m_rtppay->link_back(m_rtpsink->front());
 
   m_element_storage.emplace("cam_0", m_camera);
-  // m_element_storage.emplace("thumb_0", m_thumb);
-  // m_element_storage.emplace("h264_0", m_h264);
-  // m_element_storage.emplace("h264_ipsink_0", m_h264_interpipesink);
-  // m_element_storage.emplace("rtp_0", m_rtppay);
-  // m_element_storage.emplace("udp_0", m_rtpsink);
+  m_element_storage.emplace("thumb_0", m_thumb);
+  m_element_storage.emplace("h264_0", m_h264);
+  m_element_storage.emplace("h264_ipsink_0", m_h264_interpipesink);
+  m_element_storage.emplace("rtp_0", m_rtppay);
+  m_element_storage.emplace("udp_0", m_rtpsink);
 
   return true;
 }
@@ -510,6 +514,42 @@ bool Opaleye_app::init()
     m_config->make_default();
   }
 
+  if(m_config->count("hw_trigger"))
+  {
+    if(! Opaleye_gpio_mod_ctrl::is_loaded() )
+    {
+      SPDLOG_ERROR("Opaleye_app::init could not open hw_trigger - module is not loaded");
+      return false;
+    }
+
+    if( ! m_hw_trigger.open() )
+    {
+      SPDLOG_ERROR("Opaleye_app::init could not open hw_trigger");
+      return false;
+    }
+
+    if( ! m_hw_trigger.disable() )
+    {
+      SPDLOG_ERROR("Opaleye_app::init could not disable hw_trigger");
+      return false;
+    }
+
+    std::chrono::microseconds t0     = std::chrono::microseconds(m_config->get<int>("hw_trigger.t0",           0));
+    std::chrono::microseconds period = std::chrono::microseconds(m_config->get<int>("hw_trigger.period", 1000000));
+    std::chrono::microseconds width  = std::chrono::microseconds(m_config->get<int>("hw_trigger.width",    50000));
+    if( ! m_hw_trigger.configure(t0, period, width) )
+    {
+      SPDLOG_ERROR("Opaleye_app::init could not configure hw_trigger");
+      return false;
+    }
+
+    if( ! m_hw_trigger.set_enable(m_config->get<bool>("hw_trigger.enable", false)) )
+    {
+      SPDLOG_ERROR("Opaleye_app::init could not enable hw_trigger");
+      return false;
+    }
+  }
+
   if(m_config->camera_configs.count("cam0"))
   {
     std::shared_ptr<Gstreamer_pipeline> pipeline = std::make_shared<Gstreamer_pipeline>();
@@ -528,7 +568,7 @@ bool Opaleye_app::init()
     SPDLOG_INFO("Opaleye_app::init stashing cam0");
     m_pipelines.emplace("cam0", pipeline);
   }
-/*
+
   if(m_config->camera_configs.count("cam1"))
   {
     std::shared_ptr<Gstreamer_pipeline> pipeline = std::make_shared<Gstreamer_pipeline>();
@@ -547,7 +587,6 @@ bool Opaleye_app::init()
     SPDLOG_INFO("Opaleye_app::init stashing cam1");
     m_pipelines.emplace("cam1", pipeline);
   }
-  */
 
   return true;
 }
@@ -888,47 +927,48 @@ std::vector<std::string> Opaleye_app::get_camera_list() const
   return std::vector<std::string>();
 }
 
-bool Opaleye_app::set_camera_property(const std::string& camera_id, const std::string& property_id, int value)
+bool Opaleye_app::set_camera_property_int(const std::string& pipeline_id, const std::string& camera_id, const std::string& property_id, int value)
 {
-  std::shared_ptr<V4L2_webcam_pipe> m_camera = m_pipelines["cam0"]->get_element<V4L2_webcam_pipe>("cam_0");
+  std::shared_ptr<GST_camera_base> cam;
 
-  if( ! m_camera )
+  auto pipe_it = m_pipelines.find(pipeline_id);
+  if(pipe_it == m_pipelines.end())
   {
-    SPDLOG_ERROR("only V4L2_webcam_pipe camera support now, refactor these to a camera base class");
+    SPDLOG_ERROR("Could not get pipeline {:s}", pipeline_id);
+    return false;
+  }
+
+  cam = pipe_it->second->get_element<GST_camera_base>(camera_id);
+  if( ! cam )
+  {
+    SPDLOG_ERROR("Could not get camera {:s}, is it a GST_camera_base", camera_id);
     return false;
   }
 
   bool ret = false;
-  if(camera_id == "cam0")
+  if(property_id == "exposure_mode")
   {
-    if(property_id == "exposure_mode")
-    {
-      ret = m_camera->set_exposure_mode(value); 
-    }
-    else if(property_id == "exposure_absolute")
-    {
-     ret = m_camera->set_exposure_value(value);
-    }
-    else if(property_id == "focus_absolute")
-    {
-      ret = m_camera->set_focus_absolute(value);
-    }
-    else if(property_id == "focus_auto")
-    {
-      ret = m_camera->set_focus_auto(value);
-    }
-    else if(property_id == "brightness")
-    {
-      ret = m_camera->set_brightness(value);
-    }
-    else if(property_id == "gain")
-    {
-      ret = m_camera->set_gain(value);
-    }
-    else
-    {
-      ret = false; 
-    }
+    ret = cam->set_exposure_mode(value); 
+  }
+  else if(property_id == "exposure_absolute")
+  {
+   ret = cam->set_exposure_value(value);
+  }
+  else if(property_id == "focus_absolute")
+  {
+    ret = cam->set_focus_absolute(value);
+  }
+  else if(property_id == "focus_auto")
+  {
+    ret = cam->set_focus_auto(value);
+  }
+  else if(property_id == "brightness")
+  {
+    ret = cam->set_brightness(value);
+  }
+  else if(property_id == "gain")
+  {
+    ret = cam->set_gain(value);
   }
   else
   {
@@ -936,4 +976,25 @@ bool Opaleye_app::set_camera_property(const std::string& camera_id, const std::s
   }
 
   return ret;
+}
+
+bool Opaleye_app::set_camera_property_str(const std::string& pipeline_id, const std::string& camera_id, const std::string& property_id, const std::string& value)
+{
+  std::shared_ptr<GST_camera_base> cam;
+
+  auto pipe_it = m_pipelines.find(pipeline_id);
+  if(pipe_it == m_pipelines.end())
+  {
+    SPDLOG_ERROR("Could not get pipeline {:s}", pipeline_id);
+    return false;
+  }
+
+  cam = pipe_it->second->get_element<GST_camera_base>(camera_id);
+  if( ! cam )
+  {
+    SPDLOG_ERROR("Could not get camera {:s}, is it a GST_camera_base", camera_id);
+    return false;
+  }
+
+  return cam->set_camera_property(property_id, value);
 }

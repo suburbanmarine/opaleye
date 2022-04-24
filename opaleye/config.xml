@@ -10,23 +10,49 @@
 	</sensors>
 
 	<zeromq>
-		<launch>false</launch>
+		<launch>true</launch>
 		<endpoint>tcp://0.0.0.0:51000</endpoint>
-		<endpoint>ipc:///opaleye/feeds/0</endpoint>
+		<!--endpoint>ipc:///opaleye/feeds/0</endpoint-->
+		<properties>
+			<connect_timeout>5000</connect_timeout>
+			<ipv6>0</ipv6>
+			<linger>0</linger>
+			<maxmsgsize>52428800</maxmsgsize>
+			<multicast_hops>1</multicast_hops>
+			<rcvbuf>104857600</rcvbuf>
+			<rcvtimeo>10000</rcvtimeo>
+			<sndbuf>104857600</sndbuf>
+			<sndtimeo>10000</sndtimeo>
+			<rcvhwm>10</rcvhwm>
+			<sndhwm>10</sndhwm>
+		</properties>
 	</zeromq>
 
 	<fcgi>
 		<endpoint>127.0.0.1:50000</endpoint>
 	</fcgi>
 
+	<hw_trigger>
+		<enable>0</enable>
+
+		<!-- in us -->
+		<t0>0</t0>
+		<period>1000000</period>
+		<width>50000</width>
+	</hw_trigger>
+
 	<cameras>
 
 		<camera>
 			<name>cam0</name>
 			<type>alvium</type>
+
 			<properties>
 				<format>JXR0</format>
+				<device>/dev/video0</device>
+				<trigger_mode>hw</trigger_mode>
 			</properties>
+
 			<pipeline>
 				<name>pipe0</name>
 				<type>alvium</type>
@@ -34,6 +60,22 @@
 		</camera>
 
 		<camera>
+			<name>cam1</name>
+			<type>alvium</type>
+
+			<properties>
+				<format>XR24</format>
+				<device>/dev/video1</device>
+				<trigger_mode>hw</trigger_mode>
+			</properties>
+
+			<pipeline>
+				<name>pipe1</name>
+				<type>alvium</type>
+			</pipeline>
+		</camera>
+
+		<!--camera>
 			<name>cam1</name>
 			<type>virtual</type>
 
@@ -47,7 +89,7 @@
 				<name>pipe1</name>
 				<type>virtual</type>
 			</pipeline>
-		</camera>
+		</camera-->
 
 	</cameras>
 </config>

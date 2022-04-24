@@ -52,6 +52,11 @@ public:
 		return m_tree.get<T>(path, default_value);
 	}
 
+	size_t count(const boost::property_tree::ptree::key_type& key) const
+	{
+		return m_tree.count(key);	
+	}
+
 protected:
 
   // updated by deserialize
