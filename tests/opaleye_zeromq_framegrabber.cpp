@@ -69,8 +69,8 @@ int main(int argc, char* argv[])
 	m_socket->set(zmq::sockopt::rcvtimeo, 10*1000);
 	m_socket->set(zmq::sockopt::sndbuf, 100*1024*1024);
 	m_socket->set(zmq::sockopt::sndtimeo, 10*1000);
-	m_pub_socket->set(zmq::sockopt::rcvhwm, 10);
-	m_pub_socket->set(zmq::sockopt::sndhwm, 10);
+	m_socket->set(zmq::sockopt::rcvhwm, 10);
+	m_socket->set(zmq::sockopt::sndhwm, 10);
 	// m_socket->set(zmq::sockopt::tos, 0);
 
 	m_socket->connect(endpoint);	
