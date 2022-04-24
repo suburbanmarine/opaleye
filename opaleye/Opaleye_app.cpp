@@ -514,7 +514,7 @@ bool Opaleye_app::init()
     m_config->make_default();
   }
 
-  if(m_config->count("hw_trigger"))
+  if(m_config->has_child("config.hw_trigger"))
   {
     if(! Opaleye_gpio_mod_ctrl::is_loaded() )
     {
@@ -534,20 +534,24 @@ bool Opaleye_app::init()
       return false;
     }
 
-    std::chrono::microseconds t0     = std::chrono::microseconds(m_config->get<int>("hw_trigger.t0",           0));
-    std::chrono::microseconds period = std::chrono::microseconds(m_config->get<int>("hw_trigger.period", 1000000));
-    std::chrono::microseconds width  = std::chrono::microseconds(m_config->get<int>("hw_trigger.width",    50000));
+    std::chrono::microseconds t0     = std::chrono::microseconds(m_config->get<int>("config.hw_trigger.t0",           0));
+    std::chrono::microseconds period = std::chrono::microseconds(m_config->get<int>("config.hw_trigger.period", 1000000));
+    std::chrono::microseconds width  = std::chrono::microseconds(m_config->get<int>("config.hw_trigger.width",    50000));
     if( ! m_hw_trigger.configure(t0, period, width) )
     {
       SPDLOG_ERROR("Opaleye_app::init could not configure hw_trigger");
       return false;
     }
 
-    if( ! m_hw_trigger.set_enable(m_config->get<bool>("hw_trigger.enable", false)) )
+    if( ! m_hw_trigger.set_enable(m_config->get<bool>("config.hw_trigger.enable", false)) )
     {
       SPDLOG_ERROR("Opaleye_app::init could not enable hw_trigger");
       return false;
     }
+  }
+  else
+  {
+    SPDLOG_ERROR("Opaleye_app::init not requested to init hw_trigger");
   }
 
   if(m_config->camera_configs.count("cam0"))
