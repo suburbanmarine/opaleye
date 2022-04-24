@@ -373,7 +373,7 @@ bool V4L2_alvium_pipe::init(const char name[])
     //   );
 
       m_out_caps = Glib::wrap(gst_caps_new_simple ("video/x-raw",
-           "format", G_TYPE_STRING, "RGB",
+           "format", G_TYPE_STRING, "NV12",
            "framerate", GST_TYPE_FRACTION, 0, 1,
            "pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
            "width", G_TYPE_INT, 2464,
