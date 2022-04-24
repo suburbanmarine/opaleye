@@ -929,8 +929,6 @@ std::vector<std::string> Opaleye_app::get_camera_list() const
 
 bool Opaleye_app::set_camera_property_int(const std::string& pipeline_id, const std::string& camera_id, const std::string& property_id, int value)
 {
-  std::shared_ptr<GST_camera_base> cam;
-
   auto pipe_it = m_pipelines.find(pipeline_id);
   if(pipe_it == m_pipelines.end())
   {
@@ -938,21 +936,49 @@ bool Opaleye_app::set_camera_property_int(const std::string& pipeline_id, const 
     return false;
   }
 
-  cam = pipe_it->second->get_element<GST_camera_base>(camera_id);
+  std::shared_ptr<GST_v4l2_api> cam = pipe_it->second->get_element<GST_v4l2_api>(camera_id);
   if( ! cam )
   {
-    SPDLOG_ERROR("Could not get camera {:s}, is it a GST_camera_base", camera_id);
+    SPDLOG_ERROR("Could not get camera {:s}, is it a GST_v4l2_api", camera_id);
     return false;
   }
 
   bool ret = false;
-  if(property_id == "exposure_mode")
+  if(property_id == "brightness")
   {
-    ret = cam->set_exposure_mode(value); 
+    ret = cam->set_brightness(value);
+  }
+  else if(property_id == "gain")
+  {
+    ret = cam->set_gain(value);
+  }
+  else if(property_id == "gain_auto")
+  {
+    ret = cam->set_gain_auto(value);
+  }
+  else if(property_id == "exposure_auto")
+  {
+    ret = cam->set_exposure_auto(value);
   }
   else if(property_id == "exposure_absolute")
   {
-   ret = cam->set_exposure_value(value);
+    ret = cam->set_exposure_absolute(value);
+  }
+  else if(property_id == "exposure_auto_min")
+  {
+    ret = cam->set_exposure_auto_min(value);
+  }
+  else if(property_id == "exposure_auto_max")
+  {
+    ret = cam->set_exposure_auto_max(value);
+  }
+  else if(property_id == "gain_auto_min")
+  {
+    ret = cam->set_gain_auto_min(value);
+  }
+  else if(property_id == "gain_auto_max")
+  {
+    ret = cam->set_gain_auto_max(value);
   }
   else if(property_id == "focus_absolute")
   {
@@ -961,14 +987,6 @@ bool Opaleye_app::set_camera_property_int(const std::string& pipeline_id, const 
   else if(property_id == "focus_auto")
   {
     ret = cam->set_focus_auto(value);
-  }
-  else if(property_id == "brightness")
-  {
-    ret = cam->set_brightness(value);
-  }
-  else if(property_id == "gain")
-  {
-    ret = cam->set_gain(value);
   }
   else
   {
