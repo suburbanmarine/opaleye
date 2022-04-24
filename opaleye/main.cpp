@@ -89,6 +89,7 @@ int main(int argc, char* argv[])
 			("help"  , "Print usage information and exit")
 			("config", bpo::value<std::string>()->default_value("/opt/suburbanmarine/opaleye/conf/config.xml"), "Path to config file")
 			("gst-log-level", bpo::value<std::string>()->default_value("none"), "GST log level")
+			("gst-log-file", bpo::value<std::string>()->default_value("/tmp/gst_out.log"), "GST log file. If not set logs to stdout")
 			;
 	
 		//Parse options
@@ -154,6 +155,19 @@ int main(int argc, char* argv[])
 			SPDLOG_ERROR("Unknown gst-log-level: {:s}", vm["gst-log-level"].as<std::string>());
 			return -1;
 		}
+	}
+
+	if(vm.count("gst-log-file"))
+	{
+		putenv("GST_DEBUG_NO_COLOR=1");
+
+		std::stringstream ss;
+		ss << "GST_DEBUG_FILE=" << vm["gst-log-file"].as<std::string>();
+
+		std::string temp_str = ss.str();
+
+		std::vector<char> temp_str_vec(temp_str.c_str(), temp_str.c_str() + temp_str.size() + 1);
+		putenv(temp_str_vec.data());
 	}
 
 	//load config and add a file sink logger
