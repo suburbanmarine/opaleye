@@ -115,12 +115,11 @@ protected:
 
   Glib::RefPtr<Gst::AppSrc>     m_src;
   Glib::RefPtr<Gst::Caps>       m_src_caps;
-  // Glib::RefPtr<Gst::Element>    m_videoconvert;
-  // Glib::RefPtr<Gst::Element>    m_videorate;
-  // Glib::RefPtr<Gst::Caps>       m_out_caps;
-  // Glib::RefPtr<Gst::CapsFilter> m_out_capsfilter;
-  // Glib::RefPtr<Gst::Queue>      m_in_queue;
-  // Glib::RefPtr<Gst::Tee>        m_out_tee;
+  Glib::RefPtr<Gst::Element>    m_videoconvert;
+  Glib::RefPtr<Gst::Caps>       m_out_caps;
+  Glib::RefPtr<Gst::CapsFilter> m_out_capsfilter;
+  Glib::RefPtr<Gst::Queue>      m_in_queue;
+  Glib::RefPtr<Gst::Tee>        m_out_tee;
   Glib::RefPtr<Gst::FakeSink>   m_sink;
   
 

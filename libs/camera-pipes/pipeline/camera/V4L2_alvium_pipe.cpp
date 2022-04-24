@@ -182,7 +182,6 @@ bool V4L2_alvium_pipe::link_front(const Glib::RefPtr<Gst::Element>& node)
 }
 bool V4L2_alvium_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
 {
-  #if 0
   try
   {
     m_out_tee->link(node);
@@ -196,7 +195,6 @@ bool V4L2_alvium_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
   {
     SPDLOG_ERROR("Failed to link back, unknown exception"); 
   }
-  #endif
 
   return false;
 }
@@ -349,20 +347,21 @@ bool V4L2_alvium_pipe::init(const char name[])
     // m_src->property_num_buffers()  = 30;
     // m_src->property_max_bytes()    = 100*1024*1024;
 
-    m_src->property_emit_signals() = false;
+    // m_src->property_emit_signals() = false;
+    m_src->property_emit_signals() = true;
     m_src->property_stream_type()  = Gst::APP_STREAM_TYPE_STREAM;
     m_src->property_format()       = Gst::FORMAT_BYTES;
 
-    // m_src->signal_need_data().connect(
-    //   [this](guint val){handle_need_data(val);}
-    //   );
-    // m_src->signal_enough_data().connect(
-    //   [this](){handle_enough_data();}
-    //   );
+    m_src->signal_need_data().connect(
+      [this](guint val){handle_need_data(val);}
+      );
+    m_src->signal_enough_data().connect(
+      [this](){handle_enough_data();}
+      );
     // m_src->signal_seek_data().connect(
     //   [this](guint64 val){return handle_seek_data(val);}
     //   );
-#if 0
+#if 1
     m_videoconvert = Gst::ElementFactory::create_element("videoconvert");
 
     // m_videorate    = Gst::ElementFactory::create_element("videorate");
@@ -373,9 +372,13 @@ bool V4L2_alvium_pipe::init(const char name[])
     //   "format","BGRx"
     //   );
 
-    m_out_caps = Glib::wrap(gst_caps_new_simple ("video/x-raw",
-         "format", G_TYPE_STRING, "BGRx",
-         NULL));
+      m_out_caps = Glib::wrap(gst_caps_new_simple ("video/x-raw",
+           "format", G_TYPE_STRING, "RGB",
+           "framerate", GST_TYPE_FRACTION, 0, 1,
+           "pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
+           "width", G_TYPE_INT, 2464,
+           "height", G_TYPE_INT, 2056,
+           NULL));
 
     if(! m_out_caps )
     {
@@ -417,23 +420,17 @@ bool V4L2_alvium_pipe::init(const char name[])
     m_sink = Gst::FakeSink::create();
 
     m_bin->add(m_src);
-    // m_bin->add(m_videoconvert);
-    // m_bin->add(m_videorate);
-    // m_bin->add(m_out_capsfilter);
-    // m_bin->add(m_in_queue);
-    // m_bin->add(m_out_tee);
+    m_bin->add(m_videoconvert);
+    m_bin->add(m_out_capsfilter);
+    m_bin->add(m_in_queue);
+    m_bin->add(m_out_tee);
     m_bin->add(m_sink);
 
-  // m_src->link(m_videoconvert);
-  // m_videoconvert->link(m_out_capsfilter);
-  // m_videorate->link(m_out_capsfilter);
-  // m_out_capsfilter->link(m_in_queue);
-
-  // m_src->link(m_in_queue);
-  // m_in_queue->link(m_out_tee);
-
-  m_src->link(m_sink);
-
+  m_src->link(m_videoconvert);
+  m_videoconvert->link(m_out_capsfilter);
+  m_out_capsfilter->link(m_in_queue);
+  m_in_queue->link(m_out_tee);
+  m_out_tee->link(m_sink);
 
   switch(m_fourcc)
   {
@@ -489,12 +486,12 @@ void V4L2_alvium_pipe::handle_enough_data()
 
 void V4L2_alvium_pipe::new_frame_cb_JXR0(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
 {
-  SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_JXR0 - start");
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_JXR0 - start");
 
   boost::property_tree::ptree meta_tree;
   Alvium_v4l2::frame_meta_to_ptree(frame_buf, &meta_tree);
   std::string meta_str = Ptree_util::ptree_to_json_str(meta_tree);
-  SPDLOG_INFO("Metadata:\n{:s}", meta_str);
+  SPDLOG_TRACE("Metadata:\n{:s}", meta_str);
 
   //allocate new buffer and cache frame
   {
@@ -513,16 +510,16 @@ void V4L2_alvium_pipe::new_frame_cb_JXR0(const Alvium_v4l2::ConstMmapFramePtr& f
     }
   }
 
-  SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_JXR0 - end");
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_JXR0 - end");
 }
 void V4L2_alvium_pipe::new_frame_cb_JXR2(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
 {
-  SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_JXR2 - start");
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_JXR2 - start");
 
   boost::property_tree::ptree meta_tree;
   Alvium_v4l2::frame_meta_to_ptree(frame_buf, &meta_tree);
   std::string meta_str = Ptree_util::ptree_to_json_str(meta_tree);
-  SPDLOG_INFO("Metadata:\n{:s}", meta_str);
+  SPDLOG_TRACE("Metadata:\n{:s}", meta_str);
 
   //allocate new buffer and cache frame
   {
@@ -541,16 +538,16 @@ void V4L2_alvium_pipe::new_frame_cb_JXR2(const Alvium_v4l2::ConstMmapFramePtr& f
     }
   }
 
-  SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_JXR2 - end");
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_JXR2 - end");
 }
 void V4L2_alvium_pipe::new_frame_cb_JXY2(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
 {
-  SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_JXY2 - start");
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_JXY2 - start");
 
   boost::property_tree::ptree meta_tree;
   Alvium_v4l2::frame_meta_to_ptree(frame_buf, &meta_tree);
   std::string meta_str = Ptree_util::ptree_to_json_str(meta_tree);
-  SPDLOG_INFO("Metadata:\n{:s}", meta_str);
+  SPDLOG_TRACE("Metadata:\n{:s}", meta_str);
 
   //allocate new buffer and cache frame
   {
@@ -569,17 +566,17 @@ void V4L2_alvium_pipe::new_frame_cb_JXY2(const Alvium_v4l2::ConstMmapFramePtr& f
     }
   }
 
-  SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_JXY2 - end");
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_JXY2 - end");
 }
 
 void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
 {
-  SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_XR24 - start");
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_XR24 - start");
 
   boost::property_tree::ptree meta_tree;
   Alvium_v4l2::frame_meta_to_ptree(frame_buf, &meta_tree);
   std::string meta_str = Ptree_util::ptree_to_json_str(meta_tree);
-  SPDLOG_INFO("Metadata:\n{:s}", meta_str);
+  SPDLOG_TRACE("Metadata:\n{:s}", meta_str);
 
   //allocate new buffer and cache frame
   {
@@ -596,10 +593,10 @@ void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& f
   //todo send to zmq?
   //todo object pool for frame memory
 
-  // if(m_gst_need_data)
-  if(false)
+  // if(false)
+  if(m_gst_need_data)
   {
-    SPDLOG_INFO("feeding gst");
+    SPDLOG_TRACE("feeding gst");
     Glib::RefPtr<Gst::Buffer> buf = Gst::Buffer::create(frame_buf->get_bytes_used());
 
     guint width  = 2464;
@@ -651,7 +648,7 @@ void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& f
     }
   }
 
-  SPDLOG_INFO("V4L2_alvium_pipe::new_frame_cb_XR24 - end");
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_XR24 - end");
 }
 
 bool V4L2_alvium_pipe::set_camera_property(const std::string& property_id, const std::string& value)

@@ -416,7 +416,7 @@ bool Alvium_v4l2::wait_for_frame(const std::chrono::microseconds& timeout, const
       //update buf metadata
       new_frame->set_buf(buf);
       
-      SPDLOG_INFO("Got new frame idx {:d} ptr {}", new_frame->get_index(), fmt::ptr(new_frame->get_data()));
+      SPDLOG_TRACE("Got new frame idx {:d} ptr {}", new_frame->get_index(), fmt::ptr(new_frame->get_data()));
       if(cb)
       {
         cb(new_frame);
