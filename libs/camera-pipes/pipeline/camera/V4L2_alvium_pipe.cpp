@@ -110,6 +110,63 @@
 //         Size: Discrete 2464x2056
 //             Interval: Discrete 0.060s (16.593 fps)
 
+// User Controls
+
+//                      brightness 0x00980900 (int)    : min=0 max=255 step=1 default=0 value=0 flags=slider
+//                      saturation 0x00980902 (int)    : min=0 max=200 step=1 default=100 value=100 flags=slider
+//                             hue 0x00980903 (int)    : min=-4000 max=4000 step=1 default=0 value=0 flags=slider
+//              auto_white_balance 0x0098090c (bool)   : default=0 value=0
+//                   white_balance 0x0098090d (button) : flags=write-only, execute-on-write
+//                     red_balance 0x0098090e (int)    : min=0 max=8000 step=1 default=2354 value=2354 flags=slider
+//                    blue_balance 0x0098090f (int)    : min=0 max=8000 step=1 default=2100 value=2100 flags=slider
+//                           gamma 0x00980910 (int)    : min=40 max=240 step=5 default=100 value=100 flags=slider
+//                        exposure 0x00980911 (int)    : min=126222 max=2147483647 step=56242 default=5019313 value=17617484 flags=slider
+//                       gain_auto 0x00980912 (bool)   : default=0 value=1
+//                            gain 0x00980913 (int)    : min=0 max=2400 step=10 default=0 value=330 flags=slider
+//                       reverse_x 0x00980914 (bool)   : default=0 value=0
+//                       reverse_y 0x00980915 (bool)   : default=0 value=0
+//           frame_timeout_enabled 0x009809c8 (bool)   : default=1 value=1
+//                   frame_timeout 0x009809c9 (int)    : min=100 max=12000 step=1 default=12000 value=12000
+//        stride_alignment_enabled 0x009809ca (bool)   : default=1 value=1
+//          crop_alignment_enabled 0x009809cb (bool)   : default=1 value=1
+
+// Camera Controls
+
+//                   exposure_auto 0x009a0901 (menu)   : min=0 max=1 default=1 value=0
+//         0: Auto Mode
+//         1: Manual Mode
+//               exposure_absolute 0x009a0902 (int64)  : min=1 max=99999 step=1 default=1 value=176 flags=slider
+//               exposure_auto_min 0x009a0928 (int)    : min=126222 max=2147483647 step=56242 default=175677 value=175677 flags=slider
+//               exposure_auto_max 0x009a0929 (int)    : min=175677 max=2147483647 step=56242 default=1410066135 value=1410066135 flags=slider
+//                   gain_auto_min 0x009a092a (int)    : min=0 max=2400 step=10 default=0 value=0 flags=slider
+//                   gain_auto_max 0x009a092b (int)    : min=0 max=2400 step=10 default=2400 value=2400 flags=slider
+//       exposure_active_line_mode 0x009a092c (bool)   : default=0 value=0
+//   exposure_active_line_selector 0x009a092d (int)    : min=0 max=1 step=1 default=1 value=1 flags=slider
+//          exposure_active_invert 0x009a092e (bool)   : default=0 value=0
+//            sensor_configuration 0x009a2032 (u32)    : min=0 max=4294967295 step=1 default=0 [22] flags=read-only, volatile, has-payload
+//          sensor_mode_i2c_packet 0x009a2033 (u32)    : min=0 max=4294967295 step=1 default=0 [1026] flags=read-only, volatile, has-payload
+//       sensor_control_i2c_packet 0x009a2034 (u32)    : min=0 max=4294967295 step=1 default=0 [1026] flags=read-only, volatile, has-payload
+//                     bypass_mode 0x009a2064 (intmenu): min=0 max=1 default=0 value=0
+//         0: 0 (0x0)
+//         1: 1 (0x1)
+//                 override_enable 0x009a2065 (intmenu): min=0 max=1 default=0 value=0
+//         0: 0 (0x0)
+//         1: 1 (0x1)
+//                    height_align 0x009a2066 (int)    : min=1 max=16 step=1 default=1 value=1
+//                      size_align 0x009a2067 (intmenu): min=0 max=2 default=0 value=0
+//         0: 1 (0x1)
+//         1: 65536 (0x10000)
+//         2: 131072 (0x20000)
+//                write_isp_format 0x009a2068 (int)    : min=1 max=1 step=1 default=1 value=1
+//        sensor_signal_properties 0x009a2069 (u32)    : min=0 max=4294967295 step=1 default=0 [30][18] flags=read-only, has-payload
+//         sensor_image_properties 0x009a206a (u32)    : min=0 max=4294967295 step=1 default=0 [30][16] flags=read-only, has-payload
+//       sensor_control_properties 0x009a206b (u32)    : min=0 max=4294967295 step=1 default=0 [30][36] flags=read-only, has-payload
+//               sensor_dv_timings 0x009a206c (u32)    : min=0 max=4294967295 step=1 default=0 [30][16] flags=read-only, has-payload
+//                low_latency_mode 0x009a206d (bool)   : default=0 value=0
+//                preferred_stride 0x009a206e (int)    : min=0 max=65535 step=1 default=0 value=0
+//                    sensor_modes 0x009a2082 (int)    : min=0 max=30 step=1 default=30 value=1 flags=read-only
+
+
 void V4L2_alvium_frame_worker::work()
 {
   while( ! is_interrupted() )
