@@ -652,6 +652,11 @@ bool v4l2_util::v4l2_ctrl_get(uint32_t which, v4l2_ext_control* const ctrl)
 
 bool v4l2_util::v4l2_probe_ctrl()
 {
+
+	m_device_ctrl.clear();
+	m_device_ctrl_by_name.clear();
+	m_menu_entries.clear();
+
 	v4l2_capability cap;
 	memset(&cap, 0, sizeof(cap));
 	int ret = ioctl(m_v4l2_fd, VIDIOC_QUERYCAP, &cap);
@@ -691,6 +696,7 @@ bool v4l2_util::v4l2_probe_ctrl()
 				ext_ctrl.step);
 
 			m_device_ctrl.insert(std::make_pair(ext_ctrl.id, ext_ctrl));
+			m_device_ctrl_by_name.insert(std::make_pair(ext_ctrl.name, ext_ctrl.id));
 
 			current_ctrl_id = ext_ctrl.id | V4L2_CTRL_FLAG_NEXT_CTRL;
 		}

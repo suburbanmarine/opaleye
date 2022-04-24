@@ -152,9 +152,24 @@ public:
 	{
 		return m_device_ctrl;
 	}
+	const std::map<std::string, uint32_t>& get_ctrl_name_map() const
+	{
+		return m_device_ctrl_by_name;
+	}
 	const std::map<uint32_t, std::map<int64_t, v4l2_querymenu>>& get_menu_entries() const
 	{
 		return m_menu_entries;
+	}
+
+	std::optional<int32_t> get_ctrl_id_by_name(const std::string& name) const
+	{
+		auto it = m_device_ctrl_by_name.find(name);
+		if(it == m_device_ctrl_by_name.end())
+		{
+			return std::optional<int32_t>();
+		}
+
+		return it->second;
 	}
 
 protected:
@@ -166,6 +181,7 @@ protected:
 
 	// ctrl id -> v4l2_query_ext_ctrl
 	std::map<uint32_t, v4l2_query_ext_ctrl> m_device_ctrl;
+	std::map<std::string, uint32_t>         m_device_ctrl_by_name;
 	// ctrl id -> index -> menu_entries
 	std::map<uint32_t, std::map<int64_t, v4l2_querymenu>> m_menu_entries;
 };
