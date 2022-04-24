@@ -8,7 +8,7 @@
 
 #include "opaleye-util/thread_base.hpp"
 
-#include "pipeline/camera/GST_camera_base.hpp"
+#include "pipeline/camera/GST_v4l2_api.hpp"
 
 #include "cameras/Alvium_v4l2.hpp"
 
@@ -53,7 +53,7 @@ protected:
   V4L2_alvium_pipe* m_cam_pipe;
 };
 */
-class V4L2_alvium_pipe : public GST_camera_base
+class V4L2_alvium_pipe : public GST_v4l2_api
 {
   //friend V4L2_alvium_gst_worker;
 public:

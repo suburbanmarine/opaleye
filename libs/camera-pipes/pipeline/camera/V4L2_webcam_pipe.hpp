@@ -6,9 +6,7 @@
 
 #pragma once
 
-#include "util/v4l2_util.hpp"
-
-#include "pipeline/camera/GST_camera_base.hpp"
+#include "pipeline/camera/GST_v4l2_api.hpp"
 
 #include "opaleye-util/errno_util.hpp"
 
@@ -26,7 +24,7 @@
 #include <mutex>
 #include <set>
 
-class V4L2_webcam_pipe : public GST_camera_base
+class V4L2_webcam_pipe : public GST_v4l2_api
 {
 public:
   V4L2_webcam_pipe();
@@ -50,28 +48,9 @@ public:
 //    UVC_base::copy_frame(m_frame_buffer, out_frame);
 //  }
 
-  bool set_exposure_mode(int32_t val) override;
-  bool get_exposure_mode(int32_t* const val) override;
-
-  bool set_exposure_value(int32_t val) override;
-  bool get_exposure_value(int32_t* const val) override;
-
-  bool set_focus_absolute(int32_t val) override;
-  bool get_focus_absolute(int32_t* const val) override;
-
-  bool set_focus_auto(bool val) override;
-  bool get_focus_auto(bool* const val) override;
-
-  bool set_brightness(int32_t val) override;
-  bool get_brightness(int32_t* const val) override;
-
-  bool set_gain(int32_t val) override;
-  bool get_gain(int32_t* const val) override;
-  
 protected:
 
   errno_util m_errno;
-  v4l2_util m_v4l2_util;
 
   // bool on_bus_message(const Glib::RefPtr<Gst::Bus>& bus, const Glib::RefPtr<Gst::Message>& message);
   void on_bus_message(const Glib::RefPtr<Gst::Message>& message);

@@ -6,7 +6,6 @@
 
 #include "V4L2_alvium_pipe.hpp"
 
-#include "util/v4l2_util.hpp"
 #include "pipeline/gst_common.hpp"
 
 #include "opaleye-util/Ptree_util.hpp"
