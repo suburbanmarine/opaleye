@@ -310,7 +310,7 @@ int main(int argc, char* argv[])
 
 		if(app.m_pipelines.find("cam0") != app.m_pipelines.end())
 		{
-			std::shared_ptr<GST_camera_base> cam0 = app.m_pipelines["cam0"]->get_element<GST_camera_base>("cam_0");
+			std::shared_ptr<GST_camera_base> cam0 = app.m_pipelines["cam0"]->get_element<GST_camera_base>("cam0");
 			if( ! cam0 )
 			{
 				SPDLOG_ERROR("Could not get element cam0");
@@ -336,7 +336,7 @@ int main(int argc, char* argv[])
 
 		if(app.m_pipelines.find("cam1") != app.m_pipelines.end())
 		{
-			std::shared_ptr<GST_camera_base> cam1 = app.m_pipelines["cam1"]->get_element<GST_camera_base>("cam_0");
+			std::shared_ptr<GST_camera_base> cam1 = app.m_pipelines["cam1"]->get_element<GST_camera_base>("cam1");
 			if( ! cam1 )
 			{
 				SPDLOG_ERROR("Could not get element cam1");
@@ -386,7 +386,7 @@ int main(int argc, char* argv[])
 	// std::this_thread::sleep_for(std::chrono::seconds(5));
 	// if(app.m_config->camera_configs.count("cam0"))
 	// {
-	// 	std::shared_ptr<V4L2_webcam_pipe> m_camera = app.m_pipelines["cam0"]->get_element<V4L2_webcam_pipe>("cam_0");
+	// 	std::shared_ptr<V4L2_webcam_pipe> m_camera = app.m_pipelines["cam0"]->get_element<V4L2_webcam_pipe>("cam0");
 	// 	if( ! m_camera )
 	// 	{
 	// 		SPDLOG_ERROR("only V4L2_webcam_pipe camera support now, refactor these to a camera base class");
