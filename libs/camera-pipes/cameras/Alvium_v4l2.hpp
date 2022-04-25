@@ -76,6 +76,11 @@ public:
 
 	static bool frame_meta_to_ptree(const ConstMmapFramePtr& frame, boost::property_tree::ptree* out_meta);
 
+	int get_fd() const
+	{
+		return m_fd;
+	}
+
 protected:
 	errno_util m_errno;
 
