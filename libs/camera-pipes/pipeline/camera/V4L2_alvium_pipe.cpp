@@ -326,6 +326,9 @@ bool V4L2_alvium_pipe::init(const char name[])
 
     m_v4l2_util.set_fd(m_cam->get_fd());
 
+    set_gain_auto(true);
+    set_exposure_auto(0);
+
     //source caps
     //sometimes camera reports framerate as 16/1, sometimes 16593/1000
     // m_src_caps = Gst::Caps::create_from_string("video/x-raw, format=BGRx, width=2464, height=2056");
