@@ -110,8 +110,9 @@ function btnSetExposureAbsolute(event) {
 function btnSetExposureMode(event) {
     console.log( "btnSetExposureMode" );
 
-    // ret = camPod.jrpc.call('set_camera_property_int', {camera_id: 'cam0', property_id: 'exposure_auto', value: exposure_setting});
-    ret = camPod.jrpc.call('set_camera_property_int', ['cam0', 'cam0', 'exposure_auto', parseInt(exposure_setting)]);
+    let exposure_mode = $('#exposure_mode_form_input').val();
+
+    ret = camPod.jrpc.call('set_camera_property_int', ['cam0', 'cam0', 'exposure_auto', parseInt(exposure_mode)]);
 }
 function btnSetFocusAbsolute(event) {
   console.log( "btnSetFocusAbsolute" );
