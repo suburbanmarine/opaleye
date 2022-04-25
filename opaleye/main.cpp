@@ -313,7 +313,7 @@ int main(int argc, char* argv[])
 			std::shared_ptr<GST_camera_base> cam0 = app.m_pipelines["pipe0"]->get_element<GST_camera_base>("cam0");
 			if( ! cam0 )
 			{
-				SPDLOG_ERROR("Could not get element cam0");
+				SPDLOG_ERROR("Could not register ZMQ callback, could not get element cam0");
 			}
 			else
 			{
@@ -339,8 +339,7 @@ int main(int argc, char* argv[])
 			std::shared_ptr<GST_camera_base> cam1 = app.m_pipelines["pipe1"]->get_element<GST_camera_base>("cam1");
 			if( ! cam1 )
 			{
-				SPDLOG_ERROR("Could not get element cam1");
-				return -1;
+				SPDLOG_ERROR("Could not register ZMQ callback, could not get element cam1");
 			}
 			else
 			{

@@ -95,7 +95,8 @@ std::shared_ptr<GST_element_base> Gstreamer_pipeline::get_element(const std::str
 
 bool Gstreamer_pipeline::make_brio_pipeline()
 {
-  std::string cam_name = m_camera_config.get<std::string>("name");
+  const std::string& cam_name  = m_camera_config.name;
+  const std::string& pipe_name = m_pipeline_config.name;
 
   std::shared_ptr<GST_element_base> m_camera = std::make_shared<V4L2_webcam_pipe>();
 
@@ -228,7 +229,8 @@ bool Gstreamer_pipeline::make_brio_pipeline()
 
 bool Gstreamer_pipeline::make_imx219_pipeline()
 {
-  std::string cam_name = m_camera_config.get<std::string>("name");
+  const std::string& cam_name  = m_camera_config.name;
+  const std::string& pipe_name = m_pipeline_config.name;
 
   std::shared_ptr<nvac_imx219_pipe> m_camera   = std::make_shared<nvac_imx219_pipe>();
   if( ! m_camera->init(cam_name.c_str()) )
@@ -310,7 +312,8 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
 
 bool Gstreamer_pipeline::make_alvium_pipeline()
 {
-  std::string cam_name = m_camera_config.get<std::string>("name");
+  const std::string& cam_name  = m_camera_config.name;
+  const std::string& pipe_name = m_pipeline_config.name;
 
   std::string format = m_camera_config.get<std::string>("properties.format");
   if(format.size() != 4)
@@ -397,7 +400,8 @@ bool Gstreamer_pipeline::make_alvium_pipeline()
 
 bool Gstreamer_pipeline::make_virtual_pipeline()
 {
-  std::string cam_name = m_camera_config.get<std::string>("name");
+  const std::string& cam_name  = m_camera_config.name;
+  const std::string& pipe_name = m_pipeline_config.name;
 
   std::shared_ptr<GST_element_base> m_camera = std::make_shared<Testsrc_pipe>();
 
@@ -579,7 +583,7 @@ bool Opaleye_app::init()
       return false;
     }
     
-    SPDLOG_INFO("Opaleye_app::init stashing cam0 pipeline");
+    SPDLOG_INFO("Opaleye_app::init stashing cam0 pipeline: {:s}", cam0_pipe_name);
     m_pipelines.emplace(cam0_pipe_name, pipeline);
   }
 
@@ -602,7 +606,7 @@ bool Opaleye_app::init()
       return false;
     }
     
-    SPDLOG_INFO("Opaleye_app::init stashing cam1 pipeline");
+    SPDLOG_INFO("Opaleye_app::init stashing cam1 pipeline: {:s}", cam1_pipe_name);
     m_pipelines.emplace(cam1_pipe_name, pipeline);
   }
 
