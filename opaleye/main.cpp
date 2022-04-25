@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
 			("help"  , "Print usage information and exit")
 			("config", bpo::value<std::string>()->default_value("/opt/suburbanmarine/opaleye/conf/config.xml"), "Path to config file")
 			("gst-log-level", bpo::value<std::string>()->default_value("none"), "GST log level")
-			("gst-log-file", bpo::value<std::string>()->default_value("/tmp/gst_out.log"), "GST log file. If not set logs to stdout")
+			("gst-log-file", bpo::value<std::string>(), "GST log file. If not set logs to stdout")
 			;
 	
 		//Parse options
