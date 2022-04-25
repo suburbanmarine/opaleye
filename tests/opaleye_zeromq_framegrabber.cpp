@@ -137,10 +137,25 @@ int main(int argc, char* argv[])
 		}
 		else
 		{
+			std::cout << "X-Opaleye-api is " << rcv_msgs[0].gets("X-Opaleye-api") << std::endl;
+
+			std::cout << "Got message with " << rcv_msgs.size() << " parts:\n";
+			for(size_t i = 0; i < rcv_msgs.size(); i++)
+			{
+				// std::cout << "\tPart " << i << ": " << std::string(rcv_msgs[i].data<char>(), rcv_msgs[i].size());
+				if(i < 2)
+				{
+					std::cout << "\tPart " << i << ": " << rcv_msgs[i].to_string_view();
+				}
+				else
+				{
+					std::cout << "\tPart " << i << " is " << rcv_msgs[i].to_string_view().size() << " long";	
+				}
+				std::cout << std::endl;
+			}
+			
 			if(rcv_msgs.size() == 3)
 			{
-
-
 				std::cout << "Frame: " << frame_ctr << std::endl;
 
 				if(vm.count("display"))
