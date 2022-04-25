@@ -95,6 +95,9 @@ std::shared_ptr<GST_element_base> Gstreamer_pipeline::get_element(const std::str
 
 bool Gstreamer_pipeline::make_brio_pipeline()
 {
+  const std::string& cam_name  = m_camera_config.name;
+  const std::string& pipe_name = m_pipeline_config.name;
+
   std::shared_ptr<GST_element_base> m_camera = std::make_shared<V4L2_webcam_pipe>();
 
   std::shared_ptr<GST_element_base> m_jpgdec;
@@ -128,7 +131,7 @@ bool Gstreamer_pipeline::make_brio_pipeline()
   //  return false;
   // }
 
-  if( ! m_camera->init("cam_0") )
+  if( ! m_camera->init(cam_name.c_str()) )
   {
    SPDLOG_ERROR("Could not init camera");
    return false;
@@ -213,7 +216,7 @@ bool Gstreamer_pipeline::make_brio_pipeline()
   m_rtppay->link_back(m_rtpsink->front());
   #endif
 
-  m_element_storage.emplace("cam_0", m_camera);
+  m_element_storage.emplace(cam_name, m_camera);
   m_element_storage.emplace("jpgdec_0", m_jpgdec);
   m_element_storage.emplace("thumb_0", m_thumb);
   m_element_storage.emplace("h264_0", m_h264);
@@ -226,8 +229,11 @@ bool Gstreamer_pipeline::make_brio_pipeline()
 
 bool Gstreamer_pipeline::make_imx219_pipeline()
 {
+  const std::string& cam_name  = m_camera_config.name;
+  const std::string& pipe_name = m_pipeline_config.name;
+
   std::shared_ptr<nvac_imx219_pipe> m_camera   = std::make_shared<nvac_imx219_pipe>();
-  if( ! m_camera->init("cam_0") )
+  if( ! m_camera->init(cam_name.c_str()) )
   {
    SPDLOG_ERROR("Could not init camera");
    return false;
@@ -294,7 +300,7 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
 
   m_rtppay->link_back(m_rtpsink->front());
 
-  m_element_storage.emplace("cam_0", m_camera);
+  m_element_storage.emplace(cam_name, m_camera);
   m_element_storage.emplace("thumb_0", m_thumb);
   m_element_storage.emplace("h264_0", m_h264);
   m_element_storage.emplace("h264_ipsink_0", m_h264_interpipesink);
@@ -306,6 +312,8 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
 
 bool Gstreamer_pipeline::make_alvium_pipeline()
 {
+  const std::string& cam_name  = m_camera_config.name;
+  const std::string& pipe_name = m_pipeline_config.name;
 
   std::string format = m_camera_config.get<std::string>("properties.format");
   if(format.size() != 4)
@@ -320,7 +328,7 @@ bool Gstreamer_pipeline::make_alvium_pipeline()
 
   std::shared_ptr<V4L2_alvium_pipe> m_camera   = std::make_shared<V4L2_alvium_pipe>();
   m_camera->set_params(device.c_str(), v4l2_fourcc(format[0], format[1], format[2], format[3]), trigger_mode);
-  if( ! m_camera->init("cam_0") )
+  if( ! m_camera->init(cam_name.c_str()) )
   {
     SPDLOG_ERROR("Could not init camera");
     return false;
@@ -328,71 +336,73 @@ bool Gstreamer_pipeline::make_alvium_pipeline()
   
 
   SPDLOG_INFO("NV mode");
-  std::shared_ptr<GST_element_base> m_h264   = std::make_shared<h264_nvenc_bin>();
   std::shared_ptr<GST_element_base> m_thumb  = std::make_shared<Thumbnail_nv3_pipe>();
-
   if( ! m_thumb->init("thumb_0") )
   {
    SPDLOG_ERROR("Could not init thumb");
    return false;
   }
 
-  if( ! m_h264->init("h264_0") )
-  {
-   SPDLOG_ERROR("Could not init h264");
-   return false;
-  }
+  // std::shared_ptr<GST_element_base> m_h264   = std::make_shared<h264_nvenc_bin>();
+  // if( ! m_h264->init("h264_0") )
+  // {
+  //  SPDLOG_ERROR("Could not init h264");
+  //  return false;
+  // }
 
-  std::shared_ptr<GST_element_base> m_h264_interpipesink = std::make_shared<GST_interpipesink>();
-  if( ! m_h264_interpipesink->init("h264_ipsink_0") )
-  {
-   SPDLOG_ERROR("Could not init h264 interpipe");
-   return false;
-  }
+  // std::shared_ptr<GST_element_base> m_h264_interpipesink = std::make_shared<GST_interpipesink>();
+  // if( ! m_h264_interpipesink->init("h264_ipsink_0") )
+  // {
+  //  SPDLOG_ERROR("Could not init h264 interpipe");
+  //  return false;
+  // }
   
-  std::shared_ptr<GST_element_base> m_rtppay = std::make_shared<rtp_h264_pipe>();
-  if( ! m_rtppay->init("rtp_0") )
-  {
-   SPDLOG_ERROR("Could not init m_rtp");
-   return false;
-  }
+  // std::shared_ptr<GST_element_base> m_rtppay = std::make_shared<rtp_h264_pipe>();
+  // if( ! m_rtppay->init("rtp_0") )
+  // {
+  //  SPDLOG_ERROR("Could not init m_rtp");
+  //  return false;
+  // }
   
-  std::shared_ptr<GST_element_base> m_rtpsink = std::make_shared<rtpsink_pipe>();
-  if( ! m_rtpsink->init("udp_0") )
-  {
-   SPDLOG_ERROR("Could not init m_udp");
-   return false;
-  }
+  // std::shared_ptr<GST_element_base> m_rtpsink = std::make_shared<rtpsink_pipe>();
+  // if( ! m_rtpsink->init("udp_0") )
+  // {
+  //  SPDLOG_ERROR("Could not init m_udp");
+  //  return false;
+  // }
 
   //add elements to top level bin
   m_camera->add_to_bin(m_pipeline);
   m_thumb->add_to_bin(m_pipeline);
-  m_h264->add_to_bin(m_pipeline);
-  m_h264_interpipesink->add_to_bin(m_pipeline);
-  m_rtppay->add_to_bin(m_pipeline);
-  m_rtpsink->add_to_bin(m_pipeline);
+  // m_h264->add_to_bin(m_pipeline);
+  // m_h264_interpipesink->add_to_bin(m_pipeline);
+  // m_rtppay->add_to_bin(m_pipeline);
+  // m_rtpsink->add_to_bin(m_pipeline);
 
   // //link pipeline
-  m_camera->link_back(m_h264->front());
   m_camera->link_back(m_thumb->front());
+  // m_camera->link_back(m_h264->front());
 
-  m_h264->link_back(m_rtppay->front());
-  m_h264->link_back(m_h264_interpipesink->front());
+  // m_h264->link_back(m_rtppay->front());
+  // m_h264->link_back(m_h264_interpipesink->front());
 
-  m_rtppay->link_back(m_rtpsink->front());
+  // m_rtppay->link_back(m_rtpsink->front());
 
-  m_element_storage.emplace("cam_0", m_camera);
+  m_element_storage.emplace(cam_name, m_camera);
   m_element_storage.emplace("thumb_0", m_thumb);
-  m_element_storage.emplace("h264_0", m_h264);
-  m_element_storage.emplace("h264_ipsink_0", m_h264_interpipesink);
-  m_element_storage.emplace("rtp_0", m_rtppay);
-  m_element_storage.emplace("udp_0", m_rtpsink);
+  // m_element_storage.emplace("h264_0", m_h264);
+  // m_element_storage.emplace("h264_ipsink_0", m_h264_interpipesink);
+  // m_element_storage.emplace("rtp_0", m_rtppay);
+  // m_element_storage.emplace("udp_0", m_rtpsink);
 
   return true;
 }
 
 bool Gstreamer_pipeline::make_virtual_pipeline()
 {
+  const std::string& cam_name  = m_camera_config.name;
+  const std::string& pipe_name = m_pipeline_config.name;
+
   std::shared_ptr<GST_element_base> m_camera = std::make_shared<Testsrc_pipe>();
 
   std::shared_ptr<GST_element_base> m_jpgdec;
@@ -420,7 +430,7 @@ bool Gstreamer_pipeline::make_virtual_pipeline()
     m_thumb  = std::make_shared<Thumbnail_sw_pipe>();
   }
 
-  if( ! m_camera->init("cam_0") )
+  if( ! m_camera->init(cam_name.c_str()) )
   {
    SPDLOG_ERROR("Could not init camera");
    return false;
@@ -480,7 +490,7 @@ bool Gstreamer_pipeline::make_virtual_pipeline()
   m_rtppay->link_back(m_rtpsink->front());
   #endif
 
-  m_element_storage.emplace("cam_0", m_camera);
+  m_element_storage.emplace(cam_name, m_camera);
   m_element_storage.emplace("thumb_0", m_thumb);
   m_element_storage.emplace("h264_0", m_h264);
   m_element_storage.emplace("h264_ipsink_0", m_h264_interpipesink);
@@ -514,7 +524,7 @@ bool Opaleye_app::init()
     m_config->make_default();
   }
 
-  if(m_config->count("hw_trigger"))
+  if(m_config->has_child("config.hw_trigger"))
   {
     if(! Opaleye_gpio_mod_ctrl::is_loaded() )
     {
@@ -534,20 +544,24 @@ bool Opaleye_app::init()
       return false;
     }
 
-    std::chrono::microseconds t0     = std::chrono::microseconds(m_config->get<int>("hw_trigger.t0",           0));
-    std::chrono::microseconds period = std::chrono::microseconds(m_config->get<int>("hw_trigger.period", 1000000));
-    std::chrono::microseconds width  = std::chrono::microseconds(m_config->get<int>("hw_trigger.width",    50000));
+    std::chrono::microseconds t0     = std::chrono::microseconds(m_config->get<int>("config.hw_trigger.t0",           0));
+    std::chrono::microseconds period = std::chrono::microseconds(m_config->get<int>("config.hw_trigger.period", 1000000));
+    std::chrono::microseconds width  = std::chrono::microseconds(m_config->get<int>("config.hw_trigger.width",    50000));
     if( ! m_hw_trigger.configure(t0, period, width) )
     {
       SPDLOG_ERROR("Opaleye_app::init could not configure hw_trigger");
       return false;
     }
 
-    if( ! m_hw_trigger.set_enable(m_config->get<bool>("hw_trigger.enable", false)) )
+    if( ! m_hw_trigger.set_enable(m_config->get<bool>("config.hw_trigger.enable", false)) )
     {
       SPDLOG_ERROR("Opaleye_app::init could not enable hw_trigger");
       return false;
     }
+  }
+  else
+  {
+    SPDLOG_ERROR("Opaleye_app::init not requested to init hw_trigger");
   }
 
   if(m_config->camera_configs.count("cam0"))
@@ -559,14 +573,18 @@ bool Opaleye_app::init()
       return false;
     }
 
-    if( ! pipeline->make_pipeline(m_config, m_config->camera_configs["cam0"], m_config->camera_configs["cam0"].pipeline) )
+    const camera_config& cam0_cfg     = m_config->camera_configs["cam0"];
+    const std::string& cam0_cam_name  = cam0_cfg.name;
+    const std::string& cam0_pipe_name = cam0_cfg.pipeline.name;
+
+    if( ! pipeline->make_pipeline(m_config, cam0_cfg, cam0_cfg.pipeline) )
     {
       SPDLOG_ERROR("Opaleye_app::init make pipe0 failed");
       return false;
     }
     
-    SPDLOG_INFO("Opaleye_app::init stashing cam0");
-    m_pipelines.emplace("cam0", pipeline);
+    SPDLOG_INFO("Opaleye_app::init stashing cam0 pipeline: {:s}", cam0_pipe_name);
+    m_pipelines.emplace(cam0_pipe_name, pipeline);
   }
 
   if(m_config->camera_configs.count("cam1"))
@@ -578,14 +596,18 @@ bool Opaleye_app::init()
       return false;
     }
 
-    if( ! pipeline->make_pipeline(m_config, m_config->camera_configs["cam1"], m_config->camera_configs["cam1"].pipeline) )
+    const camera_config& cam1_cfg     = m_config->camera_configs["cam1"];
+    const std::string& cam1_cam_name  = cam1_cfg.name;
+    const std::string& cam1_pipe_name = cam1_cfg.pipeline.name;
+
+    if( ! pipeline->make_pipeline(m_config, cam1_cfg, cam1_cfg.pipeline) )
     {
       SPDLOG_ERROR("Opaleye_app::init make pipe1 failed");
       return false;
     }
     
-    SPDLOG_INFO("Opaleye_app::init stashing cam1");
-    m_pipelines.emplace("cam1", pipeline);
+    SPDLOG_INFO("Opaleye_app::init stashing cam1 pipeline: {:s}", cam1_pipe_name);
+    m_pipelines.emplace(cam1_pipe_name, pipeline);
   }
 
   return true;
@@ -670,7 +692,7 @@ bool Opaleye_app::stop_video_capture(const std::string& camera)
   auto pipeline_it = m_pipelines.find(camera);
   if(pipeline_it == m_pipelines.end())
   {
-    SPDLOG_WARN("Opaleye_app::start_video_capture({:s}), {:s} does not exist", camera, camera);
+    SPDLOG_WARN("Opaleye_app::stop_video_capture({:s}), {:s} does not exist", camera, camera);
     return false;
   }
 

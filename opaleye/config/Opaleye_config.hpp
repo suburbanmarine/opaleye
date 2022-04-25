@@ -52,9 +52,16 @@ public:
 		return m_tree.get<T>(path, default_value);
 	}
 
-	size_t count(const boost::property_tree::ptree::key_type& key) const
+	bool has_child(const boost::property_tree::ptree::path_type& path) const
 	{
-		return m_tree.count(key);	
+		auto child = m_tree.get_child_optional(path);
+
+		return child.is_initialized();
+	}
+
+	size_t count_key(const boost::property_tree::ptree::key_type& key) const
+	{
+		return m_tree.count(key);
 	}
 
 protected:

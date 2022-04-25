@@ -89,6 +89,7 @@ int main(int argc, char* argv[])
 			("help"  , "Print usage information and exit")
 			("config", bpo::value<std::string>()->default_value("/opt/suburbanmarine/opaleye/conf/config.xml"), "Path to config file")
 			("gst-log-level", bpo::value<std::string>()->default_value("none"), "GST log level")
+			("gst-log-file", bpo::value<std::string>(), "GST log file. If not set logs to stdout")
 			;
 	
 		//Parse options
@@ -154,6 +155,19 @@ int main(int argc, char* argv[])
 			SPDLOG_ERROR("Unknown gst-log-level: {:s}", vm["gst-log-level"].as<std::string>());
 			return -1;
 		}
+	}
+
+	if(vm.count("gst-log-file"))
+	{
+		putenv("GST_DEBUG_NO_COLOR=1");
+
+		std::stringstream ss;
+		ss << "GST_DEBUG_FILE=" << vm["gst-log-file"].as<std::string>();
+
+		std::string temp_str = ss.str();
+
+		std::vector<char> temp_str_vec(temp_str.c_str(), temp_str.c_str() + temp_str.size() + 1);
+		putenv(temp_str_vec.data());
 	}
 
 	//load config and add a file sink logger
@@ -244,10 +258,10 @@ int main(int argc, char* argv[])
 	}
 
 	//register http callbacks
-	if(app.m_pipelines.find("cam0") != app.m_pipelines.end())
+	if(app.m_pipelines.find("pipe0") != app.m_pipelines.end())
 	{
 
-		auto thumb_0 = app.m_pipelines["cam0"]->get_element<Thumbnail_pipe_base>("thumb_0");
+		auto thumb_0 = app.m_pipelines["pipe0"]->get_element<Thumbnail_pipe_base>("thumb_0");
 		if( ! thumb_0 )
 		{
 			SPDLOG_ERROR("Could not get element thumb_0");
@@ -263,9 +277,9 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	if(app.m_pipelines.find("cam1") != app.m_pipelines.end())
+	if(app.m_pipelines.find("pipe1") != app.m_pipelines.end())
 	{
-		auto thumb_0 = app.m_pipelines["cam1"]->get_element<Thumbnail_pipe_base>("thumb_0");
+		auto thumb_0 = app.m_pipelines["pipe1"]->get_element<Thumbnail_pipe_base>("thumb_0");
 		if( ! thumb_0 )
 		{
 			SPDLOG_ERROR("Could not get element thumb_0");
@@ -294,12 +308,12 @@ int main(int argc, char* argv[])
 		//register 0mq services
 		//the camera callbacks are called within the context of a gstreamer thread and should return promptly
 
-		if(app.m_pipelines.find("cam0") != app.m_pipelines.end())
+		if(app.m_pipelines.find("pipe0") != app.m_pipelines.end())
 		{
-			std::shared_ptr<GST_camera_base> cam0 = app.m_pipelines["cam0"]->get_element<GST_camera_base>("cam_0");
+			std::shared_ptr<GST_camera_base> cam0 = app.m_pipelines["pipe0"]->get_element<GST_camera_base>("cam0");
 			if( ! cam0 )
 			{
-				SPDLOG_ERROR("Could not get element cam0");
+				SPDLOG_ERROR("Could not register ZMQ callback, could not get element cam0");
 			}
 			else
 			{
@@ -320,13 +334,12 @@ int main(int argc, char* argv[])
 		}
 
 
-		if(app.m_pipelines.find("cam1") != app.m_pipelines.end())
+		if(app.m_pipelines.find("pipe1") != app.m_pipelines.end())
 		{
-			std::shared_ptr<GST_camera_base> cam1 = app.m_pipelines["cam1"]->get_element<GST_camera_base>("cam_0");
+			std::shared_ptr<GST_camera_base> cam1 = app.m_pipelines["pipe1"]->get_element<GST_camera_base>("cam1");
 			if( ! cam1 )
 			{
-				SPDLOG_ERROR("Could not get element cam1");
-				return -1;
+				SPDLOG_ERROR("Could not register ZMQ callback, could not get element cam1");
 			}
 			else
 			{
@@ -372,7 +385,7 @@ int main(int argc, char* argv[])
 	// std::this_thread::sleep_for(std::chrono::seconds(5));
 	// if(app.m_config->camera_configs.count("cam0"))
 	// {
-	// 	std::shared_ptr<V4L2_webcam_pipe> m_camera = app.m_pipelines["cam0"]->get_element<V4L2_webcam_pipe>("cam_0");
+	// 	std::shared_ptr<V4L2_webcam_pipe> m_camera = app.m_pipelines["cam0"]->get_element<V4L2_webcam_pipe>("cam0");
 	// 	if( ! m_camera )
 	// 	{
 	// 		SPDLOG_ERROR("only V4L2_webcam_pipe camera support now, refactor these to a camera base class");
