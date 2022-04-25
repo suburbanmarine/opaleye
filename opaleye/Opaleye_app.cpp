@@ -569,14 +569,18 @@ bool Opaleye_app::init()
       return false;
     }
 
-    if( ! pipeline->make_pipeline(m_config, m_config->camera_configs["cam0"], m_config->camera_configs["cam0"].pipeline) )
+    const camera_config& cam0_cfg     = m_config->camera_configs["cam0"];
+    const std::string& cam0_cam_name  = cam0_cfg.name;
+    const std::string& cam0_pipe_name = cam0_cfg.pipeline.name;
+
+    if( ! pipeline->make_pipeline(m_config, cam0_cfg, cam0_cfg.pipeline) )
     {
       SPDLOG_ERROR("Opaleye_app::init make pipe0 failed");
       return false;
     }
     
-    SPDLOG_INFO("Opaleye_app::init stashing cam0");
-    m_pipelines.emplace("cam0", pipeline);
+    SPDLOG_INFO("Opaleye_app::init stashing cam0 pipeline");
+    m_pipelines.emplace(cam0_pipe_name, pipeline);
   }
 
   if(m_config->camera_configs.count("cam1"))
@@ -588,14 +592,18 @@ bool Opaleye_app::init()
       return false;
     }
 
-    if( ! pipeline->make_pipeline(m_config, m_config->camera_configs["cam1"], m_config->camera_configs["cam1"].pipeline) )
+    const camera_config& cam1_cfg     = m_config->camera_configs["cam1"];
+    const std::string& cam1_cam_name  = cam1_cfg.name;
+    const std::string& cam1_pipe_name = cam1_cfg.pipeline.name;
+
+    if( ! pipeline->make_pipeline(m_config, cam1_cfg, cam1_cfg.pipeline) )
     {
       SPDLOG_ERROR("Opaleye_app::init make pipe1 failed");
       return false;
     }
     
-    SPDLOG_INFO("Opaleye_app::init stashing cam1");
-    m_pipelines.emplace("cam1", pipeline);
+    SPDLOG_INFO("Opaleye_app::init stashing cam1 pipeline");
+    m_pipelines.emplace(cam1_pipe_name, pipeline);
   }
 
   return true;
@@ -680,7 +688,7 @@ bool Opaleye_app::stop_video_capture(const std::string& camera)
   auto pipeline_it = m_pipelines.find(camera);
   if(pipeline_it == m_pipelines.end())
   {
-    SPDLOG_WARN("Opaleye_app::start_video_capture({:s}), {:s} does not exist", camera, camera);
+    SPDLOG_WARN("Opaleye_app::stop_video_capture({:s}), {:s} does not exist", camera, camera);
     return false;
   }
 

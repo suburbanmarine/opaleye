@@ -258,10 +258,10 @@ int main(int argc, char* argv[])
 	}
 
 	//register http callbacks
-	if(app.m_pipelines.find("cam0") != app.m_pipelines.end())
+	if(app.m_pipelines.find("pipe0") != app.m_pipelines.end())
 	{
 
-		auto thumb_0 = app.m_pipelines["cam0"]->get_element<Thumbnail_pipe_base>("thumb_0");
+		auto thumb_0 = app.m_pipelines["pipe0"]->get_element<Thumbnail_pipe_base>("thumb_0");
 		if( ! thumb_0 )
 		{
 			SPDLOG_ERROR("Could not get element thumb_0");
@@ -277,9 +277,9 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	if(app.m_pipelines.find("cam1") != app.m_pipelines.end())
+	if(app.m_pipelines.find("pipe1") != app.m_pipelines.end())
 	{
-		auto thumb_0 = app.m_pipelines["cam1"]->get_element<Thumbnail_pipe_base>("thumb_0");
+		auto thumb_0 = app.m_pipelines["pipe1"]->get_element<Thumbnail_pipe_base>("thumb_0");
 		if( ! thumb_0 )
 		{
 			SPDLOG_ERROR("Could not get element thumb_0");
@@ -308,9 +308,9 @@ int main(int argc, char* argv[])
 		//register 0mq services
 		//the camera callbacks are called within the context of a gstreamer thread and should return promptly
 
-		if(app.m_pipelines.find("cam0") != app.m_pipelines.end())
+		if(app.m_pipelines.find("pipe0") != app.m_pipelines.end())
 		{
-			std::shared_ptr<GST_camera_base> cam0 = app.m_pipelines["cam0"]->get_element<GST_camera_base>("cam0");
+			std::shared_ptr<GST_camera_base> cam0 = app.m_pipelines["pipe0"]->get_element<GST_camera_base>("cam0");
 			if( ! cam0 )
 			{
 				SPDLOG_ERROR("Could not get element cam0");
@@ -334,9 +334,9 @@ int main(int argc, char* argv[])
 		}
 
 
-		if(app.m_pipelines.find("cam1") != app.m_pipelines.end())
+		if(app.m_pipelines.find("pipe1") != app.m_pipelines.end())
 		{
-			std::shared_ptr<GST_camera_base> cam1 = app.m_pipelines["cam1"]->get_element<GST_camera_base>("cam1");
+			std::shared_ptr<GST_camera_base> cam1 = app.m_pipelines["pipe1"]->get_element<GST_camera_base>("cam1");
 			if( ! cam1 )
 			{
 				SPDLOG_ERROR("Could not get element cam1");
