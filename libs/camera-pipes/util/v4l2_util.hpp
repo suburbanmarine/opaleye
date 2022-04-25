@@ -161,12 +161,34 @@ public:
 		return m_menu_entries;
 	}
 
-	std::optional<int32_t> get_ctrl_id_by_name(const std::string& name) const
+	std::optional<uint32_t> get_ctrl_id_by_name(const std::string& name) const
 	{
 		auto it = m_device_ctrl_by_name.find(name);
 		if(it == m_device_ctrl_by_name.end())
 		{
-			return std::optional<int32_t>();
+			return std::optional<uint32_t>();
+		}
+
+		return it->second;
+	}
+
+	std::optional<v4l2_query_ext_ctrl> get_ctrl_by_name(const std::string& name) const
+	{
+		std::optional<uint32_t> id = get_ctrl_id_by_name(name);
+		if( ! id.has_value() )
+		{
+			return std::optional<v4l2_query_ext_ctrl>();
+		}
+
+		return get_ctrl_by_id(id.value());
+	}
+
+	std::optional<v4l2_query_ext_ctrl> get_ctrl_by_id(const uint32_t& id) const
+	{
+		auto it = m_device_ctrl.find(id);
+		if(it == m_device_ctrl.end())
+		{
+			return std::optional<v4l2_query_ext_ctrl>();
 		}
 
 		return it->second;
