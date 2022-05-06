@@ -883,35 +883,49 @@ std::string Opaleye_app::get_pipeline_graph()
 {
   SPDLOG_INFO("Opaleye_app::get_pipeline_graph");
   
-  m_pipelines["cam0"]->make_debug_dot("pipeline");
-  int ret = system("dot -Tpdf -o /tmp/pipeline.dot.pdf /tmp/pipeline.dot");
-  if(ret == -1)
+  for(const auto& pipe_it : m_pipelines)
   {
-    SPDLOG_ERROR("Could not create pdf");
-  }
+    std::string pipe_name = pipe_it.first;
+    std::replace(pipe_name.begin(), pipe_name.end(), '/', '-');
 
-  auto it = m_pipelines.find("cam0/file0");
-  if(it == m_pipelines.end())
-  {
-    return std::string();
-  }
+    const std::string filename      = fmt::format("{:s}_pipeline", pipe_name);
+    const std::string dot_filename  = fmt::format("{:s}_pipeline", pipe_name);
+    const std::string pdf_filename  = fmt::format("{:s}_pipeline", pipe_name);
 
-  if( ! it->second )
-  {
-    return std::string();
-  }
+    pipe_it.second->make_debug_dot(fmt::format("{:s}_pipeline", pipe_name));
 
-  std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe = std::dynamic_pointer_cast<gst_filesink_pipeline>(it->second);
-
-  if(m_mkv_pipe)
-  {
-    m_mkv_pipe->make_debug_dot("pipeline_mkv");
-    int ret = system("dot -Tpdf -o /tmp/pipeline_mkv.dot.pdf /tmp/pipeline_mkv.dot");
+    const std::string cmd_str  = fmt::format("dot -Tpdf -o {:s} {:s}", pdf_filename, dot_filename);  
+    int ret = system(cmd_str.c_str());
     if(ret == -1)
     {
       SPDLOG_ERROR("Could not create pdf");
     }
   }
+
+  // m_pipelines["cam0"]->make_debug_dot("pipeline");
+
+  // auto it = m_pipelines.find("cam0/file0");
+  // if(it == m_pipelines.end())
+  // {
+  //   return std::string();
+  // }
+
+  // if( ! it->second )
+  // {
+  //   return std::string();
+  // }
+
+  // std::shared_ptr<gst_filesink_pipeline> m_mkv_pipe = std::dynamic_pointer_cast<gst_filesink_pipeline>(it->second);
+
+  // if(m_mkv_pipe)
+  // {
+  //   m_mkv_pipe->make_debug_dot("pipeline_mkv");
+  //   int ret = system("dot -Tpdf -o /tmp/pipeline_mkv.dot.pdf /tmp/pipeline_mkv.dot");
+  //   if(ret == -1)
+  //   {
+  //     SPDLOG_ERROR("Could not create pdf");
+  //   }
+  // }
 
   return std::string();
 }
