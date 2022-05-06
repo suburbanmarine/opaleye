@@ -675,10 +675,10 @@ void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& f
     SPDLOG_TRACE("feeding gst");
     Glib::RefPtr<Gst::Buffer> buf = Gst::Buffer::create(frame_buf->get_bytes_used());
 
-    guint width  = 2464;
-    guint height = 2056;
+    guint width  = frame_buf->get_fmt().fmt.pix.width;
+    guint height = frame_buf->get_fmt().fmt.pix.height;
     gsize offset[1] = {0};
-    gint xstride = 2464*4;
+    gint xstride = frame_buf->get_fmt().fmt.pix.height * 4;
     gint stride[1] = {xstride};
     gst_buffer_add_video_meta_full(buf->gobj(), GST_VIDEO_FRAME_FLAG_NONE, GST_VIDEO_FORMAT_BGRx, width, height, 1, offset, stride);
     GST_BUFFER_FLAG_SET(buf->gobj(), GST_BUFFER_FLAG_LIVE);
