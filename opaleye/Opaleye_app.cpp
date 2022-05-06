@@ -889,8 +889,8 @@ std::string Opaleye_app::get_pipeline_graph()
     std::replace(pipe_name.begin(), pipe_name.end(), '/', '-');
 
     const std::string filename      = fmt::format("{:s}_pipeline", pipe_name);
-    const std::string dot_filename  = fmt::format("{:s}_pipeline", pipe_name);
-    const std::string pdf_filename  = fmt::format("{:s}_pipeline", pipe_name);
+    const std::string dot_filename  = fmt::format("{:s}_pipeline.dot", pipe_name);
+    const std::string pdf_filename  = fmt::format("{:s}_pipeline.pdf", pipe_name);
 
     pipe_it.second->make_debug_dot(fmt::format("{:s}_pipeline", pipe_name));
 
