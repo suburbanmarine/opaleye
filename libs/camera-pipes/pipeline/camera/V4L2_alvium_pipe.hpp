@@ -12,12 +12,13 @@
 
 #include "cameras/Alvium_v4l2.hpp"
 
-#include <gstreamermm/appsrc.h>
 #include <gstreamermm/caps.h>
 #include <gstreamermm/capsfilter.h>
 #include <gstreamermm/queue.h>
 #include <gstreamermm/tee.h>
-#include <gstreamermm/fakesink.h>
+
+#include <gst/gst.h>
+#include <gst/app/gstappsrc.h>
 
 class V4L2_alvium_pipe;
 
@@ -84,6 +85,14 @@ public:
   bool stop_streaming();
   bool set_trigger_mode(const std::string& mode);
 
+  static constexpr uint32_t PIX_FMT_RGGB = v4l2_fourcc('R','G','G','B'); // 10-bit/16-bit Bayer RGRG/GBGB
+  static constexpr uint32_t PIX_FMT_JXR0 = v4l2_fourcc('J','X','R','0'); // 10-bit/16-bit Bayer RGRG/GBGB
+  static constexpr uint32_t PIX_FMT_JXR2 = v4l2_fourcc('J','X','R','2'); // 12-bit/16-bit Bayer RGRG/GBGB
+  static constexpr uint32_t PIX_FMT_GREY = v4l2_fourcc('G','R','E','Y'); // 8-bit Greyscale
+  static constexpr uint32_t PIX_FMT_JXY0 = v4l2_fourcc('J','X','Y','0'); // 10-bit/16-bit Greyscale
+  static constexpr uint32_t PIX_FMT_JXY2 = v4l2_fourcc('J','X','Y','2'); // 12-bit/16-bit Greyscale
+  static constexpr uint32_t PIX_FMT_XR24 = v4l2_fourcc('X','R','2','4'); // 32-bit BGRX 8-8-8-8
+
 protected:
   bool close();
   //avt specific things
@@ -95,8 +104,11 @@ protected:
   void handle_need_data(guint val);
   void handle_enough_data();
 
+  void new_frame_cb_RGGB(const Alvium_v4l2::ConstMmapFramePtr& frame_buf); // 8-bit Bayer RGRG/GBGB
   void new_frame_cb_JXR0(const Alvium_v4l2::ConstMmapFramePtr& frame_buf); // 10-bit/16-bit Bayer RGRG/GBGB
   void new_frame_cb_JXR2(const Alvium_v4l2::ConstMmapFramePtr& frame_buf); // 12-bit/16-bit Bayer RGRG/GBGB
+  void new_frame_cb_GREY(const Alvium_v4l2::ConstMmapFramePtr& frame_buf); // 8-bit Greyscale
+  void new_frame_cb_JXY0(const Alvium_v4l2::ConstMmapFramePtr& frame_buf); // 10-bit/16-bit Greyscale
   void new_frame_cb_JXY2(const Alvium_v4l2::ConstMmapFramePtr& frame_buf); // 12-bit/16-bit Greyscale
   void new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& frame_buf); // 32-bit BGRX 8-8-8-8
 
@@ -110,17 +122,12 @@ protected:
   Glib::RefPtr<Gst::Bin>        m_bin;
   Glib::RefPtr<Gst::Bus>        m_bus;
 
-  Glib::RefPtr<Gst::AppSrc>     m_src;
-  Glib::RefPtr<Gst::Caps>       m_src_caps;
+  GstElement*                   m_appsrc;
+  GstCaps*                      m_src_caps;
   Glib::RefPtr<Gst::Element>    m_videoconvert1;
   Glib::RefPtr<Gst::Element>    m_videoconvert2;
   Glib::RefPtr<Gst::Caps>       m_out_caps;
   Glib::RefPtr<Gst::CapsFilter> m_out_capsfilter;
   Glib::RefPtr<Gst::Queue>      m_in_queue;
   Glib::RefPtr<Gst::Tee>        m_out_tee;
-  Glib::RefPtr<Gst::FakeSink>   m_sink;
-  
-
-
-  // std::chrono::nanoseconds m_curr_pts;
 };

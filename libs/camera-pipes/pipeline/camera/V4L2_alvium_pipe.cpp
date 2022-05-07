@@ -301,24 +301,7 @@ bool V4L2_alvium_pipe::init(const char name[])
 
   m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
 
-  // Bayer format (8/10/12 bit)
-  // Pixel Format: 'RGGB' - V4L2_PIX_FMT_SRGGB8
-  // Name        : 8-bit Bayer RGRG/GBGB
-  // Pixel Format: 'JXR0' - v4l2_fourcc('J', 'X', 'R', '0')
-  // Name        : 10-bit/16-bit Bayer RGRG/GBGB
-  // Pixel Format: 'JXR2' - v4l2_fourcc('J', 'X', 'R', '2')
-  // Name        : 12-bit/16-bit Bayer RGRG/GBGB
-  
-  // Luma Format (8bit)
-  // Pixel Format: 'VYUY' - V4L2_PIX_FMT_VYUY
-  // Name        : VYUY 4:2:2
-
-  // Color Format (8bit)
-  // Pixel Format: 'XR24' - V4L2_PIX_FMT_XBGR32
-  // Name        : 32-bit BGRX 8-8-8-8
-
     m_cam = std::make_shared<Alvium_v4l2>();
-    // m_cam->init("cam", v4l2_fourcc('J','X','Y','0')); // 12 bit gray
     if( ! m_cam->open(m_dev_path.c_str()) )
     {
       SPDLOG_ERROR("Failed to open camera");
@@ -340,18 +323,7 @@ bool V4L2_alvium_pipe::init(const char name[])
     set_gain_auto(true);
     set_exposure_auto(0);
 
-    //source caps
-    //sometimes camera reports framerate as 16/1, sometimes 16593/1000
-    // m_src_caps = Gst::Caps::create_from_string("video/x-raw, format=BGRx, width=2464, height=2056");
-    // m_src_caps = Gst::Caps::create_simple(
-    //   "video/x-raw",
-    //   "pixel-aspect-ratio", Gst::Fraction(1, 1),
-    //   "format","BGRx",
-    //   "framerate", Gst::Fraction(16, 1),
-    //   "width",  2464,
-    //   "height", 2056
-    //   );
-
+#if 0
     switch(m_fourcc)
     {
       case v4l2_fourcc('J','X','R','0'):
@@ -425,7 +397,6 @@ bool V4L2_alvium_pipe::init(const char name[])
     }
 
     //source
-#if 1
     m_src = Gst::AppSrc::create();
     m_src->property_caps().set_value(m_src_caps);
 
@@ -454,32 +425,63 @@ bool V4L2_alvium_pipe::init(const char name[])
     //   [this](guint64 val){return handle_seek_data(val);}
     //   );
 #else
-    m_src = Gst::AppSrc::create();
-    m_src->property_caps().set_value(m_src_caps);
+  m_appsrc = gst_element_factory_make("appsrc", NULL);
+  gst_bin_add(GST_BIN(m_bin->gobj()), m_appsrc);
+
+  switch(m_fourcc)
+  {
+    case PIX_FMT_RGGB:
+    {
+      m_src_caps= gst_caps_from_string("video/x-raw, format=rggb, framerate=0/1, max-framerate=20/1, pixel-aspect-ratio=1/1, width=2464, height=2056, interlace-mode=progressive, colorimetry=sRGB");
+      break;
+    }
+    case PIX_FMT_JXR0:
+    {
+      m_src_caps= gst_caps_from_string("video/x-raw, format=GRAY16_LE, framerate=0/1, max-framerate=20/1, pixel-aspect-ratio=1/1, width=2464, height=2056, interlace-mode=progressive, colorimetry=sRGB");
+      break;
+    }
+    case PIX_FMT_JXR2:
+    {
+      m_src_caps= gst_caps_from_string("video/x-raw, format=GRAY16_LE, framerate=0/1, max-framerate=20/1, pixel-aspect-ratio=1/1, width=2464, height=2056, interlace-mode=progressive, colorimetry=sRGB");
+      break;
+    }
+    case PIX_FMT_GREY:
+    {
+      m_src_caps= gst_caps_from_string("video/x-raw, format=GRAY8, framerate=0/1, max-framerate=20/1, pixel-aspect-ratio=1/1, width=2464, height=2056, interlace-mode=progressive, colorimetry=sRGB");
+      break;
+    }
+    case PIX_FMT_JXY0:
+    {
+      m_src_caps= gst_caps_from_string("video/x-raw, format=GRAY16_LE, framerate=0/1, max-framerate=20/1, pixel-aspect-ratio=1/1, width=2464, height=2056, interlace-mode=progressive, colorimetry=sRGB");
+      break;
+    }
+    case PIX_FMT_JXY2:
+    {
+      m_src_caps= gst_caps_from_string("video/x-raw, format=GRAY16_LE, framerate=0/1, max-framerate=20/1, pixel-aspect-ratio=1/1, width=2464, height=2056, interlace-mode=progressive, colorimetry=sRGB");
+      break;
+    }
+    case PIX_FMT_XR24:
+    {
+      m_src_caps= gst_caps_from_string("video/x-raw, format=BGRx, framerate=0/1, max-framerate=20/1, pixel-aspect-ratio=1/1, width=2464, height=2056, interlace-mode=progressive, colorimetry=sRGB");
+      break;
+    }
+    default:
+    {
+      SPDLOG_ERROR("unsupported fourcc");
+      return false;
+      break;
+    }
+  }
+  assert(m_src_caps);
+  gst_app_src_set_caps(GST_APP_SRC(m_appsrc), m_src_caps);
+
 #endif
 #if 1
-    // m_videoconvert = Gst::ElementFactory::create_element("videoconvert");
-    m_videoconvert1 = Gst::ElementFactory::create_element("videoscale");
+
+    m_videoconvert1 = Gst::ElementFactory::create_element("nvvidconv");
     m_videoconvert2 = Gst::ElementFactory::create_element("nvvidconv");
 
-    // m_videorate    = Gst::ElementFactory::create_element("videorate");
-
-    // m_out_caps = Gst::Caps::create_from_string("video/x-raw, format=BGRx");
-    // m_out_caps = Gst::Caps::create_simple(
-    //   "video/x-raw",
-    //   "format","BGRx"
-    //   );
-
-      // m_out_caps = Glib::wrap(gst_caps_new_simple ("video/x-raw(memory:NVMM)",
-      //      "format", G_TYPE_STRING, "NV12",
-      //      "framerate", GST_TYPE_FRACTION, 0, 1,
-      //      "pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
-      //      "width", G_TYPE_INT, 2464,
-      //      "height", G_TYPE_INT, 2056,
-      //      NULL));
-
     m_out_caps = Glib::wrap(gst_caps_from_string("video/x-raw(memory:NVMM), width=(int)2464, height=(int)2056, format=(string)NV12"));
-
     if(! m_out_caps )
     {
       SPDLOG_ERROR("Failed to create m_out_caps");
@@ -502,9 +504,6 @@ bool V4L2_alvium_pipe::init(const char name[])
     }
 
     // m_in_queue->set_property("leaky", Gst::QUEUE_LEAK_DOWNSTREAM);
-    // m_in_queue->property_min_threshold_time()    = 0;
-    // m_in_queue->property_min_threshold_buffers() = 0;
-    // m_in_queue->property_min_threshold_bytes()   = 0;
     m_in_queue->property_max_size_buffers()      = 10;
     m_in_queue->property_max_size_bytes()        = 0;
     m_in_queue->property_max_size_time()         = 0;
@@ -517,41 +516,52 @@ bool V4L2_alvium_pipe::init(const char name[])
       return false;
     }
 #endif
-    // m_sink = Gst::FakeSink::create();
 
-    m_bin->add(m_src);
     m_bin->add(m_videoconvert1);
     m_bin->add(m_videoconvert2);
     m_bin->add(m_out_capsfilter);
     m_bin->add(m_in_queue);
     m_bin->add(m_out_tee);
-    // m_bin->add(m_sink);
 
-  m_src->link(m_videoconvert1);
+  gst_element_link(m_appsrc, m_videoconvert1->gobj());
   m_videoconvert1->link(m_videoconvert2);
   m_videoconvert2->link(m_out_capsfilter);
   m_out_capsfilter->link(m_in_queue);
   m_in_queue->link(m_out_tee);
-  // m_out_tee->link(m_sink);
 
   switch(m_fourcc)
   {
-    case v4l2_fourcc('J','X','R','0'):
+    case PIX_FMT_RGGB:
+    {
+      m_frame_worker = std::make_shared<V4L2_alvium_frame_worker>(std::bind(&V4L2_alvium_pipe::new_frame_cb_RGGB, this, std::placeholders::_1), m_cam);
+      break;
+    }
+    case PIX_FMT_JXR0:
     {
       m_frame_worker = std::make_shared<V4L2_alvium_frame_worker>(std::bind(&V4L2_alvium_pipe::new_frame_cb_JXR0, this, std::placeholders::_1), m_cam);
       break;
     }
-    case v4l2_fourcc('J','X','R','2'):
+    case PIX_FMT_JXR2:
     {
       m_frame_worker = std::make_shared<V4L2_alvium_frame_worker>(std::bind(&V4L2_alvium_pipe::new_frame_cb_JXR2, this, std::placeholders::_1), m_cam);
       break;
     }
-    case v4l2_fourcc('J','X','Y','2'):
+    case PIX_FMT_GREY:
+    {
+      m_frame_worker = std::make_shared<V4L2_alvium_frame_worker>(std::bind(&V4L2_alvium_pipe::new_frame_cb_GREY, this, std::placeholders::_1), m_cam);
+      break;
+    }
+    case PIX_FMT_JXY0:
+    {
+      m_frame_worker = std::make_shared<V4L2_alvium_frame_worker>(std::bind(&V4L2_alvium_pipe::new_frame_cb_JXY0, this, std::placeholders::_1), m_cam);
+      break;
+    }
+    case PIX_FMT_JXY2:
     {
       m_frame_worker = std::make_shared<V4L2_alvium_frame_worker>(std::bind(&V4L2_alvium_pipe::new_frame_cb_JXY2, this, std::placeholders::_1), m_cam);
       break;
     }
-    case v4l2_fourcc('X','R','2','4'):
+    case PIX_FMT_XR24:
     {
       m_frame_worker = std::make_shared<V4L2_alvium_frame_worker>(std::bind(&V4L2_alvium_pipe::new_frame_cb_XR24, this, std::placeholders::_1), m_cam);
       break;
@@ -586,6 +596,11 @@ void V4L2_alvium_pipe::handle_enough_data()
   m_gst_need_data = false;
 }
 
+void V4L2_alvium_pipe::new_frame_cb_RGGB(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
+{
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_RGGB - start");
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_RGGB - end");
+}
 void V4L2_alvium_pipe::new_frame_cb_JXR0(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
 {
   SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_JXR0 - start");
@@ -642,6 +657,16 @@ void V4L2_alvium_pipe::new_frame_cb_JXR2(const Alvium_v4l2::ConstMmapFramePtr& f
 
   SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_JXR2 - end");
 }
+void V4L2_alvium_pipe::new_frame_cb_GREY(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
+{
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_GREY - start");
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_GREY - end");
+}
+void V4L2_alvium_pipe::new_frame_cb_JXY0(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
+{
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_JXY0 - start");
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_JXY0 - end");
+}
 void V4L2_alvium_pipe::new_frame_cb_JXY2(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
 {
   SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_JXY2 - start");
@@ -694,6 +719,7 @@ void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& f
 
   //todo send to zmq?
   //todo object pool for frame memory
+  //todo port to c api, gstreamermm is broken
 
   // if(false)
   if(m_gst_need_data)
@@ -727,15 +753,15 @@ void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& f
 
     // this used to be a problem - m_gst_need_data seems to help
     // do-timestamp=TRUE but buffers are provided before reaching the PLAYING state and having a clock. Timestamps will not be accurate!
-    Gst::FlowReturn ret = m_src->push_buffer(buf);
+    // Gst::FlowReturn ret = m_src->push_buffer(buf);
 
     // Glib::RefPtr<Gst::Caps>   m_buf_caps = Gst::Caps::create_from_string("video/x-raw, format=BGRx, width=2464, height=2056");
     // Glib::RefPtr<Gst::Sample> samp = Glib::wrap(gst_sample_new(buf->gobj(), m_buf_caps->gobj(), NULL, NULL));
     // Gst::FlowReturn ret = m_src->push_sample(samp);
-    if(ret != Gst::FLOW_OK)
-    {
-      SPDLOG_ERROR("appsrc did not accept data"); 
-    }
+    // if(ret != Gst::FLOW_OK)
+    // {
+    //   SPDLOG_ERROR("appsrc did not accept data"); 
+    // }
   }
 
   {
