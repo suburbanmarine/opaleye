@@ -51,6 +51,8 @@ protected:
 
   void new_frame_cb_XR24(); // 32-bit BGRX 8-8-8-8
 
+  std::thread m_thread;
+
   std::atomic<bool> m_gst_need_data;
   std::mutex        m_frame_buffer_mutex;
   std::shared_ptr<std::vector<uint8_t>> m_frame_buffer;
