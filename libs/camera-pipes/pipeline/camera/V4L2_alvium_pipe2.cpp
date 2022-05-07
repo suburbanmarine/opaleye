@@ -115,7 +115,7 @@ bool V4L2_alvium_pipe2::init(const char name[])
     m_src->property_max_bytes()    = 0;
 
     // m_src->property_emit_signals() = false;
-    m_src->property_emit_signals() = true;
+    m_src->property_emit_signals() = false;
     m_src->property_stream_type()  = Gst::APP_STREAM_TYPE_STREAM;
     m_src->property_format()       = Gst::FORMAT_TIME;
 
@@ -165,6 +165,7 @@ bool V4L2_alvium_pipe2::init(const char name[])
   m_in_queue->link(m_vidconv);
   m_vidconv->link(m_out_tee);
 
+  m_thread = std::thread(std::bind(&V4L2_alvium_pipe2::new_frame_cb_XR24, this));
 
   return true;
 }
@@ -173,8 +174,6 @@ void V4L2_alvium_pipe2::handle_need_data(guint val)
 {
   // SPDLOG_ERROR("handle_need_data");
   m_gst_need_data = true;
-
-  new_frame_cb_XR24();
 }
 void V4L2_alvium_pipe2::handle_enough_data()
 {
@@ -184,6 +183,12 @@ void V4L2_alvium_pipe2::handle_enough_data()
 
 void V4L2_alvium_pipe2::new_frame_cb_XR24()
 {
+  while(true)
+  {
+  SPDLOG_DEBUG("V4L2_alvium_pipe2::new_frame_cb_XR24 - sleep");
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
   SPDLOG_DEBUG("V4L2_alvium_pipe2::new_frame_cb_XR24 - start");
 
   //todo put this in an object pool so we can share with zmq outgoing queue
@@ -192,7 +197,7 @@ void V4L2_alvium_pipe2::new_frame_cb_XR24()
 
   //todo object pool for frame memory
 
-  if(m_gst_need_data)
+  // if(m_gst_need_data)
   {
     SPDLOG_DEBUG("feeding gst");
     Glib::RefPtr<Gst::Buffer> buf = Gst::Buffer::create(new_frame->size());
@@ -258,4 +263,5 @@ void V4L2_alvium_pipe2::new_frame_cb_XR24()
   }
 
   SPDLOG_DEBUG("V4L2_alvium_pipe2::new_frame_cb_XR24 - end");
+  }
 }
