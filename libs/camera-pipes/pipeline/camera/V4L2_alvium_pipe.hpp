@@ -12,12 +12,13 @@
 
 #include "cameras/Alvium_v4l2.hpp"
 
-#include <gstreamermm/appsrc.h>
 #include <gstreamermm/caps.h>
 #include <gstreamermm/capsfilter.h>
 #include <gstreamermm/queue.h>
 #include <gstreamermm/tee.h>
-#include <gstreamermm/fakesink.h>
+
+#include <gst/gst.h>
+#include <gst/app/gstappsrc.h>
 
 class V4L2_alvium_pipe;
 
@@ -84,6 +85,12 @@ public:
   bool stop_streaming();
   bool set_trigger_mode(const std::string& mode);
 
+  static constexpr uint32_t PIX_FMT_JXR0 = v4l2_fourcc('J','X','R','0'); // 10-bit/16-bit Bayer RGRG/GBGB
+  static constexpr uint32_t PIX_FMT_JXR2 = v4l2_fourcc('J','X','R','2'); // 12-bit/16-bit Bayer RGRG/GBGB
+  static constexpr uint32_t PIX_FMT_JXY0 = v4l2_fourcc('J','X','Y','0'); // 10-bit/16-bit Greyscale
+  static constexpr uint32_t PIX_FMT_JXY2 = v4l2_fourcc('J','X','Y','2'); // 12-bit/16-bit Greyscale
+  static constexpr uint32_t PIX_FMT_XR24 = v4l2_fourcc('X','R','2','4'); // 32-bit BGRX 8-8-8-8
+
 protected:
   bool close();
   //avt specific things
@@ -110,17 +117,12 @@ protected:
   Glib::RefPtr<Gst::Bin>        m_bin;
   Glib::RefPtr<Gst::Bus>        m_bus;
 
-  Glib::RefPtr<Gst::AppSrc>     m_src;
-  Glib::RefPtr<Gst::Caps>       m_src_caps;
+  GstElement*                   m_appsrc;
+  GstCaps*                      m_src_caps;
   Glib::RefPtr<Gst::Element>    m_videoconvert1;
   Glib::RefPtr<Gst::Element>    m_videoconvert2;
   Glib::RefPtr<Gst::Caps>       m_out_caps;
   Glib::RefPtr<Gst::CapsFilter> m_out_capsfilter;
   Glib::RefPtr<Gst::Queue>      m_in_queue;
   Glib::RefPtr<Gst::Tee>        m_out_tee;
-  Glib::RefPtr<Gst::FakeSink>   m_sink;
-  
-
-
-  // std::chrono::nanoseconds m_curr_pts;
 };
