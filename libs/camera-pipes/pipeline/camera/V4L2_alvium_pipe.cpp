@@ -301,24 +301,7 @@ bool V4L2_alvium_pipe::init(const char name[])
 
   m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
 
-  // Bayer format (8/10/12 bit)
-  // Pixel Format: 'RGGB' - V4L2_PIX_FMT_SRGGB8
-  // Name        : 8-bit Bayer RGRG/GBGB
-  // Pixel Format: 'JXR0' - v4l2_fourcc('J', 'X', 'R', '0')
-  // Name        : 10-bit/16-bit Bayer RGRG/GBGB
-  // Pixel Format: 'JXR2' - v4l2_fourcc('J', 'X', 'R', '2')
-  // Name        : 12-bit/16-bit Bayer RGRG/GBGB
-  
-  // Luma Format (8bit)
-  // Pixel Format: 'VYUY' - V4L2_PIX_FMT_VYUY
-  // Name        : VYUY 4:2:2
-
-  // Color Format (8bit)
-  // Pixel Format: 'XR24' - V4L2_PIX_FMT_XBGR32
-  // Name        : 32-bit BGRX 8-8-8-8
-
     m_cam = std::make_shared<Alvium_v4l2>();
-    // m_cam->init("cam", v4l2_fourcc('J','X','Y','0')); // 12 bit gray
     if( ! m_cam->open(m_dev_path.c_str()) )
     {
       SPDLOG_ERROR("Failed to open camera");
@@ -447,12 +430,22 @@ bool V4L2_alvium_pipe::init(const char name[])
 
   switch(m_fourcc)
   {
+    case PIX_FMT_RGGB:
+    {
+      m_src_caps= gst_caps_from_string("video/x-raw, format=rggb, framerate=0/1, max-framerate=20/1, pixel-aspect-ratio=1/1, width=2464, height=2056, interlace-mode=progressive, colorimetry=sRGB");
+      break;
+    }
     case PIX_FMT_JXR0:
     {
       m_src_caps= gst_caps_from_string("video/x-raw, format=GRAY16_LE, framerate=0/1, max-framerate=20/1, pixel-aspect-ratio=1/1, width=2464, height=2056, interlace-mode=progressive, colorimetry=sRGB");
       break;
     }
     case PIX_FMT_JXR2:
+    {
+      m_src_caps= gst_caps_from_string("video/x-raw, format=GRAY16_LE, framerate=0/1, max-framerate=20/1, pixel-aspect-ratio=1/1, width=2464, height=2056, interlace-mode=progressive, colorimetry=sRGB");
+      break;
+    }
+    case PIX_FMT_JXY0:
     {
       m_src_caps= gst_caps_from_string("video/x-raw, format=GRAY16_LE, framerate=0/1, max-framerate=20/1, pixel-aspect-ratio=1/1, width=2464, height=2056, interlace-mode=progressive, colorimetry=sRGB");
       break;
@@ -533,6 +526,11 @@ bool V4L2_alvium_pipe::init(const char name[])
 
   switch(m_fourcc)
   {
+    case PIX_FMT_RGGB:
+    {
+      m_frame_worker = std::make_shared<V4L2_alvium_frame_worker>(std::bind(&V4L2_alvium_pipe::new_frame_cb_RGGB, this, std::placeholders::_1), m_cam);
+      break;
+    }
     case PIX_FMT_JXR0:
     {
       m_frame_worker = std::make_shared<V4L2_alvium_frame_worker>(std::bind(&V4L2_alvium_pipe::new_frame_cb_JXR0, this, std::placeholders::_1), m_cam);
@@ -541,6 +539,11 @@ bool V4L2_alvium_pipe::init(const char name[])
     case PIX_FMT_JXR2:
     {
       m_frame_worker = std::make_shared<V4L2_alvium_frame_worker>(std::bind(&V4L2_alvium_pipe::new_frame_cb_JXR2, this, std::placeholders::_1), m_cam);
+      break;
+    }
+    case PIX_FMT_JXY0:
+    {
+      m_frame_worker = std::make_shared<V4L2_alvium_frame_worker>(std::bind(&V4L2_alvium_pipe::new_frame_cb_JXY0, this, std::placeholders::_1), m_cam);
       break;
     }
     case PIX_FMT_JXY2:
@@ -583,6 +586,11 @@ void V4L2_alvium_pipe::handle_enough_data()
   m_gst_need_data = false;
 }
 
+void V4L2_alvium_pipe::new_frame_cb_RGGB(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
+{
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_RGGB - start");
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_RGGB - end");
+}
 void V4L2_alvium_pipe::new_frame_cb_JXR0(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
 {
   SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_JXR0 - start");
@@ -638,6 +646,11 @@ void V4L2_alvium_pipe::new_frame_cb_JXR2(const Alvium_v4l2::ConstMmapFramePtr& f
   }
 
   SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_JXR2 - end");
+}
+void V4L2_alvium_pipe::new_frame_cb_JXY0(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
+{
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_JXY0 - start");
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_JXY0 - end");
 }
 void V4L2_alvium_pipe::new_frame_cb_JXY2(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
 {

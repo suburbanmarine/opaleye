@@ -85,6 +85,7 @@ public:
   bool stop_streaming();
   bool set_trigger_mode(const std::string& mode);
 
+  static constexpr uint32_t PIX_FMT_RGGB = v4l2_fourcc('R','G','G','B'); // 10-bit/16-bit Bayer RGRG/GBGB
   static constexpr uint32_t PIX_FMT_JXR0 = v4l2_fourcc('J','X','R','0'); // 10-bit/16-bit Bayer RGRG/GBGB
   static constexpr uint32_t PIX_FMT_JXR2 = v4l2_fourcc('J','X','R','2'); // 12-bit/16-bit Bayer RGRG/GBGB
   static constexpr uint32_t PIX_FMT_JXY0 = v4l2_fourcc('J','X','Y','0'); // 10-bit/16-bit Greyscale
@@ -102,8 +103,10 @@ protected:
   void handle_need_data(guint val);
   void handle_enough_data();
 
+  void new_frame_cb_RGGB(const Alvium_v4l2::ConstMmapFramePtr& frame_buf); // 8-bit Bayer RGRG/GBGB
   void new_frame_cb_JXR0(const Alvium_v4l2::ConstMmapFramePtr& frame_buf); // 10-bit/16-bit Bayer RGRG/GBGB
   void new_frame_cb_JXR2(const Alvium_v4l2::ConstMmapFramePtr& frame_buf); // 12-bit/16-bit Bayer RGRG/GBGB
+  void new_frame_cb_JXY0(const Alvium_v4l2::ConstMmapFramePtr& frame_buf); // 10-bit/16-bit Greyscale
   void new_frame_cb_JXY2(const Alvium_v4l2::ConstMmapFramePtr& frame_buf); // 12-bit/16-bit Greyscale
   void new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& frame_buf); // 32-bit BGRX 8-8-8-8
 
