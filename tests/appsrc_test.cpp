@@ -52,16 +52,17 @@ int main(int argc, char* argv[])
 	assert(app.appsrc);
 	gst_bin_add(GST_BIN(app.pipe), app.appsrc);
 
-	// GstCaps* caps = gst_caps_from_string("video/x-raw, format=RGB, framerate=0/1, max-framerate=20/1, pixel-aspect-ratio=1/1, width=1920, height=1080, interlace-mode=progressive, colorimetry=sRGB");
+	// all three of these work
+	GstCaps* caps = gst_caps_from_string("video/x-raw, format=RGB, framerate=0/1, max-framerate=20/1, pixel-aspect-ratio=1/1, width=1920, height=1080, interlace-mode=progressive, colorimetry=sRGB");
 	// GstCaps* caps = gst_caps_from_string("video/x-raw,format=RGB,framerate=20/1,width=1920,height=1080,interlace-mode=progressive");
-	GstCaps* caps = gst_caps_new_simple("video/x-raw",
-		"format",         G_TYPE_STRING,     "RGB",
-		"framerate",      GST_TYPE_FRACTION,  20, 1,
-		"width",          G_TYPE_INT,         1920,
-		"height",         G_TYPE_INT,         1080,
-		"interlace-mode", G_TYPE_STRING,      "progressive",
-		NULL
-		);
+	// GstCaps* caps = gst_caps_new_simple("video/x-raw",
+	// 	"format",         G_TYPE_STRING,     "RGB",
+	// 	"framerate",      GST_TYPE_FRACTION,  20, 1,
+	// 	"width",          G_TYPE_INT,         1920,
+	// 	"height",         G_TYPE_INT,         1080,
+	// 	"interlace-mode", G_TYPE_STRING,      "progressive",
+	// 	NULL
+	// 	);
 	assert(caps);
 	gst_app_src_set_caps(GST_APP_SRC(app.appsrc), caps);
 
