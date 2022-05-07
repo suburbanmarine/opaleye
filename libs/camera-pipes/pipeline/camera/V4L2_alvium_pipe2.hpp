@@ -63,9 +63,12 @@ protected:
 
   Glib::RefPtr<Gst::AppSrc>     m_src;
   Glib::RefPtr<Gst::Caps>       m_src_caps;
+
+  Glib::RefPtr<Gst::Element>    m_test;
+  Glib::RefPtr<Gst::Element>    m_conv;
   Glib::RefPtr<Gst::Element>    m_sink;
   
-
+  int t0;
 
   // std::chrono::nanoseconds m_curr_pts;
 };
