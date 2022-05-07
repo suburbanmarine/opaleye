@@ -225,6 +225,10 @@ V4L2_alvium_pipe::V4L2_alvium_pipe() : m_gst_need_data(false)
 {
   
 }
+V4L2_alvium_pipe::~V4L2_alvium_pipe()
+{
+  close();  
+}
 
 void V4L2_alvium_pipe::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
 {
@@ -686,7 +690,7 @@ void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& f
     guint width  = frame_buf->get_fmt().fmt.pix.width;
     guint height = frame_buf->get_fmt().fmt.pix.height;
     gsize offset[1] = {0};
-    gint xstride = frame_buf->get_fmt().fmt.pix.height * 4;
+    gint xstride = frame_buf->get_fmt().fmt.pix.width * 4;
     gint stride[1] = {xstride};
     gst_buffer_add_video_meta_full(buf->gobj(), GST_VIDEO_FRAME_FLAG_NONE, GST_VIDEO_FORMAT_BGRx, width, height, 1, offset, stride);
     GST_BUFFER_FLAG_SET(buf->gobj(), GST_BUFFER_FLAG_LIVE);

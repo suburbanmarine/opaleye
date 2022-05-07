@@ -58,10 +58,7 @@ class V4L2_alvium_pipe : public GST_v4l2_api
   //friend V4L2_alvium_gst_worker;
 public:
   V4L2_alvium_pipe();
-  ~V4L2_alvium_pipe() override
-  {
-    close();
-  }
+  ~V4L2_alvium_pipe() override;
 
   void set_framebuffer_callback(const GST_camera_base::FramebufferCallback& cb) override
   {
