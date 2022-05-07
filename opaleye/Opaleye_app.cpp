@@ -326,17 +326,14 @@ bool Gstreamer_pipeline::make_alvium_pipeline()
 
   std::string trigger_mode = m_camera_config.get<std::string>("properties.trigger_mode");
 
-  std::shared_ptr<V4L2_alvium_pipe> m_camera   = std::make_shared<V4L2_alvium_pipe>();
-  m_camera->set_params(device.c_str(), v4l2_fourcc(format[0], format[1], format[2], format[3]), trigger_mode);
+  std::shared_ptr<V4L2_alvium_pipe2> m_camera   = std::make_shared<V4L2_alvium_pipe2>();
   if( ! m_camera->init(cam_name.c_str()) )
   {
     SPDLOG_ERROR("Could not init camera");
     return false;
   }
-  
 
-  SPDLOG_INFO("NV mode");
-  std::shared_ptr<GST_element_base> m_thumb  = std::make_shared<Thumbnail_nv3_pipe>();
+  std::shared_ptr<GST_element_base> m_thumb  = std::make_shared<Thumbnail_sw_pipe>();
   if( ! m_thumb->init("thumb_0") )
   {
    SPDLOG_ERROR("Could not init thumb");

@@ -243,21 +243,24 @@ bool V4L2_alvium_pipe::link_front(const Glib::RefPtr<Gst::Element>& node)
 }
 bool V4L2_alvium_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
 {
-  try
-  {
-    m_out_tee->link(node);
-    return true;
-  }
-  catch(const std::exception& e)
-  {
-    SPDLOG_ERROR("Failed to link back: {:s}", e.what());
-  }
-  catch(...)
-  {
-    SPDLOG_ERROR("Failed to link back, unknown exception"); 
-  }
+  m_out_tee->link(node);
+  return true;
 
-  return false;
+  // try
+  // {
+  //   m_out_tee->link(node);
+  //   return true;
+  // }
+  // catch(const std::exception& e)
+  // {
+  //   SPDLOG_ERROR("Failed to link back: {:s}", e.what());
+  // }
+  // catch(...)
+  // {
+  //   SPDLOG_ERROR("Failed to link back, unknown exception"); 
+  // }
+
+  // return false;
 }
 
 void V4L2_alvium_pipe::set_params(const char dev_path[], const uint32_t fourcc, const std::string& trigger_mode)
@@ -272,6 +275,8 @@ bool V4L2_alvium_pipe::close()
   {
     m_frame_worker->interrupt();
     m_frame_worker->join();
+
+    m_frame_worker.reset();
   }
 
   if(m_cam)
@@ -284,6 +289,8 @@ bool V4L2_alvium_pipe::close()
       SPDLOG_ERROR("close had error");
       return false;
     }
+
+    m_cam.reset();
   }
 
 
@@ -357,6 +364,7 @@ bool V4L2_alvium_pipe::init(const char name[])
                    "width", G_TYPE_INT, 2464,
                    "height", G_TYPE_INT, 2056,
                    "interlace-mode", G_TYPE_STRING, "progressive",
+                   "colorimetry", G_TYPE_STRING, "sRGB",
                    NULL));
         break;
       }
@@ -370,6 +378,7 @@ bool V4L2_alvium_pipe::init(const char name[])
                    "width", G_TYPE_INT, 2464,
                    "height", G_TYPE_INT, 2056,
                    "interlace-mode", G_TYPE_STRING, "progressive",
+                   "colorimetry", G_TYPE_STRING, "sRGB",
                    NULL));
         break;
       }
@@ -383,6 +392,7 @@ bool V4L2_alvium_pipe::init(const char name[])
                    "width", G_TYPE_INT, 2464,
                    "height", G_TYPE_INT, 2056,
                    "interlace-mode", G_TYPE_STRING, "progressive",
+                   "colorimetry", G_TYPE_STRING, "sRGB",
                    NULL));
         break;
       }
@@ -396,6 +406,7 @@ bool V4L2_alvium_pipe::init(const char name[])
              "width", G_TYPE_INT, 2464,
              "height", G_TYPE_INT, 2056,
              "interlace-mode", G_TYPE_STRING, "progressive",
+             "colorimetry", G_TYPE_STRING, "sRGB",
              NULL));
         break;
       }
@@ -431,7 +442,7 @@ bool V4L2_alvium_pipe::init(const char name[])
     // m_src->property_emit_signals() = false;
     m_src->property_emit_signals() = true;
     m_src->property_stream_type()  = Gst::APP_STREAM_TYPE_STREAM;
-    m_src->property_format()       = Gst::FORMAT_BYTES;
+    m_src->property_format()       = Gst::FORMAT_DEFAULT;
 
     m_src->signal_need_data().connect(
       [this](guint val){handle_need_data(val);}
@@ -448,7 +459,8 @@ bool V4L2_alvium_pipe::init(const char name[])
 #endif
 #if 1
     // m_videoconvert = Gst::ElementFactory::create_element("videoconvert");
-    m_videoconvert = Gst::ElementFactory::create_element("nvvidconv");
+    m_videoconvert1 = Gst::ElementFactory::create_element("videoscale");
+    m_videoconvert2 = Gst::ElementFactory::create_element("nvvidconv");
 
     // m_videorate    = Gst::ElementFactory::create_element("videorate");
 
@@ -493,9 +505,9 @@ bool V4L2_alvium_pipe::init(const char name[])
     // m_in_queue->property_min_threshold_time()    = 0;
     // m_in_queue->property_min_threshold_buffers() = 0;
     // m_in_queue->property_min_threshold_bytes()   = 0;
-    m_in_queue->property_max_size_buffers()      = 0;
+    m_in_queue->property_max_size_buffers()      = 10;
     m_in_queue->property_max_size_bytes()        = 0;
-    m_in_queue->property_max_size_time()         = 1 * GST_SECOND;
+    m_in_queue->property_max_size_time()         = 0;
 
     //output tee
     m_out_tee = Gst::Tee::create();
@@ -508,14 +520,16 @@ bool V4L2_alvium_pipe::init(const char name[])
     // m_sink = Gst::FakeSink::create();
 
     m_bin->add(m_src);
-    m_bin->add(m_videoconvert);
+    m_bin->add(m_videoconvert1);
+    m_bin->add(m_videoconvert2);
     m_bin->add(m_out_capsfilter);
     m_bin->add(m_in_queue);
     m_bin->add(m_out_tee);
     // m_bin->add(m_sink);
 
-  m_src->link(m_videoconvert);
-  m_videoconvert->link(m_out_capsfilter);
+  m_src->link(m_videoconvert1);
+  m_videoconvert1->link(m_videoconvert2);
+  m_videoconvert2->link(m_out_capsfilter);
   m_out_capsfilter->link(m_in_queue);
   m_in_queue->link(m_out_tee);
   // m_out_tee->link(m_sink);
@@ -706,12 +720,8 @@ void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& f
     //   SPDLOG_ERROR("buffer did not accept all data");
     // }
 
-    // std::chrono::seconds      tv_sec(frame->capture_time.tv_sec);
-    // std::chrono::microseconds tv_usec(frame->capture_time.tv_usec);
-    // std::chrono::nanoseconds  pts_nsec = tv_sec + tv_usec;
-
-    // buf->set_pts(m_curr_pts.count());
-    // buf->set_duration(GST_SECOND / 30);
+    // buf->set_pts(timeval_to_chrono(frame_buf->get_buf()->timestamp).count());
+    // buf->set_duration(GST_SECOND / 10);
 
     // m_curr_pts += std::chrono::nanoseconds(GST_SECOND / 30);
 

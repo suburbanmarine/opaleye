@@ -112,7 +112,8 @@ protected:
 
   Glib::RefPtr<Gst::AppSrc>     m_src;
   Glib::RefPtr<Gst::Caps>       m_src_caps;
-  Glib::RefPtr<Gst::Element>    m_videoconvert;
+  Glib::RefPtr<Gst::Element>    m_videoconvert1;
+  Glib::RefPtr<Gst::Element>    m_videoconvert2;
   Glib::RefPtr<Gst::Caps>       m_out_caps;
   Glib::RefPtr<Gst::CapsFilter> m_out_capsfilter;
   Glib::RefPtr<Gst::Queue>      m_in_queue;
