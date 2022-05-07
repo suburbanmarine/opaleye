@@ -348,9 +348,11 @@ bool V4L2_alvium_pipe::init(const char name[])
         m_src_caps = Glib::wrap(gst_caps_new_simple ("video/x-raw",
                    "format", G_TYPE_STRING, "GRAY16_LE",
                    "framerate", GST_TYPE_FRACTION, 0, 1,
+                   "max-framerate", GST_TYPE_FRACTION, 20, 1,
                    "pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
                    "width", G_TYPE_INT, 2464,
                    "height", G_TYPE_INT, 2056,
+                   "interlace-mode", G_TYPE_STRING, "progressive",
                    NULL));
         break;
       }
@@ -359,9 +361,11 @@ bool V4L2_alvium_pipe::init(const char name[])
         m_src_caps = Glib::wrap(gst_caps_new_simple ("video/x-raw",
                    "format", G_TYPE_STRING, "GRAY16_LE",
                    "framerate", GST_TYPE_FRACTION, 0, 1,
+                   "max-framerate", GST_TYPE_FRACTION, 20, 1,
                    "pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
                    "width", G_TYPE_INT, 2464,
                    "height", G_TYPE_INT, 2056,
+                   "interlace-mode", G_TYPE_STRING, "progressive",
                    NULL));
         break;
       }
@@ -370,9 +374,11 @@ bool V4L2_alvium_pipe::init(const char name[])
         m_src_caps = Glib::wrap(gst_caps_new_simple ("video/x-raw",
                    "format", G_TYPE_STRING, "GRAY16_LE",
                    "framerate", GST_TYPE_FRACTION, 0, 1,
+                   "max-framerate", GST_TYPE_FRACTION, 20, 1,
                    "pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
                    "width", G_TYPE_INT, 2464,
                    "height", G_TYPE_INT, 2056,
+                   "interlace-mode", G_TYPE_STRING, "progressive",
                    NULL));
         break;
       }
@@ -381,9 +387,11 @@ bool V4L2_alvium_pipe::init(const char name[])
         m_src_caps = Glib::wrap(gst_caps_new_simple ("video/x-raw",
              "format", G_TYPE_STRING, "BGRx",
              "framerate", GST_TYPE_FRACTION, 0, 1,
+             "max-framerate", GST_TYPE_FRACTION, 20, 1,
              "pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
              "width", G_TYPE_INT, 2464,
              "height", G_TYPE_INT, 2056,
+             "interlace-mode", G_TYPE_STRING, "progressive",
              NULL));
         break;
       }
