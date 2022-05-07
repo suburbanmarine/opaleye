@@ -71,6 +71,21 @@ target_include_directories(opaleye_zeromq_svr
 		${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+add_executable(appsrc_test
+	appsrc_test.cpp
+)
+
+target_link_libraries(appsrc_test
+	PUBLIC
+		${GST_LIBRARIES}
+		Threads::Threads
+)
+
+target_include_directories(appsrc_test
+	PUBLIC
+		${GST_INCLUDE_DIRS}
+)
+
 INSTALL(
 	TARGETS
 		opaleye_config_test
