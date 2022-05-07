@@ -61,9 +61,7 @@ protected:
 
   Glib::RefPtr<Gst::AppSrc>     m_src;
   Glib::RefPtr<Gst::Caps>       m_src_caps;
-  Glib::RefPtr<Gst::Element>    m_vidconv;
-  Glib::RefPtr<Gst::Queue>      m_in_queue;
-  Glib::RefPtr<Gst::Tee>        m_out_tee;
+  Glib::RefPtr<Gst::Element>    m_sink;
   
 
 

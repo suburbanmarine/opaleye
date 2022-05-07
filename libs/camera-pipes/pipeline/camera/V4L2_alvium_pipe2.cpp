@@ -52,7 +52,7 @@ bool V4L2_alvium_pipe2::link_front(const Glib::RefPtr<Gst::Element>& node)
 }
 bool V4L2_alvium_pipe2::link_back(const Glib::RefPtr<Gst::Element>& node)
 {
-  m_out_tee->link(node);
+  // m_out_tee->link(node);
   return true;
 
   // try
@@ -128,42 +128,14 @@ bool V4L2_alvium_pipe2::init(const char name[])
     // m_src->signal_seek_data().connect(
     //   [this](guint64 val){return handle_seek_data(val);}
     //   );
-
-    m_in_queue     = Gst::Queue::create();
-    if(! m_in_queue )
-    {
-      SPDLOG_ERROR("Failed to create m_in_queue");
-      return false;
-    }
-
-    // m_in_queue->set_property("leaky", Gst::QUEUE_LEAK_DOWNSTREAM);
-    // m_in_queue->property_min_threshold_time()    = 0;
-    // m_in_queue->property_min_threshold_buffers() = 0;
-    // m_in_queue->property_min_threshold_bytes()   = 0;
-    m_in_queue->property_max_size_buffers()      = 300;
-    m_in_queue->property_max_size_bytes()        = 0;
-    m_in_queue->property_max_size_time()         = 0;
-
     
-    m_vidconv = Gst::ElementFactory::create_element("videoconvert");
 
-    //output tee
-    m_out_tee = Gst::Tee::create();
-    if(! m_out_tee )
-    {
-      SPDLOG_ERROR("Failed to create m_out_tee");
-      return false;
-    }
+    m_sink = Gst::ElementFactory::create_element("autovideosink");
 
     m_bin->add(m_src);
-    m_bin->add(m_in_queue);
-    m_bin->add(m_vidconv);
-    
-    m_bin->add(m_out_tee);
+    m_bin->add(m_sink);
 
-  m_src->link(m_in_queue);
-  m_in_queue->link(m_vidconv);
-  m_vidconv->link(m_out_tee);
+  m_src->link(m_sink);
 
 
   return true;
