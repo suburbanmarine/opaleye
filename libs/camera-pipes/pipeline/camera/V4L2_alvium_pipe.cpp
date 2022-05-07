@@ -445,6 +445,11 @@ bool V4L2_alvium_pipe::init(const char name[])
       m_src_caps= gst_caps_from_string("video/x-raw, format=GRAY16_LE, framerate=0/1, max-framerate=20/1, pixel-aspect-ratio=1/1, width=2464, height=2056, interlace-mode=progressive, colorimetry=sRGB");
       break;
     }
+    case PIX_FMT_GREY:
+    {
+      m_src_caps= gst_caps_from_string("video/x-raw, format=GRAY8, framerate=0/1, max-framerate=20/1, pixel-aspect-ratio=1/1, width=2464, height=2056, interlace-mode=progressive, colorimetry=sRGB");
+      break;
+    }
     case PIX_FMT_JXY0:
     {
       m_src_caps= gst_caps_from_string("video/x-raw, format=GRAY16_LE, framerate=0/1, max-framerate=20/1, pixel-aspect-ratio=1/1, width=2464, height=2056, interlace-mode=progressive, colorimetry=sRGB");
@@ -539,6 +544,11 @@ bool V4L2_alvium_pipe::init(const char name[])
     case PIX_FMT_JXR2:
     {
       m_frame_worker = std::make_shared<V4L2_alvium_frame_worker>(std::bind(&V4L2_alvium_pipe::new_frame_cb_JXR2, this, std::placeholders::_1), m_cam);
+      break;
+    }
+    case PIX_FMT_GREY:
+    {
+      m_frame_worker = std::make_shared<V4L2_alvium_frame_worker>(std::bind(&V4L2_alvium_pipe::new_frame_cb_GREY, this, std::placeholders::_1), m_cam);
       break;
     }
     case PIX_FMT_JXY0:
@@ -646,6 +656,11 @@ void V4L2_alvium_pipe::new_frame_cb_JXR2(const Alvium_v4l2::ConstMmapFramePtr& f
   }
 
   SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_JXR2 - end");
+}
+void V4L2_alvium_pipe::new_frame_cb_GREY(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
+{
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_GREY - start");
+  SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_GREY - end");
 }
 void V4L2_alvium_pipe::new_frame_cb_JXY0(const Alvium_v4l2::ConstMmapFramePtr& frame_buf)
 {
