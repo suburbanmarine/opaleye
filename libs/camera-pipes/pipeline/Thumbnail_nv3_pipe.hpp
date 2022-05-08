@@ -56,7 +56,6 @@ protected:
   Glib::RefPtr<Gst::Queue>      m_in_queue;
   
   Glib::RefPtr<Gst::Element>    m_videorate;
-  Glib::RefPtr<Gst::Element>    m_videoscale;
   Glib::RefPtr<Gst::Element>    m_videoconv;
 
   Glib::RefPtr<Gst::Queue>      m_scale_queue;

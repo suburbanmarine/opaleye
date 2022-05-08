@@ -39,30 +39,20 @@ bool Thumbnail_nv3_pipe::init(const char name[])
 
     //queue
     m_in_queue = Gst::Queue::create();
-    // m_in_queue->set_property("leaky", Gst::QUEUE_LEAK_DOWNSTREAM);
-    // m_in_queue->property_min_threshold_time()    = 0;
-    // m_in_queue->property_min_threshold_buffers() = 0;
-    // m_in_queue->property_min_threshold_bytes()   = 0;
-    m_in_queue->property_max_size_buffers()      = 3;
+    m_in_queue->set_property("leaky", Gst::QUEUE_LEAK_DOWNSTREAM);
+    m_in_queue->property_max_size_buffers()      = 2;
     m_in_queue->property_max_size_bytes()        = 0;
     m_in_queue->property_max_size_time()         = 0;
-    // m_in_queue->property_max_size_time()         = 1000 * GST_MSECOND;
 
     m_videorate  = Gst::ElementFactory::create_element("videorate");
 
-    m_videoscale = Gst::ElementFactory::create_element("nvvidconv");
     m_videoconv = Gst::ElementFactory::create_element("nvvidconv");
 
     m_scale_queue = Gst::Queue::create();
-    // m_scale_queue->set_property("leaky", Gst::QUEUE_LEAK_DOWNSTREAM);
-    // m_scale_queue->property_min_threshold_time()    = 0;
-    // m_scale_queue->property_min_threshold_buffers() = 0;
-    // m_scale_queue->property_min_threshold_bytes()   = 0;
-    m_scale_queue->property_max_size_buffers()      = 3;
+    m_scale_queue->set_property("leaky", Gst::QUEUE_LEAK_DOWNSTREAM);
+    m_scale_queue->property_max_size_buffers()      = 2;
     m_scale_queue->property_max_size_bytes()        = 0;
     m_scale_queue->property_max_size_time()         = 0;
-    // m_scale_queue->property_max_size_time()         = 1000 * GST_MSECOND;
-
 
     m_jpegenc    = Gst::ElementFactory::create_element("nvjpegenc");
     // m_jpegenc->set_property("idct-method",  GST::ifast);
@@ -73,8 +63,8 @@ bool Thumbnail_nv3_pipe::init(const char name[])
       "image/jpeg",
       "pixel-aspect-ratio", Gst::Fraction(1, 1),
       "framerate",          Gst::Fraction(1, 1),
-      "width",              640,
-      "height",             360
+      "width",              640
+      // "height",             360
       );
 
     m_out_capsfilter = Gst::CapsFilter::create("outcaps");
@@ -83,8 +73,8 @@ bool Thumbnail_nv3_pipe::init(const char name[])
     m_appsink_caps = Gst::Caps::create_simple(
       "image/jpeg",
       "pixel-aspect-ratio", Gst::Fraction(1, 1),
-      "width",              640,
-      "height",             360
+      "width",              640
+      // "height",             360
       );
 
     m_appsink = Gst::AppSink::create();
@@ -104,7 +94,6 @@ bool Thumbnail_nv3_pipe::init(const char name[])
 
     m_bin->add(m_in_queue);
     m_bin->add(m_videorate);
-    m_bin->add(m_videoscale);
     m_bin->add(m_videoconv);
     m_bin->add(m_scale_queue);
     m_bin->add(m_jpegenc);
@@ -113,8 +102,7 @@ bool Thumbnail_nv3_pipe::init(const char name[])
   }
 
   m_in_queue->link(m_videorate);
-  m_videorate->link(m_videoscale);
-  m_videoscale->link(m_videoconv);
+  m_videorate->link(m_videoconv);
   m_videoconv->link(m_scale_queue);
   m_scale_queue->link(m_jpegenc);
   m_jpegenc->link(m_out_capsfilter);

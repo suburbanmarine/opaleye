@@ -223,7 +223,7 @@ void V4L2_alvium_gst_worker::work()
 */
 V4L2_alvium_pipe::V4L2_alvium_pipe() : m_gst_need_data(false)
 {
-  
+  m_curr_pts = std::chrono::nanoseconds::zero();
 }
 V4L2_alvium_pipe::~V4L2_alvium_pipe()
 {
@@ -243,24 +243,22 @@ bool V4L2_alvium_pipe::link_front(const Glib::RefPtr<Gst::Element>& node)
 }
 bool V4L2_alvium_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
 {
-  m_out_tee->link(node);
+  try
+  {
+    m_out_tee->link(node);
+  }
+  catch(const std::exception& e)
+  {
+    SPDLOG_ERROR("Failed to link back: {:s}", e.what());
+    return false;
+  }
+  catch(...)
+  {
+    SPDLOG_ERROR("Failed to link back, unknown exception"); 
+    return false;
+  }
+
   return true;
-
-  // try
-  // {
-  //   m_out_tee->link(node);
-  //   return true;
-  // }
-  // catch(const std::exception& e)
-  // {
-  //   SPDLOG_ERROR("Failed to link back: {:s}", e.what());
-  // }
-  // catch(...)
-  // {
-  //   SPDLOG_ERROR("Failed to link back, unknown exception"); 
-  // }
-
-  // return false;
 }
 
 void V4L2_alvium_pipe::set_params(const char dev_path[], const uint32_t fourcc, const std::string& trigger_mode)
@@ -426,7 +424,17 @@ bool V4L2_alvium_pipe::init(const char name[])
     //   );
 #else
   m_appsrc = gst_element_factory_make("appsrc", NULL);
-  gst_bin_add(GST_BIN(m_bin->gobj()), m_appsrc);
+  g_object_set(m_appsrc, "is_live",      TRUE, NULL);
+  g_object_set(m_appsrc, "do_timestamp", TRUE, NULL);
+  g_object_set(m_appsrc, "block",        FALSE, NULL);
+  g_object_set(m_appsrc, "min_latency",  0, NULL);
+  g_object_set(m_appsrc, "max_latency",  1*GST_SECOND / 2, NULL);
+  g_object_set(m_appsrc, "num_buffers",  10, NULL);
+  g_object_set(m_appsrc, "max_bytes",    2464ULL*2056ULL*4ULL*10ULL, NULL);
+  g_object_set(m_appsrc, "emit_signals", FALSE, NULL);
+  g_object_set(m_appsrc, "stream_type",  GST_APP_STREAM_TYPE_STREAM, NULL);
+  g_object_set(m_appsrc, "format",       GST_FORMAT_TIME, NULL);
+  // g_object_set(m_appsrc, "format",       GST_FORMAT_DEFAULT, NULL);
 
   switch(m_fourcc)
   {
@@ -476,11 +484,10 @@ bool V4L2_alvium_pipe::init(const char name[])
   gst_app_src_set_caps(GST_APP_SRC(m_appsrc), m_src_caps);
 
 #endif
-#if 1
 
-    m_videoconvert1 = Gst::ElementFactory::create_element("nvvidconv");
-    m_videoconvert2 = Gst::ElementFactory::create_element("nvvidconv");
+    m_videoconvert = Gst::ElementFactory::create_element("nvvidconv");
 
+    // m_out_caps = Glib::wrap(gst_caps_from_string("video/x-raw, width=(int)2464, height=(int)2056, format=(string)NV12"));
     m_out_caps = Glib::wrap(gst_caps_from_string("video/x-raw(memory:NVMM), width=(int)2464, height=(int)2056, format=(string)NV12"));
     if(! m_out_caps )
     {
@@ -515,17 +522,15 @@ bool V4L2_alvium_pipe::init(const char name[])
       SPDLOG_ERROR("Failed to create m_out_tee");
       return false;
     }
-#endif
 
-    m_bin->add(m_videoconvert1);
-    m_bin->add(m_videoconvert2);
+    gst_bin_add(GST_BIN(m_bin->gobj()), m_appsrc);
+    m_bin->add(m_videoconvert);
     m_bin->add(m_out_capsfilter);
     m_bin->add(m_in_queue);
     m_bin->add(m_out_tee);
 
-  gst_element_link(m_appsrc, m_videoconvert1->gobj());
-  m_videoconvert1->link(m_videoconvert2);
-  m_videoconvert2->link(m_out_capsfilter);
+  gst_element_link(m_appsrc, m_videoconvert->gobj());
+  m_videoconvert->link(m_out_capsfilter);
   m_out_capsfilter->link(m_in_queue);
   m_in_queue->link(m_out_tee);
 
@@ -722,38 +727,31 @@ void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& f
   //todo port to c api, gstreamermm is broken
 
   // if(false)
-  if(m_gst_need_data)
+  // if(m_gst_need_data)
   {
-    SPDLOG_TRACE("feeding gst");
-    Glib::RefPtr<Gst::Buffer> buf = Gst::Buffer::create(frame_buf->get_bytes_used());
+    SPDLOG_DEBUG("feeding gst");
+
+    GstBuffer* buf = gst_buffer_new_and_alloc(frame_buf->get_bytes_used());
+    GstMapInfo buf_map;
+    gst_buffer_map (buf, &buf_map, GST_MAP_WRITE);
+
+    std::copy_n((uint8_t*)frame_buf->get_data(), frame_buf->get_bytes_used(), (uint8_t*)buf_map.data);
 
     guint width  = frame_buf->get_fmt().fmt.pix.width;
     guint height = frame_buf->get_fmt().fmt.pix.height;
     gsize offset[1] = {0};
     gint xstride = frame_buf->get_fmt().fmt.pix.width * 4;
     gint stride[1] = {xstride};
-    gst_buffer_add_video_meta_full(buf->gobj(), GST_VIDEO_FRAME_FLAG_NONE, GST_VIDEO_FORMAT_BGRx, width, height, 1, offset, stride);
-    GST_BUFFER_FLAG_SET(buf->gobj(), GST_BUFFER_FLAG_LIVE);
+    gst_buffer_add_video_meta_full(buf, GST_VIDEO_FRAME_FLAG_NONE, GST_VIDEO_FORMAT_BGRx, width, height, 1, offset, stride);
+    GST_BUFFER_FLAG_SET(buf, GST_BUFFER_FLAG_LIVE);
+    
+    GST_BUFFER_PTS(buf)      = m_curr_pts.count();
+    GST_BUFFER_DURATION(buf) = GST_SECOND / 10L;
+    m_curr_pts += std::chrono::nanoseconds(GST_SECOND / 10L);
+    
+    gst_buffer_unmap (buf, &buf_map);
 
-    Gst::MapInfo buf_map;
-    buf->map(buf_map, Gst::MAP_WRITE);
-    std::copy_n((uint8_t*)frame_buf->get_data(), frame_buf->get_bytes_used(), (uint8_t*)buf_map.get_data());
-    buf->unmap(buf_map);
-
-    // gsize ins_len = buf->fill(0, frame_buf->get_data(), frame_buf->get_bytes_used());
-    // if(ins_len != frame_buf->get_bytes_used())
-    // {
-    //   SPDLOG_ERROR("buffer did not accept all data");
-    // }
-
-    // buf->set_pts(timeval_to_chrono(frame_buf->get_buf()->timestamp).count());
-    // buf->set_duration(GST_SECOND / 10);
-
-    // m_curr_pts += std::chrono::nanoseconds(GST_SECOND / 30);
-
-    // this used to be a problem - m_gst_need_data seems to help
-    // do-timestamp=TRUE but buffers are provided before reaching the PLAYING state and having a clock. Timestamps will not be accurate!
-    // Gst::FlowReturn ret = m_src->push_buffer(buf);
+    gst_app_src_push_buffer(GST_APP_SRC(m_appsrc), buf);
 
     // Glib::RefPtr<Gst::Caps>   m_buf_caps = Gst::Caps::create_from_string("video/x-raw, format=BGRx, width=2464, height=2056");
     // Glib::RefPtr<Gst::Sample> samp = Glib::wrap(gst_sample_new(buf->gobj(), m_buf_caps->gobj(), NULL, NULL));

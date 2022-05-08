@@ -118,14 +118,14 @@ protected:
   std::mutex        m_frame_buffer_mutex;
   std::shared_ptr<std::vector<uint8_t>> m_frame_buffer;
   FramebufferCallback m_buffer_dispatch_cb;
+  std::chrono::nanoseconds m_curr_pts;
 
   Glib::RefPtr<Gst::Bin>        m_bin;
   Glib::RefPtr<Gst::Bus>        m_bus;
 
   GstElement*                   m_appsrc;
   GstCaps*                      m_src_caps;
-  Glib::RefPtr<Gst::Element>    m_videoconvert1;
-  Glib::RefPtr<Gst::Element>    m_videoconvert2;
+  Glib::RefPtr<Gst::Element>    m_videoconvert;
   Glib::RefPtr<Gst::Caps>       m_out_caps;
   Glib::RefPtr<Gst::CapsFilter> m_out_capsfilter;
   Glib::RefPtr<Gst::Queue>      m_in_queue;

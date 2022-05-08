@@ -326,71 +326,76 @@ bool Gstreamer_pipeline::make_alvium_pipeline()
 
   std::string trigger_mode = m_camera_config.get<std::string>("properties.trigger_mode");
 
-  std::shared_ptr<V4L2_alvium_pipe2> m_camera   = std::make_shared<V4L2_alvium_pipe2>();
+  std::shared_ptr<V4L2_alvium_pipe> m_camera   = std::make_shared<V4L2_alvium_pipe>();
+  m_camera->set_params(device.c_str(), v4l2_fourcc(format[0], format[1], format[2], format[3]), trigger_mode);
   if( ! m_camera->init(cam_name.c_str()) )
   {
     SPDLOG_ERROR("Could not init camera");
     return false;
   }
 
-  std::shared_ptr<GST_element_base> m_thumb  = std::make_shared<Thumbnail_sw_pipe>();
+  std::shared_ptr<GST_element_base> m_thumb  = std::make_shared<Thumbnail_nv3_pipe>();
   if( ! m_thumb->init("thumb_0") )
   {
    SPDLOG_ERROR("Could not init thumb");
    return false;
   }
 
-  // std::shared_ptr<GST_element_base> m_h264   = std::make_shared<h264_nvenc_bin>();
-  // if( ! m_h264->init("h264_0") )
-  // {
-  //  SPDLOG_ERROR("Could not init h264");
-  //  return false;
-  // }
+  std::shared_ptr<GST_element_base> m_h264   = std::make_shared<h264_nvenc_bin>();
+  if( ! m_h264->init("h264_0") )
+  {
+   SPDLOG_ERROR("Could not init h264");
+   return false;
+  }
 
-  // std::shared_ptr<GST_element_base> m_h264_interpipesink = std::make_shared<GST_interpipesink>();
-  // if( ! m_h264_interpipesink->init("h264_ipsink_0") )
-  // {
-  //  SPDLOG_ERROR("Could not init h264 interpipe");
-  //  return false;
-  // }
+  std::shared_ptr<GST_element_base> m_h264_interpipesink = std::make_shared<GST_interpipesink>();
+  if( ! m_h264_interpipesink->init("h264_ipsink_0") )
+  {
+   SPDLOG_ERROR("Could not init h264 interpipe");
+   return false;
+  }
   
-  // std::shared_ptr<GST_element_base> m_rtppay = std::make_shared<rtp_h264_pipe>();
-  // if( ! m_rtppay->init("rtp_0") )
-  // {
-  //  SPDLOG_ERROR("Could not init m_rtp");
-  //  return false;
-  // }
+  std::shared_ptr<GST_element_base> m_rtppay = std::make_shared<rtp_h264_pipe>();
+  if( ! m_rtppay->init("rtp_0") )
+  {
+   SPDLOG_ERROR("Could not init m_rtp");
+   return false;
+  }
   
-  // std::shared_ptr<GST_element_base> m_rtpsink = std::make_shared<rtpsink_pipe>();
-  // if( ! m_rtpsink->init("udp_0") )
-  // {
-  //  SPDLOG_ERROR("Could not init m_udp");
-  //  return false;
-  // }
+  std::shared_ptr<GST_element_base> m_rtpsink = std::make_shared<rtpsink_pipe>();
+  if( ! m_rtpsink->init("udp_0") )
+  {
+   SPDLOG_ERROR("Could not init m_udp");
+   return false;
+  }
 
   //add elements to top level bin
   m_camera->add_to_bin(m_pipeline);
   m_thumb->add_to_bin(m_pipeline);
-  // m_h264->add_to_bin(m_pipeline);
-  // m_h264_interpipesink->add_to_bin(m_pipeline);
-  // m_rtppay->add_to_bin(m_pipeline);
-  // m_rtpsink->add_to_bin(m_pipeline);
+  m_h264->add_to_bin(m_pipeline);
+  m_h264_interpipesink->add_to_bin(m_pipeline);
+  m_rtppay->add_to_bin(m_pipeline);
+  m_rtpsink->add_to_bin(m_pipeline);
 
   // //link pipeline
-  m_camera->link_back(m_thumb->front());
-  // m_camera->link_back(m_h264->front());
+  if( ! m_camera->link_back(m_thumb->front()) )
+  {
+    SPDLOG_ERROR("Link failure");
+    return false;
+  }
+  m_camera->link_back(m_h264->front());
 
-  // m_h264->link_back(m_rtppay->front());
-  // m_h264->link_back(m_h264_interpipesink->front());
+  m_h264->link_back(m_rtppay->front());
+  m_h264->link_back(m_h264_interpipesink->front());
 
-  // m_rtppay->link_back(m_rtpsink->front());
+  m_rtppay->link_back(m_rtpsink->front());
 
   m_element_storage.emplace(cam_name, m_camera);
   m_element_storage.emplace("thumb_0", m_thumb);
-  // m_element_storage.emplace("h264_0", m_h264);
-  // m_element_storage.emplace("h264_ipsink_0", m_h264_interpipesink);
-  // m_element_storage.emplace("rtp_0", m_rtppay);
-  // m_element_storage.emplace("udp_0", m_rtpsink);
+  m_element_storage.emplace("h264_0", m_h264);
+  m_element_storage.emplace("h264_ipsink_0", m_h264_interpipesink);
+  m_element_storage.emplace("rtp_0", m_rtppay);
+  m_element_storage.emplace("udp_0", m_rtpsink);
 
   return true;
 }
@@ -743,7 +748,7 @@ bool Opaleye_app::start_rtp_stream(const std::string& ip_addr, int port)
     throw std::domain_error("port must be in [0, 65535]");
   }
 
-  std::shared_ptr<rtpsink_pipe> m_rtpsink = m_pipelines["cam0"]->get_element<rtpsink_pipe>("udp_0");
+  std::shared_ptr<rtpsink_pipe> m_rtpsink = m_pipelines["pipe0"]->get_element<rtpsink_pipe>("udp_0");
   if( ! m_rtpsink )
   {
     throw jsonrpc::Fault("Could not downcast element", jsonrpc::Fault::INTERNAL_ERROR);
@@ -760,7 +765,7 @@ bool Opaleye_app::stop_rtp_stream(const std::string& ip_addr, int port)
     throw std::domain_error("port must be in [0, 65535]");
   }
 
-  std::shared_ptr<rtpsink_pipe> m_rtpsink = m_pipelines["cam0"]->get_element<rtpsink_pipe>("udp_0");
+  std::shared_ptr<rtpsink_pipe> m_rtpsink = m_pipelines["pipe0"]->get_element<rtpsink_pipe>("udp_0");
   if( ! m_rtpsink )
   {
     throw jsonrpc::Fault("Could not downcast element", jsonrpc::Fault::INTERNAL_ERROR);
@@ -804,7 +809,7 @@ bool Opaleye_app::stop()
 std::string Opaleye_app::get_pipeline_status()
 {
   SPDLOG_INFO("Opaleye_app::get_pipeline_status");
-  Glib::RefPtr<Gst::Bin> bin = m_pipelines["cam0"]->get_pipeline();
+  Glib::RefPtr<Gst::Bin> bin = m_pipelines["pipe0"]->get_pipeline();
   Gst::State state;
   Gst::State pending_state;
   Gst::StateChangeReturn ret = bin->get_state(state, pending_state, 0);
