@@ -423,16 +423,17 @@ bool V4L2_alvium_pipe::init(const char name[])
     //   [this](guint64 val){return handle_seek_data(val);}
     //   );
 #else
+    //https://lists.freedesktop.org/archives/gstreamer-devel/2016-February/056621.html
   m_appsrc = gst_element_factory_make("appsrc", NULL);
-  g_object_set(m_appsrc, "is_live",      TRUE, NULL);
-  g_object_set(m_appsrc, "do_timestamp", TRUE, NULL);
+  g_object_set(m_appsrc, "is-live",      TRUE, NULL);
+  g_object_set(m_appsrc, "do-timestamp", TRUE, NULL);
   g_object_set(m_appsrc, "block",        FALSE, NULL);
-  g_object_set(m_appsrc, "min_latency",  0, NULL);
-  g_object_set(m_appsrc, "max_latency",  1*GST_SECOND / 2, NULL);
-  g_object_set(m_appsrc, "num_buffers",  10, NULL);
-  g_object_set(m_appsrc, "max_bytes",    2464ULL*2056ULL*4ULL*10ULL, NULL);
-  g_object_set(m_appsrc, "emit_signals", FALSE, NULL);
-  g_object_set(m_appsrc, "stream_type",  GST_APP_STREAM_TYPE_STREAM, NULL);
+  g_object_set(m_appsrc, "min-latency",  GST_SECOND / 20L, NULL);
+  // g_object_set(m_appsrc, "max-latency",  GST_SECOND / 2L, NULL);
+  g_object_set(m_appsrc, "num-buffers",  10, NULL);
+  g_object_set(m_appsrc, "max-bytes",    2464ULL*2056ULL*4ULL*10ULL, NULL);
+  g_object_set(m_appsrc, "emit-signals", FALSE, NULL);
+  g_object_set(m_appsrc, "stream-type",  GST_APP_STREAM_TYPE_STREAM, NULL);
   g_object_set(m_appsrc, "format",       GST_FORMAT_TIME, NULL);
   // g_object_set(m_appsrc, "format",       GST_FORMAT_DEFAULT, NULL);
 
