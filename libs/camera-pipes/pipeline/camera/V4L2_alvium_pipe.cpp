@@ -435,7 +435,7 @@ bool V4L2_alvium_pipe::init(const char name[])
   g_object_set(m_appsrc, "emit-signals", FALSE, NULL);
   g_object_set(m_appsrc, "stream-type",  GST_APP_STREAM_TYPE_STREAM, NULL);
   g_object_set(m_appsrc, "format",       GST_FORMAT_TIME, NULL);
-  // g_object_set(m_appsrc, "format",       GST_FORMAT_DEFAULT, NULL);
+  // g_object_set(m_appsrc, "leaky-type",   GST_APP_LEAKY_TYPE_DOWNSTREAM, NULL); // DNE on xnx
 
   switch(m_fourcc)
   {
@@ -486,10 +486,29 @@ bool V4L2_alvium_pipe::init(const char name[])
 
 #endif
 
+    m_in_queue     = Gst::Queue::create();
+    if(! m_in_queue )
+    {
+      SPDLOG_ERROR("Failed to create m_in_queue");
+      return false;
+    }
+
+    m_in_queue->set_property("leaky", Gst::QUEUE_LEAK_DOWNSTREAM);
+    m_in_queue->property_max_size_buffers()      = 15;
+    m_in_queue->property_max_size_bytes()        = 0;
+    m_in_queue->property_max_size_time()         = 0;
+
+    m_videoscale = Gst::ElementFactory::create_element("videoscale");
+    m_videoscale->set_property("add-borders", true);
+
+    m_scale_caps = Glib::wrap(gst_caps_from_string("video/x-raw, width=(int)1920, height=(int)1080, format=(string)BGRx, pixel-aspect-ratio=1/1"));
+    m_scale_capsfilter = Gst::CapsFilter::create("scalecaps");
+    m_scale_capsfilter->property_caps().set_value(m_scale_caps);
+
     m_videoconvert = Gst::ElementFactory::create_element("nvvidconv");
 
     // m_out_caps = Glib::wrap(gst_caps_from_string("video/x-raw, width=(int)2464, height=(int)2056, format=(string)NV12"));
-    m_out_caps = Glib::wrap(gst_caps_from_string("video/x-raw(memory:NVMM), width=(int)2464, height=(int)2056, format=(string)NV12"));
+    m_out_caps = Glib::wrap(gst_caps_from_string("video/x-raw(memory:NVMM), width=(int)1920, height=(int)1080, format=(string)NV12"));
     if(! m_out_caps )
     {
       SPDLOG_ERROR("Failed to create m_out_caps");
@@ -504,17 +523,17 @@ bool V4L2_alvium_pipe::init(const char name[])
     }
     m_out_capsfilter->property_caps().set_value(m_out_caps);
 
-    m_in_queue     = Gst::Queue::create();
-    if(! m_in_queue )
+    m_out_queue     = Gst::Queue::create();
+    if(! m_out_queue )
     {
-      SPDLOG_ERROR("Failed to create m_in_queue");
+      SPDLOG_ERROR("Failed to create m_out_queue");
       return false;
     }
 
-    // m_in_queue->set_property("leaky", Gst::QUEUE_LEAK_DOWNSTREAM);
-    m_in_queue->property_max_size_buffers()      = 10;
-    m_in_queue->property_max_size_bytes()        = 0;
-    m_in_queue->property_max_size_time()         = 0;
+    m_out_queue->set_property("leaky", Gst::QUEUE_LEAK_DOWNSTREAM);
+    m_out_queue->property_max_size_buffers()      = 15;
+    m_out_queue->property_max_size_bytes()        = 0;
+    m_out_queue->property_max_size_time()         = 0;
 
     //output tee
     m_out_tee = Gst::Tee::create();
@@ -525,15 +544,22 @@ bool V4L2_alvium_pipe::init(const char name[])
     }
 
     gst_bin_add(GST_BIN(m_bin->gobj()), m_appsrc);
+    m_bin->add(m_in_queue);
+    m_bin->add(m_videoscale);
+    m_bin->add(m_scale_capsfilter);
     m_bin->add(m_videoconvert);
     m_bin->add(m_out_capsfilter);
-    m_bin->add(m_in_queue);
+    m_bin->add(m_out_queue);
     m_bin->add(m_out_tee);
 
-  gst_element_link(m_appsrc, m_videoconvert->gobj());
+  Glib::RefPtr<Gst::Element> m_in_queue_element = m_in_queue;
+  gst_element_link(m_appsrc, m_in_queue_element->gobj());
+  m_in_queue->link(m_videoscale);
+  m_videoscale->link(m_scale_capsfilter);
+  m_scale_capsfilter->link(m_videoconvert);
   m_videoconvert->link(m_out_capsfilter);
-  m_out_capsfilter->link(m_in_queue);
-  m_in_queue->link(m_out_tee);
+  m_out_capsfilter->link(m_out_queue);
+  m_out_queue->link(m_out_tee);
 
   switch(m_fourcc)
   {
@@ -734,7 +760,7 @@ void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& f
 
     GstBuffer* buf = gst_buffer_new_and_alloc(frame_buf->get_bytes_used());
     GstMapInfo buf_map;
-    gst_buffer_map (buf, &buf_map, GST_MAP_WRITE);
+    gst_buffer_map(buf, &buf_map, GST_MAP_WRITE);
 
     std::copy_n((uint8_t*)frame_buf->get_data(), frame_buf->get_bytes_used(), (uint8_t*)buf_map.data);
 
@@ -744,11 +770,11 @@ void V4L2_alvium_pipe::new_frame_cb_XR24(const Alvium_v4l2::ConstMmapFramePtr& f
     gint xstride = frame_buf->get_fmt().fmt.pix.width * 4;
     gint stride[1] = {xstride};
     gst_buffer_add_video_meta_full(buf, GST_VIDEO_FRAME_FLAG_NONE, GST_VIDEO_FORMAT_BGRx, width, height, 1, offset, stride);
-    GST_BUFFER_FLAG_SET(buf, GST_BUFFER_FLAG_LIVE);
     
-    GST_BUFFER_PTS(buf)      = m_curr_pts.count();
-    GST_BUFFER_DURATION(buf) = GST_SECOND / 10L;
-    m_curr_pts += std::chrono::nanoseconds(GST_SECOND / 10L);
+    // GST_BUFFER_FLAG_SET(buf, GST_BUFFER_FLAG_LIVE);
+    // GST_BUFFER_PTS(buf)      = m_curr_pts.count();
+    // GST_BUFFER_DURATION(buf) = GST_SECOND / 10L;
+    // m_curr_pts += std::chrono::nanoseconds(GST_SECOND / 10L);
     
     gst_buffer_unmap (buf, &buf_map);
 
