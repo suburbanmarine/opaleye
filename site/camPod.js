@@ -64,11 +64,11 @@ function btnStillStopClick(event) {
 
 function btnVideoStartClick(event) {
     console.log( "btnVideoStartClick" );
-    camPod.jrpc.call('start_video_capture', ['cam0']);
+    camPod.jrpc.call('start_video_capture', ['pipe0']);
 }
 function btnVideoStopClick(event) {
     console.log( "btnVideoStopClick" );
-    camPod.jrpc.call('stop_video_capture', ['cam0']);
+    camPod.jrpc.call('stop_video_capture', ['pipe0']);
 }
 
 function btnRTPStreamStartClick(event) {
@@ -78,7 +78,7 @@ function btnRTPStreamStartClick(event) {
 
     saveConfigToCookie();
 
-    camPod.jrpc.call('start_rtp_stream', [client_ip, 5000]);
+    camPod.jrpc.call('start_rtp_stream', ['pipe0', client_ip, 5000]);
 }
 function btnRTPStreamStopClick(event) {
     console.log( "btnRTPStreamStopClick" );
@@ -88,7 +88,7 @@ function btnRTPStreamStopClick(event) {
 
     let client_ip = $('#client_ip').val();
 
-    camPod.jrpc.call('stop_rtp_stream', [client_ip, 5000]);
+    camPod.jrpc.call('stop_rtp_stream', ['pipe0', client_ip, 5000]);
 }
 function btnGetPipelineStatus(event) {
     console.log( "btnGetPipelineStatus" );
