@@ -86,10 +86,27 @@ target_include_directories(appsrc_test
 		${GST_INCLUDE_DIRS}
 )
 
+add_executable(appsrc_avt_h264_test
+	appsrc_avt_h264_test.cpp
+)
+
+target_link_libraries(appsrc_avt_h264_test
+	PUBLIC
+		${GST_LIBRARIES}
+		Threads::Threads
+)
+
+target_include_directories(appsrc_avt_h264_test
+	PUBLIC
+		${GST_INCLUDE_DIRS}
+)
+
 INSTALL(
 	TARGETS
-		opaleye_config_test
 		alvium_test
+		appsrc_avt_h264_test
+		appsrc_test
+		opaleye_config_test
 	DESTINATION
 		bin
 )
