@@ -16,6 +16,9 @@ public:
 	    g_object_set(queue, "max-size-bytes",   0,  NULL);
 	    g_object_set(queue, "max-size-time",    0,  NULL);
 
+		videoconvert = gst_element_factory_make("videoconvert", NULL);
+		assert(videoconvert);
+
 		h264enc = gst_element_factory_make("x264enc", NULL);
 		assert(h264enc);
 
@@ -38,12 +41,13 @@ public:
 	void add_to_bin(GstElement* bin)
 	{
 		gst_bin_add(GST_BIN(bin), queue);
+		gst_bin_add(GST_BIN(bin), videoconvert);
 		gst_bin_add(GST_BIN(bin), h264enc);
 		gst_bin_add(GST_BIN(bin), h264parse);
 		gst_bin_add(GST_BIN(bin), outcaps);
 		gst_bin_add(GST_BIN(bin), tee);
 
-		gst_element_link_many(queue, h264enc, h264parse, outcaps, tee, NULL);
+		gst_element_link_many(queue, videoconvert, h264enc, h264parse, outcaps, tee, NULL);
 	}
 
 	void link_back(GstElement* next)
@@ -52,6 +56,7 @@ public:
 	}
 
 	GstElement* queue;
+	GstElement* videoconvert;
 	GstElement* h264enc;
 	GstElement* h264parse;
 	GstElement* outcaps;

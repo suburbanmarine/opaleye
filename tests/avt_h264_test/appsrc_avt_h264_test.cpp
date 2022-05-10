@@ -32,13 +32,13 @@ public:
 		// disp.add_to_bin(pipe);
 		h264.add_to_bin(pipe);
 		rtp.add_to_bin(pipe);
-		disk.add_to_bin(pipe);
+		// disk.add_to_bin(pipe);
 
 		// cam.link_back(disp.queue);
 		cam.link_back(h264.queue);
 		
 		h264.link_back(rtp.queue);
-		h264.link_back(disk.queue);
+		// h264.link_back(disk.queue);
 	}
 
 	GMainLoop*  loop;
@@ -51,7 +51,7 @@ public:
 	Pipe_h264 h264;
 
 	Pipe_rtp  rtp;
-	Pipe_disk disk;
+	// Pipe_disk disk;
 	
 	void push_data_thread()
 	{
@@ -80,7 +80,8 @@ int main(int argc, char* argv[])
 	gst_debug_set_default_threshold(GST_LEVEL_INFO);
 
 	std::shared_ptr<App_stuff> app = std::make_shared<App_stuff>();
-
+	assert(app);
+	
  	gst_element_set_state(app->pipe, GST_STATE_PLAYING);
 
  	std::thread m_thread(std::bind(&App_stuff::push_data_thread, app.get()));

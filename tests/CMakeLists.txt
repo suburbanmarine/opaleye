@@ -88,6 +88,7 @@ target_include_directories(appsrc_test
 
 add_executable(appsrc_avt_h264_test
 	avt_h264_test/appsrc_avt_h264_test.cpp
+	avt_h264_test/Pipe_disk.cpp
 )
 
 target_link_libraries(appsrc_avt_h264_test
