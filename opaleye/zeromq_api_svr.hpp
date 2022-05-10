@@ -21,6 +21,7 @@ class zeromq_api_svr_pub_thread : public thread_base
 {
 public:
 	zeromq_api_svr_pub_thread(const std::shared_ptr<zmq::socket_t>& sock);
+	~zeromq_api_svr_pub_thread() override;
 
 	void work();
 

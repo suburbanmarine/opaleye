@@ -411,8 +411,15 @@ int main(int argc, char* argv[])
 
 	if(sensors && sensors->joinable())
 	{
+		SPDLOG_INFO("Stopping sensor loop");
 		sensors->interrupt();
 		sensors->join();
+	}
+
+	if(zmq_svr)
+	{
+		SPDLOG_INFO("Stopping ZMQ server");
+		zmq_svr.reset();
 	}
 
 #if 0
