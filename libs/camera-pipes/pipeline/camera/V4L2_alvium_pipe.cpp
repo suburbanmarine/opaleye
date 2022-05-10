@@ -269,6 +269,12 @@ void V4L2_alvium_pipe::set_params(const char dev_path[], const uint32_t fourcc, 
 }
 bool V4L2_alvium_pipe::close()
 {
+  if(m_cam)
+  {
+    m_cam->stop_streaming();
+    m_cam->set_sw_trigger();
+  }
+
   if(m_frame_worker)
   {
     m_frame_worker->interrupt();
@@ -279,9 +285,6 @@ bool V4L2_alvium_pipe::close()
 
   if(m_cam)
   {
-    m_cam->set_sw_trigger();
-    m_cam->stop_streaming();
-  
     if( ! m_cam->close() )
     {
       SPDLOG_ERROR("close had error");

@@ -819,6 +819,7 @@ bool Opaleye_app::stop()
   for(auto& v : m_pipelines)
   {
     ret = ret && v.second->stop();
+    v.second.reset();
   }
 
   return ret;
