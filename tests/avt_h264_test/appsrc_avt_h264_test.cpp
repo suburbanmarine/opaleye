@@ -81,10 +81,13 @@ int main(int argc, char* argv[])
 
 	std::shared_ptr<App_stuff> app = std::make_shared<App_stuff>();
 	assert(app);
-	
+
  	gst_element_set_state(app->pipe, GST_STATE_PLAYING);
 
  	std::thread m_thread(std::bind(&App_stuff::push_data_thread, app.get()));
+
+	setenv("GST_DEBUG_DUMP_DOT_DIR", "/tmp", TRUE);
+	gst_debug_bin_to_dot_file(GST_BIN(app->pipe), GST_DEBUG_GRAPH_SHOW_ALL, "test.dot");
 
 	g_main_loop_run(app->loop);
 
