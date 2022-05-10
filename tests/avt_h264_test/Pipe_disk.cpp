@@ -18,12 +18,12 @@ Pipe_disk::Pipe_disk()
     g_object_set(queue, "max-size-bytes",   0,  NULL);
     g_object_set(queue, "max-size-time",    0,  NULL);
 
-	splitmuxsink = gst_element_factory_make("splitmuxsink", NULL);
-	assert(splitmuxsink);
-	g_object_set(splitmuxsink, "max-files",      0, NULL);
-	g_object_set(splitmuxsink, "max-size-bytes", 0, NULL);
-	g_object_set(splitmuxsink, "max-size-time",  10*60*GST_SECOND, NULL);
-	// m_splitmuxsink->set_property("send-keyframe-requests",  true); // max-size-bytes must be 0
-	g_object_set(splitmuxsink, "muxer", "avimux", NULL);
-	g_signal_connect(splitmuxsink, "format-location", G_CALLBACK(&dispatch_format_location), this);
+	splitmuxsink = gst_element_factory_make("fakesink", NULL);
+// 	assert(splitmuxsink);
+// 	g_object_set(splitmuxsink, "max-files",      0, NULL);
+// 	g_object_set(splitmuxsink, "max-size-bytes", 0, NULL);
+// 	g_object_set(splitmuxsink, "max-size-time",  10*60*GST_SECOND, NULL);
+// 	// m_splitmuxsink->set_property("send-keyframe-requests",  true); // max-size-bytes must be 0
+// 	g_object_set(splitmuxsink, "muxer", "avimux", NULL);
+// 	g_signal_connect(splitmuxsink, "format-location", G_CALLBACK(&dispatch_format_location), this);
 }

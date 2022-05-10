@@ -24,7 +24,7 @@ public:
 		g_object_set(appsrc, "format",       GST_FORMAT_TIME, NULL);
 
 		// all three of these work
-		GstCaps* caps = gst_caps_from_string("video/x-raw, format=RGB, framerate=0/1, max-framerate=20/1, pixel-aspect-ratio=1/1, width=1920, height=1080, interlace-mode=progressive, colorimetry=sRGB");
+		GstCaps* caps = gst_caps_from_string("video/x-raw, format=RGB, framerate=0/1, max-framerate=20/1, pixel-aspect-ratio=1/1, width=640, height=480, interlace-mode=progressive, colorimetry=sRGB");
 		// GstCaps* caps = gst_caps_from_string("video/x-raw,format=RGB,framerate=20/1,width=1920,height=1080,interlace-mode=progressive");
 		// GstCaps* caps = gst_caps_new_simple("video/x-raw",
 		// 	"format",         G_TYPE_STRING,     "RGB",

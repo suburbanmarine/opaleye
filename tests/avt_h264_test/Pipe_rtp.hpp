@@ -21,7 +21,7 @@ public:
     	g_object_set(h264pay, "config-interval", -1,     NULL);
     	g_object_set(h264pay, "name",            "pay0", NULL);
     	g_object_set(h264pay, "pt",              96,     NULL);
-    	g_object_set(h264pay, "aggregate-mode",  1,      NULL);
+    	g_object_set(h264pay, "aggregate-mode",  0,      NULL);
 
 		rtpbin       = gst_element_factory_make("queue", NULL);
 		assert(rtpbin);

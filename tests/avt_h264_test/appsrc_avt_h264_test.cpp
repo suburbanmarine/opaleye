@@ -32,13 +32,13 @@ public:
 		// disp.add_to_bin(pipe);
 		h264.add_to_bin(pipe);
 		rtp.add_to_bin(pipe);
-		// disk.add_to_bin(pipe);
+		disk.add_to_bin(pipe);
 
 		// cam.link_back(disp.queue);
 		cam.link_back(h264.queue);
 		
 		h264.link_back(rtp.queue);
-		// h264.link_back(disk.queue);
+		h264.link_back(disk.queue);
 	}
 
 	GMainLoop*  loop;
@@ -51,21 +51,28 @@ public:
 	Pipe_h264 h264;
 
 	Pipe_rtp  rtp;
-	// Pipe_disk disk;
+	Pipe_disk disk;
 	
 	void push_data_thread()
 	{
+		g_signal_emit_by_name(rtp.multiudpsink, "add", "192.168.5.54", 5000);
+
 	 	for(int i = 0; i < 1000; i++)
 	 	{
-			GstBuffer* buf = gst_buffer_new_and_alloc (1920*1080*3);
+			GstBuffer* buf = gst_buffer_new_and_alloc (640*480*3);
 			GstMapInfo map;
 			gst_buffer_map (buf, &map, GST_MAP_WRITE);
-			memset (map.data, i, 1920*1080*3);
+			memset (map.data, i, 640*480*3);
 			gst_buffer_unmap (buf, &map);
 
 			gst_app_src_push_buffer(GST_APP_SRC(cam.appsrc), buf);
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+			if((i % 50) == 0)
+			{
+				gst_debug_bin_to_dot_file(GST_BIN(pipe), GST_DEBUG_GRAPH_SHOW_ALL, "test.dot");
+			}
 	 	}
 
 		gst_app_src_end_of_stream(GST_APP_SRC(cam.appsrc));
@@ -75,6 +82,8 @@ public:
 
 int main(int argc, char* argv[])
 {
+	setenv("GST_DEBUG_DUMP_DOT_DIR", "/tmp", TRUE);
+
 	gst_init(&argc, &argv);
 
 	gst_debug_set_default_threshold(GST_LEVEL_INFO);
@@ -85,9 +94,6 @@ int main(int argc, char* argv[])
  	gst_element_set_state(app->pipe, GST_STATE_PLAYING);
 
  	std::thread m_thread(std::bind(&App_stuff::push_data_thread, app.get()));
-
-	setenv("GST_DEBUG_DUMP_DOT_DIR", "/tmp", TRUE);
-	gst_debug_bin_to_dot_file(GST_BIN(app->pipe), GST_DEBUG_GRAPH_SHOW_ALL, "test.dot");
 
 	g_main_loop_run(app->loop);
 
