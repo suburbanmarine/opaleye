@@ -431,8 +431,8 @@ bool V4L2_alvium_pipe::init(const char name[])
   g_object_set(m_appsrc, "is-live",      TRUE, NULL);
   g_object_set(m_appsrc, "do-timestamp", TRUE, NULL);
   g_object_set(m_appsrc, "block",        FALSE, NULL);
-  g_object_set(m_appsrc, "min-latency",  GST_SECOND / 20L, NULL);
-  // g_object_set(m_appsrc, "max-latency",  GST_SECOND / 2L, NULL);
+  g_object_set(m_appsrc, "min-latency",  GST_SECOND / 20LL, NULL);
+  // g_object_set(m_appsrc, "max-latency",  GST_SECOND / 2LL, NULL);
   g_object_set(m_appsrc, "num-buffers",  10, NULL);
   g_object_set(m_appsrc, "max-bytes",    2464ULL*2056ULL*4ULL*10ULL, NULL);
   g_object_set(m_appsrc, "emit-signals", FALSE, NULL);
