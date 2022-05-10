@@ -138,8 +138,8 @@ public:
   bool start_still_capture(const std::string& camera);
   bool stop_still_capture(const std::string& camera);
 
-  bool start_rtp_stream(const std::string& ip_addr, int port);
-  bool stop_rtp_stream(const std::string& ip_addr, int port);
+  bool start_rtp_stream(const std::string& pipe_name, const std::string& ip_addr, int port);
+  bool stop_rtp_stream(const std::string& pipe_name, const std::string& ip_addr, int port);
   bool stop_rtp_all_stream();
   std::string get_sdp_file() const;
 

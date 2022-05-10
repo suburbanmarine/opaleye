@@ -75,6 +75,13 @@ bool zeromq_api_svr::init(const std::list<std::string>& ep)
 
 bool zeromq_api_svr::stop()
 {
+	if(m_api_pub_thread)
+	{
+		m_api_pub_thread->interrupt();
+		m_api_pub_thread->join();
+		m_api_pub_thread.reset();
+	}
+
 	if(m_pub_socket)
 	{
 		m_pub_socket->close();
@@ -125,6 +132,11 @@ bool zeromq_api_svr::send(const std::string_view& topic, const std::string_view&
 zeromq_api_svr_pub_thread::zeromq_api_svr_pub_thread(const std::shared_ptr<zmq::socket_t>& sock)
 {
 	m_socket = sock;
+}
+
+zeromq_api_svr_pub_thread::~zeromq_api_svr_pub_thread()
+{
+	m_socket.reset();
 }
 
 void zeromq_api_svr_pub_thread::work()

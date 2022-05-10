@@ -246,16 +246,14 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
   //     return false; 
   // }
 
-  SPDLOG_INFO("NV mode");
-  std::shared_ptr<GST_element_base> m_h264   = std::make_shared<h264_nvenc_bin>();
   std::shared_ptr<GST_element_base> m_thumb  = std::make_shared<Thumbnail_nv3_pipe>();
-
   if( ! m_thumb->init("thumb_0") )
   {
    SPDLOG_ERROR("Could not init thumb");
    return false;
   }
 
+  std::shared_ptr<GST_element_base> m_h264   = std::make_shared<h264_nvenc_bin>();
   if( ! m_h264->init("h264_0") )
   {
    SPDLOG_ERROR("Could not init h264");
@@ -638,9 +636,9 @@ bool Opaleye_app::start_video_capture(const std::string& camera)
 
   std::string cap_pipe_name = camera + "/file0";
   auto it = m_pipelines.find(cap_pipe_name);
-
   if(it != m_pipelines.end())
   {
+    SPDLOG_WARN("Opaleye_app::start_video_capture({:s}), {:s} already exists", camera, cap_pipe_name);
     return false;
   }
 
@@ -669,7 +667,7 @@ bool Opaleye_app::start_video_capture(const std::string& camera)
   m_mkv_pipe->set_top_storage_dir(out_video_dir.string());
   if(! m_mkv_pipe->init() )
   {
-    SPDLOG_INFO("m_mkv_pipe init failed");
+    SPDLOG_ERROR("m_mkv_pipe init failed");
     m_mkv_pipe.reset();
     return false;
   }
@@ -677,7 +675,7 @@ bool Opaleye_app::start_video_capture(const std::string& camera)
   m_mkv_pipe->set_listen_to("h264_ipsink_0");
   if(! m_mkv_pipe->start() )
   {
-    SPDLOG_INFO("m_mkv_pipe start failed");
+    SPDLOG_ERROR("m_mkv_pipe start failed");
 
     m_mkv_pipe.reset();
     return false;   
@@ -703,11 +701,13 @@ bool Opaleye_app::stop_video_capture(const std::string& camera)
   auto it = m_pipelines.find(cap_pipe_name);
   if( it == m_pipelines.end() )
   {
+    SPDLOG_WARN("Opaleye_app::stop_video_capture({:s}), {:s} does not exist", camera, cap_pipe_name);
     return false;
   }
 
   if( ! it->second )
   {
+    SPDLOG_ERROR("Opaleye_app::stop_video_capture({:s}), {:s} is found but is null", camera, cap_pipe_name);
     return false;
   }
 
@@ -731,15 +731,21 @@ bool Opaleye_app::stop_video_capture(const std::string& camera)
 bool Opaleye_app::start_still_capture(const std::string& camera)
 {
   SPDLOG_INFO("Opaleye_app::start_still_capture({:s})", camera);
+
+  throw jsonrpc::Fault("start_still_capture - not implemented", jsonrpc::Fault::INTERNAL_ERROR);
+
   return true;
 }
 bool Opaleye_app::stop_still_capture(const std::string& camera)
 {
   SPDLOG_INFO("Opaleye_app::stop_still_capture({:s})", camera);
+
+  throw jsonrpc::Fault("stop_still_capture - not implemented", jsonrpc::Fault::INTERNAL_ERROR);
+
   return true;
 }
 
-bool Opaleye_app::start_rtp_stream(const std::string& ip_addr, int port)
+bool Opaleye_app::start_rtp_stream(const std::string& pipe_name, const std::string& ip_addr, int port)
 {
   SPDLOG_INFO("Opaleye_app::start_rtp_stream {:s}:{:d}", ip_addr, port);
 
@@ -748,7 +754,13 @@ bool Opaleye_app::start_rtp_stream(const std::string& ip_addr, int port)
     throw std::domain_error("port must be in [0, 65535]");
   }
 
-  std::shared_ptr<rtpsink_pipe> m_rtpsink = m_pipelines["pipe0"]->get_element<rtpsink_pipe>("udp_0");
+  auto pipe_it = m_pipelines.find(pipe_name);
+  if( pipe_it == m_pipelines.end() )
+  {
+    throw std::domain_error("pipeline does not exist");
+  }
+
+  std::shared_ptr<rtpsink_pipe> m_rtpsink = pipe_it->second->get_element<rtpsink_pipe>("udp_0");
   if( ! m_rtpsink )
   {
     throw jsonrpc::Fault("Could not downcast element", jsonrpc::Fault::INTERNAL_ERROR);
@@ -756,7 +768,7 @@ bool Opaleye_app::start_rtp_stream(const std::string& ip_addr, int port)
 
   return m_rtpsink->add_udp_client(ip_addr, port);
 }
-bool Opaleye_app::stop_rtp_stream(const std::string& ip_addr, int port)
+bool Opaleye_app::stop_rtp_stream(const std::string& pipe_name, const std::string& ip_addr, int port)
 {
   SPDLOG_INFO("Opaleye_app::stop_rtp_stream {:s}:{:d}", ip_addr, port);
 
@@ -765,7 +777,13 @@ bool Opaleye_app::stop_rtp_stream(const std::string& ip_addr, int port)
     throw std::domain_error("port must be in [0, 65535]");
   }
 
-  std::shared_ptr<rtpsink_pipe> m_rtpsink = m_pipelines["pipe0"]->get_element<rtpsink_pipe>("udp_0");
+  auto pipe_it = m_pipelines.find(pipe_name);
+  if( pipe_it == m_pipelines.end() )
+  {
+    throw std::domain_error("pipeline does not exist");
+  }
+
+  std::shared_ptr<rtpsink_pipe> m_rtpsink = pipe_it->second->get_element<rtpsink_pipe>("udp_0");
   if( ! m_rtpsink )
   {
     throw jsonrpc::Fault("Could not downcast element", jsonrpc::Fault::INTERNAL_ERROR);
@@ -801,6 +819,7 @@ bool Opaleye_app::stop()
   for(auto& v : m_pipelines)
   {
     ret = ret && v.second->stop();
+    v.second.reset();
   }
 
   return ret;
