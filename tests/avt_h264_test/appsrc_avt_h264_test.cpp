@@ -29,12 +29,12 @@ public:
 		assert(pipe);
 
 		cam.add_to_bin(pipe);
-		// disp.add_to_bin(pipe);
+		disp.add_to_bin(pipe);
 		h264.add_to_bin(pipe);
 		rtp.add_to_bin(pipe);
 		disk.add_to_bin(pipe);
 
-		// cam.link_back(disp.queue);
+		cam.link_back(disp.queue);
 		cam.link_back(h264.queue);
 		
 		h264.link_back(rtp.queue);
@@ -55,10 +55,20 @@ public:
 	
 	void push_data_thread()
 	{
+
+		//app src issue -
+		// https://forums.developer.nvidia.com/t/error-from-element-gstpipeline-pipeline0-gstnvarguscamerasrc-timeout/170121
+		// https://stackoverflow.com/questions/59954227/gstreamer-pipeline-is-hanging-randomly
+		// https://www.reddit.com/r/rust/comments/ev7m5q/gstreamerrs_pipeline_is_hanging_randomly/
+		// https://gitlab.freedesktop.org/gstreamer/gstreamer-rs/-/issues/235
+		
 		g_signal_emit_by_name(rtp.multiudpsink, "add", "192.168.5.54", 5000);
+		g_signal_emit_by_name(rtp.multiudpsink, "add", "127.0.0.1", 5000);
 
 	 	for(int i = 0; i < 1000; i++)
 	 	{
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
 			GstBuffer* buf = gst_buffer_new_and_alloc (640*480*3);
 			GstMapInfo map;
 			gst_buffer_map (buf, &map, GST_MAP_WRITE);
@@ -67,7 +77,6 @@ public:
 
 			gst_app_src_push_buffer(GST_APP_SRC(cam.appsrc), buf);
 
-			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
 			if((i % 50) == 0)
 			{
