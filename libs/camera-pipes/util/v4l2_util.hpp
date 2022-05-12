@@ -16,6 +16,7 @@
 #include <list>
 #include <vector>
 #include <map>
+#include <optional>
 
 class v4l2_util
 {
