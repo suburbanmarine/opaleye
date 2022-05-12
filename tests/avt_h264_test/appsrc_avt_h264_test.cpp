@@ -13,6 +13,7 @@
 
 #include <cassert>
 
+#include <memory>
 #include <thread>
 #include <functional>
 
@@ -61,7 +62,7 @@ public:
 		// https://stackoverflow.com/questions/59954227/gstreamer-pipeline-is-hanging-randomly
 		// https://www.reddit.com/r/rust/comments/ev7m5q/gstreamerrs_pipeline_is_hanging_randomly/
 		// https://gitlab.freedesktop.org/gstreamer/gstreamer-rs/-/issues/235
-		
+
 		g_signal_emit_by_name(rtp.multiudpsink, "add", "192.168.5.54", 5000);
 		g_signal_emit_by_name(rtp.multiudpsink, "add", "127.0.0.1", 5000);
 
