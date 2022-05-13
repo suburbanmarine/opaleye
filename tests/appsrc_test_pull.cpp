@@ -134,9 +134,9 @@ int main(int argc, char* argv[])
 	app.pipe   = gst_pipeline_new(NULL);
 	assert(app.pipe);
 
-	GstBus* bus = gst_pipeline_get_bus(GST_PIPELINE(app.pipe));
-	guint bus_watch_id = gst_bus_add_watch(bus, app_bus_callback, NULL);
-	gst_object_unref(bus);
+	// GstBus* bus = gst_pipeline_get_bus(GST_PIPELINE(app.pipe));
+	// guint bus_watch_id = gst_bus_add_watch(bus, app_bus_callback, NULL);
+	// gst_object_unref(bus);
 
 	app.appsrc = gst_element_factory_make("appsrc", NULL);
 	assert(app.appsrc);
@@ -154,6 +154,9 @@ int main(int argc, char* argv[])
 	app.queue1 = gst_element_factory_make("queue", NULL);
 	assert(app.queue1);
 	gst_bin_add(GST_BIN(app.pipe), app.queue1);
+	g_object_set(app.queue1, "max-size-buffers", 15, NULL);
+	g_object_set(app.queue1, "max-size-bytes",   0,  NULL);
+	g_object_set(app.queue1, "max-size-time",    0,  NULL);
 
 	// all three of these work
 	GstCaps* caps = gst_caps_from_string("video/x-raw, format=RGB, framerate=0/1, max-framerate=20/1, pixel-aspect-ratio=1/1, width=1920, height=1080, interlace-mode=progressive, colorimetry=sRGB");
@@ -176,6 +179,9 @@ int main(int argc, char* argv[])
 	app.queue2 = gst_element_factory_make("queue", NULL);
 	assert(app.queue2);
 	gst_bin_add(GST_BIN(app.pipe), app.queue2);
+	g_object_set(app.queue2, "max-size-buffers", 15, NULL);
+	g_object_set(app.queue2, "max-size-bytes",   0,  NULL);
+	g_object_set(app.queue2, "max-size-time",    0,  NULL);
 
 	app.avsink = gst_element_factory_make("autovideosink", NULL);
 	assert(app.avsink);
