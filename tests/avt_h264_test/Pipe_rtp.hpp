@@ -11,7 +11,7 @@ public:
 	{
 		queue = gst_element_factory_make("queue", NULL);
 		assert(queue);
-	    g_object_set(queue, "leaky", 1, NULL);
+	    // g_object_set(queue, "leaky", 1, NULL);
 	    g_object_set(queue, "max-size-buffers", 15, NULL);
 	    g_object_set(queue, "max-size-bytes",   0,  NULL);
 	    g_object_set(queue, "max-size-time",    0,  NULL);

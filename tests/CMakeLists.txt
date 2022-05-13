@@ -86,9 +86,25 @@ target_include_directories(appsrc_test
 		${GST_INCLUDE_DIRS}
 )
 
+add_executable(appsrc_test_pull
+	appsrc_test_pull.cpp
+)
+
+target_link_libraries(appsrc_test_pull
+	PUBLIC
+		${GST_LIBRARIES}
+		Threads::Threads
+)
+
+target_include_directories(appsrc_test_pull
+	PUBLIC
+		${GST_INCLUDE_DIRS}
+)
+
 add_executable(appsrc_avt_h264_test
 	avt_h264_test/appsrc_avt_h264_test.cpp
 	avt_h264_test/Pipe_disk.cpp
+	avt_h264_test/Pipe_camera.cpp
 )
 
 target_link_libraries(appsrc_avt_h264_test

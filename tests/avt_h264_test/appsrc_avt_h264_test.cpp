@@ -35,7 +35,7 @@ public:
 		rtp.add_to_bin(pipe);
 		disk.add_to_bin(pipe);
 
-		cam.link_back(disp.queue);
+		cam.link_back(disp.queue1);
 		cam.link_back(h264.queue);
 		
 		h264.link_back(rtp.queue);
@@ -70,22 +70,22 @@ public:
 	 	{
 			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-			GstBuffer* buf = gst_buffer_new_and_alloc (640*480*3);
-			GstMapInfo map;
-			gst_buffer_map (buf, &map, GST_MAP_WRITE);
-			memset (map.data, i, 640*480*3);
-			gst_buffer_unmap (buf, &map);
+			// GstBuffer* buf = gst_buffer_new_and_alloc (640*480*3);
+			// GstMapInfo map;
+			// gst_buffer_map (buf, &map, GST_MAP_WRITE);
+			// memset (map.data, i, 640*480*3);
+			// gst_buffer_unmap (buf, &map);
 
-			gst_app_src_push_buffer(GST_APP_SRC(cam.appsrc), buf);
+			// gst_app_src_push_buffer(GST_APP_SRC(cam.appsrc), buf);
 
 
-			if((i % 50) == 0)
+			if((i % 20) == 0)
 			{
 				gst_debug_bin_to_dot_file(GST_BIN(pipe), GST_DEBUG_GRAPH_SHOW_ALL, "test.dot");
 			}
 	 	}
 
-		gst_app_src_end_of_stream(GST_APP_SRC(cam.appsrc));
+		// gst_app_src_end_of_stream(GST_APP_SRC(cam.appsrc));
 	}
 };
 
@@ -106,6 +106,8 @@ int main(int argc, char* argv[])
  	std::thread m_thread(std::bind(&App_stuff::push_data_thread, app.get()));
 
 	g_main_loop_run(app->loop);
+
+	gst_element_set_state(app->pipe, GST_STATE_NULL);
 
 	m_thread.join();
 

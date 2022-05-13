@@ -5,11 +5,18 @@
 
 #include <cassert>
 
+int read_data_idle(gpointer udata);
+void start_data_feed(GstElement* appsrc, guint length, gpointer udata);
+void stop_data_feed(GstElement* appsrc, gpointer udata);
+
 class Pipe_camera
 {
 public:
 	Pipe_camera()
 	{
+		m_frame_ctr = 0;
+		appsrc_idle_handle = 0;
+
 		appsrc = gst_element_factory_make("appsrc", NULL);
 		assert(appsrc);
 		g_object_set(appsrc, "is-live",      TRUE, NULL);
@@ -17,11 +24,13 @@ public:
 		g_object_set(appsrc, "block",        FALSE, NULL);
 		g_object_set(appsrc, "min-latency",  GST_SECOND / 20L, NULL);
 		// g_object_set(appsrc, "max-latency",  GST_SECOND / 2L, NULL);
-		g_object_set(appsrc, "num-buffers",  10, NULL);
-		g_object_set(appsrc, "max-bytes",    2464ULL*2056ULL*4ULL*10ULL, NULL);
-		g_object_set(appsrc, "emit-signals", FALSE, NULL);
-		g_object_set(appsrc, "stream-type",  GST_APP_STREAM_TYPE_STREAM, NULL);
+		// g_object_set(appsrc, "num-buffers",  10, NULL);
+		// g_object_set(appsrc, "max-bytes",    2464ULL*2056ULL*4ULL*10ULL, NULL);
+		// g_object_set(appsrc, "stream-type",  GST_APP_STREAM_TYPE_STREAM, NULL);
 		g_object_set(appsrc, "format",       GST_FORMAT_TIME, NULL);
+		g_object_set(appsrc, "emit-signals", TRUE, NULL);
+		g_signal_connect(appsrc, "need-data",    G_CALLBACK(start_data_feed), this);
+		g_signal_connect(appsrc, "enough-data",    G_CALLBACK(stop_data_feed), this);
 
 		// all three of these work
 		GstCaps* caps = gst_caps_from_string("video/x-raw, format=RGB, framerate=0/1, max-framerate=20/1, pixel-aspect-ratio=1/1, width=640, height=480, interlace-mode=progressive, colorimetry=sRGB");
@@ -39,7 +48,7 @@ public:
 
 		queue = gst_element_factory_make("queue", NULL);
 		assert(queue);
-	    g_object_set(queue, "leaky", 1, NULL);
+	    // g_object_set(queue, "leaky", 1, NULL);
 	    g_object_set(queue, "max-size-buffers", 15, NULL);
 	    g_object_set(queue, "max-size-bytes",   0,  NULL);
 	    g_object_set(queue, "max-size-time",    0,  NULL);
@@ -70,4 +79,8 @@ public:
 	GstElement* queue;
 	GstElement* videoconvert;
 	GstElement* tee;
+
+	guint appsrc_idle_handle;
+
+	int m_frame_ctr;
 };
