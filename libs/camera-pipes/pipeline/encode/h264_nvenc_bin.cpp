@@ -91,10 +91,11 @@ bool h264_nvenc_bin::init(const char name[])
     m_out_caps = Gst::Caps::create_simple(
       "video/x-h264",
       "stream-format", "avc",
-      "profile",       "main",
-      "width",  1920,
-      "height", 1080
+      "profile",       "main"
+      // "width",  1920,
+      // "height", 1080
       );
+    assert(m_out_caps);
 
     //out caps filter
     m_capsfilter = Gst::CapsFilter::create();
