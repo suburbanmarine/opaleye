@@ -501,17 +501,10 @@ bool V4L2_alvium_pipe::init(const char name[])
     m_in_queue->property_max_size_bytes()        = 0;
     m_in_queue->property_max_size_time()         = 0;
 
-    m_videoscale = Gst::ElementFactory::create_element("videoscale");
-    m_videoscale->set_property("add-borders", true);
-
-    m_scale_caps = Glib::wrap(gst_caps_from_string("video/x-raw, width=(int)1920, height=(int)1080, format=(string)BGRx, pixel-aspect-ratio=1/1"));
-    m_scale_capsfilter = Gst::CapsFilter::create("scalecaps");
-    m_scale_capsfilter->property_caps().set_value(m_scale_caps);
-
     m_videoconvert = Gst::ElementFactory::create_element("nvvidconv");
 
     // m_out_caps = Glib::wrap(gst_caps_from_string("video/x-raw, width=(int)2464, height=(int)2056, format=(string)NV12"));
-    m_out_caps = Glib::wrap(gst_caps_from_string("video/x-raw(memory:NVMM), width=(int)1920, height=(int)1080, format=(string)NV12"));
+    m_out_caps = Glib::wrap(gst_caps_from_string("video/x-raw(memory:NVMM), width=(int)1920, height=(int)1080, format=(string)NV12, pixel-aspect-ratio=1/1"));
     if(! m_out_caps )
     {
       SPDLOG_ERROR("Failed to create m_out_caps");
@@ -548,8 +541,6 @@ bool V4L2_alvium_pipe::init(const char name[])
 
     gst_bin_add(GST_BIN(m_bin->gobj()), m_appsrc);
     m_bin->add(m_in_queue);
-    m_bin->add(m_videoscale);
-    m_bin->add(m_scale_capsfilter);
     m_bin->add(m_videoconvert);
     m_bin->add(m_out_capsfilter);
     m_bin->add(m_out_queue);
@@ -557,9 +548,7 @@ bool V4L2_alvium_pipe::init(const char name[])
 
   Glib::RefPtr<Gst::Element> m_in_queue_element = m_in_queue;
   gst_element_link(m_appsrc, m_in_queue_element->gobj());
-  m_in_queue->link(m_videoscale);
-  m_videoscale->link(m_scale_capsfilter);
-  m_scale_capsfilter->link(m_videoconvert);
+  m_in_queue->link(m_videoconvert);
   m_videoconvert->link(m_out_capsfilter);
   m_out_capsfilter->link(m_out_queue);
   m_out_queue->link(m_out_tee);

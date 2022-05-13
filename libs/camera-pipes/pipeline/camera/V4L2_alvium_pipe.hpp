@@ -126,9 +126,6 @@ protected:
   GstElement*                   m_appsrc;
   Glib::RefPtr<Gst::Queue>      m_in_queue;
   GstCaps*                      m_src_caps;
-  Glib::RefPtr<Gst::Element>    m_videoscale;
-  Glib::RefPtr<Gst::Caps>       m_scale_caps;
-  Glib::RefPtr<Gst::CapsFilter> m_scale_capsfilter;
 
   Glib::RefPtr<Gst::Element>    m_videoconvert;
   Glib::RefPtr<Gst::Caps>       m_out_caps;
