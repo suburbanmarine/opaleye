@@ -11,7 +11,9 @@ class App_stuff
 public:
 	GstElement* pipe;
 	GstElement* appsrc;
+	GstElement* queue1;
 	GstElement* videoconvert;
+	GstElement* queue2;
 	GstElement* avsink;
 
 	GMainLoop* loop;
@@ -52,6 +54,10 @@ int main(int argc, char* argv[])
 	assert(app.appsrc);
 	gst_bin_add(GST_BIN(app.pipe), app.appsrc);
 
+	app.queue1 = gst_element_factory_make("queue", NULL);
+	assert(app.queue1);
+	gst_bin_add(GST_BIN(app.pipe), app.queue1);
+
 	// all three of these work
 	GstCaps* caps = gst_caps_from_string("video/x-raw, format=RGB, framerate=0/1, max-framerate=20/1, pixel-aspect-ratio=1/1, width=1920, height=1080, interlace-mode=progressive, colorimetry=sRGB");
 	// GstCaps* caps = gst_caps_from_string("video/x-raw,format=RGB,framerate=20/1,width=1920,height=1080,interlace-mode=progressive");
@@ -70,13 +76,18 @@ int main(int argc, char* argv[])
 	assert(app.videoconvert);
 	gst_bin_add(GST_BIN(app.pipe), app.videoconvert);
 
+	app.queue2 = gst_element_factory_make("queue", NULL);
+	assert(app.queue2);
+	gst_bin_add(GST_BIN(app.pipe), app.queue2);
+
 	app.avsink = gst_element_factory_make("autovideosink", NULL);
 	assert(app.avsink);
 	gst_bin_add(GST_BIN(app.pipe), app.avsink);
 
-	gst_element_link(app.appsrc, app.videoconvert);
-	gst_element_link(app.videoconvert, app.avsink);
-	// gst_element_link_pads(app.appsrc, "src", app.avsink, "sink");
+	gst_element_link(app.appsrc, app.queue1);
+	gst_element_link(app.queue1, app.videoconvert);
+	gst_element_link(app.videoconvert, app.queue2);
+	gst_element_link(app.queue2, app.avsink);
 
  	gst_element_set_state(app.pipe, GST_STATE_PLAYING);
 
