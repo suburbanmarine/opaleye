@@ -63,8 +63,8 @@ bool Thumbnail_nv3_pipe::init(const char name[])
       "image/jpeg",
       "pixel-aspect-ratio", Gst::Fraction(1, 1),
       "framerate",          Gst::Fraction(1, 1),
-      "width",              640
-      // "height",             360
+      "width",              640,
+      "height",             360
       );
 
     m_out_capsfilter = Gst::CapsFilter::create("outcaps");
@@ -73,8 +73,8 @@ bool Thumbnail_nv3_pipe::init(const char name[])
     m_appsink_caps = Gst::Caps::create_simple(
       "image/jpeg",
       "pixel-aspect-ratio", Gst::Fraction(1, 1),
-      "width",              640
-      // "height",             360
+      "width",              640,
+      "height",             360
       );
 
     m_appsink = Gst::AppSink::create();
