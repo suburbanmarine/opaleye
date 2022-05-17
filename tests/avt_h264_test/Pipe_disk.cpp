@@ -25,5 +25,6 @@ Pipe_disk::Pipe_disk()
 	g_object_set(splitmuxsink, "max-size-time",  10*60*GST_SECOND, NULL);
 // 	// m_splitmuxsink->set_property("send-keyframe-requests",  true); // max-size-bytes must be 0
 	// g_object_set(splitmuxsink, "muxer", "avimux", NULL);
+	// g_object_set(splitmuxsink, "muxer", "avimux", NULL);
 	g_signal_connect(splitmuxsink, "format-location", G_CALLBACK(&dispatch_format_location), this);
 }

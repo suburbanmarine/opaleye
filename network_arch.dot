@@ -1,0 +1,29 @@
+graph m2_network
+{
+	node [fontsize=12];
+	
+	internet [shape=oval, label="The Internet"];
+
+	remote_user [shape=record, label="Remote User\nNot on VPN"];
+	workstation [shape=record, label="Workstation User\nTransparent VPN"];
+
+	Mikrotik_CHR [shape=record, label="Mikrotik CHR\nVPN Server"];
+	Hurricane_Electric_IPV6 [shape=record, label="HE.net IPv6 tunnel broker\nPublic IPV6 /48"];
+	Hex_POE [shape=record, label="Opaleye Router\nMikrotik HEX POE\nAssigned a Public IPV6 /64"];
+	opaleye [shape=record, label="Opaleye\nNVIDIA Jetson Nano"];
+	rb4011 [shape=record, label="Office Router\nMikrotik RB4011"];
+	CorpFirewall [shape=record, label="3rd Party Firewall\nNAT, no IPV6"];
+
+	internet -- Hurricane_Electric_IPV6;
+	internet -- remote_user;
+	internet -- rb4011;
+
+	Hurricane_Electric_IPV6 -- Mikrotik_CHR [dir=both];
+	Mikrotik_CHR -- rb4011 [dir=both];
+ 	rb4011 -- workstation [dir=both];
+	
+	Mikrotik_CHR -- CorpFirewall [dir=both];
+	CorpFirewall -- Hex_POE [dir=both];
+	Hex_POE -- opaleye [dir=both];
+
+}

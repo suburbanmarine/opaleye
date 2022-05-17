@@ -503,7 +503,6 @@ bool V4L2_alvium_pipe::init(const char name[])
 
     m_videoconvert = Gst::ElementFactory::create_element("nvvidconv");
 
-    // m_out_caps = Glib::wrap(gst_caps_from_string("video/x-raw, width=(int)2464, height=(int)2056, format=(string)NV12"));
     m_out_caps = Glib::wrap(gst_caps_from_string("video/x-raw(memory:NVMM), format=(string)NV12"));
     if(! m_out_caps )
     {
