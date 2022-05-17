@@ -38,7 +38,11 @@ bool h264_nvenc_bin::init(const char name[])
     m_bin = Gst::Bin::create(fmt::format("{:s}-bin", name).c_str());
 
     m_in_queue     = Gst::Queue::create();
-    
+    m_in_queue->set_property("leaky", Gst::QUEUE_LEAK_DOWNSTREAM);
+    m_in_queue->property_max_size_buffers() = 10;
+    m_in_queue->property_max_size_bytes()   = 0;
+    m_in_queue->property_max_size_time()    = 0;
+
     m_videoconvert = Gst::ElementFactory::create_element("nvvidconv");
 
     m_omxh264enc      = Gst::ElementFactory::create_element("omxh264enc");
@@ -64,7 +68,7 @@ bool h264_nvenc_bin::init(const char name[])
     // 2 Drop 1 in 3 frames
     // 3 Drop 1 in 2 frames
     // 4 Drop 2 in 3 frames
-    m_omxh264enc->set_property("temporal-tradeoff", 0);
+    // m_omxh264enc->set_property("temporal-tradeoff", 0);
 
     // 0 UltraFastPreset
     // 1 FastPreset
@@ -87,10 +91,11 @@ bool h264_nvenc_bin::init(const char name[])
     m_out_caps = Gst::Caps::create_simple(
       "video/x-h264",
       "stream-format", "avc",
-      "profile",       "main",
-      "width",  1920,
-      "height", 1080
+      "profile",       "main"
+      // "width",  1920,
+      // "height", 1080
       );
+    assert(m_out_caps);
 
     //out caps filter
     m_capsfilter = Gst::CapsFilter::create();

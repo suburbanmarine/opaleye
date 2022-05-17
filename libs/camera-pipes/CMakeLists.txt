@@ -15,13 +15,21 @@ target_link_libraries(camera-pipes-nv
 add_library(camera-pipes
 	#cameras/Logitech_brio.cpp
 	#cameras/UVC_base.cpp
+	cameras/Alvium_v4l2.cpp
+
+	util/v4l2_util.cpp
+	util/v4l2_metadata.cpp
+	util/v4l2_mmap_buffer.cpp
 
 	#pipeline/camera/Logitech_brio_pipe.cpp
 	#pipeline/camera/Logitech_C525_gst.cpp
-	pipeline/camera/Testsrc_pipe.cpp
-	pipeline/camera/v4l2_webcam_pipe.cpp
-	pipeline/camera/v4l2_util.cpp
+	pipeline/camera/GST_camera_base.cpp
 	pipeline/camera/nvac_imx219_pipe.cpp
+	pipeline/camera/Testsrc_pipe.cpp
+	pipeline/camera/V4L2_alvium_pipe.cpp
+	pipeline/camera/V4L2_webcam_pipe.cpp
+	pipeline/camera/GST_v4l2_api.cpp
+	pipeline/camera/V4L2_alvium_pipe2.cpp
 
 	pipeline/display/autovideosink_pipe.cpp
 

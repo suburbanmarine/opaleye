@@ -18,9 +18,13 @@ add_library(opaleye_app
 	http_req_callback_sensors.cpp
 
 	sensor_thread.cpp
-	# gpio_thread.cpp
+	gpio_thread.cpp
+
+	Opaleye_gpio_mod_ctrl.cpp
 
 	signal_handler.cpp
+
+	zeromq_api_svr.cpp
 )
 
 target_include_directories(opaleye_app
@@ -49,6 +53,9 @@ target_link_libraries(opaleye_app
 
 		#uvc
 		fcgi
+		gpiod
+
+		cppzmq
 
 		rt
 )

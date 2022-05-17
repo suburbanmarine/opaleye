@@ -4,7 +4,7 @@
  * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
 */
 
-#include "Stopwatch.hpp"
+#include "opaleye-util/Stopwatch.hpp"
 
 #include <spdlog/spdlog.h>
 

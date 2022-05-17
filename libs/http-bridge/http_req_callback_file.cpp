@@ -4,8 +4,8 @@
  * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
 */
 
-#include "http_req_callback_file.hpp"
-#include "http_util.hpp"
+#include "http-bridge/http_req_callback_file.hpp"
+#include "http-bridge/http_util.hpp"
 
 #include <spdlog/spdlog.h>
 

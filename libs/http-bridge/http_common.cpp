@@ -4,7 +4,7 @@
  * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
 */
 
-#include "http_common.hpp"
+#include "http-bridge/http_common.hpp"
 
 #include <cstring>
 

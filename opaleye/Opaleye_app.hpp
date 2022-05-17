@@ -5,6 +5,7 @@
 */
 
 #include "gst_filesink_pipeline.hpp"
+#include "Opaleye_gpio_mod_ctrl.hpp"
 
 #include "config/Opaleye_config_mgr.hpp"
 
@@ -13,7 +14,9 @@
 
 #include "pipeline/camera/Testsrc_pipe.hpp"
 // #include "pipeline/camera/Logitech_brio_pipe.hpp"
-#include "pipeline/camera/v4l2_webcam_pipe.hpp"
+#include "pipeline/camera/V4L2_webcam_pipe.hpp"
+#include "pipeline/camera/V4L2_alvium_pipe.hpp"
+#include "pipeline/camera/V4L2_alvium_pipe2.hpp"
 #include "pipeline/camera/nvac_imx219_pipe.hpp"
 #include "pipeline/display/autovideosink_pipe.hpp"
 #include "pipeline/stream/rtp_h264_pipe.hpp"
@@ -100,6 +103,7 @@ protected:
     
   bool make_brio_pipeline();
   bool make_imx219_pipeline();
+  bool make_alvium_pipeline();
   bool make_virtual_pipeline();
 
 
@@ -134,8 +138,8 @@ public:
   bool start_still_capture(const std::string& camera);
   bool stop_still_capture(const std::string& camera);
 
-  bool start_rtp_stream(const std::string& ip_addr, int port);
-  bool stop_rtp_stream(const std::string& ip_addr, int port);
+  bool start_rtp_stream(const std::string& pipe_name, const std::string& ip_addr, int port);
+  bool stop_rtp_stream(const std::string& pipe_name, const std::string& ip_addr, int port);
   bool stop_rtp_all_stream();
   std::string get_sdp_file() const;
 
@@ -197,9 +201,16 @@ public:
   std::string get_serial_number() const;
 
   /* cameras */
-  bool set_camera_property(const std::string& camera_id, const std::string& property_id, int value);
+  bool set_camera_property_int(const std::string& pipeline_id, const std::string& camera_id, const std::string& property_id, int value);
+  bool set_camera_property_str(const std::string& pipeline_id, const std::string& camera_id, const std::string& property_id, const std::string& value);
+
+  /* hw trigger */
+  bool hw_trigger_enable(const bool enable);
+  bool hw_trigger_config(const uint64_t t0, const uint64_t period, const uint64_t width);
 
 // protected:
+
+  Opaleye_gpio_mod_ctrl m_hw_trigger;
 
   //pipeline name to pipeline
   std::map<std::string, std::shared_ptr<GST_app_base>> m_pipelines;

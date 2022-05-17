@@ -1,4 +1,4 @@
-#include "Directory_tree.hpp"
+#include "opaleye-util/path/Directory_tree.hpp"
 
 #include <sstream>
 #include <ostream>

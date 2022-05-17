@@ -8,7 +8,7 @@ bool app_config_mgr::deserialize(const boost::filesystem::path& p)
 {
 	try
 	{
-		boost::property_tree::read_xml(p.string(), m_tree);
+		boost::property_tree::read_xml(p.string(), m_tree, boost::property_tree::xml_parser::no_comments);
 	}
 	catch(const std::exception& e)
 	{
@@ -21,9 +21,22 @@ bool app_config_mgr::deserialize(const boost::filesystem::path& p)
 		m_config = std::make_shared<app_config>();
 	}
 	
-	if(!m_config->deserialize(m_tree))
+	try
 	{
-	    SPDLOG_ERROR("app_config_mgr::deserialize parse failed");
+		if(!m_config->deserialize(m_tree))
+		{
+		    SPDLOG_ERROR("app_config_mgr::deserialize failed");
+			return false;
+		}
+	}
+	catch(const std::exception& e)
+	{
+		SPDLOG_ERROR("app_config_mgr::deserialize failed: {:s}", e.what());
+		return false;
+	}
+	catch(...)
+	{
+		SPDLOG_ERROR("app_config_mgr::deserialize failed: unknown");
 		return false;
 	}
 

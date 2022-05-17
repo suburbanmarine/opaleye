@@ -9,7 +9,7 @@
 #include "MS5837-30BA.hpp"
 #include "TSYS01.hpp"
 
-#include "thread_base.hpp"
+#include "opaleye-util/thread_base.hpp"
 
 #include <mutex>
 

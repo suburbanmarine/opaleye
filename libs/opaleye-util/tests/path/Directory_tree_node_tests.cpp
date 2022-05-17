@@ -1,4 +1,4 @@
-#include "path/Directory_tree.hpp"
+#include "opaleye-util/path/Directory_tree.hpp"
 
 #include "gtest/gtest.h"
 
