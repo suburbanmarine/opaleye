@@ -23,11 +23,13 @@ add_library(camera-pipes
 
 	#pipeline/camera/Logitech_brio_pipe.cpp
 	#pipeline/camera/Logitech_C525_gst.cpp
+	pipeline/camera/GST_camera_base.cpp
 	pipeline/camera/nvac_imx219_pipe.cpp
 	pipeline/camera/Testsrc_pipe.cpp
-	#pipeline/camera/V4L2_alvium_pipe.cpp
-	#pipeline/camera/V4L2src_alvium_pipe.cpp
+	pipeline/camera/V4L2_alvium_pipe.cpp
 	pipeline/camera/V4L2_webcam_pipe.cpp
+	pipeline/camera/GST_v4l2_api.cpp
+	pipeline/camera/V4L2_alvium_pipe2.cpp
 
 	pipeline/display/autovideosink_pipe.cpp
 

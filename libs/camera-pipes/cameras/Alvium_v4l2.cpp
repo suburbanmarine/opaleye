@@ -1,6 +1,10 @@
 #include "Alvium_v4l2.hpp"
 
+#include "util/v4l2_metadata.hpp"
+
 #include "opaleye-util/chrono_util.hpp"
+
+#include <boost/property_tree/ptree.hpp>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
@@ -99,6 +103,12 @@ bool Alvium_v4l2::open(const char dev_path[])
   {
     SPDLOG_ERROR("Discovered unexpected VIDIOC_QUERYCAP capabilities: {:d}", m_cap.capabilities);
     return false;
+  }
+
+  if( ! m_v4l2_util.v4l2_probe_ctrl() )
+  {
+    SPDLOG_ERROR("Could not probe ctrls");
+    return false; 
   }
 
   return m_fd != -1;
@@ -406,7 +416,7 @@ bool Alvium_v4l2::wait_for_frame(const std::chrono::microseconds& timeout, const
       //update buf metadata
       new_frame->set_buf(buf);
       
-      SPDLOG_INFO("Got new frame idx {:d} ptr {}", new_frame->get_index(), fmt::ptr(new_frame->get_data()));
+      SPDLOG_TRACE("Got new frame idx {:d} ptr {}", new_frame->get_index(), fmt::ptr(new_frame->get_data()));
       if(cb)
       {
         cb(new_frame);
@@ -527,6 +537,25 @@ bool Alvium_v4l2::send_software_trigger()
       SPDLOG_ERROR("ioctl VIDIOC_TRIGGER_SOFTWARE failed: {:s}", m_errno.to_str());
       return false;
   }
+
+  return true;
+}
+
+bool Alvium_v4l2::frame_meta_to_ptree(const ConstMmapFramePtr& frame, boost::property_tree::ptree* out_meta)
+{
+  if( ! (frame && out_meta) )
+  {
+    return false;
+  }
+
+  boost::property_tree::ptree buf_tree;
+  v4l2_metadata::v4l2_buffer_to_json(frame->get_buf(), &buf_tree);
+
+  boost::property_tree::ptree fmt_tree;
+  v4l2_metadata::v4l2_format_to_json(frame->get_fmt(), &fmt_tree);
+
+  out_meta->put_child("buf", buf_tree);
+  out_meta->put_child("fmt", fmt_tree);
 
   return true;
 }

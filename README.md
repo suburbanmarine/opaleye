@@ -109,7 +109,6 @@ Opaleye depends on a number of external components.
  - git
  - grunt
  - gtk-doc-tools
- - gtk-doc-tools
  - lm-sensors
  - node-grunt-cli
  - nodejs
@@ -119,6 +118,7 @@ Opaleye depends on a number of external components.
 
 ### Libraries
  - googletest
+ - gstreamer1.0-plugins-ugly 
  - i2c-tools
  - libboost-all-dev
  - libfcgi-dev
@@ -140,6 +140,7 @@ Opaleye depends on a number of external components.
  - libprotoc-dev
  - libuvc-dev
  - libzmq3-dev
+ - libzmq3-dev
  - nvidia-jetpack
  - nvidia-l4t-jetson-multimedia-api
  - nvidia-l4t-multimedia
@@ -148,7 +149,6 @@ Opaleye depends on a number of external components.
  - protobuf-compiler
  - protobuf-compiler-grpc
  - rapidjson-dev
- - libzmq3-dev
 
 ### Runtime Dependencies
  - chrony
@@ -163,6 +163,7 @@ Opaleye depends on a number of external components.
  - rsync
  - screen
  - vlc
+ - gstreamer1.0-tools
 
 ### GST Interpipe
 

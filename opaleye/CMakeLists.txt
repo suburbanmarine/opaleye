@@ -20,6 +20,8 @@ add_library(opaleye_app
 	sensor_thread.cpp
 	gpio_thread.cpp
 
+	Opaleye_gpio_mod_ctrl.cpp
+
 	signal_handler.cpp
 
 	zeromq_api_svr.cpp

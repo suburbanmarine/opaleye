@@ -15,6 +15,8 @@
 
 #include <list>
 #include <vector>
+#include <map>
+#include <optional>
 
 class v4l2_util
 {
@@ -143,10 +145,66 @@ public:
 
 	bool v4l2_ctrl_set(v4l2_ext_control* const ctrl);
 	bool v4l2_ctrl_get(uint32_t which, v4l2_ext_control* const ctrl);
+
+	bool v4l2_probe_ctrl();
+	bool get_property_description();
+
+	const std::map<uint32_t, v4l2_query_ext_ctrl>& get_ctrl_map() const
+	{
+		return m_device_ctrl;
+	}
+	const std::map<std::string, uint32_t>& get_ctrl_name_map() const
+	{
+		return m_device_ctrl_by_name;
+	}
+	const std::map<uint32_t, std::map<int64_t, v4l2_querymenu>>& get_menu_entries() const
+	{
+		return m_menu_entries;
+	}
+
+	std::optional<uint32_t> get_ctrl_id_by_name(const std::string& name) const
+	{
+		auto it = m_device_ctrl_by_name.find(name);
+		if(it == m_device_ctrl_by_name.end())
+		{
+			return std::optional<uint32_t>();
+		}
+
+		return it->second;
+	}
+
+	std::optional<v4l2_query_ext_ctrl> get_ctrl_by_name(const std::string& name) const
+	{
+		std::optional<uint32_t> id = get_ctrl_id_by_name(name);
+		if( ! id.has_value() )
+		{
+			return std::optional<v4l2_query_ext_ctrl>();
+		}
+
+		return get_ctrl_by_id(id.value());
+	}
+
+	std::optional<v4l2_query_ext_ctrl> get_ctrl_by_id(const uint32_t& id) const
+	{
+		auto it = m_device_ctrl.find(id);
+		if(it == m_device_ctrl.end())
+		{
+			return std::optional<v4l2_query_ext_ctrl>();
+		}
+
+		return it->second;
+	}
+
 protected:
 	int m_v4l2_fd;
 
 	errno_util m_errno;
 
 	std::list<v4l2_fmtdesc> m_fmt_descs;
+
+	// ctrl id -> v4l2_query_ext_ctrl
+	std::map<uint32_t, v4l2_query_ext_ctrl> m_device_ctrl;
+	std::map<std::string, uint32_t>         m_device_ctrl_by_name;
+	// ctrl id -> index -> menu_entries
+	std::map<uint32_t, std::map<int64_t, v4l2_querymenu>> m_menu_entries;
 };

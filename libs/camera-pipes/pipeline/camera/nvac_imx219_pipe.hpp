@@ -10,7 +10,7 @@
 
 #include "util/v4l2_util.hpp"
 
-#include "pipeline/GST_element_base.hpp"
+#include "pipeline/camera/GST_camera_base.hpp"
 
 #include "opaleye-util/errno_util.hpp"
 
@@ -29,13 +29,16 @@
 #include <mutex>
 #include <set>
 
-class nvac_imx219_pipe : public GST_element_base
+class nvac_imx219_pipe : public GST_camera_base
 {
 public:
   nvac_imx219_pipe();
+  ~nvac_imx219_pipe() override
+  {
 
-  typedef std::function<void(const std::shared_ptr<const std::vector<uint8_t>>&)> FramebufferCallback;
-  void set_framebuffer_callback(const FramebufferCallback& cb)
+  }
+  
+  void set_framebuffer_callback(const FramebufferCallback& cb) override
   {
     std::unique_lock<std::mutex> lock(m_frame_buffer_mutex);
     m_buffer_dispatch_cb = cb;
