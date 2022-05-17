@@ -12,9 +12,11 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 	wget                 \
 	&& apt-get clean
 
-# RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin -O /etc/apt/preferences.d/cuda-repository-pin-600
-# RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub
-# RUN add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /"
+WORKDIR /tmp
+RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb && \
+	dpkg -i cuda-keyring_1.0-1_all.deb && \
+	rm cuda-keyring_1.0-1_all.deb
+RUN add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/ /"
 
 
 # RUN echo "deb https://repo.download.nvidia.com/jetson/common r32.2 main" >> /etc/apt/sources.list.d/jetson-multimedia.repo
