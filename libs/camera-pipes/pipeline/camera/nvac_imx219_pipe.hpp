@@ -10,10 +10,11 @@
 
 #include "util/v4l2_util.hpp"
 
-#include "pipeline/GST_element_base.hpp"
+#include "pipeline/camera/GST_camera_base.hpp"
 
 #include "opaleye-util/errno_util.hpp"
 
+#include <gstreamermm/appsink.h>
 #include <gstreamermm/caps.h>
 #include <gstreamermm/capsfilter.h>
 #include <gstreamermm/queue.h>
@@ -28,10 +29,20 @@
 #include <mutex>
 #include <set>
 
-class nvac_imx219_pipe : public GST_element_base
+class nvac_imx219_pipe : public GST_camera_base
 {
 public:
   nvac_imx219_pipe();
+  ~nvac_imx219_pipe() override
+  {
+
+  }
+  
+  void set_framebuffer_callback(const FramebufferCallback& cb) override
+  {
+    std::unique_lock<std::mutex> lock(m_frame_buffer_mutex);
+    m_buffer_dispatch_cb = cb;
+  }
 
   void add_to_bin(const Glib::RefPtr<Gst::Bin>& bin) override;
   bool link_front(const Glib::RefPtr<Gst::Element>& node) override;
@@ -63,6 +74,8 @@ public:
 
   bool set_gain(int32_t val);
   bool get_gain(int32_t* const val);
+
+  void handle_new_sample();
   
 protected:
 
@@ -78,4 +91,16 @@ protected:
   Glib::RefPtr<Gst::CapsFilter> m_in_capsfilter;
   Glib::RefPtr<Gst::Queue>      m_in_queue;
   Glib::RefPtr<Gst::Tee>        m_out_tee;
+
+  //in-mem frame access point
+  Glib::RefPtr<Gst::Queue>      m_appsink_queue;
+  Glib::RefPtr<Gst::Element>    m_videoconvert;
+  Glib::RefPtr<Gst::Caps>       m_appsink_caps;
+  Glib::RefPtr<Gst::CapsFilter> m_appsink_capsfilter;
+  Glib::RefPtr<Gst::AppSink>    m_appsink;
+  
+  mutable std::mutex m_frame_buffer_mutex;
+  std::shared_ptr<std::vector<uint8_t>> m_frame_buffer;
+
+  FramebufferCallback m_buffer_dispatch_cb;
 };

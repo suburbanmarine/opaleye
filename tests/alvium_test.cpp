@@ -174,10 +174,10 @@ int main(int argc, char* argv[])
 	    desc.add_options() 
 			("help"      , "Print usage information and exit")
 			("device"    , bpo::value<std::string>()->default_value("/dev/video0"), "device to open")
-			("fourcc"    , bpo::value<std::string>()->default_value("XR24"), "fcc code to ask for image format, try XR24, RGGB, JXR0, JXR2, VYUY")
-			("trigger"   , bpo::value<std::string>()->default_value("SW"),   "Trigger type, SW or HW-kernel or HW-user")
-			("disk"      , bpo::value<bool>()->default_value(false),         "Write to disk")
-			("num_frames", bpo::value<int>()->default_value(10),          "Number of frames to grab")
+			("fourcc"    , bpo::value<std::string>()->default_value("XR24"),        "fcc code to ask for image format, try XR24, RGGB, JXR0, JXR2, VYUY")
+			("trigger"   , bpo::value<std::string>(),                               "Trigger type, SW or HW-kernel or HW-user")
+			("disk"      , bpo::value<bool>()->default_value(false),                "Write to disk")
+			("num_frames", bpo::value<int>()->default_value(10),                    "Number of frames to grab")
 			;
 
 		//Parse options
@@ -210,24 +210,28 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
+	std::string trigger;
 	bool sw_trigger = false;
-	std::string trigger = vm["trigger"].as<std::string>();
-	if(trigger.compare("SW") == 0)
+	if(vm.count("trigger"))
 	{
-		sw_trigger = true;
-	}
-	else if(trigger.compare("HW-user") == 0)
-	{
-		sw_trigger = false;
-	}
-	else if(trigger.compare("HW-kernel") == 0)
-	{
-		sw_trigger = false;
-	}
-	else
-	{
-		std::cout << "Unknown trigger type" << std::endl;
-		return -1;
+		trigger = vm["trigger"].as<std::string>();
+		if(trigger.compare("SW") == 0)
+		{
+			sw_trigger = true;
+		}
+		else if(trigger.compare("HW-user") == 0)
+		{
+			sw_trigger = false;
+		}
+		else if(trigger.compare("HW-kernel") == 0)
+		{
+			sw_trigger = false;
+		}
+		else
+		{
+			std::cout << "Unknown trigger type" << std::endl;
+			return -1;
+		}
 	}
 
 	gpio_thread user_gpio;
@@ -278,6 +282,15 @@ int main(int argc, char* argv[])
 			SPDLOG_ERROR("cam.set_hw_trigger(V4L2_TRIGGER_SOURCE_LINE1, V4L2_TRIGGER_ACTIVATION_RISING_EDGE) failed");
 			return -1;
 		}
+	}
+	else
+	{
+		if( ! cam.set_free_trigger() )
+		{
+			SPDLOG_ERROR("cam.set_free_trigger() failed");
+			return -1;
+		}
+		
 	}
 
 	if( ! cam.start_streaming() )

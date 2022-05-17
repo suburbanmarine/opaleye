@@ -25,6 +25,9 @@ public:
 
 	std::string sensors_launch;
 
+	std::string zeromq_launch;
+	std::list<std::string> zeromq_ep;
+
 	std::map<std::string, camera_config> camera_configs;
 	
 	bool is_valid() const;
@@ -47,6 +50,18 @@ public:
 	T get(const boost::property_tree::ptree::path_type& path, const T& default_value) const
 	{
 		return m_tree.get<T>(path, default_value);
+	}
+
+	bool has_child(const boost::property_tree::ptree::path_type& path) const
+	{
+		auto child = m_tree.get_child_optional(path);
+
+		return child.is_initialized();
+	}
+
+	size_t count_key(const boost::property_tree::ptree::key_type& key) const
+	{
+		return m_tree.count(key);
 	}
 
 protected:
