@@ -37,5 +37,5 @@ public:
   virtual bool get_gain(int32_t* const val);
 
   virtual bool set_camera_property(const std::string& property_id, const std::string& value);
-  virtual bool get_camera_property(const std::string& property_id, std::string* out_value);
+  virtual bool get_camera_property(const std::string& property_id, std::string* const out_value);
 };
