@@ -528,6 +528,8 @@ bool Opaleye_app::init()
 
   if(m_config->count("config.nvpmodel"))
   {
+    SPDLOG_INFO("Opaleye_app::init nvpmodel setting perf to {:d}", m_config->nvpmodel_mode);
+
     std::array<char, 512> cmd;
     int ret = snprintf(cmd.data(), cmd.size(), "nvpmodel -m %d", m_config->nvpmodel_mode);
     if( (ret < 0) || (ret >= cmd.size()) )
@@ -558,7 +560,7 @@ bool Opaleye_app::init()
       }
       else
       {
-        SPDLOG_INFO("Opaleye_app::init nvpmodel set perf to {:d}", m_config->nvpmodel_mode);
+        SPDLOG_INFO("Opaleye_app::init nvpmodel done");
       }
     }
   }
