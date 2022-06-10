@@ -1,6 +1,7 @@
 #include "opaleye-util/thread_base.hpp"
 
 #include <spdlog/spdlog.h>
+#include "spdlog/fmt/ostr.h"
 
 thread_base::thread_base() : m_keep_running(false)
 {
@@ -51,7 +52,7 @@ void thread_base::wait_for_interruption()
 
 void thread_base::dispatch_work()
 {
-	SPDLOG_DEBUG("Thread started");
+	SPDLOG_DEBUG("Thread started: {}", std::this_thread::get_id());
 	try
 	{
 		work();
@@ -67,5 +68,5 @@ void thread_base::dispatch_work()
 		throw;
 	}
 
-	SPDLOG_DEBUG("Thread exiting");
+	SPDLOG_DEBUG("Thread exiting: {}", std::this_thread::get_id());
 }

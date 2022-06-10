@@ -5,6 +5,14 @@
 	<log_path>/mnt/video/opaleye/log</log_path>
 	<h264_mode>nv</h264_mode>
 
+	<fcgi>
+		<endpoint>127.0.0.1:50000</endpoint>
+	</fcgi>
+
+	<nvpmodel>
+		<mode>4</mode>
+	</nvpmodel>
+
 	<sensors>
 		<launch>false</launch>
 	</sensors>

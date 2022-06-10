@@ -30,6 +30,8 @@ public:
 
 	std::map<std::string, camera_config> camera_configs;
 	
+	int nvpmodel_mode;
+
 	bool is_valid() const;
 
 	bool make_default();

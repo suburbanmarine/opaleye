@@ -21,6 +21,8 @@
 #include "pipeline/GST_fakesink.hpp"
 #include "pipeline/nvvideoconvert_pipe.hpp"
 
+#include "opaleye-util/errno_util.hpp"
+
 #include <boost/lexical_cast.hpp>
 
 #include <jsonrpc-lean/fault.h>
@@ -522,6 +524,45 @@ bool Opaleye_app::init()
   {
     m_config = std::make_shared<app_config>();
     m_config->make_default();
+  }
+
+  if(m_config->has_child("config.nvpmodel.mode"))
+  {
+    SPDLOG_INFO("Opaleye_app::init nvpmodel setting perf to {:d}", m_config->nvpmodel_mode);
+
+    std::array<char, 512> cmd;
+    int ret = snprintf(cmd.data(), cmd.size(), "sudo nvpmodel -m %d", m_config->nvpmodel_mode);
+    if( (ret < 0) || (size_t(ret) >= cmd.size()) )
+    {
+      SPDLOG_ERROR("Opaleye_app::init could not format nvmpmodel command");
+      return false;
+    }
+
+    errno_util err;
+
+    ret = system(cmd.data());
+    if(ret == -1)
+    {
+      SPDLOG_ERROR("Opaleye_app::init nvpmodel failed, errno: {:s}", err.to_str());
+      return false; 
+    }
+    else
+    {
+      if(WIFSIGNALED(ret))
+      {
+        SPDLOG_ERROR("Opaleye_app::init nvpmodel signaled");
+        return false; 
+      }
+      if(WEXITSTATUS(ret) != 0)
+      {
+        SPDLOG_ERROR("Opaleye_app::init nvpmodel returned non-zero code");
+        return false;  
+      }
+      else
+      {
+        SPDLOG_INFO("Opaleye_app::init nvpmodel done");
+      }
+    }
   }
 
   if(m_config->has_child("config.hw_trigger"))

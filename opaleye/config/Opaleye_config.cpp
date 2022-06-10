@@ -39,6 +39,9 @@ bool app_config::deserialize(const boost::property_tree::ptree& tree)
 	log_path   = tree.get<std::string>("config.log_path");
 	h264_mode  = tree.get<std::string>("config.h264_mode");
 
+	//default to 10W, 2 CPU
+	nvpmodel_mode  = tree.get<int>("config.nvpmodel.mode", 3);
+
 	{
 		const boost::property_tree::ptree& sensors_tree = tree.get_child("config.sensors");
 		sensors_launch = sensors_tree.get<std::string>("launch");
@@ -55,7 +58,6 @@ bool app_config::deserialize(const boost::property_tree::ptree& tree)
 			zeromq_ep.push_back(it->second.data());
 		}
 	}
-	
 
 	const boost::property_tree::ptree& cameras_tree = tree.get_child("config.cameras");
 	for( const auto& camera_i : cameras_tree)
@@ -85,6 +87,8 @@ bool app_config::serialize(boost::property_tree::ptree* const tree) const
 
 	tree->put("config.sensors.launch", sensors_launch);
 
+	tree->put("config.sensors.launch", nvpmodel_mode);
+
 	tree->put("config.zeromq.launch", zeromq_launch);
 	for(const std::string& str : zeromq_ep)
 	{
@@ -113,6 +117,8 @@ bool app_config::make_default()
 	image_path = "/opt/suburbanmarine/opaleye/record/image";
 	log_path   = "/opt/suburbanmarine/opaleye/log";
 	h264_mode  = "cpu";
+
+	nvpmodel_mode = 3;
 
 	sensors_launch  = "true";
 
