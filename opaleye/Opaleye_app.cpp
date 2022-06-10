@@ -542,6 +542,7 @@ bool Opaleye_app::init()
     if(ret == -1)
     {
       SPDLOG_ERROR("Opaleye_app::init nvpmodel failed, errno: {:s}", err.to_str());
+      return false; 
     }
     else
     {
