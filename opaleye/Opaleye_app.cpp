@@ -21,7 +21,7 @@
 #include "pipeline/GST_fakesink.hpp"
 #include "pipeline/nvvideoconvert_pipe.hpp"
 
-#include "errno_util.hpp"
+#include "opaleye-util/errno_util.hpp"
 
 #include <boost/lexical_cast.hpp>
 

@@ -38,6 +38,7 @@ target_link_libraries(opaleye_app
 		camera-pipes-nv
 		http-bridge
 		opaleye_sensors
+		opaleye_util
 
 		jsonrpc-lean
 
