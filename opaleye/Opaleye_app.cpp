@@ -721,12 +721,18 @@ bool Opaleye_app::init()
     SPDLOG_ERROR("Opaleye_app::init not requested to init hw_trigger");
   }
 
-  if(m_config->camera_configs.count("cam0"))
+  for(const auto cam : m_config->camera_configs)
   {
+    const std::string&   cam_name   = cam.first;
+
+    const camera_config& cam_i_cfg       = cam.second;
+    const std::string&   cam_i_cam_name  = cam_i_cfg.name;
+    const std::string&   cam_i_pipe_name = cam_i_cfg.pipeline.name;
+
     std::shared_ptr<Gstreamer_pipeline> pipeline = std::make_shared<Gstreamer_pipeline>();
     if( ! pipeline->init() )
     {
-      SPDLOG_ERROR("Opaleye_app::init init pipe0 failed");
+      SPDLOG_ERROR("Opaleye_app::init create pipeline {:s} failed", cam_i_pipe_name);
       return false;
     }
 
@@ -738,49 +744,14 @@ bool Opaleye_app::init()
       pipeline->get_pipeline()->set_base_time(base_time);
     }
 
-    const camera_config& cam0_cfg     = m_config->camera_configs["cam0"];
-    const std::string& cam0_cam_name  = cam0_cfg.name;
-    const std::string& cam0_pipe_name = cam0_cfg.pipeline.name;
-
-    if( ! pipeline->make_pipeline(m_config, cam0_cfg, cam0_cfg.pipeline) )
+    if( ! pipeline->make_pipeline(m_config, cam_i_cfg, cam_i_cfg.pipeline) )
     {
-      SPDLOG_ERROR("Opaleye_app::init make pipe0 failed");
+      SPDLOG_ERROR("Opaleye_app::init make_pipeline {:s} failed", cam_i_pipe_name);
       return false;
     }
     
-    SPDLOG_INFO("Opaleye_app::init stashing cam0 pipeline: {:s}", cam0_pipe_name);
-    m_pipelines.emplace(cam0_pipe_name, pipeline);
-  }
-
-  if(m_config->camera_configs.count("cam1"))
-  {
-    std::shared_ptr<Gstreamer_pipeline> pipeline = std::make_shared<Gstreamer_pipeline>();
-    if( ! pipeline->init() )
-    {
-      SPDLOG_ERROR("Opaleye_app::init init pipe1 failed");
-      return false;
-    }
-
-    {
-      pipeline->use_clock(m_master_clock->get_clock());
-      Glib::RefPtr<Gst::Element> pipe_elem = pipeline->get_pipeline();
-      pipeline->get_pipeline()->set_start_time(GST_CLOCK_TIME_NONE);
-      pipeline->get_pipeline()->set_latency(m_config->master_clock_latency * GST_MSECOND);
-      pipeline->get_pipeline()->set_base_time(base_time);
-    }
-
-    const camera_config& cam1_cfg     = m_config->camera_configs["cam1"];
-    const std::string& cam1_cam_name  = cam1_cfg.name;
-    const std::string& cam1_pipe_name = cam1_cfg.pipeline.name;
-
-    if( ! pipeline->make_pipeline(m_config, cam1_cfg, cam1_cfg.pipeline) )
-    {
-      SPDLOG_ERROR("Opaleye_app::init make pipe1 failed");
-      return false;
-    }
-    
-    SPDLOG_INFO("Opaleye_app::init stashing cam1 pipeline: {:s}", cam1_pipe_name);
-    m_pipelines.emplace(cam1_pipe_name, pipeline);
+    SPDLOG_INFO("Opaleye_app::init stashing {:s} pipeline: {:s}", cam_i_cam_name, cam_i_pipe_name);
+    m_pipelines.emplace(cam_i_pipe_name, pipeline);
   }
 
   return true;
