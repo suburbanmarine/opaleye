@@ -215,7 +215,7 @@ INSTALL(
 	FILES
 		"${PROJECT_SOURCE_DIR}/conf/etc/sudoers.d/nvpmodel"
 	DESTINATION
-		/etc
+		/etc/sudoers.d
 	PERMISSIONS
 		OWNER_READ GROUP_READ
 )
