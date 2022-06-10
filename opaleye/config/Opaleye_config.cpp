@@ -39,12 +39,9 @@ bool app_config::deserialize(const boost::property_tree::ptree& tree)
 	log_path   = tree.get<std::string>("config.log_path");
 	h264_mode  = tree.get<std::string>("config.h264_mode");
 
-<<<<<<< HEAD
 	//default to 15W, 4 CPU
 	nvpmodel_mode  = tree.get<int>("config.nvpmodel.mode", 4);
 
-	sensors_launch = tree.get<std::string>("config.sensors.launch");
-=======
 	{
 		const boost::property_tree::ptree& sensors_tree = tree.get_child("config.sensors");
 		sensors_launch = sensors_tree.get<std::string>("launch");
@@ -61,8 +58,6 @@ bool app_config::deserialize(const boost::property_tree::ptree& tree)
 			zeromq_ep.push_back(it->second.data());
 		}
 	}
-	
->>>>>>> master
 
 	const boost::property_tree::ptree& cameras_tree = tree.get_child("config.cameras");
 	for( const auto& camera_i : cameras_tree)
