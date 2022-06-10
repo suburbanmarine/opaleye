@@ -1,3 +1,9 @@
+/**
+ * @author Jacob Schloss <jacob.schloss@suburbanmarine.io>
+ * @copyright Copyright (c) 2021 Suburban Marine, Inc. All rights reserved.
+ * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
+*/
+
 #pragma once
 
 #include <string>
@@ -31,11 +37,11 @@ public:
 	virtual rapidjson::Value to_json_value() const = 0;
 	virtual void from_json_value(const rapidjson::Value& val) const = 0;
 
-	const std::string& get_name() const
+	const std::string& name() const
 	{
 		return name_;
 	}
-	const std::string& get_desc() const
+	const std::string& desc() const
 	{
 		return desc_;
 	}
@@ -43,7 +49,7 @@ protected:
 	std::string name_;
 	std::string desc_;
 };
-
+/*
 class PropertyCollection
 {
 public:
@@ -58,6 +64,8 @@ public:
 		{
 			// doc.AddMember(p->get_name(), p->to_json_value(), doc.GetAllocator());
 		}
+
+		return
 	}
 
 	virtual void from_json_obj(const std::string& msg) const
@@ -76,3 +84,4 @@ public:
 
 	std::map<std::string, std::shared_ptr<Property_base>> property_storage_;
 };
+*/

@@ -1,18 +1,28 @@
+/**
+ * @author Jacob Schloss <jacob.schloss@suburbanmarine.io>
+ * @copyright Copyright (c) 2021 Suburban Marine, Inc. All rights reserved.
+ * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
+*/
+
+#include "Property.hpp"
+
+#include <limits>
+
 template<typename T>
-class Property_numeric : Property<T>
+class Property_numeric : public Property<T>
 {
 public:
 
 	Property_numeric() :
-	min_(std::numeric_limits<T>::min()),
-	max_(std::numeric_limits<T>::max()),
+		min_(std::numeric_limits<T>::min()),
+		max_(std::numeric_limits<T>::max())
 	{
 
 	}
 
-	Property_numeric(T min, T max) :
-	min_(min),
-	max_(max),
+	Property_numeric(const T& min, const T& max) :
+		min_(min),
+		max_(max)
 	{
 
 	}
@@ -26,9 +36,9 @@ public:
 		return max_;
 	}
 	
-	bool is_value_valid() override
+	bool is_value_valid(const T& x) const override
 	{
-		return ( (min() <= val) && (val <= max()) );
+		return ( (min() <= x) && (x <= max()) );
 	}
 
 protected:
@@ -70,8 +80,9 @@ class Property_numeric_double : Property_numeric<double>
 
 };
 
-template<typename Property_numeric<T>>
+template<typename T>
 class Property_numeric_factory
 {
 	static std::shared_ptr<Property_numeric<T>> create(const T& val, std::string, std::string);
-}
+};
+

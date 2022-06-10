@@ -1,41 +1,49 @@
+/**
+ * @author Jacob Schloss <jacob.schloss@suburbanmarine.io>
+ * @copyright Copyright (c) 2021 Suburban Marine, Inc. All rights reserved.
+ * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
+*/
 
-// a enum of names, that has an int to allow 
-class Property_enum_value
+#include "Property.hpp"
+
+#include <string>
+#include <set>
+
+template <typename T>
+class Property_enum : public Property<T>
 {
 public:
 
-	Property_enum_value(const int val, const std::string& name) : 
-		val_(val),
-		name_(name)
-		{
-
-		}
-
-	virtual ~Property_enum_value()
+	bool is_value_valid(const T& x) const override
 	{
-
+		return valid_values_.find(x) != valid_values_.end();
 	}
 
-	virtual std::string to_string() const;
+	virtual const std::set<Property<T>>& valid_value_set() const
+	{
+		return valid_values_;
+	}
 
-	//add int cast
-	//add string cast
+	virtual const std::set<Property<T>>& add_valid_value(const Property<T>& val) const
+	{
+		return valid_values_.insert(val);
+	}
 
 protected:
-	const int val_;
-	const std::string name_;
+	std::set<Property<T>> valid_values_;
 };
 
-class Property_enum : Property< Property_enum_value >
+class Property_enum_int : public Property_enum<int>
 {
-public:
 
-	virtual const std::set<Property_enum_value>& valid_value_list() const = 0;
-	virtual bool is_valid_value(const Property_enum_value& x) const
-	{
-		return valid_values.find(x) != valid_values.end();
-	}
-
-protected:
-	std::set<Property_enum_value> valid_values;
 };
+class Property_enum_char : public Property_enum<char>
+{
+
+};
+// class Property_enum_void : public Property_enum<void>
+// {
+
+// };
+
+
