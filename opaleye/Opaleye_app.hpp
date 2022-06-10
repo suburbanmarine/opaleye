@@ -219,6 +219,6 @@ public:
 
   std::shared_ptr<app_config> m_config;
 
-  std::shared_ptr<sys_clock> m_master_clock;
+  std::shared_ptr<gst_clock_base> m_master_clock;
 
 };

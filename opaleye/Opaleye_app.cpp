@@ -594,36 +594,53 @@ bool Opaleye_app::init()
     m_config->make_default();
   }
 
-#if 1
-  m_master_clock = std::make_shared<sys_clock>();
-  if( ! m_master_clock->init() )
+  Gst::ClockTime base_time;
+  if(m_config->master_clock == "system")
   {
-    SPDLOG_ERROR("Opaleye_app::init master clock init failed");
-    return false;
+    m_master_clock = std::make_shared<sys_clock>();
+    if( ! m_master_clock->init() )
+    {
+      SPDLOG_ERROR("Opaleye_app::init master clock init failed");
+      return false;
+    }
+    base_time = m_master_clock->get_time();
   }
-  Gst::ClockTime base_time = m_master_clock->get_time();
-#else
-  bool ptp_sync_ok = false;
-  for(int i = 0; i < 60; i++)
+  else if(m_config->master_clock == "ptp")
   {
-    bool sync = m_master_clock->wait_for_sync();
-    if( ! sync )
+    m_master_clock = std::make_shared<ptp_clock>();
+    if( ! m_master_clock->init() )
     {
-      SPDLOG_WARN("Opaleye_app::init ptp clock sync failed");
+      SPDLOG_ERROR("Opaleye_app::init master clock init failed");
+      return false;
     }
-    else
-    {
-      ptp_sync_ok = true;
-      SPDLOG_INFO("Opaleye_app::init ptp clock sync ready");
-    }
-  }
+    base_time = m_master_clock->get_time();
 
-  if( ! ptp_sync_ok )
+    bool ptp_sync_ok = false;
+    for(int i = 0; i < 60; i++)
+    {
+      bool sync = m_master_clock->wait_for_sync();
+      if( ! sync )
+      {
+        SPDLOG_WARN("Opaleye_app::init ptp clock sync failed");
+      }
+      else
+      {
+        ptp_sync_ok = true;
+        SPDLOG_INFO("Opaleye_app::init ptp clock sync ready");
+      }
+    }
+
+    if( ! ptp_sync_ok )
+    {
+      SPDLOG_ERROR("Opaleye_app::init ptp clock sync timed out");
+      return false;
+    }
+  }
+  else
   {
-    SPDLOG_ERROR("Opaleye_app::init ptp clock sync timed out");
+    SPDLOG_ERROR("Opaleye_app::init could not parse pipeline master clock source");
     return false;
   }
-#endif
 
   if(m_config->has_child("config.nvpmodel.mode"))
   {
@@ -717,7 +734,7 @@ bool Opaleye_app::init()
       pipeline->use_clock(m_master_clock->get_clock());
       Glib::RefPtr<Gst::Element> pipe_elem = pipeline->get_pipeline();
       pipeline->get_pipeline()->set_start_time(GST_CLOCK_TIME_NONE);
-      pipeline->get_pipeline()->set_latency(500 * GST_MSECOND);
+      pipeline->get_pipeline()->set_latency(m_config->master_clock_latency * GST_MSECOND);
       pipeline->get_pipeline()->set_base_time(base_time);
     }
 
@@ -748,7 +765,7 @@ bool Opaleye_app::init()
       pipeline->use_clock(m_master_clock->get_clock());
       Glib::RefPtr<Gst::Element> pipe_elem = pipeline->get_pipeline();
       pipeline->get_pipeline()->set_start_time(GST_CLOCK_TIME_NONE);
-      pipeline->get_pipeline()->set_latency(500 * GST_MSECOND);
+      pipeline->get_pipeline()->set_latency(m_config->master_clock_latency * GST_MSECOND);
       pipeline->get_pipeline()->set_base_time(base_time);
     }
 
