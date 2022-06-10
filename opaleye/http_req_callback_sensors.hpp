@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "http_req_callback_base.hpp"
+#include "http-bridge/http_req_callback_base.hpp"
 #include "sensor_thread.hpp"
 
 #define NO_FCGI_DEFINES 1
@@ -32,7 +32,13 @@ public:
 		m_sensors = sensors;
 	}
 
+	//top level handler
 	void handle(FCGX_Request* const request) override;
+
+	void handle_index(FCGX_Request* const request);
+
+	void handle_temperature(FCGX_Request* const request);
+	void handle_pressure(FCGX_Request* const request);
 protected:
 
 	std::shared_ptr<sensor_thread> m_sensors;

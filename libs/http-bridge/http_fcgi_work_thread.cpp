@@ -4,9 +4,9 @@
  * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
 */
 
-#include "http_fcgi_work_thread.hpp"
+#include "http-bridge/http_fcgi_work_thread.hpp"
 
-#include "http_fcgi_svr.hpp"
+#include "http-bridge/http_fcgi_svr.hpp"
 
 #define NO_FCGI_DEFINES 1
 #include <fcgi_config.h>
@@ -17,7 +17,7 @@
 
 #include <cstring>
 
-http_fcgi_work_thread::http_fcgi_work_thread() : m_keep_running(false)
+http_fcgi_work_thread::http_fcgi_work_thread()
 {
   m_svr     = nullptr;
   m_sock_fd = -1;
@@ -34,34 +34,41 @@ http_fcgi_work_thread::~http_fcgi_work_thread()
   }
 }
 
-void http_fcgi_work_thread::launch(http_fcgi_svr* svr, int sock_fd)
+bool http_fcgi_work_thread::init(http_fcgi_svr* svr, int sock_fd)
 {
-  if( ! m_thread.joinable() )
-  {
-    m_keep_running = true;
-    m_svr = svr;
-    m_sock_fd = sock_fd;
-    m_thread = std::thread(&http_fcgi_work_thread::work, this);
-  }
+  m_svr = svr;
+  m_sock_fd = sock_fd;
+
+  return true;
 }
 
 void http_fcgi_work_thread::work()
 {
-  SPDLOG_INFO("thread starting: {}", m_thread.get_id());
+  SPDLOG_INFO("thread starting: {}", std::this_thread::get_id());
 
   FCGX_Request request;
   memset(&request, 0, sizeof(FCGX_Request));
 
   FCGX_InitRequest(&request, m_sock_fd, FCGI_FAIL_ACCEPT_ON_INTR);
 
-  while(m_keep_running)
+  while( ! is_interrupted() )
   {
     if(FCGX_Accept_r(&request) == 0)
     {
       //check if running
-      if( ! m_keep_running )
+      if( is_interrupted() )
       {
-        SPDLOG_INFO("interruption requested: {}", m_thread.get_id());
+        SPDLOG_INFO("interruption requested: {}", std::this_thread::get_id());
+
+        const char msg[]     = "Internal Error";
+        const char msg_len = sizeof(msg) - 1;
+        FCGX_PutS("Content-Type: text/html\r\n", request.out);
+        FCGX_FPrintF(request.out, "Content-Length: %d\r\n", msg_len);
+        FCGX_PutS("Status: 500 Internal Error\r\n", request.out);
+        FCGX_PutS("\r\n", request.out);
+        FCGX_FPrintF(request.out, "%s", msg);
+        FCGX_Finish_r(&request);
+
         break;
       }
 
@@ -135,47 +142,6 @@ void http_fcgi_work_thread::work()
           FCGX_FPrintF(request.out, "%s", msg);
           FCGX_Finish_r(&request);
         }
-
-        // std::cout << std::endl << std::endl;
-        // std::stringstream buf;
-        //       buf << "Content-type: text/html\r\n"
-        //           << "\r\n"
-        //           << "<html>\n"
-        //           << "  <head>\n"
-        //           << "    <title>Hello, World!</title>\n"
-        //           << "  </head>\n"
-        //           << "  <body>\n"
-        //           << "    <h1>Hello, World!</h1>\n"
-        //           << "  </body>\n"
-        //           << "</html>\n";
-      
-        // FCGX_FPrintF(request.out, "%s", buf.str().c_str());
-
-        // FCGX_FPrintF(request.out, "%s", "Content-type: image/jpeg\n");
-        // FCGX_FPrintF(request.out, "%s", "Content-length: 37321\n");
-        // FCGX_FPrintF(request.out, "%s", "\n");
-
-        // FILE* f = fopen("/home/rounin/image-19.jpg", "r");
-        // if(f)
-        // {
-        //   std::array<char, 4096> buf;
-        //   size_t read_ret;
-        //   do
-        //   {
-        //     read_ret = fread(buf.data(), 1, buf.size(), f);
-        //     if(read_ret > 0)
-        //     {
-        //       FCGX_PutStr(buf.data(), read_ret, request.out);
-        //     }
-        //   } while(read_ret > 0);
-
-        //   fclose(f);
-        // }
-        // else
-        // {
-        //   std::cout << "no file" << std::endl;  
-        // }
-
       }
       else
       {
@@ -194,19 +160,5 @@ void http_fcgi_work_thread::work()
 
   FCGX_Free(&request, m_sock_fd);
 
-  SPDLOG_INFO("thread stoppping: {}", m_thread.get_id());
-}
-
-void http_fcgi_work_thread::interrupt()
-{
-  m_keep_running = false;
-}
-
-//MT safe
-void http_fcgi_work_thread::join()
-{
-  if(m_thread.joinable())
-  {
-    m_thread.join();
-  }
+  SPDLOG_INFO("thread stoppping: {}", std::this_thread::get_id());
 }

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.10)
 
 project(opaleye 
 	VERSION 0.2.0
@@ -26,6 +26,7 @@ add_custom_target(protoc-gen-grpc-web-target
 add_definitions(
 	-DSPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE
 	-DBOOST_ALL_DYN_LINK
+	-DZMQ_BUILD_DRAFT_API
 	# -DMALLOC_CHECK_=2 # debug heap
 	# -D_GLIBCXX_DEBUG # changes layout of stl types
 )
@@ -39,6 +40,7 @@ find_package(Boost
 		filesystem
 		program_options
 		date_time
+		regex
 )
 
 find_package(PkgConfig)
@@ -68,6 +70,17 @@ add_subdirectory(external/spdlog)
 add_subdirectory(external/googletest)
 # add_subdirectory(external/nvidia-jetpack)
 
+
+add_library(cppzmq INTERFACE)
+target_include_directories(cppzmq
+	INTERFACE
+		external/cppzmq
+)
+target_link_libraries(cppzmq
+	INTERFACE
+		zmq
+)
+
 add_library(jsonrpc-lean INTERFACE)
 target_include_directories(jsonrpc-lean
 	INTERFACE
@@ -81,6 +94,7 @@ add_subdirectory(libs/sensors)
 add_subdirectory(libs/opaleye-util)
 add_subdirectory(opaleye)
 add_subdirectory(site)
+add_subdirectory(tests)
 
 
 add_executable(jsontest
@@ -199,6 +213,16 @@ INSTALL(
 
 INSTALL(
 	FILES
+		"${PROJECT_SOURCE_DIR}/conf/etc/sudoers.d/nvpmodel"
+	DESTINATION
+		/etc/sudoers.d
+	PERMISSIONS
+		OWNER_READ GROUP_READ
+)
+
+
+INSTALL(
+	FILES
 		scripts/opaleye.service
 #		scripts/ptp4l.service
 	DESTINATION
@@ -207,9 +231,12 @@ INSTALL(
 
 set(CPACK_SET_DESTDIR true)
 set(CPACK_INSTALL_PREFIX /opt/suburbanmarine/opaleye)
-set(CPACK_GENERATOR "DEB")
+set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+set(CPACK_GENERATOR "DEB;TGZ")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "SM")
 set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${PROJECT_SOURCE_DIR}/scripts/preinst;${PROJECT_SOURCE_DIR}/scripts/postinst;${PROJECT_SOURCE_DIR}/scripts/prerm;${PROJECT_SOURCE_DIR}/scripts/postrm")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libgstreamer1.0-0, libgstreamer-plugins-base1.0-0, libgstreamer-plugins-good1.0-0, libgstreamer-plugins-bad1.0-0, libgstreamermm-1.0-1, libfcgi0ldbl, liblockfile1, libprotobuf10, libprotobuf-c1, libprotoc10, libgrpc++1, libgrpc3, graphviz, libi2c0, samba, googletest, nvidia-jetpack")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libgstreamer1.0-0, libgstreamer-plugins-base1.0-0, libgstreamer-plugins-good1.0-0, libgstreamer-plugins-bad1.0-0, libgstreamermm-1.0-1, libgstrtspserver-1.0-0, libfcgi0ldbl, liblockfile1, graphviz, libfcgi-bin, libi2c0, samba, googletest, v4l-utils, nginx-full")
 include(CPack)
 

@@ -23,7 +23,7 @@ void valve_pipe::add_to_bin(const Glib::RefPtr<Gst::Bin>& bin)
 bool valve_pipe::link_front(const Glib::RefPtr<Gst::Element>& node)
 {
   node->link(m_valve);
-  return false;
+  return true;
 }
 bool valve_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
 {

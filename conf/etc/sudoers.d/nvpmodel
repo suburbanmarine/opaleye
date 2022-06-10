@@ -1,0 +1,3 @@
+# allow opaleye user to set power model for runtime core parking
+
+opaleye ALL = NOPASSWD: /usr/sbin/nvpmodel

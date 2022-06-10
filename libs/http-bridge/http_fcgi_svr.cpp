@@ -4,7 +4,7 @@
  * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
 */
 
-#include "http_fcgi_svr.hpp"
+#include "http-bridge/http_fcgi_svr.hpp"
 
 #include <spdlog/spdlog.h>
 
@@ -21,11 +21,10 @@ http_fcgi_svr::~http_fcgi_svr()
   }
 }
 
-bool http_fcgi_svr::start()
+bool http_fcgi_svr::start(const char* bind_addr, const size_t num_threads)
 {
   SPDLOG_INFO("Starting server");
 
-  const char bind_addr[] = "127.0.0.1:50000";
   SPDLOG_INFO("Binding to {:s}", bind_addr);
   m_sock_fd = FCGX_OpenSocket(bind_addr, 1024);
 
@@ -39,11 +38,16 @@ bool http_fcgi_svr::start()
   FCGX_Init();
 
   SPDLOG_INFO("Staring threads");
-  m_thread_pool.resize(4);
+  m_thread_pool.resize(num_threads);
   for(size_t i = 0; i < m_thread_pool.size(); i++)
   {
     m_thread_pool[i] = std::make_shared<http_fcgi_work_thread>();
-    m_thread_pool[i]->launch(this, m_sock_fd);
+    if( ! m_thread_pool[i]->init(this, m_sock_fd) )
+    {
+      SPDLOG_INFO("Thread init failed");
+      return false;
+    }
+    m_thread_pool[i]->launch();
   }
 
   SPDLOG_INFO("Server started");
@@ -98,15 +102,25 @@ bool http_fcgi_svr::stop()
 
 void http_fcgi_svr::register_cb_for_doc_uri(const char* doc_uri, const std::shared_ptr<http_req_callback_base>& cb)
 {
-  m_cb_table.insert(std::make_pair(doc_uri, cb));
+  m_cb_table.set_node(doc_uri, std::make_shared<http_fcgi_svr_cb>(cb));
 }
 std::shared_ptr<http_req_callback_base> http_fcgi_svr::get_cb_for_doc_uri(const char* doc_uri)
 {
-  auto it = m_cb_table.find(doc_uri);
-  if( it == m_cb_table.end())
+  Directory_tree_node::ptr node = m_cb_table.find_match(doc_uri, Directory_tree::MATCH_TYPE::EXACT);
+  if( ! node )
   {
-    return std::shared_ptr<http_req_callback_base>();
+    node = m_cb_table.find_match(doc_uri, Directory_tree::MATCH_TYPE::PARENT_PATH);
   }
 
-  return it->second;
+  std::shared_ptr<http_req_callback_base> cb;
+  if(node)
+  {
+    auto cb_ptr = node->get_data<http_fcgi_svr_cb>();
+    if(cb_ptr)
+    {
+      cb = cb_ptr->m_cb;
+    }
+  }
+
+  return cb;
 }

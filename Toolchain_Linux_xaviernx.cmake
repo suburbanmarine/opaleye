@@ -1,10 +1,11 @@
 set(CMAKE_SYSTEM_NAME Linux)
 
-set(CXX_STANDARD 17)
-set(C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_EXTENSIONS   OFF)
 
-# or mtune cortex-a75 / cortex-a76
-set(FLAGS_ARCH  "-march=armv8.2-a -mtune=generic-armv8.2-a")
+set(FLAGS_ARCH  "-march=armv8.2-a+fp16+simd+crypto -mtune=generic")
 set(FLAGS_GEN   "-ffunction-sections -fdata-sections")
 set(FLAGS_WARN  "-Wall -Werror=return-type")
 

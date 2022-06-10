@@ -5,8 +5,14 @@
 */
 
 #include "http_req_jsonrpc.hpp"
-#include "http_util.hpp"
-#include "http_common.hpp"
+
+#include "http-bridge/http_req_util.hpp"
+#include "http-bridge/http_util.hpp"
+#include "http-bridge/http_common.hpp"
+
+#include <boost/filesystem/path.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
@@ -18,54 +24,30 @@
 
 void http_req_jsonrpc::handle(FCGX_Request* const request)
 {
-  { 
-    SPDLOG_INFO("QUERY_STRING: {:s}",      FCGX_GetParam("QUERY_STRING", request->envp));
-    SPDLOG_INFO("REQUEST_METHOD: {:s}",    FCGX_GetParam("REQUEST_METHOD", request->envp));
-    SPDLOG_INFO("CONTENT_TYPE: {:s}",      FCGX_GetParam("CONTENT_TYPE", request->envp));
-    SPDLOG_INFO("CONTENT_LENGTH: {:s}",    FCGX_GetParam("CONTENT_LENGTH", request->envp));
-
-    SPDLOG_INFO("SCRIPT_NAME: {:s}",       FCGX_GetParam("SCRIPT_NAME", request->envp));
-    SPDLOG_INFO("REQUEST_URI: {:s}",       FCGX_GetParam("REQUEST_URI", request->envp));
-    SPDLOG_INFO("DOCUMENT_URI: {:s}",      FCGX_GetParam("DOCUMENT_URI", request->envp));
-    SPDLOG_INFO("DOCUMENT_ROOT: {:s}",     FCGX_GetParam("DOCUMENT_ROOT", request->envp));
-    SPDLOG_INFO("SERVER_PROTOCOL: {:s}",   FCGX_GetParam("SERVER_PROTOCOL", request->envp));
-    SPDLOG_INFO("REQUEST_SCHEME: {:s}",    FCGX_GetParam("REQUEST_SCHEME", request->envp));
-    char const * const HTTPS = FCGX_GetParam("HTTPS", request->envp);
-    SPDLOG_INFO("HTTPS: {:s}", (HTTPS) ? (HTTPS) : ("<null>"));
-
-    SPDLOG_INFO("GATEWAY_INTERFACE: {:s}", FCGX_GetParam("GATEWAY_INTERFACE", request->envp));
-    SPDLOG_INFO("SERVER_SOFTWARE: {:s}",   FCGX_GetParam("SERVER_SOFTWARE", request->envp));
-
-    SPDLOG_INFO("REMOTE_ADDR: {:s}",       FCGX_GetParam("REMOTE_ADDR", request->envp));
-    SPDLOG_INFO("REMOTE_PORT: {:s}",       FCGX_GetParam("REMOTE_PORT", request->envp));
-    SPDLOG_INFO("SERVER_ADDR: {:s}",       FCGX_GetParam("SERVER_ADDR", request->envp));
-    SPDLOG_INFO("SERVER_PORT: {:s}",       FCGX_GetParam("SERVER_PORT", request->envp));
-    SPDLOG_INFO("SERVER_NAME: {:s}",       FCGX_GetParam("SERVER_NAME", request->envp));
-
-    SPDLOG_INFO("REDIRECT_STATUS: {:s}",   FCGX_GetParam("REDIRECT_STATUS", request->envp));
-  }
+  http_req_util req_util;
+  req_util.load(request);
+  req_util.log_request_env();
 
   //GET, POST, ...
-  char const * const REQUEST_METHOD = FCGX_GetParam("REQUEST_METHOD", request->envp);
+  // req_util.REQUEST_METHOD
   //DOCUMENT_URI is just path
-  char const * const DOCUMENT_URI = FCGX_GetParam("DOCUMENT_URI", request->envp);
+  // req_util.DOCUMENT_URI
   //REQUEST_URI is path and query string
-  char const * const REQUEST_URI = FCGX_GetParam("REQUEST_URI", request->envp);
+  // req_util.REQUEST_URI
   //verify this is application/json; charset=UTF-8
-  char const * const CONTENT_TYPE = FCGX_GetParam("CONTENT_TYPE", request->envp);
+  // req_util.CONTENT_TYPE
   //verify content size is sane
-  char const * const CONTENT_LENGTH = FCGX_GetParam("CONTENT_LENGTH", request->envp);
+  // req_util.CONTENT_LENGTH
 
   {
-    http_common::REQUEST_METHOD req = http_common::parse_req_method(REQUEST_METHOD);
-    if(req != http_common::REQUEST_METHOD::POST)
+    if(req_util.request_method_enum != http_common::REQUEST_METHOD::POST)
     {
       throw BadRequest("Only POST is accepted");
     }
   }
 
   int req_len = 0;
-  int ret = sscanf(CONTENT_LENGTH, "%d", &req_len);
+  int ret = sscanf(req_util.CONTENT_LENGTH, "%d", &req_len);
   if(ret != 1)
   {
     throw BadRequest("Could not parse CONTENT_LENGTH");
@@ -79,12 +61,12 @@ void http_req_jsonrpc::handle(FCGX_Request* const request)
   //validate CONTENT_TYPE, ignoring any optional charset
   { 
     const char app_jsonrpc[] = "application/json";
-    if(strlen(CONTENT_TYPE) == 0)
+    if(strlen(req_util.CONTENT_TYPE) == 0)
     {
       throw BadRequest("CONTENT_TYPE is invalid");
     }
 
-    if(strncmp(CONTENT_TYPE, app_jsonrpc, sizeof(app_jsonrpc)-1) != 0)
+    if(strncmp(req_util.CONTENT_TYPE, app_jsonrpc, sizeof(app_jsonrpc)-1) != 0)
     {
       throw BadRequest("CONTENT_TYPE is invalid");
     }

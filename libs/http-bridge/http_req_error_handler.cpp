@@ -4,7 +4,7 @@
  * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
 */
 
-#include "http_req_error_handler.hpp"
+#include "http-bridge/http_req_error_handler.hpp"
 
 void http_req_error_handler::handle(FCGX_Request* const request)
 {

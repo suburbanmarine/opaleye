@@ -3,6 +3,7 @@ add_library(camera-pipes-nv
 	pipeline/decode/jpeg_nvdec_bin.cpp
 	pipeline/Thumbnail_nv_pipe.cpp
 	# pipeline/Thumbnail_nv2_pipe.cpp
+	pipeline/Thumbnail_nv3_pipe.cpp
 )
 
 target_link_libraries(camera-pipes-nv
@@ -14,12 +15,20 @@ target_link_libraries(camera-pipes-nv
 add_library(camera-pipes
 	#cameras/Logitech_brio.cpp
 	#cameras/UVC_base.cpp
+	cameras/Alvium_v4l2.cpp
+
+	util/v4l2_util.cpp
+	util/v4l2_metadata.cpp
+	util/v4l2_mmap_buffer.cpp
 
 	#pipeline/camera/Logitech_brio_pipe.cpp
 	#pipeline/camera/Logitech_C525_gst.cpp
+	pipeline/camera/GST_camera_base.cpp
+	pipeline/camera/nvac_imx219_pipe.cpp
 	pipeline/camera/Testsrc_pipe.cpp
-	pipeline/camera/v4l2_webcam_pipe.cpp
-	pipeline/camera/v4l2_util.cpp
+	pipeline/camera/V4L2_alvium_pipe.cpp
+	pipeline/camera/V4L2_webcam_pipe.cpp
+	pipeline/camera/GST_v4l2_api.cpp
 
 	pipeline/display/autovideosink_pipe.cpp
 
@@ -51,6 +60,7 @@ add_library(camera-pipes
 	pipeline/GST_interpipesink.cpp
 	pipeline/Thumbnail_sw_pipe.cpp
 	pipeline/Thumbnail_sw2_pipe.cpp
+	pipeline/nvvideoconvert_pipe.cpp
 )
 
 target_link_libraries(camera-pipes

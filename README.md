@@ -18,12 +18,30 @@ In the future, we hope to grow these capibilities:
 
  - Edge computing
      - Local reduction and processing of sensor data using DSP, neural networks
+ - Information Security
+     - HW TRNG
+     - Secure key enclave
  - Networking
      - 1588v2 timestamping - microsecond level accurate global timestamps on video and sensor data across a large network
      - High bandwidth two wire ethernet
  - Video
      - RTSP - automatic video stream negotation
      - RTCP - automatic video stream quality adjustment based on bandwidth
+
+## Software Overview
+
+### Supported Cameras
+
+- Logitech Brio
+- imx219
+
+### Processing Model
+
+Opaleye can configure multiple cameras, identified by name. These can drive multiple pipelines, identified by name.
+
+A REST api is provided to allow accessing frames and controlling over json-rpc.
+
+The idea is to allow both high res and low bandwidth preview streams to be created, or perhaps video and still frame creation. Additional pipelines are teed after the basic camera element. Some work may need to be added to share things like basic image processing / demosaic / overlay.
 
 ## License
 
@@ -41,11 +59,11 @@ Portions of the Opaleye reference design are also open hardware.
 
 ### BOM
 
-TBD
+[Link](https://github.com/suburbanmarine/opaleye-hardware#bom)
 
 ### Mechanical Drawings
 
-TBD
+[Link](https://github.com/suburbanmarine/opaleye-hardware)
 
 ## Cloning Instructions
 
@@ -55,7 +73,7 @@ Ensure you have ssh keys registered for git-over-ssh based cloning. Opaleye's su
 foo@bar:~$ git clone git@github.com:suburbanmarine/opaleye.git
 ```
 
-Opaleye uses a number of git submodules, so makre sure those are set up as well. For first clone:
+Opaleye uses a number of git submodules, so make sure those are set up as well. For first clone:
 
 ```console
 foo@bar:~$ git submodule update --init --recursive
@@ -87,6 +105,7 @@ Opaleye depends on a number of external components.
 ### Tools
  - build-essential
  - cmake
+ - device-tree-compiler
  - git
  - grunt
  - gtk-doc-tools
@@ -98,27 +117,38 @@ Opaleye depends on a number of external components.
  - openssh-server
 
 ### Libraries
+ - googletest
+ - gstreamer1.0-plugins-ugly 
  - i2c-tools
  - libboost-all-dev
  - libfcgi-dev
+ - libgpiod-dev
  - libgrpc++-dev
  - libgrpc-dev
  - libgstreamer1.0-dev
  - libgstreamermm-1.0-dev
  - libgstrtspserver-1.0-dev
+ - libi2c-dev
  - liblockfile-dev
+ - libopencv-contrib-dev
+ - libopencv-core-dev
+ - libopencv-imgcodecs-dev
+ - libopencv-imgproc-dev
+ - libopencv-video-dev
  - libprotobuf-c-dev
  - libprotobuf-dev
  - libprotoc-dev
  - libuvc-dev
- - protobuf-c-compiler
- - protobuf-compiler
- - protobuf-compiler-grpc
- - rapidjson-dev
+ - libzmq3-dev
+ - libzmq3-dev
  - nvidia-jetpack
  - nvidia-l4t-jetson-multimedia-api
  - nvidia-l4t-multimedia
  - nvidia-l4t-multimedia-utils
+ - protobuf-c-compiler
+ - protobuf-compiler
+ - protobuf-compiler-grpc
+ - rapidjson-dev
 
 ### Runtime Dependencies
  - chrony
@@ -133,6 +163,31 @@ Opaleye depends on a number of external components.
  - rsync
  - screen
  - vlc
+ - gstreamer1.0-tools
+
+### GST Interpipe
+
+For x86
+```console
+foo@bar:~$ ./autogen.sh --libdir /usr/lib/x86_64-linux-gnu/
+```
+
+For aarch64
+```console
+foo@bar:~$ ./autogen.sh --libdir /usr/lib/aarch64-linux-gnu/
+```
+
+Then
+```console
+foo@bar:~$ make
+foo@bar:~$ make check
+foo@bar:~$ sudo make install
+```
+
+If in non-default location
+```console
+foo@bar:~$ export GST_PLUGIN_PATH=$HOME/gst-interpipe-1.0/gst/interpipe/.libs
+```
 
 ## API
 
@@ -163,6 +218,11 @@ Opaleye is very portable. The main hardware dependency is the hardware accelerat
 
 - Nvidia Xavier NX
 - Nvidia Jetson Nano
+  - Developer SOM: P3448-0000
+  - Dev MoBo: p3449-0000-a02
+  - Dev MoBo: p3449-0000-b00
+  - Production 16GB: P3448-0002
+  - Production 2GB: P3448-0003
 
 ### Jetson Nano Notes
 
@@ -180,6 +240,11 @@ Max Power
 ```console
 foo@bar:~$ sudo jetson_clocks
 ```
+
+## PTP4l
+sudo ./ptp4l -H -E -i eth0 -m --tx_timestamp_timeout=50
+sudo ./phc2sys -a -r -m
+or chrony
 
 ## Opaleye Pinout
 

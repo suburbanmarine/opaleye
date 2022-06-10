@@ -30,10 +30,16 @@ public:
   void send_pipeline_eos();
   void wait_pipeline_eos();
 
+  //todo refactor this so the node storage by name is in base GST_app_base
+  std::shared_ptr<GST_element_base> get_element(const std::string& name) override
+  {
+    return std::shared_ptr<GST_element_base>();
+  }
+
 protected:
 
-    //parameters
-    boost::filesystem::path top_storage_dir;
+  //parameters
+  boost::filesystem::path top_storage_dir;
 
 	GST_interpipesrc m_interpipe_src;
 	mp4_splitmuxsink m_mux;
