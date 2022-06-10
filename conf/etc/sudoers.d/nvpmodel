@@ -1,0 +1,3 @@
+# allow nvidia user to set power model
+
+nvidia ALL = NOPASSWD: /usr/sbin/nvpmodel
