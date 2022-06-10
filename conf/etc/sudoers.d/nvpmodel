@@ -1,3 +1,3 @@
-# allow nvidia user to set power model
+# allow opaleye user to set power model for runtime core parking
 
-nvidia ALL = NOPASSWD: /usr/sbin/nvpmodel
+opaleye ALL = NOPASSWD: /usr/sbin/nvpmodel

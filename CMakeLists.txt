@@ -213,6 +213,16 @@ INSTALL(
 
 INSTALL(
 	FILES
+		"${PROJECT_SOURCE_DIR}/conf/etc/sudoers.d/nvpmodel"
+	DESTINATION
+		/etc
+	PERMISSIONS
+		OWNER_READ GROUP_READ
+)
+
+
+INSTALL(
+	FILES
 		scripts/opaleye.service
 #		scripts/ptp4l.service
 	DESTINATION
