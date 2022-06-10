@@ -249,7 +249,6 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
   //     return false; 
   // }
 
-<<<<<<< HEAD
   std::shared_ptr<GST_element_base> m_nvvideoconvert_pipe_t0   = std::make_shared<nvvideoconvert_pipe>();
   if( ! m_nvvideoconvert_pipe_t0->init("m_nvvideoconvert_pipe_t0") )
   {
@@ -279,9 +278,6 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
   }
 
   SPDLOG_INFO("NV mode");
-  std::shared_ptr<GST_element_base> m_h264   = std::make_shared<h264_nvenc_bin>();
-=======
->>>>>>> master
   std::shared_ptr<GST_element_base> m_thumb  = std::make_shared<Thumbnail_nv3_pipe>();
   if( ! m_thumb->init("thumb_0") )
   {
@@ -346,13 +342,9 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
 
   m_rtppay->link_back(m_rtpsink->front());
 
-<<<<<<< HEAD
-  m_element_storage.emplace("cam_0", m_camera);
+  m_element_storage.emplace(cam_name, m_camera);
   m_element_storage.emplace("timecodestamper_0", m_timecodestamper);
   m_element_storage.emplace("timeoverlay_0", m_timeoverlay);
-=======
-  m_element_storage.emplace(cam_name, m_camera);
->>>>>>> master
   m_element_storage.emplace("thumb_0", m_thumb);
   m_element_storage.emplace("h264_0", m_h264);
   m_element_storage.emplace("h264_ipsink_0", m_h264_interpipesink);
@@ -600,7 +592,7 @@ bool Opaleye_app::init()
     m_config->make_default();
   }
 
-#if 0
+#if 1
   m_master_clock = std::make_shared<sys_clock>();
   if( ! m_master_clock->init() )
   {
@@ -869,11 +861,7 @@ bool Opaleye_app::stop_still_capture(const std::string& camera)
   return true;
 }
 
-<<<<<<< HEAD
-bool Opaleye_app::start_rtp_stream(const std::string& cam, const std::string& ip_addr, int port)
-=======
 bool Opaleye_app::start_rtp_stream(const std::string& pipe_name, const std::string& ip_addr, int port)
->>>>>>> master
 {
   SPDLOG_INFO("Opaleye_app::start_rtp_stream {:s}:{:d}", ip_addr, port);
 
@@ -882,15 +870,6 @@ bool Opaleye_app::start_rtp_stream(const std::string& pipe_name, const std::stri
     throw std::domain_error("port must be in [0, 65535]");
   }
 
-<<<<<<< HEAD
-  auto cam_pipe = m_pipelines.find(cam);
-  if(cam_pipe == m_pipelines.end())
-  {
-    throw std::domain_error("Could not find cam"); 
-  }
-
-  std::shared_ptr<rtpsink_pipe> m_rtpsink = cam_pipe->second->get_element<rtpsink_pipe>("udp_0");
-=======
   auto pipe_it = m_pipelines.find(pipe_name);
   if( pipe_it == m_pipelines.end() )
   {
@@ -898,7 +877,6 @@ bool Opaleye_app::start_rtp_stream(const std::string& pipe_name, const std::stri
   }
 
   std::shared_ptr<rtpsink_pipe> m_rtpsink = pipe_it->second->get_element<rtpsink_pipe>("udp_0");
->>>>>>> master
   if( ! m_rtpsink )
   {
     throw jsonrpc::Fault("Could not downcast element", jsonrpc::Fault::INTERNAL_ERROR);
@@ -906,11 +884,7 @@ bool Opaleye_app::start_rtp_stream(const std::string& pipe_name, const std::stri
 
   return m_rtpsink->add_udp_client(ip_addr, port);
 }
-<<<<<<< HEAD
-bool Opaleye_app::stop_rtp_stream(const std::string& cam, const std::string& ip_addr, int port)
-=======
 bool Opaleye_app::stop_rtp_stream(const std::string& pipe_name, const std::string& ip_addr, int port)
->>>>>>> master
 {
   SPDLOG_INFO("Opaleye_app::stop_rtp_stream {:s}:{:d}", ip_addr, port);
 
@@ -919,15 +893,6 @@ bool Opaleye_app::stop_rtp_stream(const std::string& pipe_name, const std::strin
     throw std::domain_error("port must be in [0, 65535]");
   }
 
-<<<<<<< HEAD
-  auto cam_pipe = m_pipelines.find(cam);
-  if(cam_pipe == m_pipelines.end())
-  {
-    throw std::domain_error("Could not find cam"); 
-  }
-
-  std::shared_ptr<rtpsink_pipe> m_rtpsink = cam_pipe->second->get_element<rtpsink_pipe>("udp_0");
-=======
   auto pipe_it = m_pipelines.find(pipe_name);
   if( pipe_it == m_pipelines.end() )
   {
@@ -935,7 +900,6 @@ bool Opaleye_app::stop_rtp_stream(const std::string& pipe_name, const std::strin
   }
 
   std::shared_ptr<rtpsink_pipe> m_rtpsink = pipe_it->second->get_element<rtpsink_pipe>("udp_0");
->>>>>>> master
   if( ! m_rtpsink )
   {
     throw jsonrpc::Fault("Could not downcast element", jsonrpc::Fault::INTERNAL_ERROR);
