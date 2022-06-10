@@ -1113,95 +1113,106 @@ bool Opaleye_app::set_camera_property_str(const std::string& pipeline_id, const 
   return cam->set_camera_property(property_id, value);
 }
 
-int get_camera_property_int(const std::string& pipeline_id, const std::string& camera_id, const std::string& property_id)
+int Opaleye_app::get_camera_property_int(const std::string& pipeline_id, const std::string& camera_id, const std::string& property_id)
 {
   auto pipe_it = m_pipelines.find(pipeline_id);
   if(pipe_it == m_pipelines.end())
   {
     SPDLOG_ERROR("Could not get pipeline {:s}", pipeline_id);
-    throw jsonrpc::Fault("Pipeline not found", jsonrpc::Fault::INVALID_PARAMETERS)
+    throw jsonrpc::Fault("Pipeline not found", jsonrpc::Fault::INVALID_PARAMETERS);
   }
 
-  std::shared_ptr<GST_camera_base> cam = pipe_it->second->get_element<GST_camera_base>(camera_id);
+  std::shared_ptr<GST_v4l2_api> cam = pipe_it->second->get_element<GST_v4l2_api>(camera_id);
   if( ! cam )
   {
     SPDLOG_ERROR("Could not get camera {:s}, is it a GST_camera_base", camera_id);
-    throw jsonrpc::Fault("Camera not found", jsonrpc::Fault::INVALID_PARAMETERS)
+    throw jsonrpc::Fault("Camera not found", jsonrpc::Fault::INVALID_PARAMETERS);
   }
 
   int value = 0;
   bool ret = false;
   if(property_id == "brightness")
   {
-    ret = ret = cam->get_brightness(&value);
+    ret = cam->get_brightness(&value);
   }
   else if(property_id == "gain")
   {
-    ret = ret = cam->get_gain(&value);
+    ret = cam->get_gain(&value);
   }
   else if(property_id == "gain_auto")
   {
-    ret = ret = cam->get_gain_auto(&value);
+    bool bool_val = false;
+    ret = cam->get_gain_auto(&bool_val);
+    value = bool_val;
   }
   else if(property_id == "exposure_auto")
   {
-    ret = ret = cam->get_exposure_auto(&value);
+    ret = cam->get_exposure_auto(&value);
   }
   else if(property_id == "exposure_absolute")
   {
-    ret = ret = cam->get_exposure_absolute(&value);
+    ret = cam->get_exposure_absolute(&value);
   }
   else if(property_id == "exposure_auto_min")
   {
-    ret = ret = cam->get_exposure_auto_min(&value);
+    ret = cam->get_exposure_auto_min(&value);
   }
   else if(property_id == "exposure_auto_max")
   {
-    ret = ret = cam->get_exposure_auto_max(&value);
+    ret = cam->get_exposure_auto_max(&value);
   }
   else if(property_id == "gain_auto_min")
   {
-    ret = ret = cam->get_gain_auto_min(&value);
+    ret = cam->get_gain_auto_min(&value);
   }
   else if(property_id == "gain_auto_max")
   {
-    ret = ret = cam->get_gain_auto_max(&value);
+    ret = cam->get_gain_auto_max(&value);
   }
   else if(property_id == "focus_absolute")
   {
-    ret = ret = cam->get_focus_absolute(&value);
+    ret = cam->get_focus_absolute(&value);
   }
   else if(property_id == "focus_auto")
   {
-    ret = ret = cam->get_focus_auto(&value);
+    bool bool_val = false;
+    ret = cam->get_focus_auto(&bool_val);
+    value = bool_val;
   }
   else
   {
-    throw jsonrpc::Fault("Property not found", jsonrpc::Fault::INVALID_PARAMETERS)
+    throw jsonrpc::Fault("Property not found", jsonrpc::Fault::INVALID_PARAMETERS);
   }
 
   if( ! ret )
   {
-    throw jsonrpc::Fault("Request failed", jsonrpc::Fault::INTERNAL_ERROR)
+    throw jsonrpc::Fault("Request failed", jsonrpc::Fault::INTERNAL_ERROR);
   }
 
   return value; 
 }
-std::string get_camera_property_str(const std::string& pipeline_id, const std::string& camera_id, const std::string& property_id)
+std::string Opaleye_app::get_camera_property_str(const std::string& pipeline_id, const std::string& camera_id, const std::string& property_id)
 {
   auto pipe_it = m_pipelines.find(pipeline_id);
   if(pipe_it == m_pipelines.end())
   {
     SPDLOG_ERROR("Could not get pipeline {:s}", pipeline_id);
-    throw jsonrpc::Fault("Pipeline not found", jsonrpc::Fault::INVALID_PARAMETERS)
+    throw jsonrpc::Fault("Pipeline not found", jsonrpc::Fault::INVALID_PARAMETERS);
   }
 
   std::shared_ptr<GST_camera_base> cam = pipe_it->second->get_element<GST_camera_base>(camera_id);
   if( ! cam )
   {
     SPDLOG_ERROR("Could not get camera {:s}, is it a GST_camera_base", camera_id);
-    throw jsonrpc::Fault("Camera not found", jsonrpc::Fault::INVALID_PARAMETERS)
+    throw jsonrpc::Fault("Camera not found", jsonrpc::Fault::INVALID_PARAMETERS);
   }
 
-  return std::string();
+  std::string value;
+  if( ! cam->get_camera_property(property_id, &value) )
+  {
+    SPDLOG_ERROR("Getting cam {:s} param {:s} failed", camera_id, property_id);
+    throw jsonrpc::Fault("Request failed", jsonrpc::Fault::INTERNAL_ERROR);
+  }
+
+  return value;
 }
