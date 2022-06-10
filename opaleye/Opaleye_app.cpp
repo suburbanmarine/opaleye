@@ -526,7 +526,7 @@ bool Opaleye_app::init()
     m_config->make_default();
   }
 
-  if(m_config->count("nvpmodel"))
+  if(m_config->count("config.nvpmodel"))
   {
     std::array<char, 512> cmd;
     int ret = snprintf(cmd.data(), cmd.size(), "nvpmodel -m %d", m_config->nvpmodel_mode);
