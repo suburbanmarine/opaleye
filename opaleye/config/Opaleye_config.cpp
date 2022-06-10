@@ -87,6 +87,8 @@ bool app_config::serialize(boost::property_tree::ptree* const tree) const
 
 	tree->put("config.sensors.launch", sensors_launch);
 
+	tree->put("config.sensors.launch", nvpmodel_mode);
+
 	tree->put("config.zeromq.launch", zeromq_launch);
 	for(const std::string& str : zeromq_ep)
 	{
@@ -115,6 +117,8 @@ bool app_config::make_default()
 	image_path = "/opt/suburbanmarine/opaleye/record/image";
 	log_path   = "/opt/suburbanmarine/opaleye/log";
 	h264_mode  = "cpu";
+
+	nvpmodel_mode = 4;
 
 	sensors_launch  = "true";
 

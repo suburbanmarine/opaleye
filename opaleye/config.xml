@@ -32,8 +32,11 @@
 		<endpoint>127.0.0.1:50000</endpoint>
 	</fcgi>
 
-	<cameras>
+	<nvpmodel>
+		<mode>4</mode>
+	</nvpmodel>
 
+	<cameras>
 		<camera>
 			<name>cam0</name>
 			<type>alvium</type>
