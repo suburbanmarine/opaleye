@@ -526,7 +526,7 @@ bool Opaleye_app::init()
     m_config->make_default();
   }
 
-  if(m_config->count("config.nvpmodel.mode"))
+  if(m_config->has_child("config.nvpmodel.mode"))
   {
     SPDLOG_INFO("Opaleye_app::init nvpmodel setting perf to {:d}", m_config->nvpmodel_mode);
 
