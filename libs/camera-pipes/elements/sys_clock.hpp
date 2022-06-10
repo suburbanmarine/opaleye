@@ -1,30 +1,19 @@
 #pragma once
 
-#include <gstreamermm/systemclock.h>
+#include "elements/gst_clock_base.hpp"
 
 #include <array>
 #include <string>
 
-class sys_clock
+class sys_clock : public gst_clock_base
 {
 	public:
 
 	sys_clock();
-	~sys_clock();
+	~sys_clock() override;
 
-	bool init();
-
-	Glib::RefPtr<Gst::Clock> get_clock()
-	{
-		return m_clock;
-	}
-
-	bool wait_for_sync();
-
-	Gst::ClockTime get_time() const;
+	bool init() override;
 
 	protected:
-
-	Glib::RefPtr<Gst::Clock> m_clock;
 };
 

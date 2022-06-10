@@ -21,15 +21,3 @@ bool sys_clock::init()
 
 	return true;
 }
-
-bool sys_clock::wait_for_sync()
-{
-	bool ret = m_clock->wait_for_sync(1 * GST_SECOND);
-
-	return ret;
-}
-
-Gst::ClockTime sys_clock::get_time() const
-{
-	return m_clock->get_time();
-}

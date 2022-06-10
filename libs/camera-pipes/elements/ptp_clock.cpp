@@ -59,13 +59,6 @@ bool ptp_clock::init()
 	return true;
 }
 
-bool ptp_clock::wait_for_sync()
-{
-	bool ret = m_clock->wait_for_sync(1 * GST_SECOND);
-
-	return ret;
-}
-
 gboolean ptp_clock::handle_ptp_stat_callback(guint8 domain, const GstStructure * stats)
 {
 	// GST_PTP_STATISTICS_NEW_DOMAIN_FOUND - G_TYPE_UINT
