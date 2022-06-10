@@ -32,15 +32,6 @@
 		<endpoint>127.0.0.1:50000</endpoint>
 	</fcgi>
 
-	<hw_trigger>
-		<enable>1</enable>
-
-		<!-- in us -->
-		<t0>0</t0>
-		<period>1000000</period>
-		<width>50000</width>
-	</hw_trigger>
-
 	<cameras>
 
 		<camera>
@@ -50,7 +41,7 @@
 			<properties>
 				<format>XR24</format>
 				<device>/dev/video0</device>
-				<trigger_mode>hw</trigger_mode>
+				<trigger_mode>free</trigger_mode>
 			</properties>
 
 			<pipeline>
@@ -59,7 +50,7 @@
 			</pipeline>
 		</camera>
 
-		<camera>
+		<!--camera>
 			<name>cam1</name>
 			<type>alvium</type>
 
@@ -73,7 +64,7 @@
 				<name>pipe1</name>
 				<type>alvium</type>
 			</pipeline>
-		</camera>
+		</camera-->
 
 		<!--camera>
 			<name>cam1</name>
