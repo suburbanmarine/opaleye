@@ -65,3 +65,8 @@ bool GST_camera_base::set_camera_property(const std::string& property_id, const 
 {
 	return false;	
 }
+
+bool GST_camera_base::get_camera_property(const std::string& property_id, std::string* const out_value)
+{
+	return false;	
+}
