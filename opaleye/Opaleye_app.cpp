@@ -723,8 +723,6 @@ bool Opaleye_app::init()
 
   for(const auto cam : m_config->camera_configs)
   {
-    const std::string&   cam_name   = cam.first;
-
     const camera_config& cam_i_cfg       = cam.second;
     const std::string&   cam_i_cam_name  = cam_i_cfg.name;
     const std::string&   cam_i_pipe_name = cam_i_cfg.pipeline.name;
