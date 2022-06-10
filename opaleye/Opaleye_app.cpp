@@ -532,7 +532,7 @@ bool Opaleye_app::init()
 
     std::array<char, 512> cmd;
     int ret = snprintf(cmd.data(), cmd.size(), "nvpmodel -m %d", m_config->nvpmodel_mode);
-    if( (ret < 0) || (ret >= cmd.size()) )
+    if( (ret < 0) || (size_t(ret) >= cmd.size()) )
     {
       SPDLOG_ERROR("Opaleye_app::init could not format nvmpmodel command");
       return false;
