@@ -64,6 +64,12 @@ public:
 	}
 
 	virtual bool init(const char name[]) = 0;
+	
+	//todo refactor so you can place new elements in an existing bin
+	virtual bool init(const char name[], const Glib::RefPtr<Gst::Bin>& bin)
+	{
+		return false;
+	}
 
 	virtual Glib::RefPtr<Gst::Element> front()
 	{
@@ -73,6 +79,13 @@ public:
 	{
 		return Glib::RefPtr<Gst::Element>();
 	}
+
+	//todo: actually return a bin
+    Glib::RefPtr<Gst::Bin> get_bin() const
+    {
+		// return m_bin;
+		return Glib::RefPtr<Gst::Bin>();
+    }
 
 // gst_element_link_pads
 // gst_element_link_pads_filtered
