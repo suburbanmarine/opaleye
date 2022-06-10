@@ -39,8 +39,8 @@ bool app_config::deserialize(const boost::property_tree::ptree& tree)
 	log_path   = tree.get<std::string>("config.log_path");
 	h264_mode  = tree.get<std::string>("config.h264_mode");
 
-	//default to 15W, 4 CPU
-	nvpmodel_mode  = tree.get<int>("config.nvpmodel.mode", 4);
+	//default to 10W, 2 CPU
+	nvpmodel_mode  = tree.get<int>("config.nvpmodel.mode", 3);
 
 	{
 		const boost::property_tree::ptree& sensors_tree = tree.get_child("config.sensors");
@@ -118,7 +118,7 @@ bool app_config::make_default()
 	log_path   = "/opt/suburbanmarine/opaleye/log";
 	h264_mode  = "cpu";
 
-	nvpmodel_mode = 4;
+	nvpmodel_mode = 3;
 
 	sensors_launch  = "true";
 
