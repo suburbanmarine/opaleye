@@ -8,6 +8,8 @@
 
 #include <string>
 #include <set>
+#include <unordered_set>
+#include <map>
 
 template <typename T>
 class Property_enum : public Property<T>
@@ -19,18 +21,46 @@ public:
 		return valid_values_.find(x) != valid_values_.end();
 	}
 
-	virtual const std::set<Property<T>>& valid_value_set() const
+	virtual const std::set<Property<T>>& valid_prop_set() const
 	{
-		return valid_values_;
+		return valid_props_;
 	}
 
-	virtual const std::set<Property<T>>& add_valid_value(const Property<T>& val) const
+	virtual const std::set<Property<T>>& add_valid_value(const Property<T>& prop) const
 	{
-		return valid_values_.insert(val);
+		//check if name is used
+		//check if val  is used
+		//if either is used, fail
+		//this helps protect against user adding props with same value
+		if(
+			(valid_names_.find(prop.name())   != valid_names_.end()) || 
+			(valid_values_.find(prop.value()) != valid_values_.end())
+			)
+		{
+			//collision
+			return false;
+		}		
+
+		// new property
+		valid_names_.insert(prop.name());
+		valid_values_.insert(prop.value());
+		valid_props_.insert(std::make_pair(prop.name(), prop));
+		return true;
 	}
 
 protected:
-	std::set<Property<T>> valid_values_;
+
+	void put_constraints(boost::property_tree::ptree* const tree) const override
+	{
+		//array of name:value
+   		tree->put("set", );
+	}
+
+	std::unordered_set<std::string> valid_names_;
+	std::unordered_set<T>           valid_values_;
+
+	//name->prop map
+	std::map<std::string, Property<T>> valid_props_;
 };
 
 class Property_enum_int : public Property_enum<int>

@@ -6,7 +6,10 @@
 
 #include "Property.hpp"
 
+#include <boost/property_tree/ptree.hpp>
+
 #include <limits>
+#include <stdexcept>
 
 template<typename T>
 class Property_numeric : public Property<T>
@@ -42,47 +45,137 @@ public:
 	}
 
 protected:
+
+	template< typename U>
+	static U sscanf_helper(const char* str, const char* fmt)
+	{
+		U temp;
+		int ret = sscanf(str, fmt, &temp);
+		if(ret < 0)
+		{
+			throw std::runtime_error("sscanf failed");
+		}
+		if(ret != 1)
+		{
+			throw std::domain_error("sscanf failed");
+		}
+
+		return temp;
+	}
+
+	void put_constraints(boost::property_tree::ptree* const tree) const override
+	{
+		if(min_ != std::numeric_limits<T>::min())
+		{
+    		tree->put("min", this->value_to_string(min_));
+		}
+		if(max_ != std::numeric_limits<T>::max())
+		{
+    		tree->put("max", this->value_to_string(max_));
+		}
+	}
+
 	const T min_;
 	const T max_;
 };
 
 class Property_numeric_i8 : Property_numeric<int8_t>
 {
-
+	Property_numeric_i8()
+	{
+		this->type_ = "i8";
+	}
+protected:
+    std::string value_to_string(const int8_t& val) const override;
+    void value_from_string(const std::string& str) override;
 };
 class Property_numeric_u8 : Property_numeric<uint8_t>
 {
+	Property_numeric_u8()
+	{
+		this->type_ = "u8";
+	}
+protected:
+    std::string value_to_string(const uint8_t& val) const override;
+    void value_from_string(const std::string& str) override;
 };
 class Property_numeric_i16 : Property_numeric<int16_t>
 {
+	Property_numeric_i16()
+	{
+		this->type_ = "i16";
+	}
+protected:
+	std::string value_to_string(const int16_t& val) const override;
+    void value_from_string(const std::string& str) override;
 };
 class Property_numeric_u16 : Property_numeric<uint16_t>
 {
+	Property_numeric_u16()
+	{
+		this->type_ = "u16";
+	}
+protected:
+	std::string value_to_string(const uint16_t& val) const override;
+    void value_from_string(const std::string& str) override;
 };
 class Property_numeric_i32 : Property_numeric<int32_t>
 {
+	Property_numeric_i32()
+	{
+		this->type_ = "i32";
+	}
+protected:
+	std::string value_to_string(const int32_t& val) const override;
+    void value_from_string(const std::string& str) override;
 };
 class Property_numeric_u32 : Property_numeric<uint32_t>
 {
+	Property_numeric_u32()
+	{
+		this->type_ = "u32";
+	}
+protected:
+	std::string value_to_string(const uint32_t& val) const override;
+    void value_from_string(const std::string& str) override;
 };
 class Property_numeric_i64 : Property_numeric<int64_t>
 {
+	Property_numeric_i64()
+	{
+		this->type_ = "i64";
+	}
+protected:
+	std::string value_to_string(const int64_t& val) const override;
+    void value_from_string(const std::string& str) override;
 };
 class Property_numeric_u64 : Property_numeric<uint64_t>
 {
+	Property_numeric_u64()
+	{
+		this->type_ = "u64";
+	}
+protected:
+	std::string value_to_string(const uint64_t& val) const override;
+    void value_from_string(const std::string& str) override;
 };
 class Property_numeric_float : Property_numeric<float>
 {
-
+	Property_numeric_float()
+	{
+		this->type_ = "f32";
+	}
+protected:
+    std::string value_to_string(const float& val) const override;
+    void value_from_string(const std::string& str) override;
 };
 class Property_numeric_double : Property_numeric<double>
 {
-
+	Property_numeric_double()
+	{
+		this->type_ = "f64";
+	}
+protected:
+    std::string value_to_string(const double& val) const override;
+    void value_from_string(const std::string& str) override;
 };
-
-template<typename T>
-class Property_numeric_factory
-{
-	static std::shared_ptr<Property_numeric<T>> create(const T& val, std::string, std::string);
-};
-

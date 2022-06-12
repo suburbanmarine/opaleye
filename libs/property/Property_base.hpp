@@ -10,16 +10,18 @@
 #include <memory>
 #include <map>
 
-#include <rapidjson/document.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
+#include <boost/property_tree/ptree_fwd.hpp>
 
 template<typename T>
 class Property;
 
+class Property_factory;
+
 class Property_base
 {
 public:
+	friend Property_factory;
+
 	Property_base()
 	{
 
@@ -31,11 +33,11 @@ public:
 
 	virtual bool is_value_valid() const = 0;
 
-	virtual std::string to_string() const = 0;
-	virtual void from_string(const std::string& str) const = 0;
+	virtual std::string to_json() const;
+	virtual boost::property_tree::ptree to_ptree() const;
 
-	virtual rapidjson::Value to_json_value() const = 0;
-	virtual void from_json_value(const rapidjson::Value& val) const = 0;
+	virtual std::string metadata_to_json() const;
+	virtual boost::property_tree::ptree metadata_to_ptree() const;
 
 	const std::string& name() const
 	{
@@ -46,9 +48,20 @@ public:
 		return desc_;
 	}
 protected:
+
+	virtual std::string value_to_string() const = 0;
+	virtual void value_from_string(const std::string& str) = 0;
+
+	virtual void put_constraints(boost::property_tree::ptree* const tree) const
+	{
+
+	}
+
 	std::string name_;
 	std::string desc_;
+	std::string type_;
 };
+
 /*
 class PropertyCollection
 {

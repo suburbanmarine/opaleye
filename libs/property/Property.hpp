@@ -8,6 +8,8 @@
 
 #include "Property_base.hpp"
 
+#include <boost/container_hash/hash.hpp>
+
 #include <sstream>
 #include <string>
 
@@ -36,7 +38,7 @@ public:
 
 	virtual std::string to_string() const
 	{
-	    std::stringstream ss;
+		std::stringstream ss;
 		ss << val_;
 		return ss.str();  
 	}
@@ -64,6 +66,31 @@ public:
 			(desc_  < lhs.desc_);
 	}
 
+	std::size_t hash_value(Property<T>& prop)
+	{
+		std::size_t seed = 0;
+			
+		boost::hash_combine(seed, boost::hash<T>(val_));
+		boost::hash_combine(seed, boost::hash<std::string>(name_));
+		boost::hash_combine(seed, boost::hash<std::string>(desc_));
+
+		return seed;
+	}
+
 protected:
+
+	virtual std::string value_to_string(const T& val) const = 0;
+
+	std::string value_to_string() const override
+	{
+		return value_to_string(val_);
+	}
+
 	T val_;
 };
+
+template<typename T>
+std::size_t hash_value(const Property<T>& prop)
+{
+    return prop.hash_value();
+}
