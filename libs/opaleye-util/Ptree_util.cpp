@@ -40,3 +40,37 @@ void Ptree_util::ptree_to_xml_str(const boost::property_tree::ptree& tree, const
 	boost::property_tree::write_xml(ss, tree, pretty);
 	*out_str = std::move(ss).str();
 }
+
+boost::property_tree::ptree json_str_to_ptree(const std::string& str)
+{
+	boost::property_tree::ptree tree;
+
+	std::stringstream ss;
+	ss << str;
+	boost::property_tree::read_json(ss, tree);
+
+	return tree;
+}
+boost::property_tree::ptree xml_str_to_ptree(const std::string& str)
+{
+	boost::property_tree::ptree tree;
+
+	std::stringstream ss;
+	ss << str;
+	boost::property_tree::read_xml(ss, tree);
+
+	return tree;
+}
+
+void json_str_to_ptree(const std::string& str, boost::property_tree::ptree* const out_tree)
+{
+	std::stringstream ss;
+	ss << str;
+	boost::property_tree::read_json(ss, *out_tree);
+}
+void xml_str_to_ptree(const std::string& str, boost::property_tree::ptree* const out_tree)
+{
+	std::stringstream ss;
+	ss << str;
+	boost::property_tree::read_xml(ss, *out_tree);
+}
