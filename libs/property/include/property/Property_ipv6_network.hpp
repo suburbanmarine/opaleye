@@ -5,8 +5,11 @@
 */
 
 #include "property/Property.hpp"
+#include "property/Property_ipv6_endpoint.hpp"
 
 #include <cstdint>
+
+#include <string>
 
 class ipv6_network
 {
@@ -16,14 +19,14 @@ public:
 	{
 		return
 		 	(host == lhs.host) &&
-			(port == lhs.port);
+			(mask == lhs.mask);
 	}
 
 	virtual bool operator<(const ipv6_network& lhs) const
 	{
 		return
 		 	(host < lhs.host) &&
-			(port < lhs.port);
+			(mask < lhs.mask);
 	}
 
 	ipv6_addr host;

@@ -8,22 +8,25 @@
 
 #include <cstdint>
 
+#include <string>
+
 class ipv4_addr
 {
 public:
 
 	virtual bool operator==(const ipv4_addr& lhs) const
 	{
-		return (addr == lhs.addr);
+		return std::equal(addr.begin(), addr.end(), lhs.addr.begin());
 	}
-
 
 	virtual bool operator<(const ipv4_addr& lhs) const
 	{
-		return (addr < lhs.addr);
+		return std::equal(addr.begin(), addr.end(), lhs.addr.begin(), lhs.addr.end());
 	}
 
-	uint32_t addr;
+	std::string to_string() const;
+
+	std::array<uint8_t, 4> addr;
 };
 
 class ipv4_endpoint

@@ -5,6 +5,7 @@
 */
 
 #include "property/Property.hpp"
+#include "property/Property_ipv4_endpoint.hpp"
 
 #include <cstdint>
 
@@ -12,22 +13,22 @@ class ipv4_network
 {
 public:
 
-	virtual bool operator==(const ipv4_endpoint& lhs) const
+	virtual bool operator==(const ipv4_network& lhs) const
 	{
 		return
 		 	(host == lhs.host) &&
-			(port == lhs.port);
+			(mask == lhs.mask);
 	}
 
-	virtual bool operator<(const ipv4_endpoint& lhs) const
+	virtual bool operator<(const ipv4_network& lhs) const
 	{
 		return
 		 	(host < lhs.host) &&
-			(port < lhs.port);
+			(mask < lhs.mask);
 	}
 
-	ipv4_host host;
-	ipv4_host mask;
+	ipv4_addr host;
+	ipv4_addr mask;
 };
 
 class Property_ipv4_network : public Property<ipv4_network>

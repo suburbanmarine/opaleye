@@ -8,6 +8,8 @@
 
 #include <cstdint>
 
+#include <string>
+
 class ipv6_addr
 {
 public:
@@ -21,6 +23,8 @@ public:
 	{
 		return std::equal(addr.begin(), addr.end(), lhs.addr.begin(), lhs.addr.end());
 	}
+
+	std::string to_string() const;
 
 	std::array<uint8_t, 16> addr;
 };
