@@ -8,21 +8,21 @@
 
 #include <cstdint>
 
-class ipv6_host
+class ipv6_addr
 {
 public:
 
-	virtual bool operator==(const ipv6_host& lhs) const
+	virtual bool operator==(const ipv6_addr& lhs) const
 	{
-		return (addr == lhs.addr);
+		return std::equal(addr.begin(), addr.end(), lhs.addr.begin());
 	}
 
-	virtual bool operator<(const ipv6_host& lhs) const
+	virtual bool operator<(const ipv6_addr& lhs) const
 	{
-		return (addr < lhs.addr);
+		return std::equal(addr.begin(), addr.end(), lhs.addr.begin(), lhs.addr.end());
 	}
 
-	uint32_t addr;
+	std::array<uint8_t, 16> addr;
 };
 
 class ipv6_endpoint
@@ -43,7 +43,7 @@ public:
 			(port < lhs.port);
 	}
 
-	ipv6_host host;
+	ipv6_addr host;
 	uint16_t  port;
 };
 

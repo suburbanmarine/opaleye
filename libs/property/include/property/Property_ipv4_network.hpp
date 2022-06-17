@@ -8,25 +8,7 @@
 
 #include <cstdint>
 
-class ipv4_addr
-{
-public:
-
-	virtual bool operator==(const ipv4_addr& lhs) const
-	{
-		return (addr == lhs.addr);
-	}
-
-
-	virtual bool operator<(const ipv4_addr& lhs) const
-	{
-		return (addr < lhs.addr);
-	}
-
-	uint32_t addr;
-};
-
-class ipv4_endpoint
+class ipv4_network
 {
 public:
 
@@ -44,25 +26,25 @@ public:
 			(port < lhs.port);
 	}
 
-	ipv4_addr host;
-	uint16_t  port;
+	ipv4_host host;
+	ipv4_host mask;
 };
 
-class Property_ipv4_endpoint : public Property<ipv4_endpoint>
+class Property_ipv4_network : public Property<ipv4_network>
 {
 public:
 
-	Property_ipv4_endpoint()
+	Property_ipv4_network()
 	{
 
 	}
 	
-	bool is_value_valid(const ipv4_endpoint& x) const override
+	bool is_value_valid(const ipv4_network& x) const override
 	{
 		return false;
 	}
 
 protected:
-    std::string value_to_string(const ipv4_endpoint& val) const override;
-    ipv4_endpoint value_from_string(const std::string& str) const override;
+    std::string value_to_string(const ipv4_network& val) const override;
+    ipv4_network value_from_string(const std::string& str) const override;
 };

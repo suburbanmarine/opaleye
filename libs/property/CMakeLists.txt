@@ -1,11 +1,16 @@
 add_library(property
+	Property_exceptions.cpp
+
 	Property_base.cpp
 	Property.cpp
 	Property_enum.cpp
 	Property_numeric.cpp
 	Property_text.cpp
+
 	Property_ipv4_endpoint.cpp
 	Property_ipv6_endpoint.cpp
+	Property_ipv4_network.cpp
+	Property_ipv6_network.cpp
 
 	Property_factory.cpp
 

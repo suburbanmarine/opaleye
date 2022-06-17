@@ -33,8 +33,8 @@ public:
 
 	virtual bool is_value_valid() const = 0;
 
-	virtual std::string to_json() const;
-	virtual boost::property_tree::ptree to_ptree() const;
+	virtual std::string to_json(const bool include_metadata = false) const;
+	virtual boost::property_tree::ptree to_ptree(const bool include_metadata = false) const;
 
 	virtual std::string metadata_to_json() const;
 	virtual boost::property_tree::ptree metadata_to_ptree() const;

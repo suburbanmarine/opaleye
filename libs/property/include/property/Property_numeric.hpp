@@ -101,11 +101,11 @@ protected:
 		int ret = sscanf(str, fmt, &temp);
 		if(ret < 0)
 		{
-			throw std::runtime_error("sscanf failed");
+			throw std::runtime_error("sscanf had internal error");
 		}
 		if(ret != 1)
 		{
-			throw std::domain_error("sscanf failed");
+			throw std::invalid_argument("sscanf failed to convert input");
 		}
 
 		return temp;

@@ -10,18 +10,28 @@
 
 #include <boost/property_tree/ptree.hpp>
 
-std::string Property_base::to_json() const
+std::string Property_base::to_json(const bool include_metadata) const
 {
-    return Ptree_util::ptree_to_json_str(to_ptree());
+    return Ptree_util::ptree_to_json_str(to_ptree(include_metadata));
 }
 
-boost::property_tree::ptree Property_base::to_ptree() const
+boost::property_tree::ptree Property_base::to_ptree(const bool include_metadata) const
 {
     boost::property_tree::ptree tree;
 
     tree.put("name",  name_);
     tree.put("value", value_to_string());
     tree.put("type",  type_);
+
+    if(include_metadata)
+    {
+        //metadata
+        tree.put("desc",  desc_);
+        
+        boost::property_tree::ptree constraints;
+        this->put_constraints(&constraints);
+        tree.put_child("constraints", constraints);
+    }
 
     return tree;
 }
