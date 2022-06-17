@@ -4,9 +4,9 @@
  * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
 */
 
-#include "Property_factory.hpp"
+#include "property/Property_factory.hpp"
 
-#include "Property_text.hpp"
+#include "property/Property_text.hpp"
 
 #include "opaleye-util/Ptree_util.hpp"
 

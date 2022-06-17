@@ -11,11 +11,26 @@ add_library(property
 
 target_include_directories(property
 	PUBLIC
-		${CMAKE_CURRENT_SOURCE_DIR}
+		include
 )
 
 target_link_libraries(property
 	Boost::boost
 
 	opaleye-util
+)
+
+add_executable(property-tests
+	tests/Property_numeric_tests.cpp
+)
+
+target_link_libraries(property-tests
+	property
+	googletest
+	googletest_main
+)
+
+target_include_directories(property-tests
+	PUBLIC
+		
 )

@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "Property_base.hpp"
+#include "property/Property_base.hpp"
 
 #include <boost/container_hash/hash.hpp>
 

@@ -5,7 +5,7 @@
 */
 
 
-#include "Property.hpp"
+#include "property/Property.hpp"
 
 #include <string>
 

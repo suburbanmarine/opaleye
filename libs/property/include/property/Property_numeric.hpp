@@ -4,7 +4,7 @@
  * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
 */
 
-#include "Property.hpp"
+#include "property/Property.hpp"
 
 #include <boost/property_tree/ptree.hpp>
 
@@ -81,6 +81,7 @@ protected:
 
 class Property_numeric_i8 : Property_numeric<int8_t>
 {
+public:
 	Property_numeric_i8()
 	{
 		this->type_ = "i8";
@@ -91,6 +92,7 @@ protected:
 };
 class Property_numeric_u8 : Property_numeric<uint8_t>
 {
+public:
 	Property_numeric_u8()
 	{
 		this->type_ = "u8";
@@ -101,6 +103,7 @@ protected:
 };
 class Property_numeric_i16 : Property_numeric<int16_t>
 {
+public:
 	Property_numeric_i16()
 	{
 		this->type_ = "i16";
@@ -111,6 +114,7 @@ protected:
 };
 class Property_numeric_u16 : Property_numeric<uint16_t>
 {
+public:
 	Property_numeric_u16()
 	{
 		this->type_ = "u16";
@@ -121,6 +125,7 @@ protected:
 };
 class Property_numeric_i32 : Property_numeric<int32_t>
 {
+public:
 	Property_numeric_i32()
 	{
 		this->type_ = "i32";
@@ -131,6 +136,7 @@ protected:
 };
 class Property_numeric_u32 : Property_numeric<uint32_t>
 {
+public:
 	Property_numeric_u32()
 	{
 		this->type_ = "u32";
@@ -141,6 +147,7 @@ protected:
 };
 class Property_numeric_i64 : Property_numeric<int64_t>
 {
+public:
 	Property_numeric_i64()
 	{
 		this->type_ = "i64";
@@ -151,6 +158,7 @@ protected:
 };
 class Property_numeric_u64 : Property_numeric<uint64_t>
 {
+public:
 	Property_numeric_u64()
 	{
 		this->type_ = "u64";
@@ -161,6 +169,7 @@ protected:
 };
 class Property_numeric_float : Property_numeric<float>
 {
+public:
 	Property_numeric_float()
 	{
 		this->type_ = "f32";
@@ -171,6 +180,7 @@ protected:
 };
 class Property_numeric_double : Property_numeric<double>
 {
+public:
 	Property_numeric_double()
 	{
 		this->type_ = "f64";

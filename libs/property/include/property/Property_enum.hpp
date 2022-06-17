@@ -4,7 +4,9 @@
  * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
 */
 
-#include "Property.hpp"
+#include "property/Property.hpp"
+
+#include <boost/property_tree/ptree.hpp>
 
 #include <string>
 #include <set>
@@ -52,8 +54,18 @@ protected:
 
 	void put_constraints(boost::property_tree::ptree* const tree) const override
 	{
+		boost::property_tree::ptree values;
+
+		for(const auto& v : valid_values_)
+		{
+			boost::property_tree::ptree val;
+			val.put("", v);
+
+			values.push_back(std::make_pair("", val));
+		}
+
 		//array of name:value
-   		tree->put("set", );
+		tree->put("set", values);
 	}
 
 	std::unordered_set<std::string> valid_names_;

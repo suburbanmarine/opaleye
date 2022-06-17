@@ -4,7 +4,7 @@
  * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
 */
 
-#include "Property_base.hpp"
+#include "property/Property_base.hpp"
 
 #include "opaleye-util/Ptree_util.hpp"
 
