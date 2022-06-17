@@ -39,12 +39,25 @@ public:
 		return max_;
 	}
 	
+	using Property<T>::is_value_valid;
 	bool is_value_valid(const T& x) const override
 	{
 		return ( (min() <= x) && (x <= max()) );
 	}
 
-	using Property<T>::is_value_valid;
+	virtual bool operator==(const Property_numeric<T>& lhs) const
+	{
+		return Property<T>::operator==(lhs) &&
+		 	(min_ == lhs.min_)  &&
+			(max_ == lhs.max_);
+	}
+
+	virtual bool operator<(const Property_numeric<T>& lhs) const
+	{
+		return Property<T>::operator<(lhs) &&
+		 	(min_ < lhs.min_)  &&
+			(max_ < lhs.max_);
+	}
 
 protected:
 

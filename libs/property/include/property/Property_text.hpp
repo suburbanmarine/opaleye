@@ -4,7 +4,6 @@
  * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
 */
 
-
 #include "property/Property.hpp"
 
 #include <string>

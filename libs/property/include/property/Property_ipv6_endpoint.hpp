@@ -1,0 +1,67 @@
+/**
+ * @author Jacob Schloss <jacob.schloss@suburbanmarine.io>
+ * @copyright Copyright (c) 2021 Suburban Marine, Inc. All rights reserved.
+ * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
+*/
+
+#include "property/Property.hpp"
+
+#include <cstdint>
+
+class ipv6_host
+{
+public:
+
+	virtual bool operator==(const ipv6_host& lhs) const
+	{
+		return (addr == lhs.addr);
+	}
+
+	virtual bool operator<(const ipv6_host& lhs) const
+	{
+		return (addr < lhs.addr);
+	}
+
+	uint32_t addr;
+};
+
+class ipv6_endpoint
+{
+public:
+
+	virtual bool operator==(const ipv6_endpoint& lhs) const
+	{
+		return
+		 	(host == lhs.host) &&
+			(port == lhs.port);
+	}
+
+	virtual bool operator<(const ipv6_endpoint& lhs) const
+	{
+		return
+		 	(host < lhs.host) &&
+			(port < lhs.port);
+	}
+
+	ipv6_host host;
+	uint16_t  port;
+};
+
+class Property_ipv6_endpoint : public Property<ipv6_endpoint>
+{
+public:
+
+	Property_ipv6_endpoint()
+	{
+
+	}
+	
+	bool is_value_valid(const ipv6_endpoint& x) const override
+	{
+		return false;
+	}
+
+protected:
+    std::string value_to_string(const ipv6_endpoint& val) const override;
+    ipv6_endpoint value_from_string(const std::string& str) const override;
+};
