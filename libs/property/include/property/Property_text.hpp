@@ -21,5 +21,5 @@ public:
 protected:
     std::string value_to_string(const std::string& val) const override;
 
-    void value_from_string(const std::string& str) override;
+    std::string value_from_string(const std::string& str) const override;
 };

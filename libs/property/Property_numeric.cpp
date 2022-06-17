@@ -45,43 +45,43 @@ std::string Property_numeric_double::value_to_string(const double& val) const
 	return fmt::format("{:.17e}", int(val));
 }
 
-void Property_numeric_i8::value_from_string(const std::string& str)
+int8_t Property_numeric_i8::value_from_string(const std::string& str) const
 {
-	val_ = sscanf_helper<int>(str.c_str(), "%d");
+	return sscanf_helper<int>(str.c_str(), "%d");
 }
-void Property_numeric_u8::value_from_string(const std::string& str)
+uint8_t Property_numeric_u8::value_from_string(const std::string& str) const
 {
-	val_ = sscanf_helper<unsigned>(str.c_str(), "%d");
+	return sscanf_helper<unsigned>(str.c_str(), "%d");
 }
-void Property_numeric_i16::value_from_string(const std::string& str)
+int16_t Property_numeric_i16::value_from_string(const std::string& str) const
 {
-	val_ = sscanf_helper<int>(str.c_str(), "%d");
+	return sscanf_helper<int>(str.c_str(), "%d");
 }
-void Property_numeric_u16::value_from_string(const std::string& str)
+uint16_t Property_numeric_u16::value_from_string(const std::string& str) const
 {
-	val_ = sscanf_helper<unsigned>(str.c_str(), "%d");
+	return sscanf_helper<unsigned>(str.c_str(), "%d");
 }
-void Property_numeric_i32::value_from_string(const std::string& str)
+int32_t Property_numeric_i32::value_from_string(const std::string& str) const
 {
-	val_ = sscanf_helper<int32_t>(str.c_str(), PRId32);
+	return sscanf_helper<int32_t>(str.c_str(), PRId32);
 }
-void Property_numeric_u32::value_from_string(const std::string& str)
+uint32_t Property_numeric_u32::value_from_string(const std::string& str) const
 {
-	val_ = sscanf_helper<uint32_t>(str.c_str(), PRIu32);
+	return sscanf_helper<uint32_t>(str.c_str(), PRIu32);
 }
-void Property_numeric_i64::value_from_string(const std::string& str)
+int64_t Property_numeric_i64::value_from_string(const std::string& str) const
 {
-	val_ = sscanf_helper<int64_t>(str.c_str(), PRId64);
+	return sscanf_helper<int64_t>(str.c_str(), PRId64);
 }
-void Property_numeric_u64::value_from_string(const std::string& str)
+uint64_t Property_numeric_u64::value_from_string(const std::string& str) const
 {
-	val_ = sscanf_helper<uint64_t>(str.c_str(), PRIu64);
+	return sscanf_helper<uint64_t>(str.c_str(), PRIu64);
 }
-void Property_numeric_float::value_from_string(const std::string& str)
+float Property_numeric_float::value_from_string(const std::string& str) const
 {
-	val_ = sscanf_helper<double>(str.c_str(), "%f");
+	return sscanf_helper<double>(str.c_str(), "%f");
 }
-void Property_numeric_double::value_from_string(const std::string& str)
+double Property_numeric_double::value_from_string(const std::string& str) const
 {
-	val_ = sscanf_helper<double>(str.c_str(), "%f");
+	return sscanf_helper<double>(str.c_str(), "%f");
 }

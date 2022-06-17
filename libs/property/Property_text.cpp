@@ -7,7 +7,7 @@ std::string Property_text::value_to_string(const std::string& val) const
 	return val;
 }
 
-void Property_text::value_from_string(const std::string& str)
+std::string Property_text::value_from_string(const std::string& str) const
 {
-	val_ = str;
+	return str;
 }

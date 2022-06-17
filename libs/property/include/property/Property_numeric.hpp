@@ -44,7 +44,42 @@ public:
 		return ( (min() <= x) && (x <= max()) );
 	}
 
+	using Property<T>::is_value_valid;
+
 protected:
+
+	void put_constraints(boost::property_tree::ptree* const tree) const override
+	{
+		if(min_ != std::numeric_limits<T>::min())
+		{
+    		tree->put("min", this->value_to_string(min_));
+		}
+		if(max_ != std::numeric_limits<T>::max())
+		{
+    		tree->put("max", this->value_to_string(max_));
+		}
+	}
+
+	void set_constraints_from_tree(const boost::property_tree::ptree& tree) override
+	{
+		if(tree.count("min"))
+		{
+			min_ = this->value_from_string(tree.get<std::string>("min"));
+		}
+		else
+		{
+			min_ = std::numeric_limits<T>::min();
+		}
+
+		if(tree.count("max"))
+		{
+			max_ = this->value_from_string(tree.get<std::string>("max"));
+		}
+		else
+		{
+			max_ = std::numeric_limits<T>::max();
+		}
+	}
 
 	template< typename U>
 	static U sscanf_helper(const char* str, const char* fmt)
@@ -63,23 +98,11 @@ protected:
 		return temp;
 	}
 
-	void put_constraints(boost::property_tree::ptree* const tree) const override
-	{
-		if(min_ != std::numeric_limits<T>::min())
-		{
-    		tree->put("min", this->value_to_string(min_));
-		}
-		if(max_ != std::numeric_limits<T>::max())
-		{
-    		tree->put("max", this->value_to_string(max_));
-		}
-	}
-
-	const T min_;
-	const T max_;
+	T min_;
+	T max_;
 };
 
-class Property_numeric_i8 : Property_numeric<int8_t>
+class Property_numeric_i8 : public Property_numeric<int8_t>
 {
 public:
 	Property_numeric_i8()
@@ -88,9 +111,9 @@ public:
 	}
 protected:
     std::string value_to_string(const int8_t& val) const override;
-    void value_from_string(const std::string& str) override;
+    int8_t value_from_string(const std::string& str) const override;
 };
-class Property_numeric_u8 : Property_numeric<uint8_t>
+class Property_numeric_u8 : public Property_numeric<uint8_t>
 {
 public:
 	Property_numeric_u8()
@@ -99,9 +122,9 @@ public:
 	}
 protected:
     std::string value_to_string(const uint8_t& val) const override;
-    void value_from_string(const std::string& str) override;
+    uint8_t value_from_string(const std::string& str) const override;
 };
-class Property_numeric_i16 : Property_numeric<int16_t>
+class Property_numeric_i16 : public Property_numeric<int16_t>
 {
 public:
 	Property_numeric_i16()
@@ -110,9 +133,9 @@ public:
 	}
 protected:
 	std::string value_to_string(const int16_t& val) const override;
-    void value_from_string(const std::string& str) override;
+    int16_t value_from_string(const std::string& str) const override;
 };
-class Property_numeric_u16 : Property_numeric<uint16_t>
+class Property_numeric_u16 : public Property_numeric<uint16_t>
 {
 public:
 	Property_numeric_u16()
@@ -121,9 +144,9 @@ public:
 	}
 protected:
 	std::string value_to_string(const uint16_t& val) const override;
-    void value_from_string(const std::string& str) override;
+    uint16_t value_from_string(const std::string& str) const override;
 };
-class Property_numeric_i32 : Property_numeric<int32_t>
+class Property_numeric_i32 : public Property_numeric<int32_t>
 {
 public:
 	Property_numeric_i32()
@@ -132,9 +155,9 @@ public:
 	}
 protected:
 	std::string value_to_string(const int32_t& val) const override;
-    void value_from_string(const std::string& str) override;
+    int32_t value_from_string(const std::string& str) const override;
 };
-class Property_numeric_u32 : Property_numeric<uint32_t>
+class Property_numeric_u32 : public Property_numeric<uint32_t>
 {
 public:
 	Property_numeric_u32()
@@ -143,9 +166,9 @@ public:
 	}
 protected:
 	std::string value_to_string(const uint32_t& val) const override;
-    void value_from_string(const std::string& str) override;
+    uint32_t value_from_string(const std::string& str) const override;
 };
-class Property_numeric_i64 : Property_numeric<int64_t>
+class Property_numeric_i64 : public Property_numeric<int64_t>
 {
 public:
 	Property_numeric_i64()
@@ -154,9 +177,9 @@ public:
 	}
 protected:
 	std::string value_to_string(const int64_t& val) const override;
-    void value_from_string(const std::string& str) override;
+    int64_t value_from_string(const std::string& str) const override;
 };
-class Property_numeric_u64 : Property_numeric<uint64_t>
+class Property_numeric_u64 : public Property_numeric<uint64_t>
 {
 public:
 	Property_numeric_u64()
@@ -165,9 +188,9 @@ public:
 	}
 protected:
 	std::string value_to_string(const uint64_t& val) const override;
-    void value_from_string(const std::string& str) override;
+    uint64_t value_from_string(const std::string& str) const override;
 };
-class Property_numeric_float : Property_numeric<float>
+class Property_numeric_float : public Property_numeric<float>
 {
 public:
 	Property_numeric_float()
@@ -176,9 +199,9 @@ public:
 	}
 protected:
     std::string value_to_string(const float& val) const override;
-    void value_from_string(const std::string& str) override;
+    float value_from_string(const std::string& str) const override;
 };
-class Property_numeric_double : Property_numeric<double>
+class Property_numeric_double : public Property_numeric<double>
 {
 public:
 	Property_numeric_double()
@@ -187,5 +210,5 @@ public:
 	}
 protected:
     std::string value_to_string(const double& val) const override;
-    void value_from_string(const std::string& str) override;
+    double value_from_string(const std::string& str) const override;
 };

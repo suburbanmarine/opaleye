@@ -50,12 +50,11 @@ public:
 protected:
 
 	virtual std::string value_to_string() const = 0;
-	virtual void value_from_string(const std::string& str) = 0;
+	virtual void set_value_from_string(const std::string& str) = 0;
 
-	virtual void put_constraints(boost::property_tree::ptree* const tree) const
-	{
+	virtual void put_constraints(boost::property_tree::ptree* const tree) const;
 
-	}
+	virtual void set_constraints_from_tree(const boost::property_tree::ptree& tree);
 
 	std::string name_;
 	std::string desc_;

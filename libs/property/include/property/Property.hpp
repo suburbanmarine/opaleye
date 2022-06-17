@@ -36,13 +36,6 @@ public:
 		return val_;
 	}
 
-	virtual std::string to_string() const
-	{
-		std::stringstream ss;
-		ss << val_;
-		return ss.str();  
-	}
-
 	virtual bool is_value_valid(const T& x) const = 0;
 
 	virtual bool is_value_valid() const
@@ -80,6 +73,12 @@ public:
 protected:
 
 	virtual std::string value_to_string(const T& val) const = 0;
+	virtual T value_from_string(const std::string& str) const = 0;
+
+	void set_value_from_string(const std::string& str) override
+	{
+		val_ = value_from_string(str);
+	}
 
 	std::string value_to_string() const override
 	{

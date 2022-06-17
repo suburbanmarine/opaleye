@@ -34,14 +34,27 @@ boost::property_tree::ptree Property_base::metadata_to_ptree() const
 {
     boost::property_tree::ptree tree;
 
+    //data
     tree.put("name",  name_);
+    tree.put("value", value_to_string());
     tree.put("type",  type_);
-    tree.put("desc",  desc_);
 
+    //metadata
+    tree.put("desc",  desc_);
+    
     boost::property_tree::ptree constraints;
     this->put_constraints(&constraints);
-
     tree.put_child("constraints", constraints);
 
     return tree;
+}
+
+void Property_base::put_constraints(boost::property_tree::ptree* const tree) const
+{
+    tree->clear();
+}
+
+void Property_base::set_constraints_from_tree(const boost::property_tree::ptree& tree)
+{
+
 }

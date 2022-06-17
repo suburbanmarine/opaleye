@@ -8,6 +8,7 @@
 
 class Property_factory
 {
+public:
     static std::shared_ptr<Property_base> from_json(const std::string& tree);
     static std::shared_ptr<Property_base> from_ptree(const boost::property_tree::ptree& str);
 };
