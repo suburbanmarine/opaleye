@@ -13,6 +13,11 @@ class ipv4_network
 {
 public:
 
+	// ipv4_network()
+	// {
+		
+	// }
+
 	virtual bool operator==(const ipv4_network& lhs) const
 	{
 		return
@@ -44,7 +49,9 @@ public:
 	
 	bool is_value_valid(const ipv4_network& x) const override
 	{
-		return false;
+		// essentially, any bit pattern in x is valid
+		// even 0.0.0.0 has several valid meanings depending on context
+		return true;
 	}
 
 protected:

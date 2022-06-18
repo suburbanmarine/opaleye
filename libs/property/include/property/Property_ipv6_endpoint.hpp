@@ -14,6 +14,11 @@ class ipv6_addr
 {
 public:
 
+	// ipv6_addr()
+	// {
+	// 	addr.fill(0);
+	// }
+
 	virtual bool operator==(const ipv6_addr& lhs) const
 	{
 		return std::equal(addr.begin(), addr.end(), lhs.addr.begin());
@@ -32,6 +37,11 @@ public:
 class ipv6_endpoint
 {
 public:
+
+	// ipv6_endpoint()
+	// {
+	// 	port = 0;
+	// }
 
 	virtual bool operator==(const ipv6_endpoint& lhs) const
 	{
@@ -64,7 +74,9 @@ public:
 	
 	bool is_value_valid(const ipv6_endpoint& x) const override
 	{
-		return false;
+		// essentially, any bit pattern in x is valid
+		// even 0.0.0.0 has several valid meanings depending on context
+		return true;
 	}
 
 protected:
