@@ -47,6 +47,8 @@ public:
 			(port < lhs.port);
 	}
 
+	std::string to_string() const;
+
 	ipv6_addr host;
 	uint16_t  port;
 };

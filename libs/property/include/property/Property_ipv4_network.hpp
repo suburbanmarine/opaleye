@@ -27,6 +27,8 @@ public:
 			(mask < lhs.mask);
 	}
 
+	std::string to_string() const;
+
 	ipv4_addr host;
 	ipv4_addr mask;
 };

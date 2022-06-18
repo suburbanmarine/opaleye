@@ -4,11 +4,14 @@
 
 #include <sstream>
 
+std::string ipv6_network::to_string() const
+{
+	return fmt::format("{:s}/{:s}", host.to_string(), mask.to_string());
+}
+
 std::string Property_ipv6_network::value_to_string(const ipv6_network& val) const
 {
-	std::stringstream ss;
-	ss << val.host.to_string() << "/" << val.mask.to_string();
-	return ss.str();
+	return val.to_string();
 }
 ipv6_network Property_ipv6_network::value_from_string(const std::string& str) const
 {
