@@ -13,6 +13,7 @@
 #include "signal_handler.hpp"
 
 #include "zeromq_api_svr.hpp"
+#include "zcm_api_svr.hpp"
 
 #include "Opaleye_app.hpp"
 #include "config/Opaleye_config.hpp"
@@ -352,13 +353,14 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	std::shared_ptr<lcm::LCM> lcm_inst;
-	if(app.m_config->lcm_launch == "true")
+	std::shared_ptr<zcm_api_svr> zcm_inst;
+	if(app.m_config->zcm_launch == "true")
 	{
-		lcm_inst = std::make_shared<lcm::LCM>();
-		if( ! lcm_inst->good() )
+		SPDLOG_INFO("Starting ZCM");
+		zcm_inst = std::make_shared<zcm_api_svr>();
+		if( ! zcm_inst->init("ipc") )
 		{
-			SPDLOG_ERROR("Error initializing LCM");
+			SPDLOG_ERROR("Error initializing ZCM");
 		}
 	}
 
