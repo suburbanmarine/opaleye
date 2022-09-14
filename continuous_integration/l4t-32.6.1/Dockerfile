@@ -5,11 +5,13 @@ FROM nvcr.io/nvidia/l4t-base:r32.6.1
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \ 
 	build-essential      \
 	cmake                \
+	gdebi                \
 	git                  \
 	rsync                \
-	software-properties-common \ 
-	tzdata               \ 
+	software-properties-common \
+	tzdata               \
 	wget                 \
+	zip                  \
 	&& apt-get clean
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \ 
