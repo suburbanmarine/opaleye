@@ -48,6 +48,11 @@ public:
     return m_pipeline;
   }
 
+  Glib::RefPtr<Gst::Bin> get_bin()
+  {
+    return m_pipeline;
+  }
+
   virtual std::shared_ptr<GST_element_base> get_element(const std::string& name) = 0;
 
   template< typename T >
@@ -56,11 +61,16 @@ public:
     return std::dynamic_pointer_cast<T>(get_element(name));
   }
 
+  void use_clock(const Glib::RefPtr<Gst::Clock>& clock);
+
 protected:
   Glib::RefPtr<Glib::MainContext>  m_mainloop_context;
   Glib::RefPtr<Glib::MainLoop>     m_mainloop;
   Glib::RefPtr<Gst::Pipeline>      m_pipeline;
   Glib::RefPtr<Gst::Bus>           m_pipeline_bus;
+
+  //if use_clock is called, a reference is kept here
+  Glib::RefPtr<Gst::Clock> m_clock;
 
   std::thread glib_main_thread_;
 

@@ -13,6 +13,7 @@
 #include "signal_handler.hpp"
 
 #include "zeromq_api_svr.hpp"
+#include "zcm_api_svr.hpp"
 
 #include "Opaleye_app.hpp"
 #include "config/Opaleye_config.hpp"
@@ -326,7 +327,6 @@ int main(int argc, char* argv[])
 			}
 		}
 
-
 		if(app.m_pipelines.find("pipe1") != app.m_pipelines.end())
 		{
 			std::shared_ptr<GST_camera_base> cam1 = app.m_pipelines["pipe1"]->get_element<GST_camera_base>("cam1");
@@ -350,6 +350,17 @@ int main(int argc, char* argv[])
 					}
 				);
 			}
+		}
+	}
+
+	std::shared_ptr<zcm_api_svr> zcm_inst;
+	if(app.m_config->zcm_launch == "true")
+	{
+		SPDLOG_INFO("Starting ZCM");
+		zcm_inst = std::make_shared<zcm_api_svr>();
+		if( ! zcm_inst->init("ipc") )
+		{
+			SPDLOG_ERROR("Error initializing ZCM");
 		}
 	}
 
@@ -423,6 +434,12 @@ int main(int argc, char* argv[])
 	{
 		SPDLOG_INFO("Stopping ZMQ server");
 		zmq_svr.reset();
+	}
+
+	if(zcm_inst)
+	{
+		SPDLOG_INFO("Stopping ZCM server");
+		zcm_inst.reset();
 	}
 
 #if 0
