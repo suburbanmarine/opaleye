@@ -5,14 +5,18 @@ FROM nvcr.io/nvidia/l4t-base:r32.6.1
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \ 
 	build-essential      \
 	cmake                \
+	gdebi                \
 	git                  \
 	rsync                \
-	software-properties-common \ 
-	tzdata               \ 
+	software-properties-common \
+	tzdata               \
 	wget                 \
+	zip                  \
 	&& apt-get clean
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \ 
+	default-jdk-headless \
+	default-jre-headless \
 	device-tree-compiler \
 	gdb                  \
 	grunt                \
@@ -21,13 +25,16 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 	node-grunt-cli       \
 	nodejs               \
 	npm                  \
+	python2              \
 	valgrind             \
+	zip                  \
 	&& apt-get clean
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \ 
 	googletest             \ 
 	i2c-tools              \ 
 	libboost-all-dev       \ 
+	libelf-dev             \
 	libfcgi-dev            \ 
 	libgpiod-dev           \ 
 	libgrpc++-dev          \ 
@@ -68,6 +75,13 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 # 	nvidia-l4t-multimedia            \ 
 # 	nvidia-l4t-multimedia-utils      \ 
 # 	&& apt-get clean
+
+WORKDIR /root
+RUN git clone https://github.com/suburbanmarine/zcm.git
+WORKDIR /root/zcm
+RUN git checkout patch_installer
+RUN ./scripts/make_debian_package.sh
+RUN gdebi -n /root/zcm/build/zcm_1.1.5_amd64.deb
 
 WORKDIR /root
 RUN git clone https://github.com/suburbanmarine/opaleye

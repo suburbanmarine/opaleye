@@ -25,6 +25,7 @@ add_library(opaleye_app
 	signal_handler.cpp
 
 	zeromq_api_svr.cpp
+	zcm_api_svr.cpp
 )
 
 target_include_directories(opaleye_app
@@ -57,6 +58,7 @@ target_link_libraries(opaleye_app
 		gpiod
 
 		cppzmq
+		zcm
 
 		rt
 )
