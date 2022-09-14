@@ -1,6 +1,6 @@
 FROM ubuntu:18.04
 
-# RUN echo "Acquire::http::Proxy \"http://helios10g.lan:3142\";" > /etc/apt/apt.conf.d/02proxy
+# RUN echo "Acquire::http::Proxy \"http://helios.lan:3142\";" > /etc/apt/apt.conf.d/02proxy
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \ 
 	build-essential      \
