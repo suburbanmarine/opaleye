@@ -22,6 +22,3 @@
 [submodule "external/cppzmq"]
 	path = external/cppzmq
 	url = https://github.com/suburbanmarine/cppzmq.git
-[submodule "external/zcm"]
-	path = external/zcm
-	url = https://github.com/ZeroCM/zcm.git
