@@ -13,6 +13,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 	&& apt-get clean
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \ 
+	default-jdk-headless \
+	default-jre-headless \
 	device-tree-compiler \
 	gdb                  \
 	grunt                \
@@ -21,13 +23,16 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 	node-grunt-cli       \
 	nodejs               \
 	npm                  \
+	python2              \
 	valgrind             \
+	zip                  \
 	&& apt-get clean
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \ 
 	googletest             \ 
 	i2c-tools              \ 
 	libboost-all-dev       \ 
+	libelf-dev             \
 	libfcgi-dev            \ 
 	libgpiod-dev           \ 
 	libgrpc++-dev          \ 

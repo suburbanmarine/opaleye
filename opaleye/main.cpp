@@ -326,7 +326,6 @@ int main(int argc, char* argv[])
 			}
 		}
 
-
 		if(app.m_pipelines.find("pipe1") != app.m_pipelines.end())
 		{
 			std::shared_ptr<GST_camera_base> cam1 = app.m_pipelines["pipe1"]->get_element<GST_camera_base>("cam1");
@@ -350,6 +349,16 @@ int main(int argc, char* argv[])
 					}
 				);
 			}
+		}
+	}
+
+	std::shared_ptr<lcm::LCM> lcm_inst;
+	if(app.m_config->lcm_launch == "true")
+	{
+		lcm_inst = std::make_shared<lcm::LCM>();
+		if( ! lcm_inst->good() )
+		{
+			SPDLOG_ERROR("Error initializing LCM");
 		}
 	}
 
