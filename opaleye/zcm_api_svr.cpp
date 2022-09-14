@@ -53,6 +53,10 @@ bool zcm_api_svr::init(const std::string& ep)
 
 bool zcm_api_svr::stop()
 {
+	if(m_context)
+	{
+		zcm_stop(m_context.get())
+	}
 	if(m_zcm_run_thread)
 	{
 		m_zcm_run_thread->interrupt();
