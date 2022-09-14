@@ -2,7 +2,7 @@
 
 #include <opaleye-util/thread_base.hpp>
 
-#include <zcm/zcm.h>
+#include <zcm/zcm-cpp.hpp>
 
 #include <memory>
 #include <string>
@@ -10,13 +10,13 @@
 class zcm_run_thread : public thread_base
 {
 public:
-	zcm_run_thread(const std::shared_ptr<zcm_t>& ctx);
+	zcm_run_thread(const std::shared_ptr<zcm::ZCM>& zcm);
 	~zcm_run_thread() override;
 
 	void work();
 
 protected:
-	std::shared_ptr<zcm_t> m_ctx;
+	std::shared_ptr<zcm::ZCM> m_zcm;
 };
 
 class zcm_api_svr
@@ -29,20 +29,30 @@ public:
 
 	bool stop();
 
-	bool good()
+	bool good() const
 	{
-		if(m_context)
+		if(m_zcm)
 		{
-			//return m_context->good();
+			return m_zcm->good();
 		}
 
 		return false;
+	}
+
+	const std::shared_ptr<zcm::ZCM>& get_zcm() const
+	{
+		return m_zcm;
+	}
+
+	std::shared_ptr<zcm::ZCM>& get_zcm()
+	{
+		return m_zcm;
 	}
 
 protected:
 
 	std::shared_ptr<zcm_run_thread> m_zcm_run_thread;
 
-	std::shared_ptr<zcm_t> m_context;
+	std::shared_ptr<zcm::ZCM> m_zcm;
 	std::string m_ep;
 };
