@@ -83,3 +83,4 @@ RUN git clone https://github.com/suburbanmarine/zcm.git
 WORKDIR /root/zcm
 RUN git checkout patch_installer
 RUN ./scripts/make_debian_package.sh
+RUN gdebi -n /root/zcm/build/zcm_1.1.5_amd64.deb

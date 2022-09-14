@@ -75,6 +75,13 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 # 	&& apt-get clean
 
 WORKDIR /root
+RUN git clone https://github.com/suburbanmarine/zcm.git
+WORKDIR /root/zcm
+RUN git checkout patch_installer
+RUN ./scripts/make_debian_package.sh
+RUN gdebi -n /root/zcm/build/zcm_1.1.5_amd64.deb
+
+WORKDIR /root
 RUN git clone https://github.com/suburbanmarine/opaleye
 
 WORKDIR /root/opaleye
