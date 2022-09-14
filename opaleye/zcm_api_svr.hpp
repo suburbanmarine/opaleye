@@ -19,6 +19,18 @@ protected:
 	std::shared_ptr<zcm::ZCM> m_zcm;
 };
 
+class zcm_hb_thread : public thread_base
+{
+public:
+	zcm_hb_thread(const std::shared_ptr<zcm::ZCM>& zcm);
+	~zcm_hb_thread() override;
+
+	void work();
+
+protected:
+	std::shared_ptr<zcm::ZCM> m_zcm;
+};
+
 class zcm_api_svr
 {
 public:
@@ -52,6 +64,7 @@ public:
 protected:
 
 	std::shared_ptr<zcm_run_thread> m_zcm_run_thread;
+	std::shared_ptr<zcm_hb_thread> m_zcm_hb_thread;
 
 	std::shared_ptr<zcm::ZCM> m_zcm;
 	std::string m_ep;

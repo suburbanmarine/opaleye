@@ -433,6 +433,12 @@ int main(int argc, char* argv[])
 		zmq_svr.reset();
 	}
 
+	if(zcm_inst)
+	{
+		SPDLOG_INFO("Stopping ZCM server");
+		zcm_inst.reset();
+	}
+
 #if 0
 	if(gpio && gpio->joinable())
 	{
