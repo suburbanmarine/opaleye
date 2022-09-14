@@ -206,6 +206,9 @@ public:
   bool set_camera_property_int(const std::string& pipeline_id, const std::string& camera_id, const std::string& property_id, int value);
   bool set_camera_property_str(const std::string& pipeline_id, const std::string& camera_id, const std::string& property_id, const std::string& value);
 
+  int get_camera_property_int(const std::string& pipeline_id, const std::string& camera_id, const std::string& property_id);
+  std::string get_camera_property_str(const std::string& pipeline_id, const std::string& camera_id, const std::string& property_id);
+
   /* hw trigger */
   bool hw_trigger_enable(const bool enable);
   bool hw_trigger_config(const uint64_t t0, const uint64_t period, const uint64_t width);

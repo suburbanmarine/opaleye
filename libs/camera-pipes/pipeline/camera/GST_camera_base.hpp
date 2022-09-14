@@ -1,3 +1,9 @@
+/**
+ * @author Jacob Schloss <jacob.schloss@suburbanmarine.io>
+ * @copyright Copyright (c) 2021 Suburban Marine, Inc. All rights reserved.
+ * @license Licensed under the 3-Clause BSD LICENSE. See LICENSE.txt for details.
+*/
+
 #pragma once
 
 #include "pipeline/GST_element_base.hpp"
@@ -37,4 +43,5 @@ public:
   virtual bool get_gain(int32_t* const val);
 
   virtual bool set_camera_property(const std::string& property_id, const std::string& value);
+  virtual bool get_camera_property(const std::string& property_id, std::string* const out_value);
 };
