@@ -98,3 +98,7 @@ RUN ./generate_cmake_x86.sh
 WORKDIR /root/opaleye/build/debug
 RUN make -j`nproc`
 RUN make package
+
+WORKDIR /root/opaleye/build/release
+RUN make -j`nproc`
+RUN make package
