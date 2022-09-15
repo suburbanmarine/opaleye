@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 trap 'exit -1' err
 
-docker buildx build --cache-to=registry --cache-from=registry --platform linux/amd64 --output=type=registry -t suburbanmarine/opaleye-ci:20.04 .
+docker buildx build --cache-to=type=local,dest=cache --cache-from=type=local,src=cache --platform linux/amd64 --output=type=local,dest=opaleye-ci_20.04.tar.gz -t suburbanmarine/opaleye-ci:20.04 .
 
 CONTAINER_ID=$(docker create -it suburbanmarine/opaleye-ci:20.04 /bin/bash)
 

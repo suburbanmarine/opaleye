@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 trap 'exit -1' err
 
-docker buildx build --cache-to=registry --cache-from=registry --platform linux/arm64 --output=type=registry -t suburbanmarine/opaleye-ci:l4t-32.6.1 .
+docker buildx build --cache-to=type=local,dest=cache --cache-from=type=local,src=cache --platform linux/arm64 --output=type=local,dest=opaleye-ci_l4t-r32.5.0.tar.gz -t suburbanmarine/opaleye-ci:l4t-r32.5.0 .
 
-CONTAINER_ID=$(docker create -it suburbanmarine/opaleye-ci:l4t-32.5.0 /bin/bash)
+CONTAINER_ID=$(docker create -it suburbanmarine/opaleye-ci:l4t-r32.5.0 /bin/bash)
 
 docker start $CONTAINER_ID
 

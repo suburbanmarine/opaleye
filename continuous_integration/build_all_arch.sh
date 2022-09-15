@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+trap 'exit -1' err
 
 l4t-32.5.0/build_opaleye.sh
 l4t-32.6.1/build_opaleye.sh
