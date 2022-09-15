@@ -86,3 +86,15 @@ WORKDIR /root/zcm
 RUN git checkout patch_installer
 RUN ./scripts/make_debian_package.sh
 RUN gdebi -n /root/zcm/build/zcm_1.1.5_amd64.deb
+
+WORKDIR /root
+RUN git clone https://github.com/suburbanmarine/opaleye
+
+WORKDIR /root/opaleye
+RUN git checkout master
+RUN git submodule update --init --recursive
+RUN ./generate_cmake_x86.sh
+
+WORKDIR /root/opaleye/build/debug
+RUN make -j`nproc`
+RUN make package

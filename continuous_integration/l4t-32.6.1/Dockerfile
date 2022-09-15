@@ -87,9 +87,10 @@ WORKDIR /root
 RUN git clone https://github.com/suburbanmarine/opaleye
 
 WORKDIR /root/opaleye
-RUN git checkout docker_build
+RUN git checkout master
 RUN git submodule update --init --recursive
 RUN ./generate_cmake_xaviernx.sh
 
 WORKDIR /root/opaleye/build/debug
 RUN make -j`nproc`
+RUN make package
