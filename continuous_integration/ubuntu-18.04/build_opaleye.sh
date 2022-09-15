@@ -3,7 +3,7 @@ trap 'exit -1' err
 
 docker buildx build --cache-to=type=local,dest=cache --cache-from=type=local,src=cache --platform linux/amd64 --output=type=image,push=false -t suburbanmarine/opaleye-ci:18.04 .
 
-CONTAINER_ID=$(docker create -it suburbanmarine/opaleye-ci:18.04 /bin/bash)
+CONTAINER_ID=$(docker create --rm -it suburbanmarine/opaleye-ci:18.04 /bin/bash)
 
 docker start $CONTAINER_ID
 
