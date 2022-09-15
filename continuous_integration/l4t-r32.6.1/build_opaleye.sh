@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 trap 'exit -1' err
 
-docker buildx build --cache-to=type=local,dest=cache --cache-from=type=local,src=cache --platform linux/arm64 --output=type=image,push=false -t suburbanmarine/opaleye-ci:l4t-r32.6.1 .
+docker buildx build --cache-to=type=local,dest=../cache --cache-from=type=local,src=../cache --platform linux/arm64 --output=type=image,push=false -t suburbanmarine/opaleye-ci:l4t-r32.6.1 .
 
 CONTAINER_ID=$(docker create --rm -it suburbanmarine/opaleye-ci:l4t-r32.6.1 /bin/bash)
 
