@@ -1,6 +1,6 @@
 FROM nvcr.io/nvidia/l4t-base:r32.5.0
 
-RUN echo "Acquire::http::Proxy \"http://helios.lan:3142\";" > /etc/apt/apt.conf.d/02proxy
+# RUN echo "Acquire::http::Proxy \"http://helios.lan:3142\";" > /etc/apt/apt.conf.d/02proxy
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \ 
 	build-essential      \
@@ -78,19 +78,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 
 WORKDIR /root
 RUN git clone https://github.com/suburbanmarine/zcm.git
-WORKDIR /root/zcm
-RUN git checkout patch_installer
-RUN ./scripts/make_debian_package.sh
-RUN gdebi -n /root/zcm/build/zcm_1.1.5_amd64.deb
-
-WORKDIR /root
 RUN git clone https://github.com/suburbanmarine/opaleye
 
 WORKDIR /root/opaleye
 RUN git checkout master
 RUN git submodule update --init --recursive
-RUN ./generate_cmake_xaviernx.sh
-
-WORKDIR /root/opaleye/build/debug
-RUN make -j`nproc`
-RUN make package
