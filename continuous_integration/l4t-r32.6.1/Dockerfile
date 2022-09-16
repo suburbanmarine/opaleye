@@ -25,7 +25,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 	node-grunt-cli       \
 	nodejs               \
 	npm                  \
-	python2              \
+	python               \
 	valgrind             \
 	zip                  \
 	&& apt-get clean
