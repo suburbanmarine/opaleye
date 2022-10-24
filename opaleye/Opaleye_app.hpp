@@ -104,6 +104,7 @@ public:
 protected:
     
   bool make_brio_pipeline();
+  bool make_imx183_pipeline();
   bool make_imx219_pipeline();
   bool make_alvium_pipeline();
   bool make_virtual_pipeline();

@@ -66,6 +66,10 @@ bool Gstreamer_pipeline::make_pipeline(const std::shared_ptr<const app_config>& 
   {
     ret = make_brio_pipeline();
   }
+  else if(m_pipeline_config.type == "imx183")
+  {
+    ret = make_imx183_pipeline();
+  }
   else if(m_pipeline_config.type == "imx219")
   {
     ret = make_imx219_pipeline();
@@ -223,6 +227,130 @@ bool Gstreamer_pipeline::make_brio_pipeline()
 
   m_element_storage.emplace(cam_name, m_camera);
   m_element_storage.emplace("jpgdec_0", m_jpgdec);
+  m_element_storage.emplace("thumb_0", m_thumb);
+  m_element_storage.emplace("h264_0", m_h264);
+  m_element_storage.emplace("h264_ipsink_0", m_h264_interpipesink);
+  m_element_storage.emplace("rtp_0", m_rtppay);
+  m_element_storage.emplace("udp_0", m_rtpsink);
+
+  return true;
+}
+
+bool Gstreamer_pipeline::make_imx183_pipeline()
+{
+  const std::string& cam_name  = m_camera_config.name;
+  const std::string& pipe_name = m_pipeline_config.name;
+
+  std::shared_ptr<nvac_imx183_pipe> m_camera   = std::make_shared<nvac_imx183_pipe>();
+  if( ! m_camera->init(cam_name.c_str()) )
+  {
+   SPDLOG_ERROR("Could not init camera");
+   return false;
+  }
+  
+  m_camera->set_sensor_id(m_camera_config.get("properties.sensor-id", 0));
+  // if( ! m_camera->set_sensor_id(m_camera_config.get("sensor-id", 0)))
+  // {
+  //     SPDLOG_ERROR("Could not set camera sensor-id");
+  //     return false; 
+  // }
+
+  std::shared_ptr<GST_element_base> m_nvvideoconvert_pipe_t0   = std::make_shared<nvvideoconvert_pipe>();
+  if( ! m_nvvideoconvert_pipe_t0->init("m_nvvideoconvert_pipe_t0") )
+  {
+    SPDLOG_ERROR("Could not init m_nvvideoconvert_pipe_t0");
+    return false;
+  }
+
+  std::shared_ptr<GST_element_base> m_nvvideoconvert_pipe_t1   = std::make_shared<nvvideoconvert_pipe>();
+  if( ! m_nvvideoconvert_pipe_t1->init("m_nvvideoconvert_pipe_t1") )
+  {
+    SPDLOG_ERROR("Could not init m_nvvideoconvert_pipe_t1");
+    return false;
+  }
+
+  std::shared_ptr<timecodestamper> m_timecodestamper = std::make_shared<timecodestamper>();
+  if( ! m_timecodestamper->init("timecodestamper_0") )
+  {
+    SPDLOG_ERROR("Could not init timecodestamper_0");
+    return false;
+  }
+
+  std::shared_ptr<timeoverlay> m_timeoverlay = std::make_shared<timeoverlay>();
+  if( ! m_timeoverlay->init("timeoverlay_0") )
+  {
+    SPDLOG_ERROR("Could not init timeoverlay_0");
+    return false;
+  }
+
+  SPDLOG_INFO("NV mode");
+  std::shared_ptr<GST_element_base> m_thumb  = std::make_shared<Thumbnail_nv3_pipe>();
+  if( ! m_thumb->init("thumb_0") )
+  {
+   SPDLOG_ERROR("Could not init thumb");
+   return false;
+  }
+
+  std::shared_ptr<GST_element_base> m_h264   = std::make_shared<h264_nvenc_bin>();
+  if( ! m_h264->init("h264_0") )
+  {
+   SPDLOG_ERROR("Could not init h264");
+   return false;
+  }
+
+  std::shared_ptr<GST_element_base> m_h264_interpipesink = std::make_shared<GST_interpipesink>();
+  if( ! m_h264_interpipesink->init("h264_ipsink_0") )
+  {
+   SPDLOG_ERROR("Could not init h264 interpipe");
+   return false;
+  }
+  
+  std::shared_ptr<GST_element_base> m_rtppay = std::make_shared<rtp_h264_pipe>();
+  if( ! m_rtppay->init("rtp_0") )
+  {
+   SPDLOG_ERROR("Could not init m_rtp");
+   return false;
+  }
+  
+  std::shared_ptr<GST_element_base> m_rtpsink = std::make_shared<rtpsink_pipe>();
+  if( ! m_rtpsink->init("udp_0") )
+  {
+   SPDLOG_ERROR("Could not init m_udp");
+   return false;
+  }
+
+  //add elements to top level bin
+  m_camera->add_to_bin(m_pipeline);
+  
+  m_nvvideoconvert_pipe_t0->add_to_bin(m_pipeline);
+  m_timecodestamper->add_to_bin(m_pipeline);
+  m_timeoverlay->add_to_bin(m_pipeline);
+  m_nvvideoconvert_pipe_t1->add_to_bin(m_pipeline);
+
+  m_thumb->add_to_bin(m_pipeline);
+  m_h264->add_to_bin(m_pipeline);
+  m_h264_interpipesink->add_to_bin(m_pipeline);
+  m_rtppay->add_to_bin(m_pipeline);
+  m_rtpsink->add_to_bin(m_pipeline);
+
+  //link pipeline
+  m_camera->link_back(m_thumb->front());
+
+  // m_camera->link_back(m_h264->front());
+  m_camera->link_back(m_nvvideoconvert_pipe_t0->front());
+  m_nvvideoconvert_pipe_t0->link_back(m_timecodestamper->front());
+  m_timecodestamper->link_back(m_timeoverlay->front());
+  m_timeoverlay->link_back(m_nvvideoconvert_pipe_t1->front());
+  m_nvvideoconvert_pipe_t1->link_back(m_h264->front());
+
+  m_h264->link_back(m_rtppay->front());
+  m_h264->link_back(m_h264_interpipesink->front());
+
+  m_rtppay->link_back(m_rtpsink->front());
+
+  m_element_storage.emplace(cam_name, m_camera);
+  m_element_storage.emplace("timecodestamper_0", m_timecodestamper);
+  m_element_storage.emplace("timeoverlay_0", m_timeoverlay);
   m_element_storage.emplace("thumb_0", m_thumb);
   m_element_storage.emplace("h264_0", m_h264);
   m_element_storage.emplace("h264_ipsink_0", m_h264_interpipesink);
