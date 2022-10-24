@@ -9,6 +9,8 @@
 
 #include "pipeline/gst_common.hpp"
 
+#include "opaleye-util/errno_util.hpp"
+
 #include <gstreamermm/buffer.h>
 #include <gstreamermm/elementfactory.h>
 
@@ -24,6 +26,9 @@
 #include <linux/videodev2.h>
 
 #include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 // v4l2-ctl --list-devices
 // vi-output, vc_mipi 2-001a (platform:15700000.vi:2):
@@ -62,6 +67,49 @@ bool nvac_imx183_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
 {
   m_out_tee->link(node);
   return true;
+}
+
+bool nvac_imx183_pipe::configure(const char dev_path[])
+{
+    errno_util m_errno;
+
+    int m_fd = ::open(dev_path, O_RDWR | O_NONBLOCK, 0);
+    if(m_fd == -1)
+    {
+        SPDLOG_ERROR("open had error: {:d} - {:s}", errno, m_errno.to_str());
+        return false;
+    }
+    
+    //configure settings
+    v4l2_util v4l;
+    v4l.set_fd(m_fd);
+    if( ! v4l.v4l2_probe_ctrl() )
+    {
+        SPDLOG_ERROR("Probing v4l2 params failed");
+        return false;
+    }
+    std::optional<uint32_t> trigger_mode_id = v4l.get_ctrl_id_by_name("trigger_mode");
+    std::optional<uint32_t> io_mode_id      = v4l.get_ctrl_id_by_name("io_mode");
+
+    if( ! (trigger_mode_id && io_mode_id) )
+    {
+        SPDLOG_ERROR("Could not get v4l2 params");
+        return false;
+    }
+
+    v4l.v4l2_ctrl_set(trigger_mode_id.value(), int32_t(1));
+    v4l.v4l2_ctrl_set(io_mode_id.value(),      int32_t(3));
+
+    int ret = ::close(m_fd);
+    m_fd = -1;
+
+    if(ret == -1)
+    {
+        SPDLOG_ERROR("close had error: {:d} - {:s}", errno, m_errno.to_str());
+        return false;
+    }
+
+    return true;
 }
 
 bool nvac_imx183_pipe::init(const char name[])

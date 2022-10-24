@@ -241,7 +241,17 @@ bool Gstreamer_pipeline::make_imx183_pipeline()
   const std::string& cam_name  = m_camera_config.name;
   const std::string& pipe_name = m_pipeline_config.name;
 
+  std::string device       = m_camera_config.get<std::string>("properties.device");
+  std::string trigger_mode = m_camera_config.get<std::string>("properties.trigger_mode");
+
   std::shared_ptr<nvac_imx183_pipe> m_camera   = std::make_shared<nvac_imx183_pipe>();
+  
+  if( ! m_camera->configure(device.c_str()) )
+  {
+   SPDLOG_ERROR("Could not configure camera");
+   return false;
+  }
+
   if( ! m_camera->init(cam_name.c_str()) )
   {
    SPDLOG_ERROR("Could not init camera");

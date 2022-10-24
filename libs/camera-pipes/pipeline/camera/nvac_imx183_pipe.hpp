@@ -55,6 +55,7 @@ public:
 
   void set_sensor_id(int val);
 
+  bool configure(const char dev_path[]);
   bool init(const char name[]) override;
 
   bool set_exposure_mode(int32_t val);
