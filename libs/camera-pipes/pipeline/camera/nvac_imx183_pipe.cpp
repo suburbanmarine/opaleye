@@ -118,9 +118,6 @@ bool nvac_imx183_pipe::init(const char name[])
     m_in_queue->property_max_size_bytes()        = 0;
     m_in_queue->property_max_size_time()         = 1 * GST_SECOND;
 
-    //appsink tee
-    m_app_tee = Gst::Tee::create();
-
     //output tee
     m_out_tee = Gst::Tee::create();
 
@@ -129,12 +126,6 @@ bool nvac_imx183_pipe::init(const char name[])
     m_appsink_queue->property_max_size_buffers()      = 4;
     m_appsink_queue->property_max_size_bytes()        = 0;
     m_appsink_queue->property_max_size_time()         = 0;
-
-
-    m_resize = Gst::ElementFactory::create_element("nvvideoconvert");
-    m_out_caps = Gst::Caps::create_from_string("video/x-raw(memory:NVMM), width=(int)1360, height=(int)912, format=(string)NV12, framerate=(fraction)10/1, pixel-aspect-ratio=(fraction)1/1");
-    m_out_capsfilter = Gst::CapsFilter::create();
-    m_out_capsfilter->property_caps() = m_out_caps;
 
     m_videoconvert = Gst::ElementFactory::create_element("nvvidconv");
 
@@ -161,9 +152,6 @@ bool nvac_imx183_pipe::init(const char name[])
     m_bin->add(m_src);
     m_bin->add(m_in_capsfilter);
     m_bin->add(m_in_queue);
-    m_bin->add(m_app_tee);
-    m_bin->add(m_resize);
-    m_bin->add(m_out_capsfilter);
     m_bin->add(m_out_tee);
 
     m_bin->add(m_appsink_queue);
@@ -174,12 +162,9 @@ bool nvac_imx183_pipe::init(const char name[])
 
   m_src->link(m_in_capsfilter);
   m_in_capsfilter->link(m_in_queue);
-  m_in_queue->link(m_app_tee);
-  m_app_tee->link(m_resize);
-  m_resize->link(m_out_capsfilter);
-  m_out_capsfilter->link(m_out_tee);
+  m_in_queue->link(m_out_tee);
 
-  m_app_tee->link(m_appsink_queue);
+  m_out_tee->link(m_appsink_queue);
   m_appsink_queue->link(m_videoconvert);
   m_videoconvert->link(m_appsink_capsfilter);
   m_appsink_capsfilter->link(m_appsink);
