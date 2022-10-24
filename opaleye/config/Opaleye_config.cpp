@@ -47,6 +47,7 @@ bool app_config::deserialize(const boost::property_tree::ptree& tree)
 		sensors_launch = sensors_tree.get<std::string>("launch");
 	}
 
+	if(has_child("config.zeromq"))
 	{
 		zeromq_ep.clear();
 
@@ -58,17 +59,26 @@ bool app_config::deserialize(const boost::property_tree::ptree& tree)
 			zeromq_ep.push_back(it->second.data());
 		}
 	}
+	else
+	{
+		zeromq_launch = false;
+	}
 
+	if(has_child("config.zcm"))
 	{
 		zcm_ep.clear();
 
-		const boost::property_tree::ptree& zmq_tree = tree.get_child("config.zcm");
-		zcm_launch = zmq_tree.get<std::string>("launch");
-		auto it_range = zmq_tree.equal_range("endpoint");
+		const boost::property_tree::ptree& zcm_tree = tree.get_child("config.zcm");
+		zcm_launch = zcm_tree.get<std::string>("launch");
+		auto it_range = zcm_tree.equal_range("endpoint");
 		for(auto it = it_range.first; it != it_range.second; ++it)
 		{
 			zcm_ep.push_back(it->second.data());
 		}
+	}
+	else
+	{
+		zcm_launch = false;
 	}
 
 	if(has_child("config.clock"))
