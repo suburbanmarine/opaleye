@@ -163,7 +163,7 @@ bool nvac_imx183_pipe::init(const char name[])
     m_bin->add(m_in_queue);
     m_bin->add(m_app_tee);
     m_bin->add(m_resize);
-    m_out_capsfilter
+    m_bin->add(m_out_capsfilter);
     m_bin->add(m_out_tee);
 
     m_bin->add(m_appsink_queue);

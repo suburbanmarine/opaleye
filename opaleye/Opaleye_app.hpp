@@ -16,6 +16,7 @@
 // #include "pipeline/camera/Logitech_brio_pipe.hpp"
 #include "pipeline/camera/V4L2_webcam_pipe.hpp"
 #include "pipeline/camera/V4L2_alvium_pipe.hpp"
+#include "pipeline/camera/nvac_imx183_pipe.hpp"
 #include "pipeline/camera/nvac_imx219_pipe.hpp"
 #include "pipeline/display/autovideosink_pipe.hpp"
 #include "pipeline/stream/rtp_h264_pipe.hpp"
