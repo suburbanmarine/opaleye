@@ -90,8 +90,6 @@ protected:
   Glib::RefPtr<Gst::Caps>       m_src_caps;
   Glib::RefPtr<Gst::CapsFilter> m_in_capsfilter;
   Glib::RefPtr<Gst::Queue>      m_in_queue;
-  Glib::RefPtr<Gst::Tee>        m_app_tee;
-
   Glib::RefPtr<Gst::Tee>        m_out_tee;
 
   //in-mem frame access point

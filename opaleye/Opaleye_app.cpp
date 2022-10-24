@@ -846,7 +846,7 @@ bool Opaleye_app::init()
   }
   else
   {
-    SPDLOG_ERROR("Opaleye_app::init not requested to init hw_trigger");
+    SPDLOG_WARN("Opaleye_app::init not requested to init hw_trigger");
   }
 
   for(const auto cam : m_config->camera_configs)
