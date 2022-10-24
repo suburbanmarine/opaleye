@@ -26,10 +26,10 @@
 #include <sys/ioctl.h>
 
 // v4l2-ctl --list-devices
-// vi-output, imx219 9-0010 (platform:15c10000.vi:0):
+// vi-output, vc_mipi 2-001a (platform:15700000.vi:2):
 //     /dev/video0
-// 
-// vi-output, imx219 10-0010 (platform:15c10000.vi:2):
+
+// vi-output, vc_mipi 7-001a (platform:15700000.vi:4):
 //     /dev/video1
 
 
@@ -37,20 +37,10 @@
 // ioctl: VIDIOC_ENUM_FMT
 //     Index       : 0
 //     Type        : Video Capture
-//     Pixel Format: 'RG10'
-//     Name        : 10-bit Bayer RGRG/GBGB
-//         Size: Discrete 3264x2464
-//             Interval: Discrete 0.048s (21.000 fps)
-//         Size: Discrete 3264x1848
-//             Interval: Discrete 0.036s (28.000 fps)
-//         Size: Discrete 1920x1080
-//             Interval: Discrete 0.033s (30.000 fps)
-//         Size: Discrete 1640x1232
-//             Interval: Discrete 0.033s (30.000 fps)
-//         Size: Discrete 1280x720
-//             Interval: Discrete 0.017s (60.000 fps)
-
-
+//     Pixel Format: 'RG12'
+//     Name        : 12-bit Bayer RGRG/GBGB
+//         Size: Discrete 5440x3648
+//             Interval: Discrete infs (0.000 fps)
 
 nvac_imx183_pipe::nvac_imx183_pipe()
 {
