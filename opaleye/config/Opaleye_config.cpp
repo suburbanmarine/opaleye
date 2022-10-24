@@ -62,6 +62,7 @@ bool app_config::deserialize(const boost::property_tree::ptree& tree)
 	else
 	{
 		zeromq_launch = false;
+		zeromq_ep.clear();
 	}
 
 	if(has_child("config.zcm"))
@@ -79,6 +80,7 @@ bool app_config::deserialize(const boost::property_tree::ptree& tree)
 	else
 	{
 		zcm_launch = false;
+		zcm_ep.clear();
 	}
 
 	if(has_child("config.clock"))
