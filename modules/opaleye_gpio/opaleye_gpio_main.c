@@ -20,9 +20,25 @@
 //xavier
 #include <dt-bindings/gpio/tegra194-gpio.h>
 #define TEGRA194_BASE 288
+// CAM0_PWDN	114	SOC_GPIO04 / GPIO3_PP.04
+// CAM1_PWDN	120	SOC_GPIO05 / GPIO3_PP.05
+// CAM0_MCLK	116	EXTPERIPH1_CLK / GPIO3_PP.00
+// CAM1_MCLK	122	EXTPERIPH2_CLK / GPIO3_PP.01
 
 //tx2
 // #include <linux/dt-bindings/gpio/tegra186-gpio.h>
+
+// J140 AB
+// CAM1_MCLK F8 - flash_from_sensor
+// CAM1_GPIO F7 - trigger_to_sensor
+
+// J140 CD
+// CAM0_MCLK F9 - flash_from_sensor
+// CAM0_GPIO G8 - trigger_to_sensor
+
+// J140 EF
+// CAM2_MCLK E7 - flash_from_sensor
+// CAM2_GPIO H7 - trigger_to_sensor
 
 //nano
 // #include <linux/dt-bindings/gpio/tegra-gpio.h>
@@ -36,14 +52,6 @@ MODULE_AUTHOR("Suburban Marine, Inc.");
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_DESCRIPTION("opaleye_gpio");
 MODULE_SUPPORTED_DEVICE("opaleye_gpio");
-
-
-
-
-// CAM0_PWDN	114	SOC_GPIO04 / GPIO3_PP.04
-// CAM1_PWDN	120	SOC_GPIO05 / GPIO3_PP.05
-// CAM0_MCLK	116	EXTPERIPH1_CLK / GPIO3_PP.00
-// CAM1_MCLK	122	EXTPERIPH2_CLK / GPIO3_PP.01
 
 typedef struct opaleye_gpio_state_t
 {

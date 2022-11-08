@@ -97,7 +97,9 @@ bool nvac_imx183_pipe::configure(const char dev_path[])
         return false;
     }
 
+    // '0: disabled', '1: external', '2: pulsewidth', '3: self', '4: single', '5: sync', '6: stream_edge', '7: stream_level'
     v4l.v4l2_ctrl_set(trigger_mode_id.value(), int32_t(1));
+    //  '0: disabled', '1: flash active high', '2: flash active low', '3: trigger active low', '4: trigger active low and flash active high', '5: trigger and flash active low'
     v4l.v4l2_ctrl_set(io_mode_id.value(),      int32_t(3));
 
     int ret = ::close(m_fd);
