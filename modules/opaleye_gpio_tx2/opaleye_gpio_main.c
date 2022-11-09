@@ -115,7 +115,7 @@ static enum hrtimer_restart opaleye_gpio_off_timer_cb(struct hrtimer* t)
 }
 
 // https://github.com/torvalds/linux/blob/master/include/dt-bindings/gpio/tegra194-gpio.h
-static unsigned get_tegra194_gpio(int base, int port, int offset)
+static unsigned get_tegra_gpio(int base, int port, int offset)
 {
 	return base + port*8 + offset;
 }
@@ -298,17 +298,17 @@ int __init opaleye_gpio_init(void)
 
 	//get CSI gpo
 	// J140 AB - CAM1_GPIO F7 - trigger_to_sensor - GPIO3_PN.02
-	state->csi_gpo[0].gpio  = get_tegra194_gpio(TEGRA186_BASE, TEGRA186_MAIN_GPIO_PORT_N, 2);
+	state->csi_gpo[0].gpio  = get_tegra_gpio(TEGRA186_BASE, TEGRA186_MAIN_GPIO_PORT_N, 2);
 	state->csi_gpo[0].flags = GPIOF_DIR_OUT | GPIOF_INIT_LOW;
 	state->csi_gpo[0].label = "opaleye_GPIO03_N02";
 
 	// J140 CD - CAM0_GPIO G8 - trigger_to_sensor - GPIO3_PR.00
-	state->csi_gpo[1].gpio  = get_tegra194_gpio(TEGRA186_BASE, TEGRA186_MAIN_GPIO_PORT_R, 0);
+	state->csi_gpo[1].gpio  = get_tegra_gpio(TEGRA186_BASE, TEGRA186_MAIN_GPIO_PORT_R, 0);
 	state->csi_gpo[1].flags = GPIOF_DIR_OUT | GPIOF_INIT_LOW;
 	state->csi_gpo[1].label = "opaleye_GPIO03_R00";
 
 	// J140 EF - CAM2_GPIO H7 - trigger_to_sensor - GPIO3_PR.01
-	state->csi_gpo[2].gpio  = get_tegra194_gpio(TEGRA186_BASE, TEGRA186_MAIN_GPIO_PORT_R, 1);
+	state->csi_gpo[2].gpio  = get_tegra_gpio(TEGRA186_BASE, TEGRA186_MAIN_GPIO_PORT_R, 1);
 	state->csi_gpo[2].flags = GPIOF_DIR_OUT | GPIOF_INIT_LOW;
 	state->csi_gpo[2].label = "opaleye_GPIO03_R01";
 
@@ -323,17 +323,17 @@ int __init opaleye_gpio_init(void)
 
 	//get CSI gpi
 	// J140 AB - CAM1_MCLK F8 - flash_from_sensor - GPIO3_PO.01
-	state->csi_gpi[0].gpio  = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_O, 1);
+	state->csi_gpi[0].gpio  = get_tegra_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_O, 1);
 	state->csi_gpi[0].flags = GPIOF_DIR_IN;
 	state->csi_gpi[0].label = "opaleye_GPIO03_O01";
 
 	// J140 CD - CAM0_MCLK F9 - flash_from_sensor - GPIO3_PO.00
-	state->csi_gpi[0].gpio  = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_O, 0);
+	state->csi_gpi[0].gpio  = get_tegra_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_O, 0);
 	state->csi_gpi[0].flags = GPIOF_DIR_IN;
 	state->csi_gpi[0].label = "opaleye_GPIO03_O00";
 
 	// J140 EF - CAM2_MCLK E7 - flash_from_sensor - GPIO3_PN.01
-	state->csi_gpi[0].gpio  = get_tegra194_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_N, 1);
+	state->csi_gpi[0].gpio  = get_tegra_gpio(TEGRA194_BASE, TEGRA194_MAIN_GPIO_PORT_N, 1);
 	state->csi_gpi[0].flags = GPIOF_DIR_IN;
 	state->csi_gpi[0].label = "opaleye_GPIO03_N01";
 
