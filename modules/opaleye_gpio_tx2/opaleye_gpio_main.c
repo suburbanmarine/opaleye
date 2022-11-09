@@ -337,7 +337,7 @@ int __init opaleye_gpio_init(void)
 	state->csi_gpi[0].flags = GPIOF_DIR_IN;
 	state->csi_gpi[0].label = "opaleye_GPIO03_N01";
 
-	int ret = gpio_request_array(state->csi_gpi, sizeof(state->csi_gpi) / sizeof(state->csi_gpi[0]));
+	ret = gpio_request_array(state->csi_gpi, sizeof(state->csi_gpi) / sizeof(state->csi_gpi[0]));
 	if(ret != 0)
 	{
 		printk(KERN_ERR "gpio_request_one failed to start csi_gpi");
