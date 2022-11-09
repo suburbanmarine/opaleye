@@ -20,7 +20,7 @@
 //xavier
 //tx2
 #define TEGRA186_BASE 320
-#include <linux/dt-bindings/gpio/tegra186-gpio.h>
+#include <dt-bindings/gpio/tegra186-gpio.h>
 
 // J140 AB
 // CAM1_MCLK F8 - flash_from_sensor - GPIO3_PO.01
