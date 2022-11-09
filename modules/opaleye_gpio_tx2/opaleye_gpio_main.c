@@ -19,7 +19,7 @@
 
 //xavier
 //tx2
-#define TEGRA186_BASE 448
+#define TEGRA186_BASE 320
 #include <dt-bindings/gpio/tegra186-gpio.h>
 
 // J140 AB
