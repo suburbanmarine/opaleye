@@ -242,7 +242,7 @@ bool Gstreamer_pipeline::make_imx183_pipeline()
   const std::string& pipe_name = m_pipeline_config.name;
 
   std::string device       = m_camera_config.get<std::string>("properties.device");
-  std::string trigger_mode = m_camera_config.get<std::string>("properties.trigger_mode");
+  // std::string trigger_mode = m_camera_config.get<std::string>("properties.trigger_mode");
 
   std::shared_ptr<nvac_imx183_pipe> m_camera   = std::make_shared<nvac_imx183_pipe>();
   
