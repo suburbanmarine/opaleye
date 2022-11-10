@@ -71,6 +71,8 @@ bool nvac_imx183_pipe::link_back(const Glib::RefPtr<Gst::Element>& node)
 
 bool nvac_imx183_pipe::configure(const char dev_path[])
 {
+    // VIDIOC_QUERYCTRL / VIDIOC_QUERY_EXT_CTRL are not working !?
+#if 0
     errno_util m_errno;
 
     int m_fd = ::open(dev_path, O_RDWR | O_NONBLOCK, 0);
@@ -119,7 +121,7 @@ bool nvac_imx183_pipe::configure(const char dev_path[])
         SPDLOG_ERROR("close had error: {:d} - {:s}", errno, m_errno.to_str());
         return false;
     }
-
+#endif
     return true;
 }
 
