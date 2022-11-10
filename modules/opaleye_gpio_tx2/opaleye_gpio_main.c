@@ -328,14 +328,14 @@ int __init opaleye_gpio_init(void)
 	state->csi_gpi[0].label = "opaleye_GPIO03_O01";
 
 	// J140 CD - CAM0_MCLK F9 - flash_from_sensor - GPIO3_PO.00
-	state->csi_gpi[0].gpio  = get_tegra_gpio(TEGRA186_BASE, TEGRA_MAIN_GPIO_PORT_O, 0);
-	state->csi_gpi[0].flags = GPIOF_DIR_IN;
-	state->csi_gpi[0].label = "opaleye_GPIO03_O00";
+	state->csi_gpi[1].gpio  = get_tegra_gpio(TEGRA186_BASE, TEGRA_MAIN_GPIO_PORT_O, 0);
+	state->csi_gpi[1].flags = GPIOF_DIR_IN;
+	state->csi_gpi[1].label = "opaleye_GPIO03_O00";
 
 	// J140 EF - CAM2_MCLK E7 - flash_from_sensor - GPIO3_PN.01
-	state->csi_gpi[0].gpio  = get_tegra_gpio(TEGRA186_BASE, TEGRA_MAIN_GPIO_PORT_N, 1);
-	state->csi_gpi[0].flags = GPIOF_DIR_IN;
-	state->csi_gpi[0].label = "opaleye_GPIO03_N01";
+	state->csi_gpi[2].gpio  = get_tegra_gpio(TEGRA186_BASE, TEGRA_MAIN_GPIO_PORT_N, 1);
+	state->csi_gpi[2].flags = GPIOF_DIR_IN;
+	state->csi_gpi[2].label = "opaleye_GPIO03_N01";
 
 	ret = gpio_request_array(state->csi_gpi, sizeof(state->csi_gpi) / sizeof(state->csi_gpi[0]));
 	if(ret != 0)
