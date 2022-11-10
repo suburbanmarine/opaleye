@@ -38,6 +38,20 @@ public:
 		return it->second;
 	}
 
+	std::optional<v4l2_capability> v4l2_probe_caps(int fd)
+	{
+		v4l2_capability cap;
+		memset(&cap, 0, sizeof(cap));
+		int ret = ::ioctl(fd, VIDIOC_QUERYCAP, &cap);
+		if(ret < 0)
+		{
+			SPDLOG_WARN("VIDIOC_QUERYCAP error: {:s}", m_errno.to_str());
+			return std::optional<v4l2_capability>();
+		}
+
+		return std::optional<v4l2_capability>(cap);
+	}
+
 protected:
 	// ctrl name -> ctrl id
 	std::map<std::string, uint32_t> m_device_ctrl_by_name;
@@ -167,15 +181,14 @@ public:
 		m_device_ctrl_by_name.clear();
 		m_menu_entries.clear();
 
-		v4l2_capability cap;
-		memset(&cap, 0, sizeof(cap));
-		int ret = ::ioctl(fd, VIDIOC_QUERYCAP, &cap);
-		if(ret < 0)
+
+		std::optional<v4l2_capability> cap = v4l2_probe_caps(fd);
+		if( ! cap.has_value() )
 		{
-			SPDLOG_WARN("VIDIOC_QUERYCAP error: {:s}", m_errno.to_str());
 			return false;
 		}
 
+		int ret = 0;
 		T v4l_ctrl;
 		uint32_t current_ctrl_id = V4L2_CID_BASE;
 		do
