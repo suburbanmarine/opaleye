@@ -161,7 +161,7 @@ public:
 		return true;
 	}
 
-	bool v4l2_probe_ctrl(int fd, int ioctl)
+	bool v4l2_probe_ctrl(int fd, unsigned long ioctl_num)
 	{
 		m_device_ctrl.clear();
 		m_device_ctrl_by_name.clear();
@@ -169,7 +169,7 @@ public:
 
 		v4l2_capability cap;
 		memset(&cap, 0, sizeof(cap));
-		int ret = ::ioctl(fd, ioctl, &cap);
+		int ret = ::ioctl(fd, VIDIOC_QUERYCAP, &cap);
 		if(ret < 0)
 		{
 			SPDLOG_WARN("VIDIOC_QUERYCAP error: {:s}", m_errno.to_str());
@@ -182,7 +182,7 @@ public:
 		{
 			memset(&v4l_ctrl, 0, sizeof(v4l_ctrl));
 			v4l_ctrl.id = current_ctrl_id; // query [V4L2_CID_BASE, V4L2_CID_LASTP1]
-			ret = ::ioctl(fd, VIDIOC_QUERYCTRL, &v4l_ctrl);
+			ret = ::ioctl(fd, ioctl_num, &v4l_ctrl);
 			if(ret < 0)
 			{
 				if(errno == EINVAL)
