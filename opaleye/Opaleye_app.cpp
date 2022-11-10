@@ -245,6 +245,11 @@ bool Gstreamer_pipeline::make_imx183_pipeline()
   // std::string trigger_mode = m_camera_config.get<std::string>("properties.trigger_mode");
 
   std::shared_ptr<nvac_imx183_pipe> m_camera   = std::make_shared<nvac_imx183_pipe>();
+  if(! m_camera )
+  {
+    SPDLOG_ERROR("Could not create camera");
+    return false;    
+  }
   
   if( ! m_camera->configure(device.c_str()) )
   {
