@@ -341,6 +341,9 @@ int __init opaleye_gpio_init(void)
 	if(ret != 0)
 	{
 		printk(KERN_ERR "gpio_request_one failed to start csi_gpi");
+
+		gpio_free_array(state->csi_gpo, sizeof(state->csi_gpo) / sizeof(state->csi_gpo[0]));
+
 		kfree(state);
 		state = NULL;
 		return -1;
