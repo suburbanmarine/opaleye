@@ -81,9 +81,9 @@ static enum hrtimer_restart opaleye_gpio_on_timer_cb(struct hrtimer* t)
 	//or hrtimer_set_expires
 
 	//do something, toggle a pin
-	gpio_set_value(state->csi_gpo[0].gpio, 1);
-	gpio_set_value(state->csi_gpo[1].gpio, 1);
-	gpio_set_value(state->csi_gpo[2].gpio, 1);
+	gpio_set_value(state->csi_gpo[0].gpio, 0);
+	gpio_set_value(state->csi_gpo[1].gpio, 0);
+	gpio_set_value(state->csi_gpo[2].gpio, 0);
 
 	// return HRTIMER_NORESTART;
 	return HRTIMER_RESTART;
@@ -106,9 +106,9 @@ static enum hrtimer_restart opaleye_gpio_off_timer_cb(struct hrtimer* t)
 	//or hrtimer_set_expires
 
 	//do something, toggle a pin
-	gpio_set_value(state->csi_gpo[0].gpio, 0);
-	gpio_set_value(state->csi_gpo[1].gpio, 0);
-	gpio_set_value(state->csi_gpo[2].gpio, 0);
+	gpio_set_value(state->csi_gpo[0].gpio, 1);
+	gpio_set_value(state->csi_gpo[1].gpio, 1);
+	gpio_set_value(state->csi_gpo[2].gpio, 1);
 
 	// return HRTIMER_NORESTART;
 	return HRTIMER_RESTART;
