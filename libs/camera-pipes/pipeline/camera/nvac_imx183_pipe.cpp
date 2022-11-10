@@ -83,6 +83,14 @@ bool nvac_imx183_pipe::configure(const char dev_path[])
     //configure settings
     v4l2_util v4l;
     v4l.set_fd(m_fd);
+
+    const std::optional<v4l2_buf_type> buffer_type = v4l.query_cap();
+    if( ! buffer_type.has_value() )
+    {
+        SPDLOG_ERROR("Probing v4l2 buffer type failed");
+        return false;
+    }
+
     if( ! v4l.v4l2_probe_ctrl() )
     {
         SPDLOG_ERROR("Probing v4l2 params failed");

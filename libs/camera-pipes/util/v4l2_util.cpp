@@ -971,3 +971,54 @@ bool v4l2_util::get_property_description()
 
 	return true;
 }
+
+std::optional<v4l2_buf_type> v4l2_util::query_cap()
+{
+	v4l2_capability cap;
+	std::optional<v4l2_buf_type> buffer_type;
+
+	int ret = ioctl_helper(VIDIOC_QUERYCAP, &cap);
+  if(ret == -1)
+  {
+    if(errno == EINVAL)
+    {
+      SPDLOG_ERROR("Device {:s} is not a V4L2 device");
+      return buffer_type;
+    }
+    else
+    {
+      SPDLOG_ERROR("ioctl VIDIOC_QUERYCAP failed: {:s}", m_errno.to_str());
+      return buffer_type;
+    }
+  }
+
+  if( ! (cap.capabilities & V4L2_CAP_VIDEO_CAPTURE) || (cap.capabilities & V4L2_CAP_VIDEO_CAPTURE_MPLANE) )
+  {
+      SPDLOG_ERROR("Device {:s} is not a video capture device");
+      return buffer_type;
+  }
+
+  if( ! (cap.capabilities & V4L2_CAP_STREAMING)  )
+  {
+      SPDLOG_ERROR("Device {:s} does not support streaming i/o");
+      return buffer_type;
+  }
+
+  if(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE)
+  {
+    enum_format_descs(V4L2_BUF_TYPE_VIDEO_CAPTURE);
+    buffer_type = (v4l2_buf_type)V4L2_CAP_VIDEO_CAPTURE;
+  }
+  else if(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE_MPLANE)
+  {
+    enum_format_descs(V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
+    buffer_type = (v4l2_buf_type)V4L2_CAP_VIDEO_CAPTURE_MPLANE;
+  }
+  else
+  {
+    SPDLOG_ERROR("Discovered unexpected VIDIOC_QUERYCAP capabilities: {:d}", cap.capabilities);
+    return buffer_type;
+  }
+
+  return buffer_type;
+}

@@ -149,6 +149,8 @@ public:
 	bool v4l2_probe_ctrl();
 	bool get_property_description();
 
+	std::optional<v4l2_buf_type> query_cap();
+
 	const std::map<uint32_t, v4l2_query_ext_ctrl>& get_ctrl_map() const
 	{
 		return m_device_ctrl;
