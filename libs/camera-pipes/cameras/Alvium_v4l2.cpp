@@ -105,7 +105,7 @@ bool Alvium_v4l2::open(const char dev_path[])
     return false;
   }
 
-  if( ! m_v4l2_util.v4l2_probe_ctrl() )
+  if( ! m_v4l2_util.v4l2_probe_ctrl_ext() )
   {
     SPDLOG_ERROR("Could not probe ctrls");
     return false; 

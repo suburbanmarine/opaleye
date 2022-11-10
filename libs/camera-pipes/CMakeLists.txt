@@ -20,6 +20,7 @@ add_library(camera-pipes
 	util/v4l2_util.cpp
 	util/v4l2_metadata.cpp
 	util/v4l2_mmap_buffer.cpp
+	util/v4l2_ctrl.cpp
 
 	elements/ptp_clock.cpp
 	elements/sys_clock.cpp

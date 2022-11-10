@@ -97,15 +97,6 @@ bool nvac_imx183_pipe::configure(const char dev_path[])
         return false;
     }
 
-    {
-        const std::map<std::string, uint32_t>& v4l_ctrl = v4l.get_ctrl_name_map();
-        for(const std::pair<std::string, uint32_t>& kv : v4l_ctrl)
-        {
-            SPDLOG_INFO("Camera property: {:s}", kv.first);
-        }
-
-    }
-
     std::optional<uint32_t> trigger_mode_id = v4l.get_ctrl_id_by_name("trigger_mode");
     std::optional<uint32_t> io_mode_id      = v4l.get_ctrl_id_by_name("io_mode");
 

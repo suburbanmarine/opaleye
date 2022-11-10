@@ -650,139 +650,6 @@ bool v4l2_util::v4l2_ctrl_get(uint32_t which, v4l2_ext_control* const ctrl)
 	return true;
 }
 
-bool v4l2_util::v4l2_probe_ctrl()
-{
-
-	m_device_ctrl.clear();
-	m_device_ctrl_by_name.clear();
-	m_menu_entries.clear();
-
-	v4l2_capability cap;
-	memset(&cap, 0, sizeof(cap));
-	int ret = ioctl(m_v4l2_fd, VIDIOC_QUERYCAP, &cap);
-	if(ret < 0)
-	{
-		SPDLOG_WARN("VIDIOC_QUERYCAP error: {:s}", m_errno.to_str());
-		return false;
-	}
-
-	v4l2_query_ext_ctrl ext_ctrl;
-	uint32_t current_ctrl_id = V4L2_CID_BASE;
-	do
-	{
-		memset(&ext_ctrl, 0, sizeof(ext_ctrl));
-		ext_ctrl.id = current_ctrl_id; // query [V4L2_CID_BASE, V4L2_CID_LASTP1]
-		ret = ioctl(m_v4l2_fd, VIDIOC_QUERY_EXT_CTRL, &ext_ctrl);
-		if(ret < 0)
-		{
-			if(errno == EINVAL)
-			{
-				//were done
-			}
-			else
-			{
-				SPDLOG_WARN("VIDIOC_QUERY_EXT_CTRL error: {:s}", m_errno.to_str());
-				return false;
-			}
-		}
-		else
-		{
-			SPDLOG_DEBUG("VIDIOC_QUERY_EXT_CTRL {:d} {:s}, {:d}, [{:d}, {:d}]/{:d}",
-				ext_ctrl.id,
-				ext_ctrl.name,
-				ext_ctrl.type,
-				ext_ctrl.minimum,
-				ext_ctrl.maximum,
-				ext_ctrl.step);
-
-			m_device_ctrl.insert(std::make_pair(ext_ctrl.id, ext_ctrl));
-			m_device_ctrl_by_name.insert(std::make_pair(ext_ctrl.name, ext_ctrl.id));
-
-			current_ctrl_id = ext_ctrl.id | V4L2_CTRL_FLAG_NEXT_CTRL;
-		}
-	} while(ret >= 0);
-
-	m_menu_entries.clear();
-	for(const auto& ctrl : m_device_ctrl)
-	{
-		bool is_menu_ctrl = false;
-		switch(ctrl.second.type)
-		{
-			case V4L2_CTRL_TYPE_MENU:
-			case V4L2_CTRL_TYPE_INTEGER_MENU:
-			{
-				is_menu_ctrl = true;
-				break;
-			}
-			default:
-			{
-				is_menu_ctrl = false;
-				break;
-			}
-		}
-
-		if(is_menu_ctrl)
-		{
-			std::map<int64_t, v4l2_querymenu>& menu_valid_entries_map_ref = m_menu_entries[ctrl.second.id];
-
-			v4l2_querymenu menu;
-			for(int64_t i = ctrl.second.minimum; i <= ctrl.second.maximum; i += ctrl.second.step)
-			{
-				memset(&menu, 0, sizeof(menu));
-				menu.id    = ctrl.second.id;
-				menu.index = i;
-		
-				ret = ioctl(m_v4l2_fd, VIDIOC_QUERYMENU, &menu);
-				if(ret < 0)
-				{
-					//menu entries may be sparse - so just note that this is invalid and keep scanning
-					SPDLOG_WARN("VIDIOC_QUERYMENU {:d} {:s}[{:d}]: error: {:s}", 
-						ctrl.second.id,
-						ctrl.second.name,
-						i,
-						m_errno.to_str());
-					continue;
-				}
-				else
-				{
-					menu_valid_entries_map_ref.insert(std::make_pair(i, menu));
-
-					switch(ctrl.second.type)
-					{
-						case V4L2_CTRL_TYPE_MENU:
-						{
-							const uint8_t* name = menu.name;
-							SPDLOG_DEBUG("VIDIOC_QUERYMENU {:d} {:s}[{:d}]: {:s}",
-								ctrl.second.id,
-								ctrl.second.name,
-								i,
-								name);
-							break;
-						}
-						case V4L2_CTRL_TYPE_INTEGER_MENU:
-						{
-							int64_t value = menu.value;
-							SPDLOG_DEBUG("VIDIOC_QUERYMENU {:d} {:s}[{:d}]: {:d}",
-								ctrl.second.id,
-								ctrl.second.name,
-								i,
-								value);
-							break;
-						}
-						default:
-						{
-							SPDLOG_WARN("VIDIOC_QUERYMENU invalid type");
-							return false;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return true;
-}
-
 bool v4l2_util::get_property_description()
 {
 	using namespace rapidjson;
@@ -801,7 +668,7 @@ bool v4l2_util::get_property_description()
 
 
 #if 1
-	for(const auto& ext_ctrl : m_device_ctrl)
+	for(const auto& ext_ctrl : m_v4l2_ext_ctrl.get_ctrl_map())
 	{
 		JsonValue ext_ctrl_desc(rapidjson::kObjectType);
 
@@ -851,7 +718,7 @@ bool v4l2_util::get_property_description()
 				ext_ctrl_desc.AddMember<int32_t>("value",   value,                   doc.GetAllocator());
 				ext_ctrl_desc.AddMember<int64_t>("default_value", ext_ctrl.second.default_value, doc.GetAllocator());
 
-				auto it = m_menu_entries.find(ext_ctrl.second.id);
+				auto it = m_v4l2_ext_ctrl.get_menu_entries().find(ext_ctrl.second.id);
 				for(const auto& menu_entry : it->second) // for each index
 				{
 					JsonValue params;
@@ -920,7 +787,7 @@ bool v4l2_util::get_property_description()
 				ext_ctrl_desc.AddMember<int32_t>("value",   value,                   doc.GetAllocator());
 				ext_ctrl_desc.AddMember<int64_t>("default_value", ext_ctrl.second.default_value, doc.GetAllocator());
 
-				auto it = m_menu_entries.find(ext_ctrl.second.id);
+				auto it = m_v4l2_ext_ctrl.get_menu_entries().find(ext_ctrl.second.id);
 				for(const auto& menu_entry : it->second)
 				{
 					JsonValue params;
