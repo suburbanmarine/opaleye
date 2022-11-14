@@ -9,6 +9,15 @@ target_link_libraries(alvium_test
 		opaleye_app
 )
 
+add_executable(imx183_test
+	imx183_test.cpp
+)
+
+target_link_libraries(imx183_test
+	PUBLIC
+		opaleye_app
+)
+
 add_executable(opaleye_config_test
 	opaleye_config_test.cpp
 )
