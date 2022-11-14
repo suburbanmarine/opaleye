@@ -32,24 +32,23 @@
 		<endpoint>127.0.0.1:50000</endpoint>
 	</fcgi>
 
-	<nvpmodel>
+	<!--nvpmodel>
 		<mode>4</mode>
-	</nvpmodel>
+	</nvpmodel-->
 
 	<cameras>
 		<camera>
 			<name>cam0</name>
-			<type>alvium</type>
+			<type>imx183</type>
 
 			<properties>
-				<format>XR24</format>
 				<device>/dev/video0</device>
 				<trigger_mode>free</trigger_mode>
 			</properties>
 
 			<pipeline>
 				<name>pipe0</name>
-				<type>alvium</type>
+				<type>imx183</type>
 			</pipeline>
 		</camera>
 
