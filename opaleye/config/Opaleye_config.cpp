@@ -50,24 +50,29 @@ bool app_config::deserialize(const boost::property_tree::ptree& tree)
 	{
 		zeromq_ep.clear();
 
-		const boost::property_tree::ptree& zmq_tree = tree.get_child("config.zeromq");
-		zeromq_launch = zmq_tree.get<std::string>("launch");
-		auto it_range = zmq_tree.equal_range("endpoint");
-		for(auto it = it_range.first; it != it_range.second; ++it)
+		if(tree.has_child("config.zeromq"))
 		{
-			zeromq_ep.push_back(it->second.data());
+			const boost::property_tree::ptree& zmq_tree = tree.get_child("config.zeromq");
+			zeromq_launch = zmq_tree.get<std::string>("launch");
+			auto it_range = zmq_tree.equal_range("endpoint");
+			for(auto it = it_range.first; it != it_range.second; ++it)
+			{
+				zeromq_ep.push_back(it->second.data());
+			}
 		}
 	}
 
 	{
 		zcm_ep.clear();
-
-		const boost::property_tree::ptree& zmq_tree = tree.get_child("config.zcm");
-		zcm_launch = zmq_tree.get<std::string>("launch");
-		auto it_range = zmq_tree.equal_range("endpoint");
-		for(auto it = it_range.first; it != it_range.second; ++it)
+		if(tree.has_child("config.zcm"))
 		{
-			zcm_ep.push_back(it->second.data());
+			const boost::property_tree::ptree& zmq_tree = tree.get_child("config.zcm");
+			zcm_launch = zmq_tree.get<std::string>("launch");
+			auto it_range = zmq_tree.equal_range("endpoint");
+			for(auto it = it_range.first; it != it_range.second; ++it)
+			{
+				zcm_ep.push_back(it->second.data());
+			}
 		}
 	}
 
