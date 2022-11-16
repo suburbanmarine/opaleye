@@ -176,7 +176,7 @@ int main(int argc, char* argv[])
 			("device"    , bpo::value<std::string>()->default_value("/dev/video0"), "device to open")
 			("fourcc"    , bpo::value<std::string>()->default_value("XR24"),        "fcc code to ask for image format, try XR24, RGGB, JXR0, JXR2, VYUY")
 			("trigger"   , bpo::value<std::string>(),                               "Trigger type, SW or HW-kernel or HW-user")
-			("disk"      , bpo::value<bool>()->default_value(false),                "Write to disk")
+			("disk"      , bpo::bool_switch(),                                      "Write to disk")
 			("num_frames", bpo::value<int>()->default_value(10),                    "Number of frames to grab")
 			;
 

@@ -175,7 +175,7 @@ int main(int argc, char* argv[])
 			("help"      , "Print usage information and exit")
 			("device"    , bpo::value<std::string>()->default_value("/dev/video0"), "device to open")
 			("fourcc"    , bpo::value<std::string>()->default_value("RG12"),        "fcc code to ask for image format, try RG12")
-			("disk"      , bpo::value<bool>()->default_value(false),                "Write to disk")
+			("disk"      , bpo::bool_switch(),                                      "Write to disk")
 			("num_frames", bpo::value<int>()->default_value(10),                    "Number of frames to grab")
 			;
 
