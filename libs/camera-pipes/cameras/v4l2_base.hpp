@@ -1,5 +1,15 @@
 #pragma once
 
+#include "util/v4l2_util.hpp"
+#include "util/v4l2_mmap_buffer.hpp"
+
+#include <boost/property_tree/ptree_fwd.hpp>
+
+#include <vector>
+#include <memory>
+#include <map>
+#include <functional>
+
 class v4l2_base
 {
 public:

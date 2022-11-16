@@ -16,6 +16,8 @@ add_library(camera-pipes
 	#cameras/Logitech_brio.cpp
 	#cameras/UVC_base.cpp
 	cameras/Alvium_v4l2.cpp
+	cameras/v4l2_base.cpp
+	cameras/imx183_v4l2.cpp
 
 	util/v4l2_util.cpp
 	util/v4l2_metadata.cpp
