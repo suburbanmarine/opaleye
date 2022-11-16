@@ -177,6 +177,7 @@ int main(int argc, char* argv[])
 			("fourcc"    , bpo::value<std::string>()->default_value("XR24"),        "fcc code to ask for image format, try XR24, RGGB, JXR0, JXR2, VYUY")
 			("trigger"   , bpo::value<std::string>(),                               "Trigger type, SW or HW-kernel or HW-user")
 			("disk"      , bpo::bool_switch(),                                      "Write to disk")
+			("verbose,v" , bpo::bool_switch(),                                      "Verbose")
 			("num_frames", bpo::value<int>()->default_value(10),                    "Number of frames to grab")
 			;
 
@@ -199,6 +200,15 @@ int main(int argc, char* argv[])
 		  	std::cout << desc << std::endl;
 			return -1;
 	    }
+	}
+
+	if(vm["verbose"].as<bool>())
+	{
+		spdlog::set_level(spdlog::level::trace);
+	}
+	else
+	{
+		spdlog::set_level(spdlog::level::info);
 	}
 
 	write_to_disk = vm["disk"].as<bool>();

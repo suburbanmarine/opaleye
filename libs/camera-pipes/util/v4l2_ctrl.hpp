@@ -181,10 +181,10 @@ public:
 		m_device_ctrl_by_name.clear();
 		m_menu_entries.clear();
 
-
 		std::optional<v4l2_capability> cap = v4l2_probe_caps(fd);
 		if( ! cap.has_value() )
 		{
+			SPDLOG_WARN("v4l2_probe_ctrl v4l2_probe_caps failed");
 			return false;
 		}
 
@@ -204,13 +204,13 @@ public:
 				}
 				else
 				{
-					SPDLOG_WARN("VIDIOC_QUERY_EXT_CTRL error: {:s}", m_errno.to_str());
+					SPDLOG_WARN("v4l2_probe_ctrl error: {:s}", m_errno.to_str());
 					return false;
 				}
 			}
 			else
 			{
-				SPDLOG_DEBUG("VIDIOC_QUERY_EXT_CTRL {:d} {:s}, {:d}, [{:d}, {:d}]/{:d}",
+				SPDLOG_DEBUG("v4l2_probe_ctrl {:d} {:s}, {:d}, [{:d}, {:d}]/{:d}",
 					v4l_ctrl.id,
 					v4l_ctrl.name,
 					v4l_ctrl.type,
