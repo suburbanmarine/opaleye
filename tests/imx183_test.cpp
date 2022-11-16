@@ -223,6 +223,8 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
+	cam.get_v4l2_util().get_property_description();
+
 	if( ! cam.start_streaming() )
 	{
 		SPDLOG_ERROR("cam.start_streaming() failed");

@@ -43,6 +43,16 @@ public:
 		return m_fd;
 	}
 
+	const v4l2_util& get_v4l2_util() const
+	{
+		return m_v4l2_util;
+	}
+
+	v4l2_util& get_v4l2_util()
+	{
+		return m_v4l2_util;
+	}
+
 protected:
 	errno_util m_errno;
 
