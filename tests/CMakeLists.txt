@@ -59,6 +59,10 @@ target_link_libraries(opaleye_zeromq_framegrabber
 		opaleye_app
 
 		cppzmq
+
+		opencv_core
+		opencv_imgproc
+		opencv_highgui
 )
 
 target_include_directories(opaleye_zeromq_framegrabber
