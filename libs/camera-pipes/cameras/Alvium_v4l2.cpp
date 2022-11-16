@@ -3,10 +3,6 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
 
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-
 #include <sstream>
 
 #include <cstdio>
@@ -27,120 +23,12 @@
 
 Alvium_v4l2::Alvium_v4l2()
 {
-  m_fd = -1;
-  memset(&m_cap, 0, sizeof(m_cap));
+
 }
 
 Alvium_v4l2::~Alvium_v4l2()
 {
-  close();
-}
-
-bool Alvium_v4l2::open(const char dev_path[])
-{
-  if(m_fd != -1)
-  {
-    SPDLOG_ERROR("fd already set");
-    return false;
-  }
-
-  m_fd = ::open(dev_path, O_RDWR | O_NONBLOCK, 0);
-  if(m_fd == -1)
-  {
-    SPDLOG_ERROR("open had error: {:d} - {:s}", errno, m_errno.to_str());
-  }
-
-  m_v4l2_util.set_fd(m_fd);
-
-  int ret = m_v4l2_util.ioctl_helper(VIDIOC_QUERYCAP, &m_cap);
-  if(ret == -1)
-  {
-    if(errno == EINVAL)
-    {
-      SPDLOG_ERROR("Device {:s} is not a V4L2 device");
-      close();
-      return false;
-    }
-    else
-    {
-      SPDLOG_ERROR("ioctl VIDIOC_QUERYCAP failed: {:s}", m_errno.to_str());
-      close();
-      return false;
-    }
-  }
-
-  if( ! (m_cap.capabilities & V4L2_CAP_VIDEO_CAPTURE) || (m_cap.capabilities & V4L2_CAP_VIDEO_CAPTURE_MPLANE) )
-  {
-      SPDLOG_ERROR("Device {:s} is not a video capture device");
-      close();
-      return false;
-  }
-
-  if( ! (m_cap.capabilities & V4L2_CAP_STREAMING)  )
-  {
-      SPDLOG_ERROR("Device {:s} does not support streaming i/o");
-      close();
-      return false;
-  }
-
-  if(m_cap.capabilities & V4L2_CAP_VIDEO_CAPTURE)
-  {
-    m_v4l2_util.enum_format_descs(V4L2_BUF_TYPE_VIDEO_CAPTURE);
-    m_buffer_type = (v4l2_buf_type)V4L2_CAP_VIDEO_CAPTURE;
-  }
-  else if(m_cap.capabilities & V4L2_CAP_VIDEO_CAPTURE_MPLANE)
-  {
-    m_v4l2_util.enum_format_descs(V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
-    m_buffer_type = (v4l2_buf_type)V4L2_CAP_VIDEO_CAPTURE_MPLANE;
-  }
-  else
-  {
-    SPDLOG_ERROR("Discovered unexpected VIDIOC_QUERYCAP capabilities: {:d}", m_cap.capabilities);
-    return false;
-  }
-
-  if( ! m_v4l2_util.v4l2_probe_ctrl_ext() )
-  {
-    SPDLOG_ERROR("Could not probe ctrls");
-    return false; 
-  }
-
-  return m_fd != -1;
-}
-bool Alvium_v4l2::close()
-{
-  if(m_fd == -1)
-  {
-    return true;
-  }
-
-  stop_streaming();
-
-  m_buf_by_idx.clear();
-  m_buf_by_ptr.clear();
-
-  {
-    v4l2_requestbuffers req;
-    memset(&req, 0, sizeof(req));
-    req.count  = 0;
-    req.type   = m_buffer_type;
-    req.memory = V4L2_MEMORY_MMAP;
-    if (-1 == m_v4l2_util.ioctl_helper(VIDIOC_REQBUFS, &req))
-    {
-      SPDLOG_ERROR("Could not get buffers from device, {:s}", m_errno.to_str());
-      return false;
-    }
-  }
-
-  int ret = ::close(m_fd);
-  m_fd = -1;
-
-  if(ret == -1)
-  {
-    SPDLOG_ERROR("close had error: {:d} - {:s}", errno, m_errno.to_str());
-  }
-
-  return ret == 0;
+  
 }
 bool Alvium_v4l2::init(const char name[], const uint32_t fcc)
 {

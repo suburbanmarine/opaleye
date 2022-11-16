@@ -3,6 +3,8 @@
 #include "util/v4l2_util.hpp"
 #include "util/v4l2_mmap_buffer.hpp"
 
+#include "opaleye-util/errno_util.hpp"
+
 #include <boost/property_tree/ptree_fwd.hpp>
 
 #include <vector>

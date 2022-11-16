@@ -2,8 +2,6 @@
 
 #include "v4l2_base.hpp"
 
-#include "opaleye-util/errno_util.hpp"
-
 namespace Alvium_CSI
 {
   enum class v4l2_trigger_source
@@ -31,9 +29,6 @@ public:
 	Alvium_v4l2();
 	virtual ~Alvium_v4l2();
 
-	bool open(const char dev_path[]);
-	bool close();
-
 	bool init(const char name[], const uint32_t fcc);
 
 	bool set_free_trigger();
@@ -47,26 +42,6 @@ public:
 	// JXY2 - 12-bit/16-bit Greyscale
 	// XR24 - 32-bit BGRX 8-8-8-8
 
-	int get_fd() const
-	{
-		return m_fd;
-	}
-
 protected:
-	errno_util m_errno;
 
-	std::string dev_path;
-	std::string dev_name;
-	int m_fd;
-
-	v4l2_util m_v4l2_util;
-
-	v4l2_capability m_cap;
-	v4l2_buf_type m_buffer_type;
-	// std::vector<uint8_t> m_frame_buf;
-
-	std::map<uint32_t, std::shared_ptr<v4l2_mmap_buffer>> m_buf_by_idx;
-	std::map<void*,    std::shared_ptr<v4l2_mmap_buffer>> m_buf_by_ptr;
-
-	static constexpr size_t NUM_BUFFERS = 3;
 };
