@@ -26,7 +26,7 @@ static int filenum;
 static bool write_to_disk;
 static int num_trigger;
 
-void new_frame_cb(const Alvium_v4l2::ConstMmapFramePtr& frame)
+void new_frame_cb(const v4l2_base::ConstMmapFramePtr& frame)
 {
 	timespec cb_time;
 	clock_gettime(CLOCK_MONOTONIC, &cb_time);
@@ -174,8 +174,7 @@ int main(int argc, char* argv[])
 	    desc.add_options() 
 			("help"      , "Print usage information and exit")
 			("device"    , bpo::value<std::string>()->default_value("/dev/video0"), "device to open")
-			("fourcc"    , bpo::value<std::string>()->default_value("RG12"),        "fcc code to ask for image format, try XR24, RGGB, JXR0, JXR2, VYUY")
-			("trigger"   , bpo::value<std::string>(),                               "Trigger type, SW or HW-kernel or HW-user")
+			("fourcc"    , bpo::value<std::string>()->default_value("RG12"),        "fcc code to ask for image format, try RG12")
 			("disk"      , bpo::value<bool>()->default_value(false),                "Write to disk")
 			("num_frames", bpo::value<int>()->default_value(10),                    "Number of frames to grab")
 			;
@@ -210,31 +209,6 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	std::string trigger;
-	bool sw_trigger = false;
-	if(vm.count("trigger"))
-	{
-		trigger = vm["trigger"].as<std::string>();
-		if(trigger.compare("SW") == 0)
-		{
-			sw_trigger = true;
-		}
-		else if(trigger.compare("HW-user") == 0)
-		{
-			sw_trigger = false;
-		}
-		else if(trigger.compare("HW-kernel") == 0)
-		{
-			sw_trigger = false;
-		}
-		else
-		{
-			std::cout << "Unknown trigger type" << std::endl;
-			return -1;
-		}
-	}
-
-	gpio_thread user_gpio;
 	imx183_v4l2 cam;
 
 	if( ! cam.open(vm["device"].as<std::string>().c_str()) )
@@ -259,17 +233,6 @@ int main(int argc, char* argv[])
 	bool keep_going = num_frames != 0;
 	while(keep_going)
 	{
-		if(sw_trigger)
-		{
-			std::this_thread::sleep_for(std::chrono::seconds(1));
-			
-			if( ! cam.send_software_trigger() )
-			{
-				SPDLOG_ERROR("cam.send_software_trigger() failed");
-				return -1;
-			}
-		}
-
 		if( ! cam.wait_for_frame(std::chrono::milliseconds(250), new_frame_cb) )
 		{
 			SPDLOG_ERROR("cam.wait_for_frame() failed");
@@ -285,19 +248,12 @@ int main(int argc, char* argv[])
 			keep_going = false;
 			break;
 		}
-
 	}
 
 	if( ! cam.stop_streaming() )
 	{
 		SPDLOG_ERROR("cam.stop_streaming() failed");
 		return -1;
-	}
-
-	if(trigger.compare("HW-user") == 0)
-	{
-		user_gpio.interrupt();
-		user_gpio.join();
 	}
 
 	if( ! cam.close() )

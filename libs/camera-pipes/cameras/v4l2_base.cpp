@@ -97,7 +97,7 @@ bool v4l2_base::open(const char dev_path[])
 
   return m_fd != -1;
 }
-bool v4l2_base::init(const uint32_t fcc)
+bool v4l2_base::init(const char name[], const uint32_t fcc)
 {
   if(m_v4l2_util.get_fmt_descs().empty())
   {

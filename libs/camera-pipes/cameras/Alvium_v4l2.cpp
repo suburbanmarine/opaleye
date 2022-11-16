@@ -30,10 +30,6 @@ Alvium_v4l2::~Alvium_v4l2()
 {
   
 }
-bool Alvium_v4l2::init(const char name[], const uint32_t fcc)
-{
-  return v4l2_base::init(fcc);
-}
 
 bool Alvium_v4l2::set_free_trigger()
 {

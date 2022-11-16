@@ -24,7 +24,7 @@ public:
 	virtual ~v4l2_base();
 
 	bool open(const char dev_path[]);
-	bool init(const uint32_t fcc);
+	bool init(const char name[], const uint32_t fcc);
 	bool close();
 
 	bool start_streaming();

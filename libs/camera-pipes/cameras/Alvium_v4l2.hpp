@@ -29,8 +29,6 @@ public:
 	Alvium_v4l2();
 	virtual ~Alvium_v4l2();
 
-	bool init(const char name[], const uint32_t fcc);
-
 	bool set_free_trigger();
 	bool set_sw_trigger();
 	bool set_hw_trigger(const Alvium_CSI::v4l2_trigger_source& src, const Alvium_CSI::v4l2_trigger_activation& act);
