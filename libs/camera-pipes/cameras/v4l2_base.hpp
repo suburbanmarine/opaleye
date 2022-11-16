@@ -33,7 +33,7 @@ public:
 	bool wait_for_frame(const std::chrono::microseconds& timeout);
 	bool wait_for_frame(const std::chrono::microseconds& timeout, const FrameCallback& cb);
 
-	static bool frame_meta_to_ptree(const ConstMmapFramePtr& frame, boost::property_tree::ptree* out_meta);
+	static bool frame_meta_to_ptree(const ConstMmapFramePtr& frame, boost::property_tree::ptree* const out_meta);
 
 	int get_fd() const
 	{

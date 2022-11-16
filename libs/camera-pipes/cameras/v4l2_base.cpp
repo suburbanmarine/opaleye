@@ -114,7 +114,7 @@ bool v4l2_base::wait_for_frame(const std::chrono::microseconds& timeout, const F
   return true;
 }
 
-bool v4l2_base::frame_meta_to_ptree(const ConstMmapFramePtr& frame, boost::property_tree::ptree* out_meta)
+bool v4l2_base::frame_meta_to_ptree(const ConstMmapFramePtr& frame, boost::property_tree::ptree* const out_meta)
 {
   if( ! (frame && out_meta) )
   {
