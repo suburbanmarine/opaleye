@@ -92,6 +92,11 @@ public:
 		return it->second;
 	}
 
+	// bool v4l2_probe_menu_control(int fd, uint32_t id)
+	// {
+
+	// }
+
 	bool v4l2_probe_menu(int fd)
 	{
 		m_menu_entries.clear();
@@ -197,7 +202,7 @@ public:
 		v4l_ctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
 		while(0 == ::ioctl(fd, ioctl_num, &v4l_ctrl))
 		{
-			if( ! v4l_ctrl.flags & V4L2_CTRL_FLAG_DISABLED )
+			if( ! (v4l_ctrl.flags & V4L2_CTRL_FLAG_DISABLED) )
 			{
 				SPDLOG_DEBUG("v4l2_probe_ctrl {:d} {:s}, {:d}, [{:d}, {:d}]/{:d}",
 					v4l_ctrl.id,
@@ -237,7 +242,7 @@ public:
 
 	bool has_any_ctrl() const
 	{
-		return m_device_ctrl.empty();
+		return ! m_device_ctrl.empty();
 	}
 
 protected:
