@@ -117,8 +117,8 @@ bool v4l2_base::close()
     req.memory = V4L2_MEMORY_MMAP;
     if (-1 == m_v4l2_util.ioctl_helper(VIDIOC_REQBUFS, &req))
     {
-      SPDLOG_ERROR("Could not get buffers from device, {:s}", m_errno.to_str());
-      return false;
+      SPDLOG_ERROR("Could not free device buffers, {:s}", m_errno.to_str());
+      // return false;
     }
   }
 
