@@ -50,7 +50,7 @@ bool app_config::deserialize(const boost::property_tree::ptree& tree)
 	{
 		zeromq_ep.clear();
 
-		if(tree.has_child("config.zeromq"))
+		if(has_child("config.zeromq"))
 		{
 			const boost::property_tree::ptree& zmq_tree = tree.get_child("config.zeromq");
 			zeromq_launch = zmq_tree.get<std::string>("launch");
@@ -64,7 +64,7 @@ bool app_config::deserialize(const boost::property_tree::ptree& tree)
 
 	{
 		zcm_ep.clear();
-		if(tree.has_child("config.zcm"))
+		if(has_child("config.zcm"))
 		{
 			const boost::property_tree::ptree& zmq_tree = tree.get_child("config.zcm");
 			zcm_launch = zmq_tree.get<std::string>("launch");
