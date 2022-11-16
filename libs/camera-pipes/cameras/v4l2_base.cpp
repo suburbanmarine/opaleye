@@ -88,8 +88,11 @@ bool v4l2_base::open(const char dev_path[])
 
   if( ! m_v4l2_util.v4l2_probe_ctrl_ext() )
   {
-    SPDLOG_ERROR("Could not probe ctrls");
-    return false; 
+  	SPDLOG_WARN("Could not probe ext ctrls, retrying");
+  	if ( ! m_v4l2_util.v4l2_probe_ctrl() )
+  	{
+    	SPDLOG_WARN("Could not probe ctrls");
+  	}
   }
 
   return m_fd != -1;
