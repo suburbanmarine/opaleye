@@ -233,6 +233,11 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
+	if( ! cam.get_v4l2_util().has_any_ctrl() )
+	{
+		SPDLOG_WARN("cam has no controls");
+	}
+
 	cam.get_v4l2_util().get_property_description();
 
 	if( ! cam.start_streaming() )

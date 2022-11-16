@@ -235,6 +235,11 @@ public:
 		return true;
 	}
 
+	bool has_any_ctrl() const
+	{
+		return m_device_ctrl.empty();
+	}
+
 protected:
 	// ctrl id -> v4l2_queryctrl / v4l2_query_ext_ctrl
 	std::map<uint32_t, T>           m_device_ctrl;

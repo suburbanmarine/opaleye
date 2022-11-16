@@ -202,6 +202,11 @@ public:
 		return m_v4l2_ext_ctrl.get_ctrl_by_id(id);
 	}
 
+	bool has_any_ctrl() const
+	{
+		return m_v4l2_ctrl.has_any_ctrl() || m_v4l2_ext_ctrl.has_any_ctrl();
+	}
+
 protected:
 	int m_v4l2_fd;
 
