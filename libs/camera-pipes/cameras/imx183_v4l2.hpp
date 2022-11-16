@@ -9,8 +9,6 @@ public:
 	imx183_v4l2();
 	virtual ~imx183_v4l2();
 
-	bool init();
-
 protected:
 
 };

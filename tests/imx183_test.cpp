@@ -1,4 +1,4 @@
-#include "cameras/Alvium_v4l2.hpp"
+#include "cameras/imx183_v4l2.hpp"
 #include "util/v4l2_metadata.hpp"
 
 #include "gpio_thread.hpp"
@@ -174,7 +174,7 @@ int main(int argc, char* argv[])
 	    desc.add_options() 
 			("help"      , "Print usage information and exit")
 			("device"    , bpo::value<std::string>()->default_value("/dev/video0"), "device to open")
-			("fourcc"    , bpo::value<std::string>()->default_value("XR24"),        "fcc code to ask for image format, try XR24, RGGB, JXR0, JXR2, VYUY")
+			("fourcc"    , bpo::value<std::string>()->default_value("RG12"),        "fcc code to ask for image format, try XR24, RGGB, JXR0, JXR2, VYUY")
 			("trigger"   , bpo::value<std::string>(),                               "Trigger type, SW or HW-kernel or HW-user")
 			("disk"      , bpo::value<bool>()->default_value(false),                "Write to disk")
 			("num_frames", bpo::value<int>()->default_value(10),                    "Number of frames to grab")
@@ -235,7 +235,7 @@ int main(int argc, char* argv[])
 	}
 
 	gpio_thread user_gpio;
-	Alvium_v4l2 cam;
+	imx183_v4l2 cam;
 
 	if( ! cam.open(vm["device"].as<std::string>().c_str()) )
 	{
@@ -248,51 +248,7 @@ int main(int argc, char* argv[])
 		SPDLOG_ERROR("cam.init failed");
 		return -1;
 	}
-/*
-	if(trigger.compare("SW") == 0)
-	{
-		if( ! cam.set_sw_trigger() )
-		{
-			SPDLOG_ERROR("cam.set_sw_trigger() failed");
-			return -1;
-		}
-	}
-	else if(trigger.compare("HW-user") == 0)
-	{
-		if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE0, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) )    //PDWN
-		// if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE1, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) ) // MCLK
-		{
-			SPDLOG_ERROR("cam.set_hw_trigger(V4L2_TRIGGER_SOURCE_LINE1, V4L2_TRIGGER_ACTIVATION_RISING_EDGE) failed");
-			return -1;
-		}
 
-		if( ! user_gpio.init() )
-		{
-			std::cout << "Gpio init failed" << std::endl;
-			return -1;
-		}
-
-		user_gpio.launch();
-	}
-	else if(trigger.compare("HW-kernel") == 0)
-	{
-		if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE0, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) ) // PDWN
-		// if( ! cam.set_hw_trigger(Alvium_CSI::v4l2_trigger_source::V4L2_TRIGGER_SOURCE_LINE1, Alvium_CSI::v4l2_trigger_activation::V4L2_TRIGGER_ACTIVATION_RISING_EDGE) )    // MCLK
-		{
-			SPDLOG_ERROR("cam.set_hw_trigger(V4L2_TRIGGER_SOURCE_LINE1, V4L2_TRIGGER_ACTIVATION_RISING_EDGE) failed");
-			return -1;
-		}
-	}
-	else
-	{
-		if( ! cam.set_free_trigger() )
-		{
-			SPDLOG_ERROR("cam.set_free_trigger() failed");
-			return -1;
-		}
-		
-	}
-*/
 	if( ! cam.start_streaming() )
 	{
 		SPDLOG_ERROR("cam.start_streaming() failed");

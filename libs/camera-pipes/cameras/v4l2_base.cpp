@@ -97,6 +97,171 @@ bool v4l2_base::open(const char dev_path[])
 
   return m_fd != -1;
 }
+bool v4l2_base::init(const uint32_t fcc)
+{
+  if(m_v4l2_util.get_fmt_descs().empty())
+  {
+    SPDLOG_ERROR("Format descriptions not set");
+    return false;
+  }
+
+  v4l2_format fmt;
+  memset(&fmt, 0, sizeof(fmt));
+  fmt.type = m_buffer_type;
+  if (-1 == m_v4l2_util.ioctl_helper(VIDIOC_G_FMT, &fmt))
+  {
+      SPDLOG_ERROR("ioctl VIDIOC_G_FMT failed: {:s}", m_errno.to_str());
+      return false;
+  }
+ __u32 pixel_format = fcc;
+
+  switch(fmt.type)
+  {
+    case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+    {
+      fmt.fmt.pix.pixelformat = pixel_format;
+      break;
+    }
+    case V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE:
+    {
+      fmt.fmt.pix_mp.pixelformat = pixel_format;
+      break;
+    }
+    default:
+    {
+      SPDLOG_ERROR("fmt.type not supported");
+      return false;
+      break;
+    }
+  }
+
+  fmt.fmt.pix.field = V4L2_FIELD_NONE;
+  if (-1 == m_v4l2_util.ioctl_helper(VIDIOC_S_FMT, &fmt))
+  {
+    SPDLOG_ERROR("ioctl VIDIOC_S_FMT failed: {:s}", m_errno.to_str());
+    return false;
+  }
+ 
+  fmt.type = m_buffer_type;
+  if (-1 == m_v4l2_util.ioctl_helper(VIDIOC_G_FMT, &fmt))
+  {
+      SPDLOG_ERROR("ioctl VIDIOC_G_FMT failed: {:s}", m_errno.to_str());
+      return false;
+  }
+
+
+  __u32 sizeimage    = 0;
+  __u32 width        = 0;
+  __u32 height       = 0;
+  __u32 bytesperline = 0;
+  __u32 pixelformat  = 0;
+  __u8  num_planes   = 0;
+
+  switch(fmt.type)
+  {
+    case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+    {
+      sizeimage    = fmt.fmt.pix.sizeimage;
+      width        = fmt.fmt.pix.width;
+      height       = fmt.fmt.pix.height;
+      bytesperline = fmt.fmt.pix.bytesperline;
+      pixelformat  = fmt.fmt.pix.pixelformat;
+      break;
+    }
+    case V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE:
+    {
+      num_planes   = fmt.fmt.pix_mp.num_planes;
+      width        = fmt.fmt.pix_mp.width;
+      height       = fmt.fmt.pix_mp.height;
+      pixelformat  = fmt.fmt.pix_mp.pixelformat;
+      bytesperline = fmt.fmt.pix_mp.plane_fmt[0].bytesperline;
+      sizeimage    = fmt.fmt.pix_mp.plane_fmt[0].sizeimage;
+      break;
+    }
+    default:
+    {
+      SPDLOG_ERROR("fmt.type not supported");
+      return false;
+      break;
+    }
+  }
+
+  v4l2_requestbuffers req;
+  memset(&req, 0, sizeof(req));
+  req.count  = NUM_BUFFERS;
+  req.type   = m_buffer_type;
+  req.memory = V4L2_MEMORY_MMAP;
+  if (-1 == m_v4l2_util.ioctl_helper(VIDIOC_REQBUFS, &req))
+  {
+    SPDLOG_ERROR("Could not get buffers from device, {:s}", m_errno.to_str());
+    return false;
+  }
+
+  if (req.count <= 0)
+  {
+    SPDLOG_ERROR("Could not get buffers from device");
+    return false;
+  }
+
+  if (req.count < 2)
+  {
+    SPDLOG_WARN("Could only get {:d} buffers from device", req.count);
+  }
+
+  for(__u32 i = 0; i < req.count; i++)
+  {
+
+    v4l2_buffer buf;
+    v4l2_plane planes[num_planes];
+    memset(&buf,    0, sizeof(buf));
+    memset(&planes, 0, sizeof(planes));
+
+    switch(fmt.type)
+    {
+      case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+      {
+        buf.m.planes = nullptr;
+        buf.length   = num_planes;
+
+        break;
+      }
+      case V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE:
+      {
+        buf.m.planes = planes;
+        buf.length   = num_planes;
+        break;
+      }
+      default:
+      {
+        throw std::domain_error("fmt.type not supported");
+        break;
+      }
+    }
+
+    buf.type    = m_buffer_type;
+    buf.memory  = V4L2_MEMORY_MMAP;
+    buf.index   = i;
+
+    if(-1 == m_v4l2_util.ioctl_helper(VIDIOC_QUERYBUF, &buf))
+    {
+      SPDLOG_ERROR("ioctl VIDIOC_QUERYBUF failed: {:s}", m_errno.to_str());
+      return false;
+    }
+
+
+    std::shared_ptr<v4l2_mmap_buffer> mmap_buf = std::make_shared<v4l2_mmap_buffer>();
+    if( ! mmap_buf->init(m_fd, buf, fmt, i) )
+    {
+      SPDLOG_ERROR("Could not init buffer");
+      return false;
+    }
+
+    m_buf_by_idx.insert(std::make_pair(mmap_buf->get_index(), mmap_buf));
+    m_buf_by_ptr.insert(std::make_pair(mmap_buf->get_data(),  mmap_buf));
+  }
+
+  return true;
+}
 bool v4l2_base::close()
 {
   if(m_fd == -1)
