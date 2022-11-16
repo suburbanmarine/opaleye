@@ -188,27 +188,16 @@ public:
 			return false;
 		}
 
-		int ret = 0;
+
+		// V4L2_CID_BASE - V4L2_CID_LASTP1
+		// V4L2_CID_PRIVATE_BASE - EINVAL
+
 		T v4l_ctrl;
-		uint32_t current_ctrl_id = V4L2_CID_BASE;
-		do
+		memset(&v4l_ctrl, 0, sizeof(v4l_ctrl));
+		v4l_ctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
+		while(0 == ::ioctl(fd, ioctl_num, &v4l_ctrl))
 		{
-			memset(&v4l_ctrl, 0, sizeof(v4l_ctrl));
-			v4l_ctrl.id = current_ctrl_id; // query [V4L2_CID_BASE, V4L2_CID_LASTP1]
-			ret = ::ioctl(fd, ioctl_num, &v4l_ctrl);
-			if(ret < 0)
-			{
-				if(errno == EINVAL)
-				{
-					//were done
-				}
-				else
-				{
-					SPDLOG_WARN("v4l2_probe_ctrl error: {:s}", m_errno.to_str());
-					return false;
-				}
-			}
-			else
+			if( ! v4l_ctrl.flags & V4L2_CTRL_FLAG_DISABLED )
 			{
 				SPDLOG_DEBUG("v4l2_probe_ctrl {:d} {:s}, {:d}, [{:d}, {:d}]/{:d}",
 					v4l_ctrl.id,
@@ -216,16 +205,27 @@ public:
 					v4l_ctrl.type,
 					v4l_ctrl.minimum,
 					v4l_ctrl.maximum,
-					v4l_ctrl.step);
+					v4l_ctrl.step
+				);
 
 				const std::string ctrl_name = (const char*)v4l_ctrl.name;
 
 				m_device_ctrl.insert(std::make_pair(v4l_ctrl.id, v4l_ctrl));
 				m_device_ctrl_by_name.insert(std::make_pair(ctrl_name, v4l_ctrl.id));
 
-				current_ctrl_id = v4l_ctrl.id | V4L2_CTRL_FLAG_NEXT_CTRL;
+				// if(v4l_ctrl.type == V4L2_CTRL_TYPE_MENU)
+				// {
+					// probe_menu()
+				// }
 			}
-		} while(ret >= 0);
+
+			v4l_ctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
+		}
+		if(errno != EINVAL)
+		{
+			SPDLOG_WARN("v4l2_probe_ctrl error: {:s}", m_errno.to_str());
+			return false;
+		}
 
 		if( ! v4l2_probe_menu(fd) )
 		{
