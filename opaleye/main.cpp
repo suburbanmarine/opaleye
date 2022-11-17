@@ -302,51 +302,36 @@ int main(int argc, char* argv[])
 		//register 0mq services
 		//the camera callbacks are called within the context of a gstreamer thread and should return promptly
 
-		if(app.m_pipelines.find("pipe0") != app.m_pipelines.end())
+		for(const std::pair<std::string, std::shared_ptr<GST_app_base>>& val : app.m_pipelines)
 		{
-			std::shared_ptr<GST_camera_base> cam0 = app.m_pipelines["pipe0"]->get_element<GST_camera_base>("cam0");
-			if( ! cam0 )
+			const std::string& pipe_name       = val.first;
+			std::shared_ptr<GST_app_base> pipe = val.second;
+			const std::string& camera_name = pipe->get_camera_name();
+
+			if(camera_name.empty())
 			{
-				SPDLOG_ERROR("Could not register ZMQ callback, could not get element cam0");
+				continue;
+			}
+
+			std::shared_ptr<GST_camera_base> cam  = pipe->get_element<GST_camera_base>(camera_name);
+			if( ! cam )
+			{
+				SPDLOG_ERROR("Could not register ZMQ callback, could not get element {:s}", camera_name);
 			}
 			else
 			{
-				cam0->set_framebuffer_callback(
-					[zmq_svr](const std::string& metadata, const std::shared_ptr<const std::vector<uint8_t>>& frame_ptr)
+				std::string topic_name = fmt::format("/api/v1/cameras/{:s}/live/full", camera_name);
+				cam->set_framebuffer_callback(
+					[zmq_svr, topic_name](const std::string& metadata, const std::shared_ptr<const std::vector<uint8_t>>& frame_ptr)
 					{
 						if(frame_ptr)
 						{
-							zmq_svr->send("/api/v1/cameras/cam0/live/full", metadata, std::string_view(reinterpret_cast<const char*>(frame_ptr->data()), frame_ptr->size()));
+							zmq_svr->send(topic_name, metadata, std::string_view(reinterpret_cast<const char*>(frame_ptr->data()), frame_ptr->size()));
 						}
 						else
 						{
 							SPDLOG_ERROR("frame_ptr is null");
 						}				
-					}
-				);
-			}
-		}
-
-		if(app.m_pipelines.find("pipe1") != app.m_pipelines.end())
-		{
-			std::shared_ptr<GST_camera_base> cam1 = app.m_pipelines["pipe1"]->get_element<GST_camera_base>("cam1");
-			if( ! cam1 )
-			{
-				SPDLOG_ERROR("Could not register ZMQ callback, could not get element cam1");
-			}
-			else
-			{
-				cam1->set_framebuffer_callback(
-					[zmq_svr](const std::string& metadata, const std::shared_ptr<const std::vector<uint8_t>>& frame_ptr)
-					{
-						if(frame_ptr)
-						{
-							zmq_svr->send("/api/v1/cameras/cam1/live/full", metadata, std::string_view(reinterpret_cast<const char*>(frame_ptr->data()), frame_ptr->size()));
-						}
-						else
-						{
-							SPDLOG_ERROR("frame_ptr is null");
-						}
 					}
 				);
 			}

@@ -63,6 +63,11 @@ public:
 
   void use_clock(const Glib::RefPtr<Gst::Clock>& clock);
 
+  const std::string& get_camera_name() const
+  {
+    return m_camera_name;
+  }
+
 protected:
   Glib::RefPtr<Glib::MainContext>  m_mainloop_context;
   Glib::RefPtr<Glib::MainLoop>     m_mainloop;
@@ -77,5 +82,7 @@ protected:
   std::atomic<bool>       m_got_eos;
   std::mutex              m_mutex_got_eos;
   std::condition_variable m_cv_got_eos;
+
+  std::string m_camera_name;
 
 };

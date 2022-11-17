@@ -104,7 +104,7 @@ std::shared_ptr<GST_element_base> Gstreamer_pipeline::get_element(const std::str
 
 bool Gstreamer_pipeline::make_brio_pipeline()
 {
-  const std::string& cam_name  = m_camera_config.name;
+  m_camera_name                = m_camera_config.name;
   const std::string& pipe_name = m_pipeline_config.name;
 
   std::shared_ptr<GST_element_base> m_camera = std::make_shared<V4L2_webcam_pipe>();
@@ -140,7 +140,7 @@ bool Gstreamer_pipeline::make_brio_pipeline()
   //  return false;
   // }
 
-  if( ! m_camera->init(cam_name.c_str()) )
+  if( ! m_camera->init(m_camera_name.c_str()) )
   {
    SPDLOG_ERROR("Could not init camera");
    return false;
@@ -225,7 +225,7 @@ bool Gstreamer_pipeline::make_brio_pipeline()
   m_rtppay->link_back(m_rtpsink->front());
   #endif
 
-  m_element_storage.emplace(cam_name, m_camera);
+  m_element_storage.emplace(m_camera_name, m_camera);
   m_element_storage.emplace("jpgdec_0", m_jpgdec);
   m_element_storage.emplace("thumb_0", m_thumb);
   m_element_storage.emplace("h264_0", m_h264);
@@ -238,8 +238,10 @@ bool Gstreamer_pipeline::make_brio_pipeline()
 
 bool Gstreamer_pipeline::make_imx183_pipeline()
 {
-  const std::string& cam_name  = m_camera_config.name;
+  m_camera_name                = m_camera_config.name;
   const std::string& pipe_name = m_pipeline_config.name;
+
+  
 
   std::string device       = m_camera_config.get<std::string>("properties.device");
   // std::string trigger_mode = m_camera_config.get<std::string>("properties.trigger_mode");
@@ -253,7 +255,7 @@ bool Gstreamer_pipeline::make_imx183_pipeline()
   
   m_camera->set_params(device.c_str(), V4L2_imx183_pipe::PIX_FMT_RG12, "free");
 
-  if( ! m_camera->init(cam_name.c_str()) )
+  if( ! m_camera->init(m_camera_name.c_str()) )
   {
    SPDLOG_ERROR("Could not init camera");
    return false;
@@ -352,7 +354,7 @@ bool Gstreamer_pipeline::make_imx183_pipeline()
 
   m_rtppay->link_back(m_rtpsink->front());
 
-  m_element_storage.emplace(cam_name, m_camera);
+  m_element_storage.emplace(m_camera_name, m_camera);
   m_element_storage.emplace("timecodestamper_0", m_timecodestamper);
   m_element_storage.emplace("timeoverlay_0", m_timeoverlay);
   m_element_storage.emplace("thumb_0", m_thumb);
@@ -366,11 +368,11 @@ bool Gstreamer_pipeline::make_imx183_pipeline()
 
 bool Gstreamer_pipeline::make_imx219_pipeline()
 {
-  const std::string& cam_name  = m_camera_config.name;
+  m_camera_name                = m_camera_config.name;
   const std::string& pipe_name = m_pipeline_config.name;
 
   std::shared_ptr<nvac_imx219_pipe> m_camera   = std::make_shared<nvac_imx219_pipe>();
-  if( ! m_camera->init(cam_name.c_str()) )
+  if( ! m_camera->init(m_camera_name.c_str()) )
   {
    SPDLOG_ERROR("Could not init camera");
    return false;
@@ -476,7 +478,7 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
 
   m_rtppay->link_back(m_rtpsink->front());
 
-  m_element_storage.emplace(cam_name, m_camera);
+  m_element_storage.emplace(m_camera_name, m_camera);
   m_element_storage.emplace("timecodestamper_0", m_timecodestamper);
   m_element_storage.emplace("timeoverlay_0", m_timeoverlay);
   m_element_storage.emplace("thumb_0", m_thumb);
@@ -490,7 +492,7 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
 
 bool Gstreamer_pipeline::make_alvium_pipeline()
 {
-  const std::string& cam_name  = m_camera_config.name;
+  m_camera_name                = m_camera_config.name;
   const std::string& pipe_name = m_pipeline_config.name;
 
   std::string format = m_camera_config.get<std::string>("properties.format");
@@ -506,7 +508,7 @@ bool Gstreamer_pipeline::make_alvium_pipeline()
 
   std::shared_ptr<V4L2_alvium_pipe> m_camera   = std::make_shared<V4L2_alvium_pipe>();
   m_camera->set_params(device.c_str(), v4l2_fourcc(format[0], format[1], format[2], format[3]), trigger_mode);
-  if( ! m_camera->init(cam_name.c_str()) )
+  if( ! m_camera->init(m_camera_name.c_str()) )
   {
     SPDLOG_ERROR("Could not init camera");
     return false;
@@ -568,7 +570,7 @@ bool Gstreamer_pipeline::make_alvium_pipeline()
 
   m_rtppay->link_back(m_rtpsink->front());
 
-  m_element_storage.emplace(cam_name, m_camera);
+  m_element_storage.emplace(m_camera_name, m_camera);
   m_element_storage.emplace("thumb_0", m_thumb);
   m_element_storage.emplace("h264_0", m_h264);
   m_element_storage.emplace("h264_ipsink_0", m_h264_interpipesink);
@@ -580,7 +582,7 @@ bool Gstreamer_pipeline::make_alvium_pipeline()
 
 bool Gstreamer_pipeline::make_virtual_pipeline()
 {
-  const std::string& cam_name  = m_camera_config.name;
+  m_camera_name                = m_camera_config.name;
   const std::string& pipe_name = m_pipeline_config.name;
 
   std::shared_ptr<GST_element_base> m_camera = std::make_shared<Testsrc_pipe>();
@@ -610,7 +612,7 @@ bool Gstreamer_pipeline::make_virtual_pipeline()
     m_thumb  = std::make_shared<Thumbnail_sw_pipe>();
   }
 
-  if( ! m_camera->init(cam_name.c_str()) )
+  if( ! m_camera->init(m_camera_name.c_str()) )
   {
    SPDLOG_ERROR("Could not init camera");
    return false;
@@ -690,7 +692,7 @@ bool Gstreamer_pipeline::make_virtual_pipeline()
   m_rtppay->link_back(m_rtpsink->front());
   #endif
 
-  m_element_storage.emplace(cam_name, m_camera);
+  m_element_storage.emplace(m_camera_name, m_camera);
   m_element_storage.emplace("thumb_0", m_thumb);
   m_element_storage.emplace("h264_0", m_h264);
   m_element_storage.emplace("h264_ipsink_0", m_h264_interpipesink);
