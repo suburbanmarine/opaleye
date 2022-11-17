@@ -299,7 +299,21 @@ int main(int argc, char* argv[])
 			SPDLOG_ERROR("zmq_svr init failed");
 			return -1;			
 		}
-		//register 0mq services
+	}
+
+	std::shared_ptr<zcm_api_svr> zcm_svr;
+	if(app.m_config->zcm_launch == "true")
+	{
+		SPDLOG_INFO("Starting ZCM");
+		zcm_svr = std::make_shared<zcm_api_svr>();
+		if( ! zcm_svr->init("ipc") )
+		{
+			SPDLOG_ERROR("Error initializing ZCM");
+		}
+	}
+
+	{
+		//register 0mq/ZCM services
 		//the camera callbacks are called within the context of a gstreamer thread and should return promptly
 
 		for(const std::pair<std::string, std::shared_ptr<GST_app_base>>& val : app.m_pipelines)
@@ -322,7 +336,7 @@ int main(int argc, char* argv[])
 			{
 				std::string topic_name = fmt::format("/api/v1/cameras/{:s}/live/full", camera_name);
 				cam->set_framebuffer_callback(
-					[zmq_svr, topic_name](const std::string& metadata, const std::shared_ptr<const std::vector<uint8_t>>& frame_ptr)
+					[zmq_svr, zcm_svr, topic_name](const std::string& metadata, const std::shared_ptr<const std::vector<uint8_t>>& frame_ptr)
 					{
 						if(frame_ptr)
 						{
@@ -331,21 +345,10 @@ int main(int argc, char* argv[])
 						else
 						{
 							SPDLOG_ERROR("frame_ptr is null");
-						}				
+						}
 					}
 				);
 			}
-		}
-	}
-
-	std::shared_ptr<zcm_api_svr> zcm_inst;
-	if(app.m_config->zcm_launch == "true")
-	{
-		SPDLOG_INFO("Starting ZCM");
-		zcm_inst = std::make_shared<zcm_api_svr>();
-		if( ! zcm_inst->init("ipc") )
-		{
-			SPDLOG_ERROR("Error initializing ZCM");
 		}
 	}
 
@@ -418,10 +421,10 @@ int main(int argc, char* argv[])
 		zmq_svr.reset();
 	}
 
-	if(zcm_inst)
+	if(zcm_svr)
 	{
 		SPDLOG_INFO("Stopping ZCM server");
-		zcm_inst.reset();
+		zcm_svr.reset();
 	}
 
 #if 0
