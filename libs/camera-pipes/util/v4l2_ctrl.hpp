@@ -18,6 +18,15 @@
 class v4l2_ctrl_mgr_base
 {
 public:
+	v4l2_ctrl_mgr_base()
+	{
+		
+	}
+	virtual ~v4l2_ctrl_mgr_base()
+	{
+
+	}
+
 	const std::map<std::string, uint32_t>& get_ctrl_name_map() const
 	{
 		return m_device_ctrl_by_name;
