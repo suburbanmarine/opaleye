@@ -244,18 +244,14 @@ bool Gstreamer_pipeline::make_imx183_pipeline()
   std::string device       = m_camera_config.get<std::string>("properties.device");
   // std::string trigger_mode = m_camera_config.get<std::string>("properties.trigger_mode");
 
-  std::shared_ptr<nvac_imx183_pipe> m_camera   = std::make_shared<nvac_imx183_pipe>();
+  std::shared_ptr<V4L2_imx183_pipe> m_camera   = std::make_shared<V4L2_imx183_pipe>();
   if(! m_camera )
   {
     SPDLOG_ERROR("Could not create camera");
     return false;    
   }
   
-  if( ! m_camera->configure(device.c_str()) )
-  {
-   SPDLOG_ERROR("Could not configure camera");
-   return false;
-  }
+  m_camera->set_params(device.c_str(), V4L2_imx183_pipe::PIX_FMT_RG12, "free");
 
   if( ! m_camera->init(cam_name.c_str()) )
   {
@@ -263,13 +259,6 @@ bool Gstreamer_pipeline::make_imx183_pipeline()
    return false;
   }
   
-  m_camera->set_sensor_id(m_camera_config.get("properties.sensor-id", 0));
-  // if( ! m_camera->set_sensor_id(m_camera_config.get("sensor-id", 0)))
-  // {
-  //     SPDLOG_ERROR("Could not set camera sensor-id");
-  //     return false; 
-  // }
-
   std::shared_ptr<GST_element_base> m_nvvideoconvert_pipe_t0   = std::make_shared<nvvideoconvert_pipe>();
   if( ! m_nvvideoconvert_pipe_t0->init("m_nvvideoconvert_pipe_t0") )
   {
