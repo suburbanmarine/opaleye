@@ -19,7 +19,7 @@ jobs:
 
     if: github.event_name == 'push' || github.event_name == 'pull_request'
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     # runs-on: self-hosted
     timeout-minutes: 30
 
@@ -70,7 +70,7 @@ jobs:
 
   release:
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     # runs-on: self-hosted
     timeout-minutes: 30
     

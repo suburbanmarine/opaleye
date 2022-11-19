@@ -21,6 +21,9 @@
 #include "pipeline/GST_fakesink.hpp"
 #include "pipeline/nvvideoconvert_pipe.hpp"
 
+#include "pipeline/timecodestamper.hpp"
+#include "pipeline/timeoverlay.hpp"
+
 #include "opaleye-util/errno_util.hpp"
 
 #include <boost/lexical_cast.hpp>
@@ -248,6 +251,35 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
   //     return false; 
   // }
 
+  std::shared_ptr<GST_element_base> m_nvvideoconvert_pipe_t0   = std::make_shared<nvvideoconvert_pipe>();
+  if( ! m_nvvideoconvert_pipe_t0->init("m_nvvideoconvert_pipe_t0") )
+  {
+    SPDLOG_ERROR("Could not init m_nvvideoconvert_pipe_t0");
+    return false;
+  }
+
+  std::shared_ptr<GST_element_base> m_nvvideoconvert_pipe_t1   = std::make_shared<nvvideoconvert_pipe>();
+  if( ! m_nvvideoconvert_pipe_t1->init("m_nvvideoconvert_pipe_t1") )
+  {
+    SPDLOG_ERROR("Could not init m_nvvideoconvert_pipe_t1");
+    return false;
+  }
+
+  std::shared_ptr<timecodestamper> m_timecodestamper = std::make_shared<timecodestamper>();
+  if( ! m_timecodestamper->init("timecodestamper_0") )
+  {
+    SPDLOG_ERROR("Could not init timecodestamper_0");
+    return false;
+  }
+
+  std::shared_ptr<timeoverlay> m_timeoverlay = std::make_shared<timeoverlay>();
+  if( ! m_timeoverlay->init("timeoverlay_0") )
+  {
+    SPDLOG_ERROR("Could not init timeoverlay_0");
+    return false;
+  }
+
+  SPDLOG_INFO("NV mode");
   std::shared_ptr<GST_element_base> m_thumb  = std::make_shared<Thumbnail_nv3_pipe>();
   if( ! m_thumb->init("thumb_0") )
   {
@@ -285,6 +317,12 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
 
   //add elements to top level bin
   m_camera->add_to_bin(m_pipeline);
+  
+  m_nvvideoconvert_pipe_t0->add_to_bin(m_pipeline);
+  m_timecodestamper->add_to_bin(m_pipeline);
+  m_timeoverlay->add_to_bin(m_pipeline);
+  m_nvvideoconvert_pipe_t1->add_to_bin(m_pipeline);
+
   m_thumb->add_to_bin(m_pipeline);
   m_h264->add_to_bin(m_pipeline);
   m_h264_interpipesink->add_to_bin(m_pipeline);
@@ -292,8 +330,14 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
   m_rtpsink->add_to_bin(m_pipeline);
 
   //link pipeline
-  m_camera->link_back(m_h264->front());
   m_camera->link_back(m_thumb->front());
+
+  // m_camera->link_back(m_h264->front());
+  m_camera->link_back(m_nvvideoconvert_pipe_t0->front());
+  m_nvvideoconvert_pipe_t0->link_back(m_timecodestamper->front());
+  m_timecodestamper->link_back(m_timeoverlay->front());
+  m_timeoverlay->link_back(m_nvvideoconvert_pipe_t1->front());
+  m_nvvideoconvert_pipe_t1->link_back(m_h264->front());
 
   m_h264->link_back(m_rtppay->front());
   m_h264->link_back(m_h264_interpipesink->front());
@@ -301,6 +345,8 @@ bool Gstreamer_pipeline::make_imx219_pipeline()
   m_rtppay->link_back(m_rtpsink->front());
 
   m_element_storage.emplace(cam_name, m_camera);
+  m_element_storage.emplace("timecodestamper_0", m_timecodestamper);
+  m_element_storage.emplace("timeoverlay_0", m_timeoverlay);
   m_element_storage.emplace("thumb_0", m_thumb);
   m_element_storage.emplace("h264_0", m_h264);
   m_element_storage.emplace("h264_ipsink_0", m_h264_interpipesink);
@@ -438,6 +484,21 @@ bool Gstreamer_pipeline::make_virtual_pipeline()
    return false;
   }
 
+
+  std::shared_ptr<timecodestamper> m_timecodestamper = std::make_shared<timecodestamper>();
+  if( ! m_timecodestamper->init("timecodestamper_0") )
+  {
+    SPDLOG_ERROR("Could not init timecodestamper_0");
+    return false;
+  }
+
+  std::shared_ptr<timeoverlay> m_timeoverlay = std::make_shared<timeoverlay>();
+  if( ! m_timeoverlay->init("timeoverlay_0") )
+  {
+    SPDLOG_ERROR("Could not init timeoverlay_0");
+    return false;
+  }
+
   if( ! m_thumb->init("thumb_0") )
   {
    SPDLOG_ERROR("Could not init thumb");
@@ -474,6 +535,9 @@ bool Gstreamer_pipeline::make_virtual_pipeline()
   //add elements to top level bin
   m_camera->add_to_bin(m_pipeline);
 
+  m_timecodestamper->add_to_bin(m_pipeline);
+  m_timeoverlay->add_to_bin(m_pipeline);
+
   m_thumb->add_to_bin(m_pipeline);
   m_h264->add_to_bin(m_pipeline);
   m_h264_interpipesink->add_to_bin(m_pipeline);
@@ -484,7 +548,9 @@ bool Gstreamer_pipeline::make_virtual_pipeline()
   //link pipeline
   m_camera->link_back(m_thumb->front());
 
-  m_camera->link_back(m_h264->front());
+  m_camera->link_back(m_timecodestamper->front());
+  m_timecodestamper->link_back(m_timeoverlay->front());
+  m_timeoverlay->link_back(m_h264->front());
 
   m_h264->link_back(m_rtppay->front());
   m_h264->link_back(m_h264_interpipesink->front());
@@ -498,6 +564,8 @@ bool Gstreamer_pipeline::make_virtual_pipeline()
   m_element_storage.emplace("h264_ipsink_0", m_h264_interpipesink);
   m_element_storage.emplace("rtp_0", m_rtppay);
   m_element_storage.emplace("udp_0", m_rtpsink);
+  m_element_storage.emplace("timecodestamper_0", m_timecodestamper);
+  m_element_storage.emplace("timeoverlay_0", m_timeoverlay);
 
   return true;
 }
@@ -524,6 +592,54 @@ bool Opaleye_app::init()
   {
     m_config = std::make_shared<app_config>();
     m_config->make_default();
+  }
+
+  Gst::ClockTime base_time;
+  if(m_config->master_clock == "system")
+  {
+    m_master_clock = std::make_shared<sys_clock>();
+    if( ! m_master_clock->init() )
+    {
+      SPDLOG_ERROR("Opaleye_app::init master clock init failed");
+      return false;
+    }
+    base_time = m_master_clock->get_time();
+  }
+  else if(m_config->master_clock == "ptp")
+  {
+    m_master_clock = std::make_shared<ptp_clock>();
+    if( ! m_master_clock->init() )
+    {
+      SPDLOG_ERROR("Opaleye_app::init master clock init failed");
+      return false;
+    }
+    base_time = m_master_clock->get_time();
+
+    bool ptp_sync_ok = false;
+    for(int i = 0; i < 60; i++)
+    {
+      bool sync = m_master_clock->wait_for_sync();
+      if( ! sync )
+      {
+        SPDLOG_WARN("Opaleye_app::init ptp clock sync failed");
+      }
+      else
+      {
+        ptp_sync_ok = true;
+        SPDLOG_INFO("Opaleye_app::init ptp clock sync ready");
+      }
+    }
+
+    if( ! ptp_sync_ok )
+    {
+      SPDLOG_ERROR("Opaleye_app::init ptp clock sync timed out");
+      return false;
+    }
+  }
+  else
+  {
+    SPDLOG_ERROR("Opaleye_app::init could not parse pipeline master clock source");
+    return false;
   }
 
   if(m_config->has_child("config.nvpmodel.mode"))
@@ -605,50 +721,35 @@ bool Opaleye_app::init()
     SPDLOG_ERROR("Opaleye_app::init not requested to init hw_trigger");
   }
 
-  if(m_config->camera_configs.count("cam0"))
+  for(const auto cam : m_config->camera_configs)
   {
+    const camera_config& cam_i_cfg       = cam.second;
+    const std::string&   cam_i_cam_name  = cam_i_cfg.name;
+    const std::string&   cam_i_pipe_name = cam_i_cfg.pipeline.name;
+
     std::shared_ptr<Gstreamer_pipeline> pipeline = std::make_shared<Gstreamer_pipeline>();
     if( ! pipeline->init() )
     {
-      SPDLOG_ERROR("Opaleye_app::init init pipe0 failed");
+      SPDLOG_ERROR("Opaleye_app::init create pipeline {:s} failed", cam_i_pipe_name);
       return false;
     }
 
-    const camera_config& cam0_cfg     = m_config->camera_configs["cam0"];
-    const std::string& cam0_cam_name  = cam0_cfg.name;
-    const std::string& cam0_pipe_name = cam0_cfg.pipeline.name;
-
-    if( ! pipeline->make_pipeline(m_config, cam0_cfg, cam0_cfg.pipeline) )
     {
-      SPDLOG_ERROR("Opaleye_app::init make pipe0 failed");
+      pipeline->use_clock(m_master_clock->get_clock());
+      Glib::RefPtr<Gst::Element> pipe_elem = pipeline->get_pipeline();
+      pipeline->get_pipeline()->set_start_time(GST_CLOCK_TIME_NONE);
+      pipeline->get_pipeline()->set_latency(m_config->master_clock_latency * GST_MSECOND);
+      pipeline->get_pipeline()->set_base_time(base_time);
+    }
+
+    if( ! pipeline->make_pipeline(m_config, cam_i_cfg, cam_i_cfg.pipeline) )
+    {
+      SPDLOG_ERROR("Opaleye_app::init make_pipeline {:s} failed", cam_i_pipe_name);
       return false;
     }
     
-    SPDLOG_INFO("Opaleye_app::init stashing cam0 pipeline: {:s}", cam0_pipe_name);
-    m_pipelines.emplace(cam0_pipe_name, pipeline);
-  }
-
-  if(m_config->camera_configs.count("cam1"))
-  {
-    std::shared_ptr<Gstreamer_pipeline> pipeline = std::make_shared<Gstreamer_pipeline>();
-    if( ! pipeline->init() )
-    {
-      SPDLOG_ERROR("Opaleye_app::init init pipe1 failed");
-      return false;
-    }
-
-    const camera_config& cam1_cfg     = m_config->camera_configs["cam1"];
-    const std::string& cam1_cam_name  = cam1_cfg.name;
-    const std::string& cam1_pipe_name = cam1_cfg.pipeline.name;
-
-    if( ! pipeline->make_pipeline(m_config, cam1_cfg, cam1_cfg.pipeline) )
-    {
-      SPDLOG_ERROR("Opaleye_app::init make pipe1 failed");
-      return false;
-    }
-    
-    SPDLOG_INFO("Opaleye_app::init stashing cam1 pipeline: {:s}", cam1_pipe_name);
-    m_pipelines.emplace(cam1_pipe_name, pipeline);
+    SPDLOG_INFO("Opaleye_app::init stashing {:s} pipeline: {:s}", cam_i_cam_name, cam_i_pipe_name);
+    m_pipelines.emplace(cam_i_pipe_name, pipeline);
   }
 
   return true;

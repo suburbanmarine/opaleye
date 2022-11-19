@@ -28,6 +28,12 @@ public:
 	std::string zeromq_launch;
 	std::list<std::string> zeromq_ep;
 
+	std::string zcm_launch;
+	std::list<std::string> zcm_ep;
+
+	std::string master_clock;
+	int master_clock_latency;
+
 	std::map<std::string, camera_config> camera_configs;
 	
 	int nvpmodel_mode;

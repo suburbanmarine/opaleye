@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:18.04
 
 # RUN echo "Acquire::http::Proxy \"http://helios.lan:3142\";" > /etc/apt/apt.conf.d/02proxy
 
@@ -35,8 +35,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 	node-grunt-cli       \
 	nodejs               \
 	npm                  \
-	python-is-python2    \
-	python2              \
+	python               \
 	valgrind             \
 	zip                  \
 	&& apt-get clean

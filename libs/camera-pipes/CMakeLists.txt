@@ -21,6 +21,9 @@ add_library(camera-pipes
 	util/v4l2_metadata.cpp
 	util/v4l2_mmap_buffer.cpp
 
+	elements/ptp_clock.cpp
+	elements/sys_clock.cpp
+
 	#pipeline/camera/Logitech_brio_pipe.cpp
 	#pipeline/camera/Logitech_C525_gst.cpp
 	pipeline/camera/GST_camera_base.cpp
@@ -61,6 +64,9 @@ add_library(camera-pipes
 	pipeline/Thumbnail_sw_pipe.cpp
 	pipeline/Thumbnail_sw2_pipe.cpp
 	pipeline/nvvideoconvert_pipe.cpp
+
+	pipeline/timecodestamper.cpp
+	pipeline/timeoverlay.cpp
 )
 
 target_link_libraries(camera-pipes

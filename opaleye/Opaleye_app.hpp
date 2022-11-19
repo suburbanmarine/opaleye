@@ -22,6 +22,9 @@
 #include "pipeline/stream/rtpsink_pipe.hpp"
 #include "pipeline/Thumbnail_sw_pipe.hpp"
 
+#include "elements/ptp_clock.hpp"
+#include "elements/sys_clock.hpp"
+
 #include <memory>
 
 // REST URL endpoints
@@ -215,5 +218,7 @@ public:
   std::map<std::string, std::shared_ptr<GST_app_base>> m_pipelines;
 
   std::shared_ptr<app_config> m_config;
+
+  std::shared_ptr<gst_clock_base> m_master_clock;
 
 };

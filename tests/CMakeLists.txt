@@ -23,6 +23,17 @@ target_include_directories(opaleye_config_test
 		${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+add_executable(opaleye_zcm_cli_test
+	opaleye_zcm_cli_test.cpp
+)
+
+target_link_libraries(opaleye_zcm_cli_test
+	PUBLIC
+		opaleye_app
+
+		zcm
+)
+
 add_executable(opaleye_zeromq_cli_test
 	opaleye_zeromq_cli_test.cpp
 )
@@ -48,6 +59,10 @@ target_link_libraries(opaleye_zeromq_framegrabber
 		opaleye_app
 
 		cppzmq
+
+		opencv_core
+		opencv_imgproc
+		opencv_highgui
 )
 
 target_include_directories(opaleye_zeromq_framegrabber

@@ -59,6 +59,29 @@ bool app_config::deserialize(const boost::property_tree::ptree& tree)
 		}
 	}
 
+	{
+		zcm_ep.clear();
+
+		const boost::property_tree::ptree& zmq_tree = tree.get_child("config.zcm");
+		zcm_launch = zmq_tree.get<std::string>("launch");
+		auto it_range = zmq_tree.equal_range("endpoint");
+		for(auto it = it_range.first; it != it_range.second; ++it)
+		{
+			zcm_ep.push_back(it->second.data());
+		}
+	}
+
+	if(has_child("config.clock"))
+	{
+		master_clock         = tree.get<std::string>("config.clock.source");
+		master_clock_latency = tree.get<int>("config.clock.latency");
+	}
+	else
+	{
+		master_clock         = "system";
+		master_clock_latency = 500;
+	}
+
 	const boost::property_tree::ptree& cameras_tree = tree.get_child("config.cameras");
 	for( const auto& camera_i : cameras_tree)
 	{
@@ -95,6 +118,15 @@ bool app_config::serialize(boost::property_tree::ptree* const tree) const
 		tree->add("config.zeromq.endpoint", str);
 	}
 
+	tree->put("config.zcm.launch", zcm_launch);
+	for(const std::string& str : zcm_ep)
+	{
+		tree->add("config.zcm.endpoint", str);
+	}
+
+	tree->put("config.clock.source",  master_clock);
+	tree->put("config.clock.latency", master_clock_latency);
+
 	{
 		boost::property_tree::ptree cameras_tree;
 		for(const auto& it : camera_configs)
@@ -126,6 +158,13 @@ bool app_config::make_default()
 	zeromq_ep.clear();
 	zeromq_ep.push_back("tcp://0.0.0.0:51000");
 	zeromq_ep.push_back("ipc:///opaleye/feeds/0");
+
+	zcm_launch = "true";
+	zcm_ep.clear();
+	zcm_ep.push_back("ipc");
+
+	master_clock         = "system";
+	master_clock_latency = 500;
 
 	camera_config cfg;
 	cfg.name          = "cam0";
