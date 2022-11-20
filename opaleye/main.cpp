@@ -19,7 +19,7 @@
 #include "config/Opaleye_config.hpp"
 
 #include "idl/zcm/heartbeat_t.hpp"
-#include "idl/zcm/raw_image_t.hpp"
+#include "idl/zcm/raw_frame_t.hpp"
 
 #include "sensor_thread.hpp"
 #include "gpio_thread.hpp"
@@ -343,7 +343,15 @@ int main(int argc, char* argv[])
 					{
 						if(frame_ptr)
 						{
-							zmq_svr->send(topic_name, metadata, std::string_view(reinterpret_cast<const char*>(frame_ptr->data()), frame_ptr->size()));
+							if(zmq_svr)
+							{
+								zmq_svr->send(topic_name, metadata, std::string_view(reinterpret_cast<const char*>(frame_ptr->data()), frame_ptr->size()));
+							}
+
+							if(zmq_svr)
+							{
+								raw_frame_t frame;
+							}
 						}
 						else
 						{
