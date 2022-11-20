@@ -8,6 +8,9 @@
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
+
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
 #include <spdlog/fmt/bundled/printf.h>
@@ -239,6 +242,14 @@ int main(int argc, char* argv[])
 	}
 
 	v4l2_util::JsonDocPtr prop_desc = cam.get_v4l2_util().get_property_description();
+	if(prop_desc)
+	{
+		rapidjson::StringBuffer buf;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buf);
+		prop_desc->Accept(writer);
+
+		SPDLOG_INFO("properties: {:s}", buf.GetString());
+	}
 
 	if( ! cam.start_streaming() )
 	{

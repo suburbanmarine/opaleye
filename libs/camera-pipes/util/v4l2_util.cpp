@@ -10,9 +10,6 @@
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/fmt/fmt.h>
 
-#include <rapidjson/writer.h>
-#include <rapidjson/stringbuffer.h>
-
 #include <sys/ioctl.h>
 
 #include <cstring>
@@ -689,14 +686,6 @@ std::shared_ptr<v4l2_util::JsonDoc> v4l2_util::get_property_description()
 
 	doc->AddMember("ctrl",     ctrl_desc_array,     doc->GetAllocator());
 	doc->AddMember("ext_ctrl", ext_ctrl_desc_array, doc->GetAllocator());
-
-	{
-		rapidjson::StringBuffer buf;
-		rapidjson::Writer<rapidjson::StringBuffer> writer(buf);
-		doc->Accept(writer);
-
-		SPDLOG_INFO("doc: {:s}", buf.GetString());
-	}
 
 	return doc;
 }
