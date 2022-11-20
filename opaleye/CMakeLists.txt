@@ -41,6 +41,8 @@ target_link_libraries(opaleye_app
 		opaleye_sensors
 		opaleye-util
 
+		opaleye-zcm-idl
+
 		jsonrpc-lean
 
 		Boost::boost

@@ -1,0 +1,4 @@
+struct heartbeat_t
+{
+    string hostname;
+}

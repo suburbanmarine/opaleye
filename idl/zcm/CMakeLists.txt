@@ -21,6 +21,7 @@ function(gen_zcm_idl BASENAME)
 endfunction()
 
 gen_zcm_idl(raw_frame_t)
+gen_zcm_idl(heartbeat_t)
 
 add_library(opaleye-zcm-idl SHARED
     ${GENERATED_HEADER_FILES}

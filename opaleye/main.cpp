@@ -18,6 +18,9 @@
 #include "Opaleye_app.hpp"
 #include "config/Opaleye_config.hpp"
 
+#include "idl/zcm/heartbeat_t.hpp"
+#include "idl/zcm/raw_image_t.hpp"
+
 #include "sensor_thread.hpp"
 #include "gpio_thread.hpp"
 
