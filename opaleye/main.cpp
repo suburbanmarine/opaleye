@@ -19,7 +19,7 @@
 #include "config/Opaleye_config.hpp"
 
 #include "idl/zcm/heartbeat_t.hpp"
-#include "idl/zcm/raw_frame_t.hpp"
+#include "idl/zcm/image_buffer_t.hpp"
 
 #include "sensor_thread.hpp"
 #include "gpio_thread.hpp"
@@ -348,9 +348,14 @@ int main(int argc, char* argv[])
 								zmq_svr->send(topic_name, metadata, std::string_view(reinterpret_cast<const char*>(frame_ptr->data()), frame_ptr->size()));
 							}
 
-							if(zmq_svr)
+							if(zcm_svr)
 							{
-								raw_frame_t frame;
+								image_buffer_t frame;
+								int ret = zcm_svr->publish(topic_name, &frame);
+								if(ret != ZCM_EOK)
+								{
+									SPDLOG_ERROR("Error publishing ZCM frame: {:d}", ret);			
+								}
 							}
 						}
 						else

@@ -61,6 +61,12 @@ public:
 		return m_zcm;
 	}
 
+	template <typename T>
+	int publish(const std::string& topic, const T& val)
+	{
+		return m_zcm->publish(topic, val);
+	}
+
 protected:
 
 	std::shared_ptr<zcm_run_thread> m_zcm_run_thread;

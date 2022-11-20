@@ -1,0 +1,8 @@
+struct image_buffer_t
+{
+    string timestamp;
+    int64_t    frame_number;
+    string camera_name;
+    string format;
+    string str;
+}

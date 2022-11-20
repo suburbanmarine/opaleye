@@ -1,6 +1,0 @@
-struct raw_frame_t
-{
-    string camera_name;
-    string format;
-    string str;
-}
