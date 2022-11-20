@@ -250,6 +250,10 @@ int main(int argc, char* argv[])
 
 		SPDLOG_INFO("properties: {:s}", buf.GetString());
 	}
+	else
+	{
+		SPDLOG_WARN("geting props description failed");
+	}
 
 	if( ! cam.start_streaming() )
 	{
