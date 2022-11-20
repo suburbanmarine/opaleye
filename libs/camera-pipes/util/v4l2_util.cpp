@@ -10,7 +10,6 @@
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/fmt/fmt.h>
 
-#include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
 
@@ -650,193 +649,56 @@ bool v4l2_util::v4l2_ctrl_get(uint32_t which, v4l2_ext_control* const ctrl)
 	return true;
 }
 
-bool v4l2_util::get_property_description()
+std::shared_ptr<v4l2_util::JsonDoc> v4l2_util::get_property_description()
 {
 	using namespace rapidjson;
-
-	typedef rapidjson::GenericValue<rapidjson::UTF8<>, rapidjson::CrtAllocator> JsonValue;
-	typedef rapidjson::GenericDocument<rapidjson::UTF8<>, rapidjson::CrtAllocator, rapidjson::CrtAllocator> JsonDoc;
 
 	rapidjson::CrtAllocator valueAlloc;
 	rapidjson::CrtAllocator parseAlloc;
 
-	JsonDoc doc(&valueAlloc, 16*1024, &parseAlloc);
-	doc.SetObject();
+	std::shared_ptr<JsonDoc> doc = std::make_shared<JsonDoc>(&valueAlloc, 16*1024, &parseAlloc);
+	doc->SetObject();
+
+	JsonValue ctrl_desc_array;
+	ctrl_desc_array.SetArray();
 	
 	JsonValue ext_ctrl_desc_array;
 	ext_ctrl_desc_array.SetArray();
 
-
-#if 1
-	for(const auto& ext_ctrl : m_v4l2_ext_ctrl.get_ctrl_map())
+	if(m_v4l2_ext_ctrl.has_any_ctrl())
 	{
-		JsonValue ext_ctrl_desc(rapidjson::kObjectType);
-
-		ext_ctrl_desc.AddMember<uint32_t>("id",   ext_ctrl.second.id,   doc.GetAllocator());
-		ext_ctrl_desc.AddMember<uint32_t>("type", ext_ctrl.second.type, doc.GetAllocator());
-
+		for(const auto& ext_ctrl : m_v4l2_ext_ctrl.get_ctrl_map())
 		{
-			JsonValue params_name;
-			const char* msg = ext_ctrl.second.name;
-			params_name.SetString(msg, strlen(msg), doc.GetAllocator());
-			ext_ctrl_desc.AddMember("name", params_name, doc.GetAllocator());
+			JsonValue ext_ctrl_desc(rapidjson::kObjectType);
+			ext_ctrl_to_json(ext_ctrl.second, ext_ctrl_desc, doc);
+
+			ext_ctrl_desc_array.GetArray().PushBack(ext_ctrl_desc, doc->GetAllocator());
 		}
-
-		switch(ext_ctrl.second.type)
-		{
-			case V4L2_CTRL_TYPE_INTEGER:
-			{
-				int32_t value;
-				v4l2_ctrl_get(ext_ctrl.second.id, &value);
-
-				ext_ctrl_desc.AddMember<int32_t>("value",   value,                   doc.GetAllocator());
-				ext_ctrl_desc.AddMember<int64_t>("default_value", ext_ctrl.second.default_value, doc.GetAllocator());
-				ext_ctrl_desc.AddMember<int64_t>("minimum", ext_ctrl.second.minimum, doc.GetAllocator());
-				ext_ctrl_desc.AddMember<int64_t>("maximum", ext_ctrl.second.maximum, doc.GetAllocator());
-				ext_ctrl_desc.AddMember<uint32_t>("step",   ext_ctrl.second.step,    doc.GetAllocator());
-
-				break;
-			}
-			case V4L2_CTRL_TYPE_BOOLEAN:
-			{
-				bool value;
-				v4l2_ctrl_get(ext_ctrl.second.id, &value);
-
-				ext_ctrl_desc.AddMember("value", value, doc.GetAllocator());
-				ext_ctrl_desc.AddMember<int64_t>("default_value", ext_ctrl.second.default_value, doc.GetAllocator());
-
-				break;
-			}
-			case V4L2_CTRL_TYPE_MENU:
-			{
-				JsonValue valid_params;
-				valid_params.SetArray();
-
-				int32_t value;
-				v4l2_ctrl_get(ext_ctrl.second.id, &value);
-
-				ext_ctrl_desc.AddMember<int32_t>("value",   value,                   doc.GetAllocator());
-				ext_ctrl_desc.AddMember<int64_t>("default_value", ext_ctrl.second.default_value, doc.GetAllocator());
-
-				auto it = m_v4l2_ext_ctrl.get_menu_entries().find(ext_ctrl.second.id);
-				for(const auto& menu_entry : it->second) // for each index
-				{
-					JsonValue params;
-					params.SetObject();
-
-					JsonValue params_name;
-					const char* msg = (const char*)menu_entry.second.name;
-					params_name.SetString(msg, strlen(msg), doc.GetAllocator());
-
-					params.AddMember("name", params_name, doc.GetAllocator());
-					params.AddMember("index", menu_entry.second.index, doc.GetAllocator());
-
-					valid_params.PushBack(params, doc.GetAllocator());
-				}
-
-				ext_ctrl_desc.AddMember("enum", valid_params, doc.GetAllocator());
-
-				break;
-			}
-			case V4L2_CTRL_TYPE_BUTTON:
-			{
-				break;
-			}
-			case V4L2_CTRL_TYPE_INTEGER64:
-			{
-				int64_t value;
-				v4l2_ctrl_get(ext_ctrl.second.id, &value);
-
-				ext_ctrl_desc.AddMember<int64_t>("default_value", ext_ctrl.second.default_value, doc.GetAllocator());
-
-				ext_ctrl_desc.AddMember<int64_t>("value",   value,                   doc.GetAllocator());
-				ext_ctrl_desc.AddMember<int64_t>("minimum", ext_ctrl.second.minimum, doc.GetAllocator());
-				ext_ctrl_desc.AddMember<int64_t>("maximum", ext_ctrl.second.maximum, doc.GetAllocator());
-				ext_ctrl_desc.AddMember<uint64_t>("step",   ext_ctrl.second.step,    doc.GetAllocator());
-
-				break;
-			}
-			case V4L2_CTRL_TYPE_CTRL_CLASS:
-			{
-				break;
-			}
-			case V4L2_CTRL_TYPE_STRING:
-			{
-				break;
-			}
-			case V4L2_CTRL_TYPE_BITMASK:
-			{
-				int32_t value;
-				v4l2_ctrl_get(ext_ctrl.second.id, &value);
-
-				ext_ctrl_desc.AddMember<uint32_t>("default_value", ext_ctrl.second.default_value, doc.GetAllocator());
-
-				ext_ctrl_desc.AddMember<uint32_t>("value",   value,                   doc.GetAllocator());
-				ext_ctrl_desc.AddMember<uint32_t>("minimum", ext_ctrl.second.minimum, doc.GetAllocator());
-				ext_ctrl_desc.AddMember<uint32_t>("maximum", ext_ctrl.second.maximum, doc.GetAllocator());
-				break;
-			}
-			case V4L2_CTRL_TYPE_INTEGER_MENU:
-			{
-				JsonValue valid_params;
-				valid_params.SetArray();
-
-				int32_t value;
-				v4l2_ctrl_get(ext_ctrl.second.id, &value);
-
-				ext_ctrl_desc.AddMember<int32_t>("value",   value,                   doc.GetAllocator());
-				ext_ctrl_desc.AddMember<int64_t>("default_value", ext_ctrl.second.default_value, doc.GetAllocator());
-
-				auto it = m_v4l2_ext_ctrl.get_menu_entries().find(ext_ctrl.second.id);
-				for(const auto& menu_entry : it->second)
-				{
-					JsonValue params;
-					params.SetObject();
-
-					JsonValue params_name;
-					const char* msg = (const char*)menu_entry.second.name;
-					params_name.SetString(msg, strlen(msg), doc.GetAllocator());
-
-					params.AddMember("name", params_name, doc.GetAllocator());
-					params.AddMember("index", menu_entry.second.index, doc.GetAllocator());
-
-					valid_params.PushBack(params, doc.GetAllocator());
-				}
-
-				ext_ctrl_desc.AddMember("enum", valid_params, doc.GetAllocator());
-				break;
-			}
-			case V4L2_CTRL_TYPE_U8:
-			{
-				break;
-			}
-			case V4L2_CTRL_TYPE_U16:
-			{
-				break;
-			}
-			case V4L2_CTRL_TYPE_U32:
-			{
-				break;
-			}
-			default:
-			{
-				SPDLOG_ERROR("Unknown type");
-				return false;
-			}
-		}
-
-		ext_ctrl_desc_array.GetArray().PushBack(ext_ctrl_desc, doc.GetAllocator());
 	}
-#endif
-	doc.AddMember("ext_ctrl", ext_ctrl_desc_array, doc.GetAllocator());
+	else if(m_v4l2_ctrl.has_any_ctrl())
+	{
+		for(const auto& ctrl : m_v4l2_ctrl.get_ctrl_map())
+		{
+			JsonValue ctrl_desc(rapidjson::kObjectType);
 
-	rapidjson::StringBuffer buf;
-	rapidjson::Writer<rapidjson::StringBuffer> writer(buf);
-	doc.Accept(writer);
+			ctrl_to_json(ctrl.second, ctrl_desc, doc);
 
-	SPDLOG_INFO("doc: {:s}", buf.GetString());
+			ctrl_desc_array.GetArray().PushBack(ctrl_desc, doc->GetAllocator());
+		}
+	}
 
-	return true;
+	doc->AddMember("ctrl",     ctrl_desc_array,     doc->GetAllocator());
+	doc->AddMember("ext_ctrl", ext_ctrl_desc_array, doc->GetAllocator());
+
+	{
+		rapidjson::StringBuffer buf;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buf);
+		doc->Accept(writer);
+
+		SPDLOG_INFO("doc: {:s}", buf.GetString());
+	}
+
+	return doc;
 }
 
 std::optional<v4l2_buf_type> v4l2_util::query_cap()
@@ -888,4 +750,189 @@ std::optional<v4l2_buf_type> v4l2_util::query_cap()
   }
 
   return buffer_type;
+}
+
+bool v4l2_util::ctrl_to_json(const v4l2_queryctrl& ctrl, JsonValue& out_json, JsonDocPtr& doc)
+{
+	return false;
+}
+bool v4l2_util::ext_ctrl_to_json(const v4l2_query_ext_ctrl& ctrl, JsonValue& out_json, JsonDocPtr& doc)
+{
+	out_json.AddMember<uint32_t>("id",   ctrl.id,   doc->GetAllocator());
+	out_json.AddMember<uint32_t>("type", ctrl.type, doc->GetAllocator());
+
+	{
+		JsonValue params_name;
+		const char* msg = ctrl.name;
+		params_name.SetString(msg, strlen(msg), doc->GetAllocator());
+		out_json.AddMember("name", params_name, doc->GetAllocator());
+	}
+
+	switch(ctrl.type)
+	{
+		case V4L2_CTRL_TYPE_INTEGER:
+		{
+			int32_t value;
+			v4l2_ctrl_get(ctrl.id, &value);
+
+			out_json.AddMember<int32_t>("value",         value,              doc->GetAllocator());
+			out_json.AddMember<int64_t>("default_value", ctrl.default_value, doc->GetAllocator());
+			out_json.AddMember<int64_t>("minimum",       ctrl.minimum,       doc->GetAllocator());
+			out_json.AddMember<int64_t>("maximum",       ctrl.maximum,       doc->GetAllocator());
+			out_json.AddMember<uint32_t>("step",         ctrl.step,          doc->GetAllocator());
+
+			break;
+		}
+		case V4L2_CTRL_TYPE_BOOLEAN:
+		{
+			bool value;
+			v4l2_ctrl_get(ctrl.id, &value);
+
+			out_json.AddMember("value", value, doc->GetAllocator());
+			out_json.AddMember<int64_t>("default_value", ctrl.default_value, doc->GetAllocator());
+
+			break;
+		}
+		case V4L2_CTRL_TYPE_MENU:
+		{
+			JsonValue valid_params;
+			valid_params.SetArray();
+
+			int32_t value;
+			v4l2_ctrl_get(ctrl.id, &value);
+
+			out_json.AddMember<int32_t>("value",         value,              doc->GetAllocator());
+			out_json.AddMember<int64_t>("default_value", ctrl.default_value, doc->GetAllocator());
+
+			auto it = m_v4l2_ext_ctrl.get_menu_entries().find(ctrl.id);
+			for(const auto& menu_entry : it->second) // for each index
+			{
+				JsonValue params;
+				params.SetObject();
+
+				JsonValue params_name;
+				const char* msg = (const char*)menu_entry.second.name;
+				params_name.SetString(msg, strlen(msg), doc->GetAllocator());
+
+				params.AddMember("name", params_name, doc->GetAllocator());
+				params.AddMember("index", menu_entry.second.index, doc->GetAllocator());
+
+				valid_params.PushBack(params, doc->GetAllocator());
+			}
+
+			out_json.AddMember("enum", valid_params, doc->GetAllocator());
+
+			break;
+		}
+		case V4L2_CTRL_TYPE_BUTTON:
+		{
+			break;
+		}
+		case V4L2_CTRL_TYPE_INTEGER64:
+		{
+			int64_t value;
+			v4l2_ctrl_get(ctrl.id, &value);
+
+
+			out_json.AddMember<int64_t>("value",         value,              doc->GetAllocator());
+			out_json.AddMember<int64_t>("default_value", ctrl.default_value, doc->GetAllocator());
+			out_json.AddMember<int64_t>("minimum",       ctrl.minimum,       doc->GetAllocator());
+			out_json.AddMember<int64_t>("maximum",       ctrl.maximum,       doc->GetAllocator());
+			out_json.AddMember<uint64_t>("step",         ctrl.step,          doc->GetAllocator());
+
+			break;
+		}
+		case V4L2_CTRL_TYPE_CTRL_CLASS:
+		{
+			break;
+		}
+		case V4L2_CTRL_TYPE_STRING:
+		{
+			break;
+		}
+		case V4L2_CTRL_TYPE_BITMASK:
+		{
+			int32_t value;
+			v4l2_ctrl_get(ctrl.id, &value);
+
+			out_json.AddMember<uint32_t>("value",         value,              doc->GetAllocator());
+			out_json.AddMember<uint32_t>("default_value", ctrl.default_value, doc->GetAllocator());
+			out_json.AddMember<uint32_t>("minimum",       ctrl.minimum,       doc->GetAllocator());
+			out_json.AddMember<uint32_t>("maximum",       ctrl.maximum,       doc->GetAllocator());
+			break;
+		}
+		case V4L2_CTRL_TYPE_INTEGER_MENU:
+		{
+			JsonValue valid_params;
+			valid_params.SetArray();
+
+			int32_t value;
+			v4l2_ctrl_get(ctrl.id, &value);
+
+			out_json.AddMember<int32_t>("value",         value,              doc->GetAllocator());
+			out_json.AddMember<int64_t>("default_value", ctrl.default_value, doc->GetAllocator());
+
+			auto it = m_v4l2_ext_ctrl.get_menu_entries().find(ctrl.id);
+			for(const auto& menu_entry : it->second)
+			{
+				JsonValue params;
+				params.SetObject();
+
+				JsonValue params_name;
+				const char* msg = (const char*)menu_entry.second.name;
+				params_name.SetString(msg, strlen(msg), doc->GetAllocator());
+
+				params.AddMember("name", params_name, doc->GetAllocator());
+				params.AddMember("index", menu_entry.second.index, doc->GetAllocator());
+
+				valid_params.PushBack(params, doc->GetAllocator());
+			}
+
+			out_json.AddMember("enum", valid_params, doc->GetAllocator());
+			break;
+		}
+		case V4L2_CTRL_TYPE_U8:
+		{
+			uint8_t value;
+			v4l2_ctrl_get(ctrl.id, &value);
+
+			out_json.AddMember<uint8_t>("value",         value,              doc->GetAllocator());
+			out_json.AddMember<uint8_t>("default_value", ctrl.default_value, doc->GetAllocator());
+			out_json.AddMember<uint8_t>("minimum",       ctrl.minimum,       doc->GetAllocator());
+			out_json.AddMember<uint8_t>("maximum",       ctrl.maximum,       doc->GetAllocator());
+			out_json.AddMember<uint8_t>("step",          ctrl.step,          doc->GetAllocator());
+			break;
+		}
+		case V4L2_CTRL_TYPE_U16:
+		{
+			uint16_t value;
+			v4l2_ctrl_get(ctrl.id, &value);
+
+			out_json.AddMember<uint16_t>("value",         value,              doc->GetAllocator());
+			out_json.AddMember<uint16_t>("default_value", ctrl.default_value, doc->GetAllocator());
+			out_json.AddMember<uint16_t>("minimum",       ctrl.minimum,       doc->GetAllocator());
+			out_json.AddMember<uint16_t>("maximum",       ctrl.maximum,       doc->GetAllocator());
+			out_json.AddMember<uint16_t>("step",          ctrl.step,          doc->GetAllocator());
+			break;
+		}
+		case V4L2_CTRL_TYPE_U32:
+		{
+			uint32_t value;
+			v4l2_ctrl_get(ctrl.id, &value);
+
+			out_json.AddMember<uint32_t>("value",         value,              doc->GetAllocator());
+			out_json.AddMember<uint32_t>("default_value", ctrl.default_value, doc->GetAllocator());
+			out_json.AddMember<uint32_t>("minimum",       ctrl.minimum,       doc->GetAllocator());
+			out_json.AddMember<uint32_t>("maximum",       ctrl.maximum,       doc->GetAllocator());
+			out_json.AddMember<uint32_t>("step",          ctrl.step,          doc->GetAllocator());
+			break;
+		}
+		default:
+		{
+			SPDLOG_ERROR("Unknown type");
+			return false;
+		}
+	}
+
+	return true;
 }

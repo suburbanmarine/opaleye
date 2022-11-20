@@ -13,6 +13,8 @@
 #include <linux/v4l2-controls.h>
 #include <linux/videodev2.h>
 
+#include <rapidjson/document.h>
+
 #include <cstdint>
 
 #include <list>
@@ -23,6 +25,10 @@
 class v4l2_util
 {
 public:
+
+	typedef rapidjson::GenericValue<rapidjson::UTF8<>, rapidjson::CrtAllocator> JsonValue;
+	typedef rapidjson::GenericDocument<rapidjson::UTF8<>, rapidjson::CrtAllocator, rapidjson::CrtAllocator> JsonDoc;
+	typedef std::shared_ptr<JsonDoc> JsonDocPtr;
 
 	v4l2_util();
 	~v4l2_util();
@@ -156,7 +162,7 @@ public:
 	{
 		return m_v4l2_ext_ctrl.v4l2_probe_ctrl(m_v4l2_fd);
 	}
-	bool get_property_description();
+	std::shared_ptr<JsonDoc> get_property_description();
 
 	std::optional<v4l2_buf_type> query_cap();
 
@@ -208,6 +214,10 @@ public:
 	}
 
 protected:
+
+	bool ctrl_to_json(const v4l2_queryctrl& ctrl, JsonValue& out_json, JsonDocPtr& doc);
+	bool ext_ctrl_to_json(const v4l2_query_ext_ctrl& ctrl, JsonValue& out_json, JsonDocPtr& doc);
+
 	int m_v4l2_fd;
 
 	errno_util m_errno;
