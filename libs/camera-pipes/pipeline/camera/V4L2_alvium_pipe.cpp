@@ -629,7 +629,7 @@ void V4L2_alvium_pipe::new_frame_cb_JXR0(const Alvium_v4l2::ConstMmapFramePtr& f
   SPDLOG_TRACE("V4L2_alvium_pipe::new_frame_cb_JXR0 - start");
 
   boost::property_tree::ptree meta_tree;
-  Alvium_v4l2::frame_meta_to_ptree(frame_buf, &meta_tree);
+  v4l2_base::frame_meta_to_ptree(frame_buf, &meta_tree);
   std::string meta_str = Ptree_util::ptree_to_json_str(meta_tree);
   SPDLOG_TRACE("Metadata:\n{:s}", meta_str);
 
