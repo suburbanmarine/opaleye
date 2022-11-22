@@ -28,6 +28,11 @@
 		</properties>
 	</zeromq>
 
+	<zeromq>
+		<launch>true</launch>
+		<endpoint>ipc</endpoint>
+	</zeromq>
+
 	<fcgi>
 		<endpoint>127.0.0.1:50000</endpoint>
 	</fcgi>

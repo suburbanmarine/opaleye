@@ -74,7 +74,7 @@ bool app_config::deserialize(const boost::property_tree::ptree& tree)
 		auto it_range = zcm_tree.equal_range("endpoint");
 		for(auto it = it_range.first; it != it_range.second; ++it)
 		{
-			zcm_ep.push_back(it->second.data());
+			zcm_ep = it->second.data();
 		}
 	}
 	else
@@ -131,10 +131,7 @@ bool app_config::serialize(boost::property_tree::ptree* const tree) const
 	}
 
 	tree->put("config.zcm.launch", zcm_launch);
-	for(const std::string& str : zcm_ep)
-	{
-		tree->add("config.zcm.endpoint", str);
-	}
+	tree->add("config.zcm.endpoint", zcm_ep);
 
 	tree->put("config.clock.source",  master_clock);
 	tree->put("config.clock.latency", master_clock_latency);
@@ -172,8 +169,7 @@ bool app_config::make_default()
 	zeromq_ep.push_back("ipc:///opaleye/feeds/0");
 
 	zcm_launch = "true";
-	zcm_ep.clear();
-	zcm_ep.push_back("ipc");
+	zcm_ep = "ipc";
 
 	master_clock         = "system";
 	master_clock_latency = 500;

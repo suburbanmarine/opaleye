@@ -309,7 +309,7 @@ int main(int argc, char* argv[])
 	{
 		SPDLOG_INFO("Starting ZCM");
 		zcm_svr = std::make_shared<zcm_api_svr>();
-		if( ! zcm_svr->init("ipc") )
+		if( ! zcm_svr->init(app.m_config->zcm_ep) )
 		{
 			SPDLOG_ERROR("Error initializing ZCM");
 		}

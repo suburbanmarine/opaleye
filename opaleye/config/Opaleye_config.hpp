@@ -29,7 +29,7 @@ public:
 	std::list<std::string> zeromq_ep;
 
 	std::string zcm_launch;
-	std::list<std::string> zcm_ep;
+	std::string zcm_ep;
 
 	std::string master_clock;
 	int master_clock_latency;
