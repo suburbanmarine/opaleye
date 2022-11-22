@@ -168,6 +168,8 @@ INSTALL(
 		appsrc_avt_h264_test
 		appsrc_test
 		opaleye_config_test
+		opaleye_zcm_framegrabber
+		opaleye_zeromq_framegrabber
 	DESTINATION
 		bin
 )
