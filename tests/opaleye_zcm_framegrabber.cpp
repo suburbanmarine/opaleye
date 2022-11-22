@@ -22,9 +22,10 @@ class Zcm_image_buffer_t_handler
 {
 public:
 
-	Zcm_image_buffer_t_handler()
+	Zcm_image_buffer_t_handler(boost::program_options::variables_map* vm)
 	{
-
+		m_vm = vm;
+		m_frame_ctr = 0;
 	}
 	~Zcm_image_buffer_t_handler()
 	{
@@ -33,8 +34,29 @@ public:
 
 	void handle_msg(const zcm::ReceiveBuffer* rbuf, const std::string& chan, const image_buffer_t *msg)
 	{
+		std::cout << "Frame: "      << m_frame_ctr     << std::endl;
+		std::cout << "\tMetadata: " << msg->metadata << std::endl;
 
+		if(m_vm->count("display"))
+		{
+			std::vector<uint8_t> mutable_data(msg->frame.begin(), msg->frame.end());
+
+			int col     = 0;
+			int row     = 0;
+			size_t step = 0;
+			cv::Mat in_frame(cv::Size2i(col, row), CV_16UC1, mutable_data.data(), step);
+			cv::demosaicing(in_frame, m_disp_img, cv::COLOR_BayerBG2BGR, 3);
+
+			cv::imshow("Frame", m_disp_img);
+			cv::waitKey(1);
+		}
+
+		m_frame_ctr++;
 	}
+protected:
+	boost::program_options::variables_map* m_vm;
+	size_t m_frame_ctr;
+	cv::Mat m_disp_img;
 };
 
 int main(int argc, char* argv[])
@@ -79,7 +101,7 @@ int main(int argc, char* argv[])
 
     
     const std::string topic = vm["topic"].as<std::string>();
-    Zcm_image_buffer_t_handler handler;
+    Zcm_image_buffer_t_handler handler(&vm);
 	zcm.subscribe(topic, &Zcm_image_buffer_t_handler::handle_msg, &handler);
 
 	zcm.start();
