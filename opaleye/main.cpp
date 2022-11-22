@@ -351,6 +351,8 @@ int main(int argc, char* argv[])
 							if(zcm_svr)
 							{
 								image_buffer_t frame;
+								frame.metadata = metadata;
+								frame.frame.insert(frame.frame.begin(), frame_ptr->begin(), frame_ptr->end());
 								int ret = zcm_svr->publish(topic_name, &frame);
 								if(ret != ZCM_EOK)
 								{

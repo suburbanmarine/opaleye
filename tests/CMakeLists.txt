@@ -59,6 +59,26 @@ target_include_directories(opaleye_zeromq_cli_test
 		${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+add_executable(opaleye_zcm_framegrabber
+	opaleye_zcm_framegrabber.cpp
+)
+
+target_link_libraries(opaleye_zcm_framegrabber
+	PUBLIC
+		opaleye_app
+
+		cppzmq
+
+        opencv_highgui
+        opencv_core
+        opencv_imgproc
+)
+
+target_include_directories(opaleye_zcm_framegrabber
+	PUBLIC
+		${CMAKE_CURRENT_SOURCE_DIR}
+)
+
 add_executable(opaleye_zeromq_framegrabber
 	opaleye_zeromq_framegrabber.cpp
 )
@@ -72,7 +92,6 @@ target_link_libraries(opaleye_zeromq_framegrabber
         opencv_highgui
         opencv_core
         opencv_imgproc
-
 )
 
 target_include_directories(opaleye_zeromq_framegrabber
