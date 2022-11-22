@@ -14,22 +14,28 @@
 #include <spdlog/fmt/fmt.h>
 #include <spdlog/fmt/bundled/printf.h>
 
+#include <atomic>
 #include <iostream>
-#include <string>
 #include <memory>
+#include <string>
+#include <thread>
 
 class Zcm_image_buffer_t_handler
 {
 public:
 
-	Zcm_image_buffer_t_handler(boost::program_options::variables_map* vm)
+	Zcm_image_buffer_t_handler(boost::program_options::variables_map* vm) : m_frame_ctr(0)
 	{
 		m_vm = vm;
-		m_frame_ctr = 0;
 	}
 	~Zcm_image_buffer_t_handler()
 	{
 
+	}
+
+	size_t frame_ctr() const
+	{
+		return m_frame_ctr.load();
 	}
 
 	void handle_msg(const zcm::ReceiveBuffer* rbuf, const std::string& chan, const image_buffer_t *msg)
@@ -55,7 +61,7 @@ public:
 	}
 protected:
 	boost::program_options::variables_map* m_vm;
-	size_t m_frame_ctr;
+	std::atomic<size_t> m_frame_ctr;
 	cv::Mat m_disp_img;
 };
 
@@ -69,7 +75,7 @@ int main(int argc, char* argv[])
 		bpo::options_description desc("Options"); 
 	    desc.add_options() 
 			("help"      , "Print usage information and exit")
-			("num_frames", bpo::value<int>()->default_value(10),                                       "Number of frames to grab")
+			("num_frames", bpo::value<size_t>()->default_value(10),                                       "Number of frames to grab")
 			("endpoint",   bpo::value<std::string>()->default_value("ipc"),                            "Host to connect to")
 			("topic",      bpo::value<std::string>()->default_value("/api/v1/cameras/cam0/live/full"), "The topic to listen to")
 			("display", "Display to window")
@@ -98,13 +104,38 @@ int main(int argc, char* argv[])
 
 	const std::string endpoint = vm["endpoint"].as<std::string>();
 	zcm::ZCM zcm(endpoint);
-
+    if( ! zcm.good() )
+    {
+        return -1;
+    }
     
     const std::string topic = vm["topic"].as<std::string>();
-    Zcm_image_buffer_t_handler handler(&vm);
-	zcm.subscribe(topic, &Zcm_image_buffer_t_handler::handle_msg, &handler);
+    Zcm_image_buffer_t_handler ib_handler(&vm);
+	zcm.subscribe(topic, &Zcm_image_buffer_t_handler::handle_msg, &ib_handler);
 
 	zcm.start();
+
+	const size_t num_frames = vm["num_frames"].as<size_t>();
+	bool keep_going = true;
+	while(keep_going)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(250));
+
+		size_t frame_ctr = ib_handler.frame_ctr();
+		if(num_frames > 0)
+		{
+			if(frame_ctr > num_frames)
+			{
+				keep_going = false;
+				break;
+			}
+		}
+		else
+		{
+			keep_going = true;
+		}
+	}
+
 	zcm.stop();
 	/*
 	int col = 2464;
