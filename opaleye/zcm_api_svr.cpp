@@ -76,6 +76,12 @@ bool zcm_api_svr::init(const std::string& ep)
 		return false;
 	}
 
+	if( ! m_zcm->good() )
+	{
+		SPDLOG_ERROR("zcm_api_svr::init did not start correctly");
+		return false;
+	}
+
 	m_zcm_run_thread = std::make_shared<zcm_run_thread>(m_zcm);
 	m_zcm_run_thread->launch();
 
