@@ -355,12 +355,13 @@ int main(int argc, char* argv[])
 							if(zcm_svr)
 							{
 								image_buffer_t frame;
-								frame.metadata = metadata;
-								frame.frame.insert(frame.frame.begin(), frame_ptr->begin(), frame_ptr->end());
+								frame.metadata   = metadata;
+								frame.frame_size = frame_ptr->size();
+								frame.frame      = *frame_ptr;
 								int ret = zcm_svr->publish(topic_name, &frame);
 								if(ret != ZCM_EOK)
 								{
-									SPDLOG_ERROR("Error publishing ZCM frame: {:s}", zcm_strerrno(-ret));
+									SPDLOG_ERROR("Error publishing ZCM frame to {:s}: {:s}", topic_name, zcm_strerrno(-ret));
 								}
 							}
 						}
