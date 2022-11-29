@@ -35,7 +35,9 @@ bool handler_is_done()
 
 int main()
 {
-	const std::string ep = "ipc";
+	// const std::string ep = "ipc";
+	const std::string ep = "udpm://239.1.1.1:52000?ttl=1";
+	
 	std::shared_ptr<zcm::ZCM> m_zcm = std::make_shared<zcm::ZCM>(ep);
 	if( ! m_zcm )
 	{
