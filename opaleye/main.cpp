@@ -340,7 +340,8 @@ int main(int argc, char* argv[])
 			}
 			else
 			{
-				std::string topic_name = fmt::format("/api/v1/cameras/{:s}/live/full", camera_name);
+				// std::string topic_name = fmt::format("/api/v1/cameras/{:s}/live/full", camera_name);
+				std::string topic_name = fmt::format("/api/v1/cam/{:s}/live/full", camera_name);
 				cam->set_framebuffer_callback(
 					[zmq_svr, zcm_svr, topic_name](const std::string& metadata, const std::shared_ptr<const std::vector<uint8_t>>& frame_ptr)
 					{
