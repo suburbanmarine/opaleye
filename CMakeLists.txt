@@ -199,6 +199,13 @@ INSTALL(
 
 INSTALL(
 	FILES
+		"${PROJECT_SOURCE_DIR}/conf/etc/sysctl.d/99-opaleye.conf"
+	DESTINATION
+		/etc/sysctl.d
+)
+
+INSTALL(
+	FILES
 		"${PROJECT_SOURCE_DIR}/conf/etc/udev/rules.d/99-uvc.rules"
 	DESTINATION
 		/etc/udev/rules.d
