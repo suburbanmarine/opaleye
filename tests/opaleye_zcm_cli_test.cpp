@@ -28,6 +28,19 @@ void hb_handler(const zcm::ReceiveBuffer* rbuf,
 	done_flag.notify_all();
 }
 
+void image_handler(const zcm::ReceiveBuffer* rbuf,
+	              const std::string& channel,
+                  void* usr
+              )
+{
+	std::cout << "Got message" << std::endl;
+	std::cout << "\tChannel: "<< channel << std::endl;
+	std::cout << "\tbody size: " << rbuf->data_size << std::endl;
+
+	cb_count++;
+	done_flag.notify_all();
+}
+
 bool handler_is_done()
 {
 	return cb_count.load() >= 10;
@@ -48,7 +61,10 @@ int main()
 	std::shared_ptr<zcm_run_thread> m_zcm_run_thread = std::make_shared<zcm_run_thread>(m_zcm);
 	m_zcm_run_thread->launch();
 
-	m_zcm->subscribe("/api/v1/heartbeat", &hb_handler, nullptr);
+	//m_zcm->subscribe("/api/v1/heartbeat", &hb_handler, nullptr);
+	m_zcm->subscribe("/api/v1/cam/cam0/live/full", &image_handler, nullptr);
+	//m_zcm->subscribe("/api/v1/cam/cam1/live/full", &image_handler, nullptr);
+	//m_zcm->subscribe("/api/v1/cam/cam2/live/full", &image_handler, nullptr);
 
 	{
 		std::unique_lock lock(done_flag_mutex);
