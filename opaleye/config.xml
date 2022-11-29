@@ -9,6 +9,11 @@
 		<launch>false</launch>
 	</sensors>
 
+	<zcm>
+		<launch>true</launch>
+		<endpoint>udpm://239.1.1.1:52000?ttl=1</endpoint>
+	</zcm>
+
 	<zeromq>
 		<launch>true</launch>
 		<endpoint>tcp://0.0.0.0:51000</endpoint>

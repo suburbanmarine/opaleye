@@ -295,7 +295,10 @@ int main(int argc, char* argv[])
 	std::shared_ptr<zeromq_api_svr> zmq_svr;
 	if(app.m_config->zeromq_launch == "true")
 	{
-		SPDLOG_INFO("Starting 0mq svr");
+		for(const std::string& ep : app.m_config->zeromq_ep)
+		{
+			SPDLOG_INFO("Starting 0mq svr on {:s}", ep);
+		}
 		zmq_svr = std::make_shared<zeromq_api_svr>();
 		if( ! zmq_svr->init(app.m_config->zeromq_ep))
 		{
@@ -307,7 +310,7 @@ int main(int argc, char* argv[])
 	std::shared_ptr<zcm_api_svr> zcm_svr;
 	if(app.m_config->zcm_launch == "true")
 	{
-		SPDLOG_INFO("Starting ZCM");
+		SPDLOG_INFO("Starting ZCM zvr on {:s}", app.m_config->zcm_ep);
 		zcm_svr = std::make_shared<zcm_api_svr>();
 		if( ! zcm_svr->init(app.m_config->zcm_ep) )
 		{
@@ -356,7 +359,7 @@ int main(int argc, char* argv[])
 								int ret = zcm_svr->publish(topic_name, &frame);
 								if(ret != ZCM_EOK)
 								{
-									SPDLOG_ERROR("Error publishing ZCM frame: {:d}", ret);			
+									SPDLOG_ERROR("Error publishing ZCM frame: {:s}", zcm_strerrno(-ret));
 								}
 							}
 						}
