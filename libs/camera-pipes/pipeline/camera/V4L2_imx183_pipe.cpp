@@ -317,7 +317,7 @@ bool V4L2_imx183_pipe::init(const char name[])
   {
     case PIX_FMT_RG12:
     {
-      m_src_caps= gst_caps_from_string("video/x-raw, format=GRAY16_LE, framerate=0/1, max-framerate=20/1, pixel-aspect-ratio=1/1, width=5440, height=3648, interlace-mode=progressive, colorimetry=sRGB");
+      m_src_caps= gst_caps_from_string("video/x-raw, format=(string)GRAY16_LE, framerate=0/1, max-framerate=20/1, pixel-aspect-ratio=1/1, width=5440, height=3648, interlace-mode=progressive, colorimetry=sRGB");
       break;
     }
     default:
@@ -343,6 +343,11 @@ bool V4L2_imx183_pipe::init(const char name[])
     m_in_queue->property_max_size_buffers()      = 15;
     m_in_queue->property_max_size_bytes()        = 0;
     m_in_queue->property_max_size_time()         = 0;
+
+    m_grayconvert            = Gst::ElementFactory::create_element("videoconvert");
+    m_grayconvert_caps       = Glib::wrap(gst_caps_from_string("video/x-raw(memory:NVMM), format=(string)GRAY8"));
+    m_grayconvert_capsfilter = Gst::CapsFilter::create("graycaps");
+    m_grayconvert_capsfilter->property_caps().set_value(m_grayconvert_caps);
 
     m_videoconvert = Gst::ElementFactory::create_element("nvvidconv");
 
@@ -383,6 +388,10 @@ bool V4L2_imx183_pipe::init(const char name[])
 
     gst_bin_add(GST_BIN(m_bin->gobj()), m_appsrc);
     m_bin->add(m_in_queue);
+    m_bin->add(m_grayconvert);
+    m_bin->add(m_grayconvert_caps);
+    m_bin->add(m_grayconvert_capsfilter);
+
     m_bin->add(m_videoconvert);
     m_bin->add(m_out_capsfilter);
     m_bin->add(m_out_queue);
@@ -390,7 +399,9 @@ bool V4L2_imx183_pipe::init(const char name[])
 
   Glib::RefPtr<Gst::Element> m_in_queue_element = m_in_queue;
   gst_element_link(m_appsrc, m_in_queue_element->gobj());
-  m_in_queue->link(m_videoconvert);
+  m_in_queue->link(m_grayconvert);
+  m_grayconvert->link(m_grayconvert_capsfilter);
+  m_grayconvert_capsfilter->link(m_videoconvert);
   m_videoconvert->link(m_out_capsfilter);
   m_out_capsfilter->link(m_out_queue);
   m_out_queue->link(m_out_tee);
@@ -478,7 +489,9 @@ void V4L2_imx183_pipe::new_frame_cb_RG12(const v4l2_base::ConstMmapFramePtr& fra
     gsize offset[1] = {0};
     gint xstride = frame_buf->get_fmt().fmt.pix.width * 4;
     gint stride[1] = {xstride};
-    gst_buffer_add_video_meta_full(buf, GST_VIDEO_FRAME_FLAG_NONE, GST_VIDEO_FORMAT_BGRx, width, height, 1, offset, stride);
+    
+    gst_buffer_add_video_meta_full(buf, GST_VIDEO_FRAME_FLAG_NONE, GST_VIDEO_FORMAT_GRAY16_LE, width, height, 1, offset, stride);
+    // gst_buffer_add_video_meta_full(buf, GST_VIDEO_FRAME_FLAG_NONE, GST_VIDEO_FORMAT_GRAY8, width, height, 1, offset, stride);
     
     // GST_BUFFER_FLAG_SET(buf, GST_BUFFER_FLAG_LIVE);
     // GST_BUFFER_PTS(buf)      = m_curr_pts.count();

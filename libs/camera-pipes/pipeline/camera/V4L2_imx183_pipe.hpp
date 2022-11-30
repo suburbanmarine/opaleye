@@ -100,6 +100,10 @@ protected:
   Glib::RefPtr<Gst::Queue>      m_in_queue;
   GstCaps*                      m_src_caps;
 
+  Glib::RefPtr<Gst::Element>    m_grayconvert;
+  Glib::RefPtr<Gst::Caps>       m_grayconvert_caps;
+  Glib::RefPtr<Gst::CapsFilter> m_grayconvert_capsfilter;
+
   Glib::RefPtr<Gst::Element>    m_videoconvert;
   Glib::RefPtr<Gst::Caps>       m_out_caps;
   Glib::RefPtr<Gst::CapsFilter> m_out_capsfilter;
