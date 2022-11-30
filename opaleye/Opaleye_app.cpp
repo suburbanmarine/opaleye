@@ -261,33 +261,33 @@ bool Gstreamer_pipeline::make_imx183_pipeline()
    return false;
   }
   
-  // std::shared_ptr<GST_element_base> m_nvvideoconvert_pipe_t0   = std::make_shared<nvvideoconvert_pipe>();
-  // if( ! m_nvvideoconvert_pipe_t0->init("m_nvvideoconvert_pipe_t0") )
-  // {
-  //   SPDLOG_ERROR("Could not init m_nvvideoconvert_pipe_t0");
-  //   return false;
-  // }
+  std::shared_ptr<GST_element_base> m_nvvideoconvert_pipe_t0   = std::make_shared<nvvideoconvert_pipe>();
+  if( ! m_nvvideoconvert_pipe_t0->init("m_nvvideoconvert_pipe_t0") )
+  {
+    SPDLOG_ERROR("Could not init m_nvvideoconvert_pipe_t0");
+    return false;
+  }
 
-  // std::shared_ptr<GST_element_base> m_nvvideoconvert_pipe_t1   = std::make_shared<nvvideoconvert_pipe>();
-  // if( ! m_nvvideoconvert_pipe_t1->init("m_nvvideoconvert_pipe_t1") )
-  // {
-  //   SPDLOG_ERROR("Could not init m_nvvideoconvert_pipe_t1");
-  //   return false;
-  // }
+  std::shared_ptr<GST_element_base> m_nvvideoconvert_pipe_t1   = std::make_shared<nvvideoconvert_pipe>();
+  if( ! m_nvvideoconvert_pipe_t1->init("m_nvvideoconvert_pipe_t1") )
+  {
+    SPDLOG_ERROR("Could not init m_nvvideoconvert_pipe_t1");
+    return false;
+  }
 
-  // std::shared_ptr<timecodestamper> m_timecodestamper = std::make_shared<timecodestamper>();
-  // if( ! m_timecodestamper->init("timecodestamper_0") )
-  // {
-  //   SPDLOG_ERROR("Could not init timecodestamper_0");
-  //   return false;
-  // }
+  std::shared_ptr<timecodestamper> m_timecodestamper = std::make_shared<timecodestamper>();
+  if( ! m_timecodestamper->init("timecodestamper_0") )
+  {
+    SPDLOG_ERROR("Could not init timecodestamper_0");
+    return false;
+  }
 
-  // std::shared_ptr<timeoverlay> m_timeoverlay = std::make_shared<timeoverlay>();
-  // if( ! m_timeoverlay->init("timeoverlay_0") )
-  // {
-  //   SPDLOG_ERROR("Could not init timeoverlay_0");
-  //   return false;
-  // }
+  std::shared_ptr<timeoverlay> m_timeoverlay = std::make_shared<timeoverlay>();
+  if( ! m_timeoverlay->init("timeoverlay_0") )
+  {
+    SPDLOG_ERROR("Could not init timeoverlay_0");
+    return false;
+  }
 
   SPDLOG_INFO("NV mode");
   std::shared_ptr<GST_element_base> m_thumb  = std::make_shared<Thumbnail_nv3_pipe>();
@@ -328,10 +328,10 @@ bool Gstreamer_pipeline::make_imx183_pipeline()
   //add elements to top level bin
   m_camera->add_to_bin(m_pipeline);
   
-  // m_nvvideoconvert_pipe_t0->add_to_bin(m_pipeline);
-  // m_timecodestamper->add_to_bin(m_pipeline);
-  // m_timeoverlay->add_to_bin(m_pipeline);
-  // m_nvvideoconvert_pipe_t1->add_to_bin(m_pipeline);
+  m_nvvideoconvert_pipe_t0->add_to_bin(m_pipeline);
+  m_timecodestamper->add_to_bin(m_pipeline);
+  m_timeoverlay->add_to_bin(m_pipeline);
+  m_nvvideoconvert_pipe_t1->add_to_bin(m_pipeline);
 
   m_thumb->add_to_bin(m_pipeline);
   // m_h264->add_to_bin(m_pipeline);
@@ -343,7 +343,7 @@ bool Gstreamer_pipeline::make_imx183_pipeline()
   m_camera->link_back(m_thumb->front());
 
   // m_camera->link_back(m_h264->front());
-  // m_camera->link_back(m_nvvideoconvert_pipe_t0->front());
+  m_camera->link_back(m_nvvideoconvert_pipe_t0->front());
   // m_nvvideoconvert_pipe_t0->link_back(m_timecodestamper->front());
   // m_timecodestamper->link_back(m_timeoverlay->front());
   // m_timeoverlay->link_back(m_nvvideoconvert_pipe_t1->front());
