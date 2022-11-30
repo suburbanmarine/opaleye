@@ -486,7 +486,7 @@ void V4L2_imx183_pipe::new_frame_cb_RG12(const v4l2_base::ConstMmapFramePtr& fra
     guint width  = frame_buf->get_fmt().fmt.pix.width;
     guint height = frame_buf->get_fmt().fmt.pix.height;
     gsize offset[1] = {0};
-    gint xstride = frame_buf->get_fmt().fmt.pix.width * 4;
+    gint xstride = frame_buf->get_fmt().fmt.pix.width * 2;
     gint stride[1] = {xstride};
     
     gst_buffer_add_video_meta_full(buf, GST_VIDEO_FRAME_FLAG_NONE, GST_VIDEO_FORMAT_GRAY16_LE, width, height, 1, offset, stride);
