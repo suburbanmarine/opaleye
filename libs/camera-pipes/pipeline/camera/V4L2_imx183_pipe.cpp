@@ -389,7 +389,6 @@ bool V4L2_imx183_pipe::init(const char name[])
     gst_bin_add(GST_BIN(m_bin->gobj()), m_appsrc);
     m_bin->add(m_in_queue);
     m_bin->add(m_grayconvert);
-    m_bin->add(m_grayconvert_caps);
     m_bin->add(m_grayconvert_capsfilter);
 
     m_bin->add(m_videoconvert);
