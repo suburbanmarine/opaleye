@@ -467,9 +467,10 @@ void V4L2_imx183_pipe::new_frame_cb_RG12(const v4l2_base::ConstMmapFramePtr& fra
   {
     // cv::COLOR_BayerRGGB2RGB
     // cv::COLOR_BayerBG2RGB
-    cv::Mat in(frame_buf->get_fmt().fmt.pix.height, frame_buf->get_fmt().fmt.pix.width, CV_16UC1, frame_buf->get_data());
+    cv::Mat in(frame_buf->get_fmt().fmt.pix.height, frame_buf->get_fmt().fmt.pix.width, CV_16UC1, frame_buf->get_data(), frame_buf->get_fmt().fmt.pix.bytesperline);
     cv::Mat out;
     cv::demosaicing(in, out, cv::COLOR_BayerBG2BGR, 3);
+    cv::cuda::demosaicing(in, out, cv::COLOR_BayerBG2BGR, 3);
   }
   #endif
 
