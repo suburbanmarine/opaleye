@@ -345,7 +345,7 @@ bool V4L2_imx183_pipe::init(const char name[])
     m_in_queue->property_max_size_time()         = 0;
 
     m_grayconvert            = Gst::ElementFactory::create_element("videoconvert");
-    m_grayconvert_caps       = Glib::wrap(gst_caps_from_string("video/x-raw(memory:NVMM), format=(string)GRAY8"));
+    m_grayconvert_caps       = Glib::wrap(gst_caps_from_string("video/x-raw, format=(string)GRAY8"));
     m_grayconvert_capsfilter = Gst::CapsFilter::create("graycaps");
     m_grayconvert_capsfilter->property_caps().set_value(m_grayconvert_caps);
 
