@@ -317,7 +317,7 @@ bool V4L2_imx183_pipe::init(const char name[])
   {
     case PIX_FMT_RG12:
     {
-      m_src_caps= gst_caps_from_string("video/x-raw, format=(string)GRAY16_LE, framerate=0/1, max-framerate=20/1, pixel-aspect-ratio=1/1, width=5440, height=3648, interlace-mode=progressive, colorimetry=sRGB");
+      m_src_caps= gst_caps_from_string("video/x-raw, format=(string)GRAY16_LE, framerate=1/1, pixel-aspect-ratio=1/1, width=5440, height=3648, interlace-mode=progressive, colorimetry=sRGB");
       break;
     }
     default:
