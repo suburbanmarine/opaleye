@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 			("help"      , "Print usage information and exit")
 			("num_frames", bpo::value<size_t>()->default_value(10),                                       "Number of frames to grab")
 			("endpoint",   bpo::value<std::string>()->default_value("ipc"),                            "Host to connect to")
-			("topic",      bpo::value<std::string>()->default_value("/api/v1/cameras/cam0/live/full"), "The topic to listen to")
+			("topic",      bpo::value<std::string>()->default_value("/api/v1/cam/cam0/live/full"), "The topic to listen to")
 			("display", "Display to window")
 			;
 

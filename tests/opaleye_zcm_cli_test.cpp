@@ -63,8 +63,8 @@ int main()
 
 	//m_zcm->subscribe("/api/v1/heartbeat", &hb_handler, nullptr);
 	m_zcm->subscribe("/api/v1/cam/cam0/live/full", &image_handler, nullptr);
-	//m_zcm->subscribe("/api/v1/cam/cam1/live/full", &image_handler, nullptr);
-	//m_zcm->subscribe("/api/v1/cam/cam2/live/full", &image_handler, nullptr);
+	m_zcm->subscribe("/api/v1/cam/cam1/live/full", &image_handler, nullptr);
+	m_zcm->subscribe("/api/v1/cam/cam2/live/full", &image_handler, nullptr);
 
 	{
 		std::unique_lock lock(done_flag_mutex);
