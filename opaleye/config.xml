@@ -72,7 +72,7 @@
 			</properties>
 
 			<pipeline>
-				<name>pipe0</name>
+				<name>pipe1</name>
 				<type>imx183</type>
 			</pipeline>
 		</camera>
@@ -87,7 +87,7 @@
 			</properties>
 
 			<pipeline>
-				<name>pipe0</name>
+				<name>pipe2</name>
 				<type>imx183</type>
 			</pipeline>
 		</camera>
