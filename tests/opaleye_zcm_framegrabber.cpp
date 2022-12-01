@@ -47,22 +47,45 @@ public:
 		{
 			std::vector<uint8_t> mutable_data(msg->frame.begin(), msg->frame.end());
 
-			int col     = 0;
-			int row     = 0;
-			size_t step = 0;
-			cv::Mat in_frame(cv::Size2i(col, row), CV_16UC1, mutable_data.data(), step);
-			cv::demosaicing(in_frame, m_disp_img, cv::COLOR_BayerBG2BGR, 3);
+			for(size_t i = 1; i < mutable_data.size(); i+=2)
+			{
+				mutable_data[i] = 0x0F & mutable_data[i];
+			}
 
-			cv::imshow("Frame", m_disp_img);
-			cv::waitKey(1);
+
+			std::cout << "frame\n";
+			std::cout << "\t" << std::hex << int(mutable_data[0]) << "\n";
+			std::cout << "\t" << std::hex << int(mutable_data[1]) << "\n";
+			std::cout << "\t" << std::hex << int(mutable_data[2]) << "\n";
+			std::cout << "\t" << std::hex << int(mutable_data[3]) << "\n";
+			std::cout << "\t" << std::hex << int(mutable_data[4]) << "\n";
+			std::cout << "\t" << std::hex << int(mutable_data[5]) << "\n";
+
+			int col     = 5440;
+			int row     = 3648;
+			size_t step = 11008;
+			cv::Mat in_frame(cv::Size2i(col, row), CV_16UC1, mutable_data.data(), step);
+			in_frame.convertTo(in_frame, CV_8UC1, 1.0/16.0);
+			
+			cv::Mat temp(cv::Size2i(col, row), CV_8UC3);
+			cv::demosaicing(in_frame, temp, cv::COLOR_BayerBG2BGR, 3);
+			cv::resize(temp, temp, cv::Size(col/4, row/4), cv::INTER_LINEAR);
+
+			{
+				std::lock_guard<std::mutex> lock(m_disp_img_mutex);
+				m_chan     = chan;
+				m_disp_img = temp;
+			}
 		}
 
 		m_frame_ctr++;
 	}
+	std::string m_chan;
+	cv::Mat m_disp_img;
+	std::mutex m_disp_img_mutex;
 protected:
 	boost::program_options::variables_map* m_vm;
 	std::atomic<size_t> m_frame_ctr;
-	cv::Mat m_disp_img;
 };
 
 int main(int argc, char* argv[])
@@ -115,6 +138,8 @@ int main(int argc, char* argv[])
 
 	zcm.start();
 
+	std::string temp_chan;
+	cv::Mat     temp_img;
 	const size_t num_frames = vm["num_frames"].as<size_t>();
 	bool keep_going = true;
 	while(keep_going)
@@ -133,6 +158,18 @@ int main(int argc, char* argv[])
 		else
 		{
 			keep_going = true;
+		}
+
+		{
+			std::lock_guard<std::mutex> lock(ib_handler.m_disp_img_mutex);
+			temp_chan = ib_handler.m_chan;
+			temp_img  = ib_handler.m_disp_img;
+		}
+
+		if( (!temp_chan.empty()) && (!temp_img.empty()) )
+		{
+			cv::imshow(temp_chan, temp_img);
+			cv::waitKey(10);
 		}
 	}
 
