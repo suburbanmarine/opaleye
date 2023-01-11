@@ -74,11 +74,12 @@ function btnVideoStopClick(event) {
 function btnRTPStreamStartClick(event) {
     console.log( "btnRTPStreamStartClick" );
 
-    let client_ip = $('#client_ip').val();
+    let client_ip   = $('#client_ip').val();
+    let client_port = parseInt($('#client_port').val());
 
     saveConfigToCookie();
 
-    camPod.jrpc.call('start_rtp_stream', ['pipe0', client_ip, 5000]);
+    camPod.jrpc.call('start_rtp_stream', ['pipe0', client_ip, client_port]);
 }
 function btnRTPStreamStopClick(event) {
     console.log( "btnRTPStreamStopClick" );
@@ -164,6 +165,7 @@ function loadConfigFromCookie() {
 function saveConfigToCookie() {
 
     Cookies.set("client_ip", $('#client_ip').val());
+    Cookies.set("client_port", $('#client_port').val());
 
     Cookies.set("cbAutoRefresh", $('#cbAutoRefresh').is(':checked'));
 
@@ -174,6 +176,7 @@ function saveConfigToCookie() {
 function saveDefaultConfigToCookie() {
 
     Cookies.set("client_ip", '127.0.0.1');
+    Cookies.set("client_port", '5600');
 
     Cookies.set("cbAutoRefresh", true);
 
